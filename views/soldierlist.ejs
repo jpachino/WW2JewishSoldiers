@@ -1,0 +1,46 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Soldiers List</title>
+  <link rel="stylesheet" href="/styles/styles.css">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Roboto:ital,wght@0,100;0,300;0,400;0,500;0,700;0,900;1,100;1,300;1,400;1,500;1,700;1,900&display=swap" rel="stylesheet">
+</head>
+<body>
+  <header>
+    <div class="container">
+      <h1>Soldiers List</h1>
+      <a href="/">Home</a>
+     
+      <a href="/add">Add New Soldier</a>
+    </div>
+  </header>
+
+  <div class="container">
+    <h2>Soldiers</h2>
+    <table>
+      <thead>
+        <tr>
+          <th>ID</th>
+          <th>Name</th>
+          <th>Date of Birth</th>
+          <th>Rank</th>
+        </tr>
+      </thead>
+      <tbody>
+        <% soldiers.forEach(soldier => { %>
+          <tr>
+            <td><%= soldier.id %></td>
+            <td><%= soldier.name %></td>
+            <td><%= soldier.date_of_birth %></td>
+            <td><%= soldier.rank %></td>
+          </tr>
+        <% }) %>
+      </tbody>
+    </table>
+  </div>
+</body>
+</html>
