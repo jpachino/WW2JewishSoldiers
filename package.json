@@ -4,7 +4,7 @@
   "main": "index.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
-    "start": "node server.js"
+    "start": "node serverMongo.js"
   },
   "keywords": [],
   "author": "",
@@ -12,8 +12,10 @@
   "dependencies": {
     "ejs": "^3.1.10",
     "express": "^4.19.2",
+    "mongodb": "^6.8.0",
+    "mongoose": "^8.5.4",
     "pg": "^8.12.0"
   },
-  "devDependencies": {},
-  "description": "\"# WWIIJewishSoldiers\" \r \"# WW2JewishSoldiers\""
+  "description": "\"# WWIIJewishSoldiers\" \r \"# WW2JewishSoldiers\"",
+  "devDependencies": {}
 }
