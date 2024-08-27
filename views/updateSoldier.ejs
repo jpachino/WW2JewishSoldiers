@@ -1,0 +1,43 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Update Soldier</title>
+  <link rel="stylesheet" href="/styles/styles.css">
+</head>
+<body>
+  <header>
+    <div class="container">
+      <h1>Update Soldier</h1>
+    </div>
+  </header>
+
+  <div class="container">
+    <form action="/updateFSoldier/<%= soldier.lastname %>" method="POST">
+      <label for="firstname">First Name:</label>
+      <input type="text" id="firstname" name="firstname" value="<%= soldier.firstname %>" required>
+      
+      <label for="lastname">Last Name:</label>
+      <input type="text" id="lastname" name="lastname" value="<%= soldier.lastname %>" required>
+      
+      <label for="countrycode">Country Code:</label>
+      <input type="text" id="countrycode" name="countrycode" value="<%= soldier.countrycode %>" required>
+      
+      <label for="servicebranch">Service Branch:</label>
+      <input type="text" id="servicebranch" name="servicebranch" value="<%= soldier.servicebranch %>" required>
+      
+      <label for="date_of_birth">Date of Birth:</label>
+      <input type="date" id="date_of_birth" name="date_of_birth" value="<%= soldier.date_of_birth.toISOString().substring(0, 10) %>" required>
+      
+      <label for="rank">Rank:</label>
+      <input type="text" id="rank" name="rank" value="<%= soldier.rank %>" required>
+      
+      <label for="date_of_death">Date of Death:</label>
+      <input type="date" id="date_of_death" name="date_of_death" value="<%= soldier.date_of_death ? soldier.date_of_death.toISOString().substring(0, 10) : '' %>">
+      
+      <button type="submit">Update Soldier</button>
+    </form>
+  </div>
+</body>
+</html>
