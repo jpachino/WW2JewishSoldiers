@@ -51,7 +51,14 @@ app.get('/soldierlistSoldier', async (req, res) => {
 app.get('/soldierlistFULL', async (req, res) => {
   try {
     const soldiers = await Soldier.find(); // Fetch all soldiers from MongoDB
-    
+     // Sort soldiers by last name and then by first name
+     soldiers.sort((a, b) => {
+        if (a.lastname === b.lastname) {
+          return a.firstname.localeCompare(b.firstname);
+        }
+        return a.lastname.localeCompare(b.lastname);
+      });
+  
     // Format dates
     const formattedSoldiers = soldiers.map(soldier => ({
       ...soldier._doc,
@@ -101,7 +108,89 @@ app.post('/addFULL', async (req, res) => {
     res.status(500).json({ message: 'Error adding record', error });
   }
 });
+// Route to display the search form
+app.get('/search', (req, res) => {
+    res.render('search'); // Ensure you have a 'search.ejs' template in your 'views' directory
+  });
+  // Route to handle search results
+ app.get('/searchResults', async (req, res) => {
+    const { firstname, lastname } = req.query; // Extract first name and last name from the URL
+    try {
+      // Build search query object
+      const query = {};
+      if (firstname) {
+        query.firstname = new RegExp(firstname, 'i'); // Case-insensitive search for first name
+      }
+      if (lastname) {
+        query.lastname = new RegExp(lastname, 'i'); // Case-insensitive search for last name
+      }
+  
+  
+      // Find soldiers matching the query
+    const soldiers = await Soldier.find(query);
 
+    // Format dates
+    const formattedSoldiers = soldiers.map(soldier => ({
+      ...soldier._doc,
+      date_of_birth: soldier.date_of_birth instanceof Date
+        ? format(soldier.date_of_birth, 'MM/dd/yyyy')
+        : 'Invalid date',
+      date_of_death: soldier.date_of_death instanceof Date
+        ? format(soldier.date_of_death, 'MM/dd/yyyy')
+        : 'N/A'
+    }));
+
+  
+      // Render the search results view with the found soldiers
+      res.render('searchResults', { soldiers: formattedSoldiers });
+    } catch (err) {
+      console.error('Error fetching soldiers:', err);
+      res.status(500).send('Server error at searchResults');
+    }
+  });
+  app.get('/updateSoldier/:id', async (req, res) => {
+    const { id } = req.params;
+    try {
+      const soldier = await Soldier.findById(id);
+      if (!soldier) {
+        return res.status(404).send('Soldier not found');
+      }
+      res.render('updateSoldier', { soldier });
+    } catch (err) {
+      console.error('Error fetching soldier:', err);
+      res.status(500).send('Server error');
+    }
+  });
+  app.post('/updateSoldier/:id', async (req, res) => {
+    const { id } = req.params;
+    const { firstname, lastname, countrycode, servicebranch, date_of_birth, rank, date_of_death } = req.body;
+    const dob = new Date(date_of_birth);
+    const dod = date_of_death ? new Date(date_of_death) : null;
+  
+    try {
+      const updatedSoldier = await Soldier.findByIdAndUpdate(id, {
+        firstname,
+        lastname,
+        countrycode,
+        servicebranch,
+        date_of_birth: dob,
+        rank,
+        date_of_death: dod
+      }, { new: true });
+      
+      if (!updatedSoldier) {
+        return res.status(404).send('Soldier not found');
+      }
+  
+      // Redirect to the soldier list after updating
+      res.redirect('/soldierlistFULL');
+    } catch (error) {
+      console.error('Error updating soldier:', error);
+      res.status(500).json({ message: 'Error updating soldier', error });
+    }
+  });
+  
+  
 // Start the server
 app.listen(port, () => {
   console.log(`Server running on port ${port}`);

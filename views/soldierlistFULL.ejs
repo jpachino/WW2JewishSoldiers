@@ -16,7 +16,7 @@
       <a href="/">Home</a>
       <a href="/soldierlistFULL">Soldier List</a>
       <a href="/addFULL">Add New Soldier</a>
-      <a href="/updateSoldier">Modify Soldier</a>
+      <a href="/search">Search and Update Soldier</a>
     </div>
   </header>
   
@@ -26,9 +26,8 @@
     <table>
       <thead>
         <tr>
-         
-          <th>Firstname</th>
           <th>Lastname</th>
+          <th>Firstname</th>
           <th>Countrycode</th>
           <th>ServiceBranch</th>
           <th>Rank</th>
@@ -40,9 +39,8 @@
       <tbody>
         <% soldiers.forEach(soldier => { %>
           <tr>
-            <td><%= soldier._id %></td>
-            <td><%= soldier.firstname %></td>
             <td><%= soldier.lastname %></td>
+            <td><%= soldier.firstname %></td>
             <td><%= soldier.countrycode %></td>
             <td><%= soldier.servicebranch %></td>
             <td><%= soldier.rank %></td>

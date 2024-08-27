@@ -12,11 +12,11 @@
 <body>
   <header>
     <div class="container">
-      <h1> WW2 Jewish Soldiers</h1>
+      <h1>WW2 Jewish Soldiers</h1>
       <a href="/">Home</a>
       <a href="/soldierlistFULL">Soldier List</a>
       <a href="/addFULL">Add New Soldier</a>
-      <a href="/updateSoldier">Modify Soldier</a>
+      <!-- Removed /updateSoldier link, as it should not be a direct link but rather an edit link in the list -->
     </div>
   </header>
   
@@ -26,29 +26,31 @@
     <table>
       <thead>
         <tr>
-         
           <th>Firstname</th>
           <th>Lastname</th>
-          <th>Countrycode</th>
-          <th>ServiceBranch</th>
+          <th>Country Code</th>
+          <th>Service Branch</th>
           <th>Rank</th>
           <th>Date of Birth</th>
           <th>Date of Death</th>
           <th>ID</th>
+          <th>Actions</th> <!-- Added column for actions like Edit -->
         </tr>
       </thead>
       <tbody>
         <% soldiers.forEach(soldier => { %>
           <tr>
-            <td><%= soldier._id %></td>
             <td><%= soldier.firstname %></td>
             <td><%= soldier.lastname %></td>
             <td><%= soldier.countrycode %></td>
             <td><%= soldier.servicebranch %></td>
             <td><%= soldier.rank %></td>
             <td><%= soldier.date_of_birth %></td>
-            <td><%= soldier.date_of_death %></td>
+            <td><%= soldier.date_of_death || 'N/A' %></td> <!-- Handle missing date_of_death -->
             <td><%= soldier._id %></td>
+            <td>
+              <a href="/updateSoldier/<%= soldier._id %>">Edit</a>
+            </td>
           </tr>
         <% }) %>
       </tbody>
@@ -56,3 +58,4 @@
   </div>
 </body>
 </html>
+
