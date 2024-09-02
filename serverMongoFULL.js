@@ -3,9 +3,11 @@ const bodyParser = require('body-parser');
 const path = require('path');
 const mongoose = require('mongoose');
 const { format, parseISO } = require('date-fns'); // Import date formatting and parsing functions
+const { format, parseISO } = require('date-fns'); // Import date formatting and parsing functions
 
 const app = express();
 const mongoURI = 'mongodb+srv://ysbyapp:HfwCfvgjC6ZwfX4N@cluster0.uort4jd.mongodb.net/soldiersDB?retryWrites=true&w=majority';
+const port = 10000;
 const port = 10000;
 const Soldier = require('./models/soldier');
 
@@ -34,12 +36,16 @@ app.get('/soldierlistFULL', async (req, res) => {
   try {
     const soldiers = await Soldier.find(); // Fetch all soldiers from MongoDB
 
+
     // Format dates
     const formattedSoldiers = soldiers.map(soldier => ({
       ...soldier._doc,
       date_of_birth: soldier.date_of_birth ? format(new Date(soldier.date_of_birth), 'yyyy-MM-dd') : 'N/A',
       date_of_death: soldier.date_of_death ? format(new Date(soldier.date_of_death), 'yyyy-MM-dd') : 'N/A'
+      date_of_birth: soldier.date_of_birth ? format(new Date(soldier.date_of_birth), 'yyyy-MM-dd') : 'N/A',
+      date_of_death: soldier.date_of_death ? format(new Date(soldier.date_of_death), 'yyyy-MM-dd') : 'N/A'
     }));
+
 
     console.log('Soldiers fetched:', formattedSoldiers); // Log fetched soldiers
     res.render('soldierlistFULL', { soldiers: formattedSoldiers }); // Render the 'soldierlistSoldier.ejs' view
@@ -79,12 +85,24 @@ app.get('/soldierlistFULL', async (req, res) => {
       return a.lastname.localeCompare(b.lastname);
     });
 
+
+    // Sort soldiers by last name and then by first name
+    soldiers.sort((a, b) => {
+      if (a.lastname === b.lastname) {
+        return a.firstname.localeCompare(b.firstname);
+      }
+      return a.lastname.localeCompare(b.lastname);
+    });
+
     // Format dates
     const formattedSoldiers = soldiers.map(soldier => ({
       ...soldier._doc,
       date_of_birth: soldier.date_of_birth ? format(new Date(soldier.date_of_birth), 'yyyy-MM-dd') : 'N/A',
       date_of_death: soldier.date_of_death ? format(new Date(soldier.date_of_death), 'yyyy-MM-dd') : 'N/A'
+      date_of_birth: soldier.date_of_birth ? format(new Date(soldier.date_of_birth), 'yyyy-MM-dd') : 'N/A',
+      date_of_death: soldier.date_of_death ? format(new Date(soldier.date_of_death), 'yyyy-MM-dd') : 'N/A'
     }));
+
 
     console.log('Soldiers fetched:', formattedSoldiers); // Log fetched soldiers
     res.render('soldierlistFULL', { soldiers: formattedSoldiers }); // Render the 'soldierlistFULL.ejs' view
@@ -166,6 +184,7 @@ app.post('/addFULL', async (req, res) => {
   }
 });
 
+
 // Route to display the search form
 app.get('/search', (req, res) => {
   res.render('search'); // Ensure you have a 'search.ejs' template in your 'views' directory
@@ -191,6 +210,8 @@ app.get('/searchResults', async (req, res) => {
     // Format dates
     const formattedSoldiers = soldiers.map(soldier => ({
       ...soldier._doc,
+      date_of_birth: soldier.date_of_birth ? format(new Date(soldier.date_of_birth), 'yyyy-MM-dd') : 'Invalid date',
+      date_of_death: soldier.date_of_death ? format(new Date(soldier.date_of_death), 'yyyy-MM-dd') : 'N/A'
       date_of_birth: soldier.date_of_birth ? format(new Date(soldier.date_of_birth), 'yyyy-MM-dd') : 'Invalid date',
       date_of_death: soldier.date_of_death ? format(new Date(soldier.date_of_death), 'yyyy-MM-dd') : 'N/A'
     }));
