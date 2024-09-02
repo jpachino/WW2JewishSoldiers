@@ -3,12 +3,12 @@ const bodyParser = require('body-parser');
 const path = require('path');
 const mongoose = require('mongoose');
 const { format, parseISO } = require('date-fns'); // Import date formatting and parsing functions
-const { format, parseISO } = require('date-fns'); // Import date formatting and parsing functions
+
 
 const app = express();
 const mongoURI = 'mongodb+srv://ysbyapp:HfwCfvgjC6ZwfX4N@cluster0.uort4jd.mongodb.net/soldiersDB?retryWrites=true&w=majority';
 const port = 10000;
-const port = 10000;
+
 const Soldier = require('./models/soldier');
 
 const BritishSoldier = require('./models/Britishsoldier');
@@ -42,8 +42,7 @@ app.get('/soldierlistFULL', async (req, res) => {
       ...soldier._doc,
       date_of_birth: soldier.date_of_birth ? format(new Date(soldier.date_of_birth), 'yyyy-MM-dd') : 'N/A',
       date_of_death: soldier.date_of_death ? format(new Date(soldier.date_of_death), 'yyyy-MM-dd') : 'N/A'
-      date_of_birth: soldier.date_of_birth ? format(new Date(soldier.date_of_birth), 'yyyy-MM-dd') : 'N/A',
-      date_of_death: soldier.date_of_death ? format(new Date(soldier.date_of_death), 'yyyy-MM-dd') : 'N/A'
+      
     }));
 
 
@@ -99,8 +98,7 @@ app.get('/soldierlistFULL', async (req, res) => {
       ...soldier._doc,
       date_of_birth: soldier.date_of_birth ? format(new Date(soldier.date_of_birth), 'yyyy-MM-dd') : 'N/A',
       date_of_death: soldier.date_of_death ? format(new Date(soldier.date_of_death), 'yyyy-MM-dd') : 'N/A'
-      date_of_birth: soldier.date_of_birth ? format(new Date(soldier.date_of_birth), 'yyyy-MM-dd') : 'N/A',
-      date_of_death: soldier.date_of_death ? format(new Date(soldier.date_of_death), 'yyyy-MM-dd') : 'N/A'
+      
     }));
 
 
@@ -212,8 +210,7 @@ app.get('/searchResults', async (req, res) => {
       ...soldier._doc,
       date_of_birth: soldier.date_of_birth ? format(new Date(soldier.date_of_birth), 'yyyy-MM-dd') : 'Invalid date',
       date_of_death: soldier.date_of_death ? format(new Date(soldier.date_of_death), 'yyyy-MM-dd') : 'N/A'
-      date_of_birth: soldier.date_of_birth ? format(new Date(soldier.date_of_birth), 'yyyy-MM-dd') : 'Invalid date',
-      date_of_death: soldier.date_of_death ? format(new Date(soldier.date_of_death), 'yyyy-MM-dd') : 'N/A'
+      
     }));
 
     // Render the search results view with the found soldiers
