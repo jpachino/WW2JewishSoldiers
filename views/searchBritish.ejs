@@ -3,28 +3,30 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Search Soldiers</title>
+  <title>Search BritishSoldiers</title>
   <link rel="stylesheet" href="/styles/styles.css">
 </head>
 <body>
   <header>
     <div class="container">
        
-      <h1>Search Soldiers</h1>
+      <h1>Search British Soldiers</h1>
       <nav>
         <a href="/">Home</a>
         <a href="/soldierlistFULL">Soldier List</a>
         <a href="/addFULL">Add New Soldier</a>
         <a href="/search">Search and Update Soldier</a>
         <a href="/searchBritish">Search British Soldier</a>
+       
+       
       </nav>
     </div>
   </header>
   <br><br><br><br><br><br>
   <div class="container">
-    <form action="/searchResults" method="get">
-      <input type="text" name="firstname" placeholder="Enter first name">
-      <input type="text" name="lastname" placeholder="Enter last name">
+    <form action="/searchBritishResults" method="get">
+      <input type="text" name="firstName" placeholder="Enter first name">
+      <input type="text" name="surname" placeholder="Enter  surname">
       <button type="submit">Search</button>
     </form>
   </div>

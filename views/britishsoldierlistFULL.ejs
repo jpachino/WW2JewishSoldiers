@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Soldiers List</title>
+  <title>British Soldiers List</title>
   <link rel="stylesheet" href="/styles/styles.css">
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -12,7 +12,7 @@
 <body>
   <header>
     <div class="container">
-      <h1> WW2 Jewish Soldiers</h1>
+      <h1>WW2 Jewish Soldiers</h1>
       <a href="/">Home</a>
       <a href="/soldierlistFULL">Soldier List</a>
       <a href="/addFULL">Add New Soldier</a>
@@ -23,31 +23,37 @@
   
   <div class="container">
     <br><br><br><br>
-    <h2>Soldiers</h2>
+    <h2>British Soldiers</h2>
     <table>
       <thead>
         <tr>
-          <th>Lastname</th>
-          <th>Firstname</th>
-          <th>Country</h>
-          <th>ServiceBranch</th>
-          <th>Rank</th>
-          <th>Date of Birth</th>
-          <th>Date of Death</th>
-          
+          <th>Title ID</th>
+          <th>First Name</th>
+          <th>Middle Name</th>
+          <th>Surname</th>
+          <th>Service ID</th>
+          <th>Rank ID</th>
+          <th>Unit ID</th>
+          <th>Year In</th>
+          <th>Service Number</th>
+          <th>Post Code</th>
+          <th>Deceased</th>
         </tr>
       </thead>
       <tbody>
-        <% soldiers.forEach(soldier => { %>
+        <% britishsoldiers.forEach(soldier => { %>
           <tr>
-            <td><%= soldier.lastname %></td>
-            <td><%= soldier.firstname %></td>
-            <td><%= soldier.country %></td>
-            <td><%= soldier.servicebranch %></td>
-            <td><%= soldier.rank %></td>
-            <td><%= soldier.date_of_birth %></td>
-            <td><%= soldier.date_of_death %></td>
-           
+            <td><%= soldier.titleID %></td>
+            <td><%= soldier.firstName %></td>
+            <td><%= soldier.middleName %></td>
+            <td><%= soldier.surname %></td>
+            <td><%= soldier.serviceID %></td>
+            <td><%= soldier.rankID %></td>
+            <td><%= soldier.unitID %></td>
+            <td><%= soldier.yrIn %></td>
+            <td><%= soldier.servNo %></td>
+            <td><%= soldier.postCode %></td>
+            <td><%= soldier.deceased  %></td>
           </tr>
         <% }) %>
       </tbody>

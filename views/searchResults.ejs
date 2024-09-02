@@ -14,11 +14,12 @@
         <a href="/">Home</a>
         <a href="/soldierlistFULL">Soldier List</a>
         <a href="/addFULL">Add New Soldier</a>
-        <a href="/search">Search Soldiers</a>
+        <a href="/search">Search and Update Soldier</a>
+        <a href="/searchBritish">Search British Soldier</a>
       </nav>
     </div>
   </header>
-  
+  <br><br><br><br><br><br><br>
   <div class="container">
     <% if (soldiers.length > 0) { %>
       <table>
@@ -26,7 +27,7 @@
           <tr>
             <th>Firstname</th>
             <th>Lastname</th>
-            <th>Countrycode</th>
+            <th>Country</th>
             <th>ServiceBranch</th>
             <th>Rank</th>
             <th>Date of Birth</th>
@@ -40,7 +41,7 @@
             <tr>
               <td><%= soldier.firstname %></td>
               <td><%= soldier.lastname %></td>
-              <td><%= soldier.countrycode %></td>
+              <td><%= soldier.country %></td>
               <td><%= soldier.servicebranch %></td>
               <td><%= soldier.rank %></td>
               <td><%= soldier.date_of_birth %></td>

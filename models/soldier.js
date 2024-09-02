@@ -5,14 +5,14 @@ const soldierSchema = new mongoose.Schema({
   
   firstname: {
     type: String,
-    required: true
+    required: false
   },
   lastname: {
     type: String,
     required: true
   },
-  countrycode: {
-    type: Number,
+  country: {
+    type: String,
     required: true
   },
   servicebranch: {

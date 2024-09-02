@@ -1,0 +1,70 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Search Results</title>
+  <link rel="stylesheet" href="/styles/styles.css">
+</head>
+<body>
+  <header>
+    <div class="container">
+      <h1>Search Results</h1>
+      <nav>
+        <a href="/">Home</a>
+        <a href="/soldierlistFULL">Soldier List</a>
+        <a href="/addFULL">Add New Soldier</a>
+        <a href="/search">Search and Update Soldier</a>
+        <a href="/searchBritish">Search British Soldier</a>
+      </nav>
+    </div>
+  </header>
+  <br><br><br><br><br><br><br>
+  <div class="container">
+    <% if (britishsoldiers.length > 0) { %>
+      <table>
+        <thead>
+          <tr>
+            <th>titleID</th>
+            <th>firstName</th>
+            <th>middleame</th>
+            <th>surname</th>
+            <th>serviceID</th>
+            <th>rankID</th>
+            <th>unitID</th>
+            <th>yrIN</th>
+            <th>servNo</th>
+            <th>postCode</th>
+            <th>deceased</th>
+           
+          </tr>
+        </thead>
+        <tbody>
+          <% britishsoldiers.forEach(soldier => { %>
+          
+
+            <tr>
+              <td><%= soldier.titleID %></td>
+              <td><%= soldier.firstName %></td>
+              <td><%= soldier.middleName %></td>
+              <td><%= soldier.surname %></td>
+              <td><%= soldier.serviceID %></td>
+              <td><%= soldier.rankID %></td>
+              <td><%= soldier.unitID %></td>
+              <td><%= soldier.yrIn %></td>
+              <td><%= soldier.servNo %></td>
+              <td><%= soldier.postCode %></td>
+              <td><%= soldier.deceased  %></td>
+          
+            </tr>
+          <% }) %>
+        </tbody>
+      </table>
+    <% } else { %>
+      <p>No soldiers found.</p>
+    <% } %>
+    <a href="/searchBritish">Back to Search</a>
+  </div>
+</body>
+</html>
+
