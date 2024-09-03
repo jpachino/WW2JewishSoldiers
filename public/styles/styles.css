@@ -125,7 +125,16 @@ body {
     font-weight: 400;
     font-style: normal;
   }
-  
+  .options {
+  height: 38px; /* Adjust height to match input fields */
+  background-color: #fff; /* Background color to match input fields */
+  color: #333; /* Text color */
+  appearance: none; /* Remove default styling */
+  -webkit-appearance: none; /* Remove default styling for WebKit browsers */
+  -moz-appearance: none; /* Remove default styling for Firefox */
+  padding: 8px;
+  font-size: 18px;
+  }
   input[type="submit"] {
     background-color: #333;
     color: #fff;
