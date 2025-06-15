@@ -1,2 +1,0 @@
-"# WWIIJewishSoldiers" 
-"# WW2JewishSoldiers" 
