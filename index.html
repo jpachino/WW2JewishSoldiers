@@ -1,0 +1,55 @@
+<!DOCTYPE html>
+<html lang="<%= locale %>">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title><%= __('home.title') %></title>
+  <link rel="stylesheet" href="/styles/styles.css">
+  <style>
+    .lang-select {
+      font-size: 1rem;
+      padding: 4px 8px;
+      border-radius: 6px;
+    }
+
+    main {
+      padding-top: 240px; /* Ensures content is visible below the fixed header */
+      text-align: center;
+    }
+  </style>
+</head>
+<body>
+  <header>
+    <div class="container">
+      <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap;">
+        <h1><%= __('home.title') %></h1>
+
+        <!-- 🌐 Language Selector -->
+        <form action="/change-lang" method="get">
+          <select name="lang" class="lang-select" onchange="this.form.submit()">
+            <option value="he" <%= locale === 'he' ? 'selected' : '' %>>🇮🇱 עברית</option>
+            <option value="en" <%= locale === 'en' ? 'selected' : '' %>>🇺🇸 English</option>
+            <option value="ru" <%= locale === 'ru' ? 'selected' : '' %>>🇷🇺 Русский</option>
+          </select>
+        </form>
+      </div>
+
+      <nav>
+        <a href="/"><%= __('nav.home') %></a>
+        <a href="/soldierlistFULL"><%= __('nav.soldierList') %></a>
+        <a href="/addFull"><%= __('nav.addSoldier') %></a>
+        <a href="/search"><%= __('nav.searchUpdate') %></a>
+      </nav>
+    </div>
+  </header>
+
+  <!-- ✅ Main content starts below header -->
+  <main class="container">
+    <h2 style="white-space: pre-line;">
+      <%= __('home.description') %>
+    </h2>
+  </main>
+</body>
+</html>
+
+

@@ -1,0 +1,125 @@
+{
+  "langCode": "he",
+
+  "title": "הוסף לוחם",
+  "submit": "שלח",
+
+  "home": {
+    "title": "מערכת רישום חיילים במלחה\"ע השנייה",
+    "description": "מיליון וחצי חיילים יהודים שירתו במלחמת העולם השנייה במדינות בעלות הברית.\n\n500,000 מארצות הברית\n\n500,000 מרוסיה\n\n500,000 משאר מדינות בעלות הברית.\n\nיותר מ-250,000 חיילים יהודים לא חזרו הביתה.\n\nאנו מכבדים את זכר כל החיילים שלנו.\n\nאתר זה הוא פורטל לטעינת מידע על החיילים המכובדים שלנו.\n\nהם נלחמו למען חירות עולמנו ואנו חבים להם את חיינו."
+  },
+
+  "nav": {
+   
+    "home": "בית",
+    "soldierList": "רשימת חיילים",
+    "addSoldier": "הוסף חייל",
+    "searchUpdate": "חיפוש ועדכון חייל",
+    "searchResults": "תוצאות חיפוש"
+  },
+
+  "search": {
+    "title": "חיפוש חיילים",
+    "enterFirstName": "הזן שם פרטי",
+    "enterLastName": "הזן שם משפחה",
+    "searchButton": "חפש"
+  },
+
+  "fields": {
+    "fname": "שם פרטי",
+    "fnameen": "שם פרטי (EN)",
+    "fnameru": "שם פרטי (RU)",
+    "lname": "שם משפחה",
+    "lnameen": "שם משפחה (EN)",
+    "lnameru": "שם משפחה (RU)",
+    "previouslname": "שם משפחה קודם",
+    "previouslnameen": "שם משפחה קודם (EN)",
+    "previouslnameru": "שם משפחה קודם (RU)",
+    "fathername": "שם האב",
+    "fathernameen": "שם האב (EN)",
+    "fathernameru": "שם האב (RU)",
+    "mothername": "שם האם",
+    "mothernameen": "שם האם (EN)",
+    "mothernameru": "שם האם (RU)",
+    "calledby": "כינוי",
+    "calledbyen": "כינוי (EN)",
+    "calledbyru": "כינוי (RU)",
+    "birthcountry": "ארץ לידה",
+    "otherbirthcountry": "ארץ לידה אחרת",
+    "birthcity": "עיר לידה",
+    "birthcityen": "עיר לידה (EN)",
+    "birthcityru": "עיר לידה (RU)",
+    "gender": "מין",
+    "placeofdeath": "מקום פטירה",
+    "placeofdeathen": "מקום פטירה (EN)",
+    "placeofdeathru": "מקום פטירה (RU)",
+    "deathdetails": "פרטי פטירה",
+    "deathdetailsen": "פרטי פטירה (EN)",
+    "deathdetailsru": "פרטי פטירה (RU)",
+    "biography": "ביוגרפיה",
+    "biographyen": "ביוגרפיה (EN)",
+    "biographyru": "ביוגרפיה (RU)",
+    "otherparticipation": "השתתפויות נוספות",
+    "otherdecoration": "עיטורים נוספים",
+    "otherdecorationen": "עיטורים נוספים (EN)",
+    "otherdecorationru": "עיטורים נוספים (RU)",
+    "fightingdesc": "תיאור לחימה",
+    "fightingdescen": "תיאור לחימה (EN)",
+    "fightingdescru": "תיאור לחימה (RU)",
+    "idf_otherforce": "כוח אחר בצה\"ל",
+    "idf_otherrank": "דרגה אחרת בצה\"ל",
+    "idf_desc": "תיאור שירות בצה\"ל",
+    "idf_descen": "תיאור שירות בצה\"ל (EN)",
+    "idf_descru": "תיאור שירות בצה\"ל (RU)",
+    "idf_serviceplace": "מקום שירות בצה\"ל",
+    "idf_platoonname": "שם פלוגה בצה\"ל",
+    "dob": "תאריך לידה",
+    "dod": "תאריך פטירה",
+    "aliyadate": "תאריך עלייה",
+    "idf_enlistdate": "תאריך גיוס לצה\"ל",
+    "idf_releasedate": "תאריך שחרור מצה\"ל",
+    "medal": "עיטור",
+    "medalen": "עיטור (EN)",
+    "medalru": "עיטור (RU)",
+    "remarks": "הערות",
+    "remarksen": "הערות (EN)",
+    "remarksru": "הערות (RU)",
+    "linkurl": "קישור",
+    "id": "תעודת זהות"
+  },
+
+  "sections": {
+    "basic": "פרטים בסיסיים",
+    "family": "משפחה",
+    "birthdeath": "לידה ופטירה",
+    "biopart": "ביוגרפיה והשתתפות",
+    "idf": "שירות צבאי",
+    "datesmedals": "תאריכים ועיטורים",
+    "finalnotes": "הערות אחרונות"
+  },
+
+  "form": {
+    "infoHeader": "טופס רישום לוחם",
+    "infoText": "הטופס ישמש להזנת מידע במערכת המידע הממוחשבת של האתר...",
+    "sendMaterials": "חומרים נוספים (PDF וכו') נא לשלוח לכתובת",
+    "thankYou": "תודה על שיתוף הפעולה."
+  },
+  "actions": {
+    "edit": "ערוך",
+    "backToSearch": "חזרה לחיפוש"
+  },
+  "messages": {
+    "noResults": "לא נמצאו לוחמים."
+}
+}
+  
+  
+
+
+
+
+
+
+ 
+  
+

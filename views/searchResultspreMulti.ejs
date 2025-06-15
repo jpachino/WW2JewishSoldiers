@@ -1,0 +1,64 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Search Results</title>
+  <link rel="stylesheet" href="/styles/styles.css">
+</head>
+<body>
+  <header>
+    <div class="container">
+      <h1>Search Results</h1>
+      <nav>
+        <a href="/">Home</a>
+        <a href="/soldierlistFULL">Soldier List</a>
+        <a href="/addFULL">Add New Soldier</a>
+        <a href="/search">Search Soldiers</a>
+      </nav>
+    </div>
+  </header>
+  <br> <br> <br><br><br><br>
+ 
+
+  <div class="container">
+    <% if (soldiers.length > 0) { %>
+      <table>
+        <thead>
+          <tr>
+            <th>fname</th>
+            <th>lname</th>
+            <th>birthcountry</th>
+            <th>fathername</th>
+            
+            <th>dob</th>
+            <th>dod</th>
+            <th>ID</th>
+            <th>Action</th>
+          </tr>
+        </thead>
+        <tbody>
+          <% soldiers.forEach(soldier => { %>
+            <tr>
+              <td><%= soldier.fname %></td>
+              <td><%= soldier.lname %></td>
+              <td><%= soldier.birthcountry %></td>
+              <td><%= soldier.fathername %></td>
+              
+              <td><%= soldier.dob %></td>
+              <td><%= soldier.dod %></td>
+              <td><%= soldier.id %></td>
+              <td><a href="/updateSoldier/<%= soldier.id %>">Edit</a></td>
+
+            </tr>
+          <% }) %>
+        </tbody>
+      </table>
+    <% } else { %>
+      <p>No soldiers found.</p>
+    <% } %>
+    <a href="/search">Back to Search</a>
+  </div>
+</body>
+</html>
+

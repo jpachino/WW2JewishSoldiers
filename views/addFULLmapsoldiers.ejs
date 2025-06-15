@@ -1,0 +1,252 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Add Soldier</title>
+  <link rel="stylesheet" href="/styles/styles.css">
+  <script>
+    // This will run when the page loads
+    document.addEventListener('DOMContentLoaded', function() {
+      console.log('✅ Successfully loaded the Add Soldier form page!');
+      // Optionally add a visual indicator on the page
+      const notification = document.createElement('div');
+      notification.style.backgroundColor = '#d4edda';
+      notification.style.color = '#155724';
+      notification.style.padding = '10px';
+      notification.style.margin = '10px 0';
+      notification.style.borderRadius = '4px';
+      notification.textContent = 'Form loaded successfully!';
+      document.body.insertBefore(notification, document.querySelector('form'));
+    });
+  </script>
+</head>
+<body>
+  <header>
+    <div class="container">
+       
+      <h1>Add Soldier</h1>
+      <nav>
+        <a href="/">Home</a>
+        <a href="/soldierlistFULL">Soldier List</a>
+        <a href="/addFULLmapsoldiers">Add New Soldier</a>
+        <a href="/search">Search and Update Soldier</a>
+       </nav>
+    </div>
+  </header>
+  <br><br><br>
+    
+      
+      <form action="/addFULLmapsoldiers" method="POST">
+        <br>
+      <br>
+      <br>
+      <br>
+      <br>
+      <br>
+      <br>
+
+        <fieldset>
+          <legend>Basic Information</legend>
+          <label for="FName">First Name:</label>
+          <input type="text" name="FName" id="FName" />
+      
+          <label for="FNameEn">First Name (EN):</label>
+          <input type="text" name="FNameEn" id="FNameEn" />
+      
+          <label for="FNameRu">First Name (RU):</label>
+          <input type="text" name="FNameRu" id="FNameRu" />
+      
+          <label for="LName">Last Name:</label>
+          <input type="text" name="LName" id="LName" />
+      
+          <label for="LNameEn">Last Name (EN):</label>
+          <input type="text" name="LNameEn" id="LNameEn" />
+      
+          <label for="LNameRu">Last Name (RU):</label>
+          <input type="text" name="LNameRu" id="LNameRu" />
+      
+          <label for="PreviousLName">Previous Last Name:</label>
+          <input type="text" name="PreviousLName" id="PreviousLName" />
+      
+          <label for="PreviousLNameEn">Previous Last Name (EN):</label>
+          <input type="text" name="PreviousLNameEn" id="PreviousLNameEn" />
+      
+          <label for="PreviousLNameRu">Previous Last Name (RU):</label>
+          <input type="text" name="PreviousLNameRu" id="PreviousLNameRu" />
+        </fieldset>
+      
+        <fieldset>
+          <legend>Family</legend>
+          <label for="FatherName">Father's Name:</label>
+          <input type="text" name="FatherName" id="FatherName" />
+      
+          <label for="FatherNameEn">Father's Name (EN):</label>
+          <input type="text" name="FatherNameEn" id="FatherNameEn" />
+      
+          <label for="FatherNameRu">Father's Name (RU):</label>
+          <input type="text" name="FatherNameRu" id="FatherNameRu" />
+      
+          <label for="MotherName">Mother's Name:</label>
+          <input type="text" name="MotherName" id="MotherName" />
+      
+          <label for="MotherNameEn">Mother's Name (EN):</label>
+          <input type="text" name="MotherNameEn" id="MotherNameEn" />
+      
+          <label for="MotherNameRu">Mother's Name (RU):</label>
+          <input type="text" name="MotherNameRu" id="MotherNameRu" />
+      
+          <label for="CalledBy">Called By:</label>
+          <input type="text" name="CalledBy" id="CalledBy" />
+      
+          <label for="CalledByEn">Called By (EN):</label>
+          <input type="text" name="CalledByEn" id="CalledByEn" />
+      
+          <label for="CalledByRu">Called By (RU):</label>
+          <input type="text" name="CalledByRu" id="CalledByRu" />
+        </fieldset>
+      
+        <fieldset>
+          <legend>Birth & Death</legend>
+          <label for="BirthCountry">Birth Country:</label>
+          <input type="text" name="BirthCountry" id="BirthCountry" />
+      
+          <label for="OtherBirthCountry">Other Birth Country:</label>
+          <input type="text" name="OtherBirthCountry" id="OtherBirthCountry" />
+      
+          <label for="BirthCity">Birth City:</label>
+          <input type="text" name="BirthCity" id="BirthCity" />
+      
+          <label for="BirthCityEn">Birth City (EN):</label>
+          <input type="text" name="BirthCityEn" id="BirthCityEn" />
+      
+          <label for="BirthCityRu">Birth City (RU):</label>
+          <input type="text" name="BirthCityRu" id="BirthCityRu" />
+      
+          <label for="Gender">Gender:</label>
+          <input type="text" name="Gender" id="Gender" />
+      
+          <label for="PlaceOfDeath">Place of Death:</label>
+          <input type="text" name="PlaceOfDeath" id="PlaceOfDeath" />
+      
+          <label for="PlaceOfDeathEn">Place of Death (EN):</label>
+          <input type="text" name="PlaceOfDeathEn" id="PlaceOfDeathEn" />
+      
+          <label for="PlaceOfDeathRu">Place of Death (RU):</label>
+          <input type="text" name="PlaceOfDeathRu" id="PlaceOfDeathRu" />
+      
+          <label for="DeathDetails">Death Details:</label>
+          <textarea name="DeathDetails" id="DeathDetails"></textarea>
+      
+          <label for="DeathDetailsEn">Death Details (EN):</label>
+          <textarea name="DeathDetailsEn" id="DeathDetailsEn"></textarea>
+      
+          <label for="DeathDetailsRu">Death Details (RU):</label>
+          <textarea name="DeathDetailsRu" id="DeathDetailsRu"></textarea>
+        </fieldset>
+      
+        <fieldset>
+          <legend>Biography & Participation</legend>
+          <label for="Biography">Biography:</label>
+          <textarea name="Biography" id="Biography"></textarea>
+      
+          <label for="BiographyEn">Biography (EN):</label>
+          <textarea name="BiographyEn" id="BiographyEn"></textarea>
+      
+          <label for="BiographyRu">Biography (RU):</label>
+          <textarea name="BiographyRu" id="BiographyRu"></textarea>
+      
+          <label for="OtherParticipation">Other Participation:</label>
+          <input type="text" name="OtherParticipation" id="OtherParticipation" />
+      
+          <label for="OtherDecoration">Other Decoration:</label>
+          <input type="text" name="OtherDecoration" id="OtherDecoration" />
+      
+          <label for="OtherDecorationEN">Other Decoration (EN):</label>
+          <input type="text" name="OtherDecorationEN" id="OtherDecorationEN" />
+      
+          <label for="OtherDecorationRU">Other Decoration (RU):</label>
+          <input type="text" name="OtherDecorationRU" id="OtherDecorationRU" />
+        </fieldset>
+      
+        <fieldset>
+          <legend>IDF & Army Service</legend>
+          <label for="FightingDesc">Fighting Description:</label>
+          <textarea name="FightingDesc" id="FightingDesc"></textarea>
+      
+          <label for="FightingDescEn">Fighting Description (EN):</label>
+          <textarea name="FightingDescEn" id="FightingDescEn"></textarea>
+      
+          <label for="FightingDescRu">Fighting Description (RU):</label>
+          <textarea name="FightingDescRu" id="FightingDescRu"></textarea>
+      
+          <label for="IDF_OtherForce">IDF Other Force:</label>
+          <input type="text" name="IDF_OtherForce" id="IDF_OtherForce" />
+      
+          <label for="IDF_OtherRank">IDF Other Rank:</label>
+          <input type="text" name="IDF_OtherRank" id="IDF_OtherRank" />
+      
+          <label for="IDF_Desc">IDF Description:</label>
+          <textarea name="IDF_Desc" id="IDF_Desc"></textarea>
+      
+          <label for="IDF_DescEn">IDF Description (EN):</label>
+          <textarea name="IDF_DescEn" id="IDF_DescEn"></textarea>
+      
+          <label for="IDF_DescRu">IDF Description (RU):</label>
+          <textarea name="IDF_DescRu" id="IDF_DescRu"></textarea>
+      
+          <label for="IDF_ServicePlace">IDF Service Place:</label>
+          <input type="text" name="IDF_ServicePlace" id="IDF_ServicePlace" />
+      
+          <label for="IDF_PlatoonName">IDF Platoon Name:</label>
+          <input type="text" name="IDF_PlatoonName" id="IDF_PlatoonName" />
+        </fieldset>
+      
+        <fieldset>
+          <legend>Dates & Medals</legend>
+          <label for="DOB">Date of Birth:</label>
+          <input type="date" name="DOB" id="DOB" />
+      
+          <label for="DOD">Date of Death:</label>
+          <input type="date" name="DOD" id="DOD" />
+      
+          <label for="AliyaDate">Aliya Date:</label>
+          <input type="date" name="AliyaDate" id="AliyaDate" />
+      
+          <label for="IDF_EnlistDate">IDF Enlist Date:</label>
+          <input type="date" name="IDF_EnlistDate" id="IDF_EnlistDate" />
+      
+          <label for="IDF_ReleaseDate">IDF Release Date:</label>
+          <input type="date" name="IDF_ReleaseDate" id="IDF_ReleaseDate" />
+      
+          <label for="Medal">Medal:</label>
+          <input type="text" name="Medal" id="Medal" />
+      
+          <label for="MedalEn">Medal (EN):</label>
+          <input type="text" name="MedalEn" id="MedalEn" />
+      
+          <label for="MedalRu">Medal (RU):</label>
+          <input type="text" name="MedalRu" id="MedalRu" />
+        </fieldset>
+      
+        <fieldset>
+          <legend>Remarks & Final Notes</legend>
+          <label for="Remarks">Remarks:</label>
+          <textarea name="Remarks" id="Remarks"></textarea>
+      
+          <label for="RemarksEn">Remarks (EN):</label>
+          <textarea name="RemarksEn" id="RemarksEn"></textarea>
+      
+          <label for="RemarksRu">Remarks (RU):</label>
+          <textarea name="RemarksRu" id="RemarksRu"></textarea>
+      
+          <label for="linkUrl">Link URL:</label>
+          <input type="url" name="linkUrl" id="linkUrl" />
+        </fieldset>
+      
+        <button type="submit">Submit</button>
+      </form>
+      
+  </div>
+</body>
+</html>

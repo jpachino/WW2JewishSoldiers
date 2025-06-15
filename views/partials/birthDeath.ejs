@@ -1,0 +1,62 @@
+<fieldset>
+  <legend><%=locals.t('birth_death_legend') %></legend>
+
+  <div class="single-row">
+    <label for="birthcountry"><%=locals.t('birth_country') %>:</label>
+    <input type="text" name="birthcountry" id="birthcountry" />
+  </div>
+  <div class="single-row">
+    <label for="otherbirthcountry"><%=locals.t('other_birth_country') %>:</label>
+    <input type="text" name="otherbirthcountry" id="otherbirthcountry" />
+  </div>
+
+  <div class="trio-row">
+    <div class="input-group">
+      <label for="birthcity"><%=locals.t('birth_city') %>:</label>
+      <input type="text" name="birthcity" id="birthcity" />
+    </div>
+    <div class="input-group">
+      <label for="birthcityen"><%=locals.t('birth_city_en') %>:</label>
+      <input type="text" name="birthcityen" id="birthcityen" />
+    </div>
+    <div class="input-group">
+      <label for="birthcityru"><%=locals.t('birth_city_ru') %>:</label>
+      <input type="text" name="birthcityru" id="birthcityru" />
+    </div>
+  </div>
+
+  <div class="single-row">
+    <label for="gender"><%=locals.t('gender') %>:</label>
+    <input type="text" name="gender" id="gender" />
+  </div>
+
+  <div class="trio-row">
+    <div class="input-group">
+      <label for="placeofdeath"><%=locals.t('place_of_death') %>:</label>
+      <input type="text" name="placeofdeath" id="placeofdeath" />
+    </div>
+    <div class="input-group">
+      <label for="placeofdeathen"><%=locals.t('place_of_death_en') %>:</label>
+      <input type="text" name="placeofdeathen" id="placeofdeathen" />
+    </div>
+    <div class="input-group">
+      <label for="placeofdeathru"><%=locals.t('place_of_death_ru') %>:</label>
+      <input type="text" name="placeofdeathru" id="placeofdeathru" />
+    </div>
+  </div>
+
+  <div class="trio-row">
+    <div class="input-group">
+      <label for="deathdetails"><%=locals.t('death_details') %>:</label>
+      <textarea name="deathdetails" id="deathdetails"></textarea>
+    </div>
+    <div class="input-group">
+      <label for="deathdetailsen"><%=locals.t('death_details_en') %>:</label>
+      <textarea name="deathdetailsen" id="deathdetailsen"></textarea>
+    </div>
+    <div class="input-group">
+      <label for="deathdetailsru"><%=locals.t('death_details_ru') %>:</label>
+      <textarea name="deathdetailsru" id="deathdetailsru"></textarea>
+    </div>
+  </div>
+</fieldset>

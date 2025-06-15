@@ -1,0 +1,1 @@
+DATABASE_URL=postgresql://postgres:Data77Sites@localhost:5433/soldierdb

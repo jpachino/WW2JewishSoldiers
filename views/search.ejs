@@ -1,0 +1,33 @@
+<!DOCTYPE html>
+<html lang="<%= locale %>">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title><%= __('search.title') %></title>
+  <link rel="stylesheet" href="/styles/styles.css">
+</head>
+<body>
+  <header>
+    <div class="container">
+      <h1><%= __('search.title') %></h1>
+      <nav>
+        <a href="/"><%= __('nav.home') %></a>
+        <a href="/soldierlistFULL"><%= __('nav.soldierList') %></a>
+        <a href="/addFULL"><%= __('nav.addSoldier') %></a>
+      </nav>
+    </div>
+  </header>
+
+  <br><br><br><br><br><br>
+
+  <div class="container">
+    <form action="/searchResults" method="get">
+      <input type="text" name="firstname" placeholder="<%= __('search.enterFirstName') %>">
+      <input type="text" name="lastname" placeholder="<%= __('search.enterLastName') %>">
+      <button type="submit"><%= __('search.searchButton') %></button>
+    </form>
+  </div>
+</body>
+</html>
+
+

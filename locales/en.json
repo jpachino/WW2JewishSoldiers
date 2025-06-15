@@ -1,0 +1,114 @@
+{
+  "langCode": "en",
+
+  "title": "Add Soldier",
+  "submit": "Submit",
+
+  "home": {
+    "title": "WW2 Soldier Entry System",
+    "description": "1.5 million Jewish Soldiers served in WW2 for the Allied countries.\n\n500,000 from the United States\n\n500,000 from Russia\n\n500,000 from the rest of the Allied countries.\n\nOver 250,000 Jewish soldiers failed to come home.\n\nWe honor the memory of all our soldiers.\n\nThis website is a portal to load information about our honored soldiers.\n\nThey fought for the freedom of our world and we are ever in their debt."
+  },
+
+  "nav": {
+    "home": "Home",
+    "soldierList": "Soldier List",
+    "addSoldier": "Add New Soldier",
+    "searchUpdate": "Search and Update Soldier",
+   
+    "searchResults": "Search Results"
+  },
+
+  "search": {
+    "title": "Search Soldiers",
+    "enterFirstName": "Enter first name",
+    "enterLastName": "Enter last name",
+    "searchButton": "Search"
+  },
+
+  "fields": {
+    "fname": "First Name",
+    "fnameen": "First Name (EN)",
+    "fnameru": "First Name (RU)",
+    "lname": "Last Name",
+    "lnameen": "Last Name (EN)",
+    "lnameru": "Last Name (RU)",
+    "previouslname": "Previous Last Name",
+    "previouslnameen": "Previous Last Name (EN)",
+    "previouslnameru": "Previous Last Name (RU)",
+    "fathername": "Father's Name",
+    "fathernameen": "Father's Name (EN)",
+    "fathernameru": "Father's Name (RU)",
+    "mothername": "Mother's Name",
+    "mothernameen": "Mother's Name (EN)",
+    "mothernameru": "Mother's Name (RU)",
+    "calledby": "Nickname",
+    "calledbyen": "Nickname (EN)",
+    "calledbyru": "Nickname (RU)",
+    "birthcountry": "Country of Birth",
+    "otherbirthcountry": "Other Country of Birth",
+    "birthcity": "City of Birth",
+    "birthcityen": "City of Birth (EN)",
+    "birthcityru": "City of Birth (RU)",
+    "gender": "Gender",
+    "placeofdeath": "Place of Death",
+    "placeofdeathen": "Place of Death (EN)",
+    "placeofdeathru": "Place of Death (RU)",
+    "deathdetails": "Death Details",
+    "deathdetailsen": "Death Details (EN)",
+    "deathdetailsru": "Death Details (RU)",
+    "biography": "Biography",
+    "biographyen": "Biography (EN)",
+    "biographyru": "Biography (RU)",
+    "otherparticipation": "Other Participation",
+    "otherdecoration": "Other Decorations",
+    "otherdecorationen": "Other Decorations (EN)",
+    "otherdecorationru": "Other Decorations (RU)",
+    "fightingdesc": "Fighting Description",
+    "fightingdescen": "Fighting Description (EN)",
+    "fightingdescru": "Fighting Description (RU)",
+    "idf_otherforce": "Other IDF Force",
+    "idf_otherrank": "Other IDF Rank",
+    "idf_desc": "IDF Service Description",
+    "idf_descen": "IDF Service Description (EN)",
+    "idf_descru": "IDF Service Description (RU)",
+    "idf_serviceplace": "IDF Service Place",
+    "idf_platoonname": "IDF Platoon Name",
+    "dob": "Date of Birth",
+    "dod": "Date of Death",
+    "aliyadate": "Aliyah Date",
+    "idf_enlistdate": "IDF Enlistment Date",
+    "idf_releasedate": "IDF Release Date",
+    "medal": "Medal",
+    "medalen": "Medal (EN)",
+    "medalru": "Medal (RU)",
+    "remarks": "Remarks",
+    "remarksen": "Remarks (EN)",
+    "remarksru": "Remarks (RU)",
+    "linkurl": "Link",
+    "id": "ID"
+  },
+
+  "sections": {
+    "basic": "Basic Details",
+    "family": "Family",
+    "birthdeath": "Birth and Death",
+    "biopart": "Biography and Participation",
+    "idf": "Military Service",
+    "datesmedals": "Dates and Medals",
+    "finalnotes": "Final Remarks"
+  },
+
+  "form": {
+    "infoHeader": "Soldier Registration Form",
+    "infoText": "This form will be used to enter information into the computerized information system of the site...",
+    "sendMaterials": "Additional materials (PDF, etc.) please send to",
+    "thankYou": "Thank you for your cooperation."
+  },
+  "actions": {
+    "edit": "Edit",
+    "backToSearch": "Back to Search"
+  },
+  "messages": {
+    "noResults": "No soldiers found."
+  }
+}

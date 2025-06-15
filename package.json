@@ -1,0 +1,31 @@
+{
+  "name": "ww2jewishsoldiers",
+  "version": "1.0.0",
+  "main": "index.ejs",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "start": "node serverPostgresFULL.js"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "cookie-parser": "^1.4.7",
+    "cookieparser": "^0.1.0",
+    "date-fns": "^3.6.0",
+    "dotenv": "^16.5.0",
+    "ejs": "^3.1.10",
+    "express": "^4.19.2",
+    "i18n": "^0.15.1",
+    "i18next": "^25.2.1",
+    "i18next-express-middleware": "^2.0.0",
+    "i18next-fs-backend": "^2.6.0",
+    "mongodb": "^6.8.0",
+    "mongoose": "^8.5.4",
+    "pg": "^8.15.6",
+    "pg-hstore": "^2.3.4",
+    "pg-promise": "^11.9.1",
+    "sequelize": "^6.37.7"
+  },
+  "description": "\"# WWIIJewishSoldiers\" \r \"# WW2JewishSoldiers\""
+}

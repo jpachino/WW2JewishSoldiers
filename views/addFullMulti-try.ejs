@@ -1,0 +1,287 @@
+<!DOCTYPE html>
+<html lang="<%= typeof t === 'function' ? t('langCode') : 'en' %>">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  
+  <title><%=t('form.title') %></title>
+  <link rel="stylesheet" href="/styles/styles.css">
+
+  <style>
+    .info-box {
+      background-color: #f8f9fa;
+      border-left: 6px solid #007bff;
+      padding: 20px;
+      margin: 20px auto;
+      max-width: 800px;
+      border-radius: 6px;
+      font-family: Arial, sans-serif;
+      line-height: 1.6;
+      color: #333;
+    }
+
+    
+    form {
+      max-width: 1000px;
+      margin: 0 auto;
+    }
+
+    fieldset {
+      margin-top: 25px;
+      border-radius: 6px;
+      padding: 15px;
+      border: 1px solid #ccc;
+    }
+  </style>
+  <script>
+    // This will run when the page loads
+    document.addEventListener('DOMContentLoaded', function() {
+      console.log('✅ Successfully loaded the Add Soldier form page!');
+      // Optionally add a visual indicator on the page
+      const notification = document.createElement('div');
+      notification.style.backgroundColor = '#d4edda';
+      notification.style.color = '#155724';
+      notification.style.padding = '10px';
+      notification.style.margin = '10px 0';
+      notification.style.borderRadius = '4px';
+     // notification.textContent = 'Form loaded successfully!';
+      document.body.insertBefore(notification, document.querySelector('form'));
+    });
+  </script>
+</head>
+<body>
+  <header>
+    <div class="container">
+       
+      <h1><%=t('form.title') %></h1>
+      <nav>
+        <a href="/"><%=t('nav.home') %></a>
+        <a href="/soldierlistFULL"><%=t('nav.soldierList') %></a>
+        <a href="/addFULL"><%=t('nav.addSoldier') %></a>
+        <a href="/search"><%=t('nav.search') %></a>
+       </nav>
+    </div>
+  </header>
+  <br><br><br><br><br>
+  <!-- Container for image and text box side-by-side -->
+<div class="info-container">
+  
+  <!-- Info box on the right -->
+  <div class="info-box">
+    <strong><%=t('form.infoHeader') %></strong><br><br>
+    <%=t('form.infoText') %>
+    <br><br>
+    <%=t('form.sendMaterials') %> <a href="mailto:veteran@jwmww2.com">veteran@jwmww2.com</a>
+    <br><br>
+    <strong><%=t('form.thankYou') %></strong>
+  </div>
+</div>
+
+ 
+      
+  <form action="/addFULL" method="POST">
+    <fieldset>
+      <legend><%=t('form.basic') %></legend>
+      <label for="fname"><%=t('form.fname') %>:</label>
+      <input type="text" name="fname" id="fname" />
+  
+      <label for="fnameen"><%=t('form.fnameen') %>:</label>
+      <input type="text" name="fnameen" id="fnameen" />
+  
+      <label for="fnameru"><%=t('form.fnameru') %>:</label>
+      <input type="text" name="fnameru" id="fnameru" />
+  
+      <label for="lname"><%=t('form.lname') %>:</label>
+      <input type="text" name="lname" id="lname" />
+  
+      <label for="lnameen"><%=t('form.lnameen') %>:</label>
+      <input type="text" name="lnameen" id="lnameen" />
+  
+      <label for="lnameru"><%=t('form.lnameru') %>:</label>
+      <input type="text" name="lnameru" id="lnameru" />
+  
+      <label for="previouslname"><%=t('form.previouslname') %>:</label>
+      <input type="text" name="previouslname" id="previouslname" />
+  
+      <label for="previouslnameen"><%=t('form.previouslnameen') %>:</label>
+      <input type="text" name="previouslnameen" id="previouslnameen" />
+  
+      <label for="previouslnameru"><%=t('form.previouslnameru') %>:</label>
+      <input type="text" name="previouslnameru" id="previouslnameru" />
+    </fieldset>
+  
+    <fieldset>
+      <legend><%=t('form.family') %></legend>
+      <label for="fathername"><%=t('form.fathername') %>:</label>
+      <input type="text" name="fathername" id="fathername" />
+  
+      <label for="fathernameen"><%=t('form.fathernameen') %>:</label>
+      <input type="text" name="fathernameen" id="fathernameen" />
+  
+      <label for="fathernameru"><%=t('form.fathernameru') %>:</label>
+      <input type="text" name="fathernameru" id="fathernameru" />
+  
+      <label for="mothername"><%=t('form.mothername') %>:</label>
+      <input type="text" name="mothername" id="mothername" />
+  
+      <label for="mothernameen"><%=t('form.mothernameen') %>:</label>
+      <input type="text" name="mothernameen" id="mothernameen" />
+  
+      <label for="mothernameru"><%=t('form.mothernameru') %>:</label>
+      <input type="text" name="mothernameru" id="mothernameru" />
+  
+      <label for="calledby"><%=t('form.calledby') %>:</label>
+      <input type="text" name="calledby" id="calledby" />
+  
+      <label for="calledbyen"><%=t('form.calledbyen') %>:</label>
+      <input type="text" name="calledbyen" id="calledbyen" />
+  
+      <label for="calledbyru"><%=t('form.calledbyru') %>:</label>
+      <input type="text" name="calledbyru" id="calledbyru" />
+    </fieldset>
+  
+    <fieldset>
+      <legend><%=t('form.birthdeath') %></legend>
+      <label for="birthcountry"><%=t('form.birthcountry') %>:</label>
+      <input type="text" name="birthcountry" id="birthcountry" />
+  
+      <label for="otherbirthcountry"><%=t('form.otherbirthcountry') %>:</label>
+      <input type="text" name="otherbirthcountry" id="otherbirthcountry" />
+  
+      <label for="birthcity"><%=t('form.birthcity') %>:</label>
+      <input type="text" name="birthcity" id="birthcity" />
+  
+      <label for="birthcityen"><%=t('form.birthcityen') %>:</label>
+      <input type="text" name="birthcityen" id="birthcityen" />
+  
+      <label for="birthcityru"><%=t('form.birthcityru') %>:</label>
+      <input type="text" name="birthcityru" id="birthcityru" />
+  
+      <label for="gender"><%=t('form.gender') %>:</label>
+      <input type="text" name="gender" id="gender" />
+  
+      <label for="placeofdeath"><%=t('form.placeofdeath') %>:</label>
+      <input type="text" name="placeofdeath" id="placeofdeath" />
+  
+      <label for="placeofdeathen"><%=t('form.placeofdeathen') %>:</label>
+      <input type="text" name="placeofdeathen" id="placeofdeathen" />
+  
+      <label for="placeofdeathru"><%=t('form.placeofdeathru') %>:</label>
+      <input type="text" name="placeofdeathru" id="placeofdeathru" />
+  
+      <label for="deathdetails"><%=t('form.deathdetails') %>:</label>
+      <textarea name="deathdetails" id="deathdetails"></textarea>
+  
+      <label for="deathdetailsen"><%=t('form.deathdetailsen') %>:</label>
+      <textarea name="deathdetailsen" id="deathdetailsen"></textarea>
+  
+      <label for="deathdetailsru"><%=t('form.deathdetailsru') %>:</label>
+      <textarea name="deathdetailsru" id="deathdetailsru"></textarea>
+    </fieldset>
+  
+    <fieldset>
+      <legend><%=t('form.biopart') %></legend>
+      <label for="biography"><%=t('form.biography') %>:</label>
+      <textarea name="biography" id="biography"></textarea>
+  
+      <label for="biographyen"><%=t('form.biographyen') %>:</label>
+      <textarea name="biographyen" id="biographyen"></textarea>
+  
+      <label for="biographyru"><%=t('form.biographyru') %>:</label>
+      <textarea name="biographyru" id="biographyru"></textarea>
+  
+      <label for="otherparticipation"><%=t('form.otherparticipation') %>:</label>
+      <input type="text" name="otherparticipation" id="otherparticipation" />
+  
+      <label for="otherdecoration"><%=t('form.otherdecoration') %>:</label>
+      <input type="text" name="otherdecoration" id="otherdecoration" />
+  
+      <label for="otherdecorationen"><%=t('form.otherdecorationen') %>:</label>
+      <input type="text" name="otherdecorationen" id="otherdecorationen" />
+  
+      <label for="otherdecorationru"><%=t('form.otherdecorationru') %>:</label>
+      <input type="text" name="otherdecorationru" id="otherdecorationru" />
+    </fieldset>
+  
+    <fieldset>
+      <legend><%=t('form.idf') %></legend>
+      <label for="fightingdesc"><%=t('form.fightingdesc') %>:</label>
+      <textarea name="fightingdesc" id="fightingdesc"></textarea>
+  
+      <label for="fightingdescen"><%=t('form.fightingdescen') %>:</label>
+      <textarea name="fightingdescen" id="fightingdescen"></textarea>
+  
+      <label for="fightingdescru"><%=t('form.fightingdescru') %>:</label>
+      <textarea name="fightingdescru" id="fightingdescru"></textarea>
+  
+      <label for="idf_otherforce"><%=t('form.idf_otherforce') %>:</label>
+      <input type="text" name="idf_otherforce" id="idf_otherforce" />
+  
+      <label for="idf_otherrank"><%=t('form.idf_otherrank') %>:</label>
+      <input type="text" name="idf_otherrank" id="idf_otherrank" />
+  
+      <label for="idf_desc"><%=t('form.idf_desc') %>:</label>
+      <textarea name="idf_desc" id="idf_desc"></textarea>
+  
+      <label for="idf_descen"><%=t('form.idf_descen') %>:</label>
+      <textarea name="idf_descen" id="idf_descen"></textarea>
+  
+      <label for="idf_descru"><%=t('form.idf_descru') %>:</label>
+      <textarea name="idf_descru" id="idf_descru"></textarea>
+  
+      <label for="idf_serviceplace"><%=t('form.idf_serviceplace') %>:</label>
+      <input type="text" name="idf_serviceplace" id="idf_serviceplace" />
+  
+      <label for="idf_platoonname"><%=t('form.idf_platoonname') %>:</label>
+      <input type="text" name="idf_platoonname" id="idf_platoonname" />
+    </fieldset>
+  
+    <fieldset>
+      <legend><%=t('form.datesmedals') %></legend>
+      <label for="dob"><%=t('form.dob') %>:</label>
+      <input type="date" name="dob" id="dob" />
+  
+      <label for="dod"><%=t('form.dod') %>:</label>
+      <input type="date" name="dod" id="dod" />
+  
+      <label for="aliyadate"><%=t('form.aliyadate') %>:</label>
+      <input type="date" name="aliyadate" id="aliyadate" />
+  
+      <label for="idf_enlistdate"><%=t('form.idf_enlistdate') %>:</label>
+      <input type="date" name="idf_enlistdate" id="idf_enlistdate" />
+  
+      <label for="idf_releasedate"><%=t('form.idf_releasedate') %>:</label>
+      <input type="date" name="idf_releasedate" id="idf_releasedate" />
+  
+      <label for="medal"><%=t('form.medal') %>:</label>
+      <input type="text" name="medal" id="medal" />
+  
+      <label for="medalen"><%=t('form.medalen') %>:</label>
+      <input type="text" name="medalen" id="medalen" />
+  
+      <label for="medalru"><%=t('form.medalru') %>:</label>
+      <input type="text" name="medalru" id="medalru" />
+    </fieldset>
+  
+    <fieldset>
+      <legend><%=t('form.finalnotes') %></legend>
+      <label for="remarks"><%=t('form.remarks') %>:</label>
+      <textarea name="remarks" id="remarks"></textarea>
+  
+      <label for="remarksen"><%=t('form.remarksen') %>:</label>
+      <textarea name="remarksen" id="remarksen"></textarea>
+  
+      <label for="remarksru"><%=t('form.remarksru') %>:</label>
+      <textarea name="remarksru" id="remarksru"></textarea>
+  
+      <label for="linkurl"><%=t('form.linkurl') %>:</label>
+      <input type="url" name="linkurl" id="linkurl" />
+    </fieldset>
+  
+    <button type="submit"><%=t('form.submit') %></button>
+  </form>
+  
+      
+  </div>
+</body>
+</html>
