@@ -8,14 +8,9 @@ node_modules/
 *.log
 npm-debug.log*
 
-# OS-specific
-.DS_Store
-Thumbs.db
 
-# Editor folders
-.vscode/
-.idea/
 
 # Build output
 dist/
 build/
+
