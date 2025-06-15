@@ -61,7 +61,7 @@ db.connect()
   });
 
 // Middleware
-app.use(express.static(path.join(__dirname, 'views')));
+//app.use(express.static(path.join(__dirname, 'views')));
 app.use(bodyParser.urlencoded({ extended: true }));
 app.use(express.static('public'));
 
