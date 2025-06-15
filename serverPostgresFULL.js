@@ -64,7 +64,19 @@ db.connect()
 //app.use(express.static(path.join(__dirname, 'views')));
 app.use(bodyParser.urlencoded({ extended: true }));
 app.use(express.static('public'));
-
+// Middleware to switch language using query or cookie
+app.use((req, res, next) => {
+  const lang = req.query.lang || req.cookies.lang || 'he';
+  res.cookie('lang', lang); // persist language in cookie
+  req.setLocale(lang);
+  res.locals.__ = res.__;
+  next();
+});
+app.get('/change-lang', (req, res) => {
+  const lang = req.query.lang;
+  res.cookie('lang', lang, { maxAge: 900000, httpOnly: true });
+  res.redirect('back');
+});
 
 // i18n configuration
 i18n.configure({
@@ -81,19 +93,7 @@ i18n.configure({
 app.use(cookieParser());
 app.use(i18n.init);
 
-// Middleware to switch language using query or cookie
-app.use((req, res, next) => {
-  const lang = req.query.lang || req.cookies.lang || 'he';
-  res.cookie('lang', lang); // persist language in cookie
-  req.setLocale(lang);
-  res.locals.__ = res.__;
-  next();
-});
-app.get('/change-lang', (req, res) => {
-  const lang = req.query.lang;
-  res.cookie('lang', lang, { maxAge: 900000, httpOnly: true });
-  res.redirect('back');
-});
+
 
 
 // Set EJS as the templating engine
