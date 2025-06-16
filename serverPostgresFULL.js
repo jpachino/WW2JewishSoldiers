@@ -104,6 +104,8 @@ app.set('views', path.join(__dirname, 'views'));
 // Route for the landing page
 app.get('/', (req, res) => {
   console.log('Rendering index.ejs for route /');
+  console.log('Current locale:', req.getLocale());
+  console.log('Translation of home.title:', res.__('home.title'));
 
   res.render('index', {
     locale: req.getLocale(),
