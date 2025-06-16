@@ -15,7 +15,21 @@ const port = 3000;
 
 // Use pg-promise and load DATABASE_URL from .env
 const postgresURI = process.env.DATABASE_URL;
-const db = pgp(postgresURI);
+//const db = pgp(postgresURI);
+
+const isRender = process.env.RENDER === 'true'; // or use any other custom env var
+
+const cn = isRender
+  ? {
+      connectionString: process.env.DATABASE_URL,
+      ssl: {
+        rejectUnauthorized: false
+      }
+    }
+  : process.env.DATABASE_URL;
+
+const db = pgp(cn);
+
 
 // Define the table name as a constant for consistency
 const SOLDIER_TABLE = 'map_soldierdetails';
