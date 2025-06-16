@@ -4,11 +4,12 @@ const express = require('express');
 const bodyParser = require('body-parser');
 const path = require('path');
 const pgp = require('pg-promise')();
+
 const { format } = require('date-fns');
 const i18n = require('i18n');
 const app = express();
 const port = 3000;
-const cookieParser = require('cookie-parser');
+
 
 
 
@@ -64,14 +65,8 @@ db.connect()
 //app.use(express.static(path.join(__dirname, 'views')));
 app.use(bodyParser.urlencoded({ extended: true }));
 app.use(express.static('public'));
-// Middleware to switch language using query or cookie
-app.use((req, res, next) => {
-  const lang = req.query.lang || req.cookies.lang || 'he';
-  res.cookie('lang', lang); // persist language in cookie
-  req.setLocale(lang);
-  res.locals.__ = res.__;
-  next();
-});
+;
+
 app.get('/change-lang', (req, res) => {
   const lang = req.query.lang;
   res.cookie('lang', lang, { maxAge: 900000, httpOnly: true });
@@ -90,9 +85,18 @@ i18n.configure({
   objectNotation: true,
 });
 
-app.use(cookieParser());
-app.use(i18n.init);
 
+app.use(i18n.init);
+const cookieParser = require('cookie-parser');
+app.use(cookieParser()); 
+ //Middleware to switch language using query or cookie
+app.use((req, res, next) => {
+  const lang = req.query.lang || req.cookies.lang || 'he';
+  res.cookie('lang', lang); // persist language in cookie
+  req.setLocale(lang);
+  res.locals.__ = res.__;
+  next();
+});
 
 
 
