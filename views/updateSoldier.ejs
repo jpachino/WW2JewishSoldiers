@@ -12,7 +12,7 @@
   <header>
     <div class="container">
       <div class="container">
-    <h1><%= __('title') %></h1>
+    <h1><%= __('titleUpdate') %></h1>
     <nav>
       <a href="/"><%= __('nav.home') %></a>
       <a href="/soldierlistFULL"><%= __('nav.soldierList') %></a>
@@ -236,18 +236,42 @@
         <input type="date" name="idf_releasedate" id="idf_releasedate" value="<%= soldier.idf_releasedate ? soldier.idf_releasedate.toISOString().substring(0, 10) : '' %>">
       </fieldset>
 
-      <fieldset>
-        <legend><%= __('fields.medal') %></legend>
+      
+  <div class="trio-row">
+    <div class="trio-row">
+  <div class="input-group">
+    <label for="medal"><%= __('fields.medal') %>:</label>
+    <select name="medal" id="medal">
+      <option value="">{ <%= __('select') %> }</option>
+      <% medals.forEach(m => { %>
+        <option value="<%= m.id %>"><%= m.title %></option>
+      <% }); %>
+    </select>
+  </div>
 
-        <label for="medal"><%= __('fields.medal') %></label>
-        <input type="text" name="medal" id="medal" value="<%= soldier.medal || '' %>">
+  <div class="input-group">
+    <label for="medalen"><%= __('fields.medalen') %>:</label>
+    <select name="medalen" id="medalen">
+      <option value="">{ <%= __('select') %> }</option>
+      <% medals.forEach(m => { %>
+        <option value="<%= m.id %>"><%= m.title %></option>
+      <% }); %>
+    </select>
+    <!--<input type="text" name="medalen" id="medalen" />-->
+  </div>
 
-        <label for="medalen"><%= __('fields.medalen') %></label>
-        <input type="text" name="medalen" id="medalen" value="<%= soldier.medalen || '' %>">
+  <div class="input-group">
+    <label for="medalru"><%= __('fields.medalru') %>:</label>
+    <select name="medalru" id="medalru">
+      <option value="">{ <%= __('select') %> }</option>
+      <% medals.forEach(m => { %>
+        <option value="<%= m.id %>"><%= m.title %></option>
+      <% }); %>
+    </select>
+    <!--<input type="text" name="medalru" id="medalru" />-->
+  </div>
+</div>
 
-        <label for="medalru"><%= __('fields.medalru') %></label>
-        <input type="text" name="medalru" id="medalru" value="<%= soldier.medalru || '' %>">
-      </fieldset>
 
       <fieldset>
         <legend><%= __('fields.remarks') %></legend>

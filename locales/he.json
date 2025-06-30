@@ -2,6 +2,7 @@
   "langCode": "he",
 
   "title": "הוסף לוחם",
+  "titleUpdate":  "עדכן חייל",
   "submit": "שלח",
 
   "home": {
@@ -14,6 +15,7 @@
     "home": "בית",
     "soldierList": "רשימת חיילים",
     "addSoldier": "הוסף חייל",
+    
     "searchUpdate": "חיפוש ועדכון חייל",
     "searchResults": "תוצאות חיפוש"
   },

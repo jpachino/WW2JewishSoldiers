@@ -21,14 +21,11 @@
 
   <br><br><br><br><br><br>
 
-  <!-- Language switcher that keeps search parameters -->
-  <form method="get" action="/searchResults">
-    <input type="hidden" name="firstname" value="<%= firstname %>">
-    <input type="hidden" name="lastname" value="<%= lastname %>">
+  <form method="get" action="">
     <select name="lang" onchange="this.form.submit()">
-      <option value="he" <%= (lang === 'he' ? 'selected' : '') %>>עברית</option>
-      <option value="en" <%= (lang === 'en' ? 'selected' : '') %>>English</option>
-      <option value="ru" <%= (lang === 'ru' ? 'selected' : '') %>>Русский</option>
+      <option value="he" <%= (locale === 'he' ? 'selected' : '') %>>עברית</option>
+      <option value="en" <%= (locale === 'en' ? 'selected' : '') %>>English</option>
+      <option value="ru" <%= (locale === 'ru' ? 'selected' : '') %>>Русский</option>
     </select>
   </form>
 
@@ -50,8 +47,8 @@
         <tbody>
           <% soldiers.forEach(soldier => { %>
             <tr>
-              <td><%= soldier.translatedFname %></td>
-              <td><%= soldier.translatedLname %></td>
+              <td><%= soldier.fname %></td>
+              <td><%= soldier.lname %></td>
               <td><%= soldier.birthcountry %></td>
               <td><%= soldier.fathername %></td>
               <td><%= soldier.dob %></td>

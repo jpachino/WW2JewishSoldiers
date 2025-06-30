@@ -179,32 +179,50 @@
     </fieldset>
   
     <fieldset>
-      <legend>Dates & Medals</legend>
-      <label for="dob">Date of Birth:</label>
-      <input type="date" name="dob" id="dob" />
-  
-      <label for="dod">Date of Death:</label>
-      <input type="date" name="dod" id="dod" />
-  
-      <label for="aliyadate">Aliya Date:</label>
-      <input type="date" name="aliyadate" id="aliyadate" />
-  
-      <label for="idf_enlistdate">IDF Enlist Date:</label>
-      <input type="date" name="idf_enlistdate" id="idf_enlistdate" />
-  
-      <label for="idf_releasedate">IDF Release Date:</label>
-      <input type="date" name="idf_releasedate" id="idf_releasedate" />
-  
-      <label for="medal">Medal:</label>
-      <input type="text" name="medal" id="medal" />
-  
-      <label for="medalen">Medal (EN):</label>
-      <input type="text" name="medalen" id="medalen" />
-  
-      <label for="medalru">Medal (RU):</label>
-      <input type="text" name="medalru" id="medalru" />
-    </fieldset>
-  
+  <legend><%= __('sections.dates_medals') %></legend>
+
+  <label for="dob"><%= __('fields.dob') %>:</label>
+  <input type="date" name="dob" id="dob" value="<%= soldier.dob ? soldier.dob.toISOString().substring(0, 10) : '' %>" />
+
+  <label for="dod"><%= __('fields.dod') %>:</label>
+  <input type="date" name="dod" id="dod" value="<%= soldier.dod ? soldier.dod.toISOString().substring(0, 10) : '' %>" />
+
+  <label for="aliyadate"><%= __('fields.aliyadate') %>:</label>
+  <input type="date" name="aliyadate" id="aliyadate" value="<%= soldier.aliyadate ? soldier.aliyadate.toISOString().substring(0, 10) : '' %>" />
+
+  <label for="idf_enlistdate"><%= __('fields.idf_enlistdate') %>:</label>
+  <input type="date" name="idf_enlistdate" id="idf_enlistdate" value="<%= soldier.idf_enlistdate ? soldier.idf_enlistdate.toISOString().substring(0, 10) : '' %>" />
+
+  <label for="idf_releasedate"><%= __('fields.idf_releasedate') %>:</label>
+  <input type="date" name="idf_releasedate" id="idf_releasedate" value="<%= soldier.idf_releasedate ? soldier.idf_releasedate.toISOString().substring(0, 10) : '' %>" />
+
+<!-- Medal -->
+<select name="medal" id="medal">
+  <option value="">{ <%= __('select') %> }</option>
+  <% medals.forEach(m => { %>
+    <option value="<%= m.id %>" <%= String(m.id) === String(soldier.medal) ? 'selected' : '' %>><%= m.title %></option>
+  <% }); %>
+</select>
+
+<!-- Medal EN -->
+<select name="medalen" id="medalen">
+  <option value="">{ <%= __('select') %> }</option>
+  <% medals.forEach(m => { %>
+    <option value="<%= m.id %>" <%= String(m.id) === String(soldier.medalen) ? 'selected' : '' %>><%= m.title %></option>
+  <% }); %>
+</select>
+
+<!-- Medal RU -->
+<select name="medalru" id="medalru">
+  <option value="">{ <%= __('select') %> }</option>
+  <% medals.forEach(m => { %>
+    <option value="<%= m.id %>" <%= String(m.id) === String(soldier.medalru) ? 'selected' : '' %>><%= m.title %></option>
+  <% }); %>
+</select>
+
+
+</fieldset>
+
     <fieldset>
       <legend>Remarks & Final Notes</legend>
       <label for="remarks">Remarks:</label>

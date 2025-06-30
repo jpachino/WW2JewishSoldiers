@@ -2,6 +2,7 @@
   "langCode": "en",
 
   "title": "Add Soldier",
+  "titleUpdate" :"Update Soldier",
   "submit": "Submit",
 
   "home": {
@@ -14,7 +15,7 @@
     "soldierList": "Soldier List",
     "addSoldier": "Add New Soldier",
     "searchUpdate": "Search and Update Soldier",
-   
+    
     "searchResults": "Search Results"
   },
 
