@@ -239,38 +239,50 @@
       
   <div class="trio-row">
     <div class="trio-row">
-  <div class="input-group">
-    <label for="medal"><%= __('fields.medal') %>:</label>
-    <select name="medal" id="medal">
-      <option value="">{ <%= __('select') %> }</option>
-      <% medals.forEach(m => { %>
-        <option value="<%= m.id %>"><%= m.title %></option>
-      <% }); %>
-    </select>
-  </div>
-
-  <div class="input-group">
-    <label for="medalen"><%= __('fields.medalen') %>:</label>
-    <select name="medalen" id="medalen">
-      <option value="">{ <%= __('select') %> }</option>
-      <% medals.forEach(m => { %>
-        <option value="<%= m.id %>"><%= m.title %></option>
-      <% }); %>
-    </select>
-    <!--<input type="text" name="medalen" id="medalen" />-->
-  </div>
-
-  <div class="input-group">
-    <label for="medalru"><%= __('fields.medalru') %>:</label>
-    <select name="medalru" id="medalru">
-      <option value="">{ <%= __('select') %> }</option>
-      <% medals.forEach(m => { %>
-        <option value="<%= m.id %>"><%= m.title %></option>
-      <% }); %>
-    </select>
-    <!--<input type="text" name="medalru" id="medalru" />-->
-  </div>
+  
 </div>
+
+
+ <label for="medal"><%= __('fields.medal') %>:</label>
+<select name="medal" id="medal">
+  <option value="">{ <%= __('select') %> }</option>
+  <% medals.forEach(m => { %>
+    <option value="<%= m.id %>" <%= String(m.id) === String(soldier.medal) ? 'selected' : '' %>><%= m.title %></option>
+  <% }); %>
+</select>
+<% medals.forEach(m => { %>
+  <% if (String(m.id) === String(soldier.medal)) { %>
+    <script>console.log('Matched medal ID: <%= m.id %> with soldier.medal = <%= soldier.medal %>');</script>
+  <% } %>
+<% }); %>
+
+<!-- Medal EN -->
+ <label for="medalen"><%= __('fields.medalen') %>:</label>
+<select name="medalen" id="medalen">
+  <option value="">{ <%= __('select') %> }</option>
+  <% medals.forEach(m => { %>
+    <option value="<%= m.id %>" <%= String(m.id) === String(soldier.medalen) ? 'selected' : '' %>><%= m.title %></option>
+  <% }); %>
+</select>
+<% medals.forEach(m => { %>
+  <% if (String(m.id) === String(soldier.medalen)) { %>
+    <script>console.log('Matched medal ID: <%= m.id %> with soldier.medal = <%= soldier.medal %>');</script>
+  <% } %>
+<% }); %>
+
+<!-- Medal RU -->
+ <label for="medalru"><%= __('fields.medalru') %>:</label>
+<select name="medalru" id="medalru">
+  <option value="">{ <%= __('select') %> }</option>
+  <% medals.forEach(m => { %>
+    <option value="<%= m.id %>" <%= String(m.id) === String(soldier.medalru) ? 'selected' : '' %>><%= m.title %></option>
+  <% }); %>
+</select>
+<% medals.forEach(m => { %>
+  <% if (String(m.id) === String(soldier.medalru)) { %>
+    <script>console.log('Matched medal ID: <%= m.id %> with soldier.medal = <%= soldier.medal %>');</script>
+  <% } %>
+<% }); %>
 
 
       <fieldset>

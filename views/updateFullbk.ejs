@@ -197,12 +197,28 @@
   <input type="date" name="idf_releasedate" id="idf_releasedate" value="<%= soldier.idf_releasedate ? soldier.idf_releasedate.toISOString().substring(0, 10) : '' %>" />
 
 <!-- Medal -->
+
+  console.log("Soldier's medal:", "<%= soldier.medal %>");
+  console.log("All medals:");
+  <% medals.forEach(m => { %>
+    console.log("Medal ID: <%= m.id %>, Title: <%= m.title %>");
+  <% }); %>
+<p>Selected soldier medal: <%= soldier.medal %></p>
+<p>Selected soldier medalen: <%= soldier.medalen %></p>
+<p>Selected soldier medalru: <%= soldier.medalru %></p>
+
+
 <select name="medal" id="medal">
   <option value="">{ <%= __('select') %> }</option>
   <% medals.forEach(m => { %>
     <option value="<%= m.id %>" <%= String(m.id) === String(soldier.medal) ? 'selected' : '' %>><%= m.title %></option>
   <% }); %>
 </select>
+<% medals.forEach(m => { %>
+  <% if (String(m.id) === String(soldier.medal)) { %>
+    <script>console.log('Matched medal ID: <%= m.id %> with soldier.medal = <%= soldier.medal %>');</script>
+  <% } %>
+<% }); %>
 
 <!-- Medal EN -->
 <select name="medalen" id="medalen">
@@ -211,6 +227,11 @@
     <option value="<%= m.id %>" <%= String(m.id) === String(soldier.medalen) ? 'selected' : '' %>><%= m.title %></option>
   <% }); %>
 </select>
+<% medals.forEach(m => { %>
+  <% if (String(m.id) === String(soldier.medalen)) { %>
+    <script>console.log('Matched medal ID: <%= m.id %> with soldier.medal = <%= soldier.medal %>');</script>
+  <% } %>
+<% }); %>
 
 <!-- Medal RU -->
 <select name="medalru" id="medalru">
@@ -219,6 +240,11 @@
     <option value="<%= m.id %>" <%= String(m.id) === String(soldier.medalru) ? 'selected' : '' %>><%= m.title %></option>
   <% }); %>
 </select>
+<% medals.forEach(m => { %>
+  <% if (String(m.id) === String(soldier.medalru)) { %>
+    <script>console.log('Matched medal ID: <%= m.id %> with soldier.medal = <%= soldier.medal %>');</script>
+  <% } %>
+<% }); %>
 
 
 </fieldset>
