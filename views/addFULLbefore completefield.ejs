@@ -1,86 +1,132 @@
 <!DOCTYPE html>
 <html lang="<%= locale %>">
+
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+ 
   <title><%= __('nav.title1') %></title>
   <link rel="stylesheet" href="/styles/styles.css" />
   <style>
-    .info-box { background-color: #f8f9fa; border-left: 6px solid #007bff; padding: 20px; margin: 20px auto; max-width: 800px; border-radius: 6px; font-family: Arial, sans-serif; line-height: 1.6; color: #333; }
-    form { max-width: 1000px; margin: 0 auto; }
-    fieldset { margin-top: 25px; border-radius: 6px; padding: 15px; border: 1px solid #ccc; }
-    .trio-row { display: flex; gap: 10px; margin-bottom: 10px; }
-    .trio-row .input-group { flex: 1; display: flex; flex-direction: column; }
-    .single-row { margin-bottom: 10px; display: flex; flex-direction: column; }
-    textarea { resize: vertical; }
+    .info-box {
+      background-color: #f8f9fa;
+      border-left: 6px solid #007bff;
+      padding: 20px;
+      margin: 20px auto;
+      max-width: 800px;
+      border-radius: 6px;
+      font-family: Arial, sans-serif;
+      line-height: 1.6;
+      color: #333;
+    }
+
+    form {
+      max-width: 1000px;
+      margin: 0 auto;
+    }
+
+    fieldset {
+      margin-top: 25px;
+      border-radius: 6px;
+      padding: 15px;
+      border: 1px solid #ccc;
+    }
+
+    .trio-row {
+      display: flex;
+      gap: 10px;
+      margin-bottom: 10px;
+    }
+
+    .trio-row .input-group {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+    }
+
+    .single-row {
+      margin-bottom: 10px;
+      display: flex;
+      flex-direction: column;
+    }
+
+    textarea {
+      resize: vertical;
+    }
+    
   </style>
+  <script>
+    document.addEventListener('DOMContentLoaded', function () {
+      console.log('✅ Successfully loaded the Add Soldier form page!');
+    });
+  </script>
 </head>
-<!--<div id="confirmModal" class="modal hidden">
-  <div class="modal-content">
-    <p id="confirmText"></p>
-    <button id="confirmYes">Yes</button>
-    <button id="confirmNo">No</button>
-  </div>-->
-</div>
-
-
-
 <body>
+  <title><%= __('nav.title1') %></title>
   <header>
     <div class="container">
-      <h1><%= __('title') %></h1>
-      <nav>
-        <a href="/"> <%= __('nav.home') %> </a>
-      </nav>
-    </div>
+      <div class="container">
+    <h1><%= __('title') %></h1>
+    <nav>
+      <a href="/"><%= __('nav.home') %></a>
+      <!--<a href="/soldierlistFULL"><%= __('nav.soldierList') %></a>
+      <a href="/addFULL"><%= __('nav.addSoldier') %></a>
+      <a href="/search"><%= __('nav.searchUpdate') %></a>-->
+    </nav>
+  </div>
   </header>
   <br /><br /><br /><br /><br /><br><br><br>
   <form method="get" action="">
-    <select name="lang" onchange="this.form.submit()">
-      <option value="he" <%= (locale === 'he' ? 'selected' : '') %>>עברית</option>
-      <option value="en" <%= (locale === 'en' ? 'selected' : '') %>>English</option>
-      <option value="ru" <%= (locale === 'ru' ? 'selected' : '') %>>Русский</option>
-    </select>
-    
-  </form>
+  <select name="lang" onchange="this.form.submit()">
+    <option value="he" <%= (locale === 'he' ? 'selected' : '') %>>עברית</option>
+    <option value="en" <%= (locale === 'en' ? 'selected' : '') %>>English</option>
+    <option value="ru" <%= (locale === 'ru' ? 'selected' : '') %>>Русский</option>
+  </select>
+</form>
 
+  <!--<div class="info-container">
+    <div class="info-box">
+      <strong>Warrior registration form</strong><br /><br />
+      The form will be used as an input in the computerized information system of the website of the Jewish Soldier in World War II (<a href="https://jwmww2.org" target="_blank">jwmww2.org</a>)...
+      <br /><br />
+      Additional materials (PDF, etc.) – please send to <a href="mailto:veteran@jwmww2.com">veteran@jwmww2.com</a> and it will be added to the archive.
+      <br /><br />
+      <strong>Thanks for the cooperation.</strong>
+    </div>
+  </div>-->
   <div class="info-container">
-    <% if (locale === 'en') { %>
-      <div class="info-box" lang="en">
-        <br>
-        <strong>Warrior registration form</strong><br /><br />
-        The form will be used as an input in the computerized information system of the website of the Jewish Soldier in World War II (<a href="https://jwmww2.org" target="_blank">jwmww2.org</a>)...
-        <br /><br />
-        Additional materials – please send to <a href="mailto:veteran@jwmww2.com">veteran@jwmww2.com</a>.
-        <br /><br />
-        <strong>Thanks for the cooperation.</strong>
-      </div>
-    <% } else if (locale === 'he') { %>
-      <div class="info-box" lang="he" dir="rtl">
-        <strong>טופס רישום ללוחם</strong><br /><br />
-        טופס זה ישמש כקלט במערכת המידע של אתר הלוחם היהודי במלחמת העולם השנייה (<a href="https://jwmww2.org" target="_blank">jwmww2.org</a>)...
-        <br /><br />
-        חומרים נוספים – נא לשלוח לכתובת <a href="mailto:veteran@jwmww2.com">veteran@jwmww2.com</a>
-        <br /><br />
-        <strong>תודה על שיתוף הפעולה.</strong>
-      </div>
-    <% } else if (locale === 'ru') { %>
-      <div class="info-box" lang="ru">
-        <strong>Форма регистрации воина</strong><br /><br />
-        Эта форма будет использована в системе сайта Еврейского Солдата во Второй мировой войне (<a href="https://jwmww2.org" target="_blank">jwmww2.org</a>)...
-        <br /><br />
-        Дополнительные материалы – отправляйте на <a href="mailto:veteran@jwmww2.com">veteran@jwmww2.com</a>
-        <br /><br />
-        <strong>Спасибо за сотрудничество.</strong>
-      </div>
-    <% } %>
-  </div>
+  <% if (locale === 'en') { %>
+    <div class="info-box" lang="en">
+      <strong>Warrior registration form</strong><br /><br />
+      The form will be used as an input in the computerized information system of the website of the Jewish Soldier in World War II (<a href="https://jwmww2.org" target="_blank">jwmww2.org</a>)...
+      <br /><br />
+      Additional materials (PDF, etc.) – please send to <a href="mailto:veteran@jwmww2.com">veteran@jwmww2.com</a> and it will be added to the archive.
+      <br /><br />
+      <strong>Thanks for the cooperation.</strong>
+    </div>
+  <% } else if (locale === 'he') { %>
+    <div class="info-box" lang="he" dir="rtl">
+      <strong>טופס רישום ללוחם</strong><br /><br />
+      טופס זה ישמש כקלט במערכת המידע הממוחשבת של אתר הלוחם היהודי במלחמת העולם השנייה (<a href="https://jwmww2.org" target="_blank">jwmww2.org</a>)...
+      <br /><br />
+      חומרים נוספים (PDF וכו') – נא לשלוח לכתובת <a href="mailto:veteran@jwmww2.com">veteran@jwmww2.com</a> ויוספו לארכיון.
+      <br /><br />
+      <strong>תודה על שיתוף הפעולה.</strong>
+    </div>
+  <% } else if (locale === 'ru') { %>
+    <div class="info-box" lang="ru">
+      <strong>Форма регистрации воина</strong><br /><br />
+      Эта форма будет использована как ввод в компьютеризированную информационную систему сайта Еврейского Солдата во Второй мировой войне (<a href="https://jwmww2.org" target="_blank">jwmww2.org</a>)...
+      <br /><br />
+      Дополнительные материалы (PDF и т.д.) – пожалуйста, отправляйте на <a href="mailto:veteran@jwmww2.com">veteran@jwmww2.com</a>, и они будут добавлены в архив.
+      <br /><br />
+      <strong>Спасибо за сотрудничество.</strong>
+    </div>
+  <% } %>
+</div>
 
 
-  <!--<form action="/addfull" method="POST">-->
-    <form action="/addfull" method="POST" id="soldierForm">
-  <input type="hidden" id="recordcomplete" name="recordcomplete" value="false" />
-
+  <form action="/addfull" method="POST">
     <fieldset>
       <legend><%= __('sections.basic') %></legend>
   <div class="trio-row">
@@ -407,22 +453,21 @@
   <label for="linkurl"><%= __('fields.linkurl') %>:</label>
   <input type="url" name="linkurl" id="linkurl" />
 
-   
+    <label for="remarksru"><%= __('fields.remarksru') %>:</label>
+  <textarea name="remarksru" id="remarksru"></textarea>
+
+  <label for="linkurl"><%= __('fields.linkurl') %>:</label>
+  <input type="url" name="linkurl" id="linkurl" />
+
   <label for="useremail"><%= __('fields.useremail') %>:</label>
   <input type="email" name="useremail" id="useremail" required />
-  <div class="checkbox-group">
+  <div>
   <label>
-    <input type="checkbox" name="recordcomplete" id="recordcomplete" value="true" />
+    <input type="checkbox" name="recordcomplete" value="true" <%= soldier && soldier.recordcomplete ? 'checked disabled' : '' %> />
     <%= __('form.mark_complete') %>
   </label>
   <p class="note">
     <%= __('form.mark_complete_note') %>
-  </p>
-  <p class="note">
-    <%= __('form.mark_complete_note2') %>
-  </p>
-  <p class="note">
-    <%= __('form.mark_complete_note3') %>
   </p>
 </div>
   
@@ -432,71 +477,13 @@
 </form>
 
 </fieldset>
-</body>
+
+<button type="submit"><%= __('submit') %></button>
+</form>
+
+  
+      
   </div>
-
-<!--<script>
-  document.querySelector('form[action="/addfull"]').addEventListener('submit', function (e) {
-  e.preventDefault(); // Stop form from submitting
-
-  const message = {
-    en: `
-      This record will now be saved.<br><br>
-      <strong>Have you finished entering all soldier information?</strong><br><br>
-      If you wish to edit this record, choose No and you will be able to return and continue making changes.<br><br>
-      If you mark this record as complete, you will no longer be able to edit it.<br><br>
-      Only administrators will be able to make changes going forward.<br><br>
-      To make future changes after marked complete, please contact us.
-    `,
-
-    he: `
-      הרישום יישמר כעת.<br><br>
-      <strong>האם סיימת להזין את כל פרטי החייל?</strong><br><br>
-      אם ברצונך לערוך את הרישום, בחר לא ותוכל לחזור ולהמשיך לערוך.<br><br>
-      אם תסמן את הרישום כהושלם, לא תוכל עוד לערוך אותו.<br><br>
-      רק מנהלים יוכלו לבצע שינויים בעתיד.<br><br>
-      לביצוע שינויים לאחר שסומן כהושלם, אנא צור איתנו קשר.
-    `,
-
-    ru: `
-      Эта запись будет сохранена.<br><br>
-      <strong>Вы завершили ввод всей информации о солдате?</strong><br><br>
-      Если вы хотите отредактировать эту запись, выберите «Нет», и вы сможете вернуться и продолжить внесение изменений.<br><br>
-      Если вы отметите запись как завершённую, вы больше не сможете её редактировать.<br><br>
-      Только администраторы смогут вносить изменения в будущем.<br><br>
-      Для будущих изменений после завершения записи, пожалуйста, свяжитесь с нами.
-    `
-  };
-
-  const lang = "<%= locale %>";
-  const text = message[lang] || message['en'];
-
-  const modal = document.getElementById('confirmModal');
-  const confirmText = document.getElementById('confirmText');
-  const yesBtn = document.getElementById('confirmYes');
-  const noBtn = document.getElementById('confirmNo');
-  const form = this;
-
-  // Use innerHTML to render line breaks and bold
-  confirmText.innerHTML = text;
-  modal.classList.remove('hidden');
-
-  yesBtn.onclick = function () {
-    document.getElementById('recordcomplete').value = 'true';
-    modal.classList.add('hidden');
-    form.submit();
-  };
-
-  noBtn.onclick = function () {
-  document.getElementById('recordcomplete').value = 'false';
-  modal.classList.add('hidden');
-  form.submit(); // <-- Add this line to submit the form!
-};
-
-});
-
-</script>
-
-</body>-->
+</body>
 </html>
  

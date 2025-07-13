@@ -1,12 +1,11 @@
 <!DOCTYPE html>
 <html lang="<%= locale %>">
-
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title><%= __('home.title') %></title>
-  <link rel="stylesheet" href="/styles/styles.css" />
-  <!--<style>
+  <link rel="stylesheet" href="/styles/styles.css">
+  <style>
     .lang-select {
       font-size: 1rem;
       padding: 4px 8px;
@@ -14,25 +13,17 @@
     }
 
     main {
-      padding-top: 160px; /* Ensures content is visible below the fixed header */
+      padding-top: 160px; /*Ensures content is visible below the fixed header */
+      main {
+      
+}
+
       text-align: center;
     }
-
-    .choice-form {
-      margin-top: 3rem;
-    }
-
-    .choice-form button {
-      margin: 0 1rem;
-      padding: 10px 20px;
-      font-size: 1.2rem;
-      cursor: pointer;
-    }
-  </style>-->
+  </style>
 </head>
-
-
 <body>
+    
   <header>
     <div class="container">
       <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap;">
@@ -50,37 +41,20 @@
 
       <nav>
         <a href="/"><%= __('nav.home') %></a>
-        <!--<a href="/soldierlistFULL"><%= __('nav.soldierList') %></a>
+        <a href="/soldierlistFULL"><%= __('nav.soldierList') %></a>
         <a href="/addFull"><%= __('nav.addSoldier') %></a>
-        <a href="/search"><%= __('nav.searchUpdate') %></a>-->
+        <a href="/search"><%= __('nav.searchUpdate') %></a>
       </nav>
     </div>
   </header>
 
+  <!-- ✅ Main content starts below header -->
   <main class="container">
-    <h3 style="white-space: pre-line;">
+    <h2 style="white-space: pre-line;">
       <%= __('home.description') %>
-    </h3>
-
-    <!-- Choice Form -->
-    <form class="choice-form" id="choiceForm">
-      <p><%= __('home.chooseAction') %></p>
-      <button type="button" onclick="redirectToAdd()"><%= __('home.addNewSoldier') %></button>
-      <button type="button" onclick="redirectToChange()"><%= __('home.changeSoldierInfo') %></button>
-    </form>
+    </h2>
   </main>
-
-  <script>
-    function redirectToAdd() {
-      window.location.href = '/addFull';
-    }
-
-    function redirectToChange() {
-      window.location.href = '/search';
-    }
-  </script>
 </body>
 </html>
-
 
 

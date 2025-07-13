@@ -1,10 +1,10 @@
 <!DOCTYPE html>
 <html lang="<%= locale %>">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
   <title><%= __('search.title') %></title>
-  <link rel="stylesheet" href="/styles/styles.css">
+  <link rel="stylesheet" href="/styles/styles.css" />
 </head>
 <body>
   <header>
@@ -12,22 +12,39 @@
       <h1><%= __('search.title') %></h1>
       <nav>
         <a href="/"><%= __('nav.home') %></a>
-        <a href="/soldierlistFULL"><%= __('nav.soldierList') %></a>
-        <a href="/addFULL"><%= __('nav.addSoldier') %></a>
+        <!--<a href="/soldierlistFULL"><%= __('nav.soldierList') %></a>
+        <a href="/addFULL"><%= __('nav.addSoldier') %></a>-->
       </nav>
     </div>
   </header>
 
-  <br><br><br><br><br><br>
+  <br /><br /><br /><br /><br /><br />
 
   <div class="container">
     <form action="/searchResults" method="get">
-      <input type="text" name="firstname" placeholder="<%= __('search.enterFirstName') %>">
-      <input type="text" name="lastname" placeholder="<%= __('search.enterLastName') %>">
+      <input
+        type="text"
+        name="firstname"
+        placeholder="<%= __('search.enterFirstName') %>"
+        value="<%= firstname || '' %>"
+      />
+      <input
+        type="text"
+        name="lastname"
+        placeholder="<%= __('search.enterLastName') %>"
+        value="<%= lastname || '' %>"
+      />
+      <input
+        type="email"
+        name="useremail"
+        placeholder="<%= __('search.enterEmail') %>"
+        value="<%= useremail || '' %>" required
+      />
       <button type="submit"><%= __('search.searchButton') %></button>
     </form>
   </div>
 </body>
 </html>
+
 
 

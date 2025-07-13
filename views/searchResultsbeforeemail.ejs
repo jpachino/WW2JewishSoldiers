@@ -1,10 +1,10 @@
 <!DOCTYPE html>
 <html lang="<%= locale %>">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title><%= __('nav.searchResults') %></title>
-  <link rel="stylesheet" href="/styles/styles.css" />
+  <link rel="stylesheet" href="/styles/styles.css">
 </head>
 <body>
   <header>
@@ -12,26 +12,23 @@
       <h1><%= __('nav.searchResults') %></h1>
       <nav>
         <a href="/"><%= __('nav.home') %></a>
-        <!--<a href="/soldierlistFULL"><%= __('nav.soldierList') %></a>
+        <a href="/soldierlistFULL"><%= __('nav.soldierList') %></a>
         <a href="/addFULL"><%= __('nav.addSoldier') %></a>
-        <a href="/search"><%= __('nav.searchUpdate') %></a>-->
+        <a href="/search"><%= __('nav.searchUpdate') %></a>
       </nav>
     </div>
   </header>
 
-  <br /><br /><br /><br /><br /><br />
+  <br><br><br><br><br><br>
 
   <!-- Language switcher that keeps search parameters -->
   <form method="get" action="/searchResults">
-    <input type="hidden" name="firstname" value="<%= firstname || '' %>" />
-    <input type="hidden" name="lastname" value="<%= lastname || '' %>" />
-    <% if (typeof useremail !== 'undefined') { %>
-      <input type="hidden" name="useremail" value="<%= useremail %>" />
-    <% } %>
+    <input type="hidden" name="firstname" value="<%= firstname %>">
+    <input type="hidden" name="lastname" value="<%= lastname %>">
     <select name="lang" onchange="this.form.submit()">
-      <option value="he" <%= lang === 'he' ? 'selected' : '' %>>עברית</option>
-      <option value="en" <%= lang === 'en' ? 'selected' : '' %>>English</option>
-      <option value="ru" <%= lang === 'ru' ? 'selected' : '' %>>Русский</option>
+      <option value="he" <%= (lang === 'he' ? 'selected' : '') %>>עברית</option>
+      <option value="en" <%= (lang === 'en' ? 'selected' : '') %>>English</option>
+      <option value="ru" <%= (lang === 'ru' ? 'selected' : '') %>>Русский</option>
     </select>
   </form>
 
@@ -73,4 +70,3 @@
   </div>
 </body>
 </html>
-

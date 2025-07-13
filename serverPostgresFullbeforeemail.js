@@ -122,12 +122,10 @@ app.set('views', path.join(__dirname, 'views'));
 // Route for the landing page
 app.get('/', (req, res) => {
   console.log('Rendering index.ejs for route /');
-  const saved = req.query.saved === 'true';
+  
   res.render('index', {
     locale: req.getLocale(),
-    __: res.__.bind(res) 
-    
-  
+    __: res.__.bind(res)
   });
 });
 
@@ -244,26 +242,11 @@ app.get('/addFull', async (req, res) => {
 });
 
 
-function cleanNulls(obj) {
-  const cleaned = {};
-  for (const key in obj) {
-    if (obj[key] === '') {
-      cleaned[key] = null;
-    } else {
-      cleaned[key] = obj[key];
-    }
-  }
-  return cleaned;
-}
 
 
 // Route to handle form submission for adding a soldier
 app.post('/addFULL', async (req, res) => {
   try {
-    // Convert empty strings to nulls
-    const cleaned = cleanNulls(req.body);
-    
-    // Destructure from the cleaned object
     const {
       fname, fnameen, fnameru,
       lname, lnameen, lnameru,
@@ -280,6 +263,10 @@ app.post('/addFULL', async (req, res) => {
       otherparticipation,
       otherdecoration, otherdecorationen, otherdecorationru,
       fightingdesc, fightingdescen, fightingdescru,
+      // Optional IDF fields you commented out
+      /*idf_otherforce, idf_otherrank,
+      idf_desc, idf_descen, idf_descru,
+      idf_serviceplace, idf_platoonname,*/
       shortdesc,
       armyrole, armyroleen, armyroleru,
       releasereason, releasereasonen, releasereasonru,
@@ -298,122 +285,132 @@ app.post('/addFULL', async (req, res) => {
       front, fronten, frontru,
       battle, battleen, battleru,
       battleyear,
+      tablebreaker2,
       battleyear2,
       front2, fronten2, frontru2,
       battle2, battleen2, battleru2,
       medal2, medalen2, medalru2,
       remarks, remarksen, remarksru,
+      tablebreaker3,
       title, titleen, titleru,
       remarks2, remarksen2, remarksru2,
-      linkurl, useremail, recordcomplete
-    } = cleaned;
+      linkurl
+    } = req.body;
 
-    // Handle date parsing separately
+    // Convert dates
     const parsedDob = dob ? new Date(dob) : null;
     const parsedDod = dod ? new Date(dod) : null;
     const parsedAliyaDate = aliyadate ? new Date(aliyadate) : null;
     const parsedIdfEnlistDate = idf_enlistdate ? new Date(idf_enlistdate) : null;
     const parsedIdfReleaseDate = idf_releasedate ? new Date(idf_releasedate) : null;
 
-    // INSERT query (unchanged)
     await db.none(`
-      INSERT INTO ${SOLDIER_TABLE} (
-        fname, fnameen, fnameru,
-        lname, lnameen, lnameru,
-        previouslname, previouslnameen, previouslnameru,
-        fathername, fathernameen, fathernameru,
-        mothername, mothernameen, mothernameru,
-        calledby, calledbyen, calledbyru,
-        birthcountry, otherbirthcountry,
-        birthcity, birthcityen, birthcityru,
-        gender,
-        placeofdeath, placeofdeathen, placeofdeathru,
-        deathdetails, deathdetailsen, deathdetailsru,
-        biography, biographyen, biographyru,
-        otherparticipation,
-        otherdecoration, otherdecorationen, otherdecorationru,
-        fightingdesc, fightingdescen, fightingdescru,
-        shortdesc,
-        armyrole, armyroleen, armyroleru,
-        releasereason, releasereasonen, releasereasonru,
-        enlistreason,
-        platoonname, platoonnameen, platoonnameru,
-        wounddetails, wounddetailsen, wounddetailsru,
-        gettodesc, gettodescen, gettodescru,
-        otherfightingcontext,
-        armyid,
-        datebreaker,
-        dob, dod, aliyadate,
-        medal, medalen, medalru,
-        degree, degreeen, degreeru,
-        front, fronten, frontru,
-        battle, battleen, battleru,
-        battleyear,
-        battleyear2,
-        front2, fronten2, frontru2,
-        battle2, battleen2, battleru2,
-        medal2, medalen2, medalru2,
-        remarks, remarksen, remarksru,
-        title, titleen, titleru,
-        remarks2, remarksen2, remarksru2,
-        linkurl, useremail,recordcomplete
-      ) VALUES (
-        $1, $2, $3, $4, $5, $6, $7, $8, $9,
-        $10, $11, $12, $13, $14, $15, $16, $17, $18,
-        $19, $20, $21, $22, $23, $24, $25, $26, $27,
-        $28, $29, $30, $31, $32, $33, $34, $35, $36,
-        $37, $38, $39, $40, $41, $42, $43, $44, $45,
-        $46, $47, $48, $49, $50, $51, $52, $53, $54,
-        $55, $56, $57, $58, $59, $60, $61, $62, $63,
-        $64, $65, $66, $67, $68, $69, $70, $71, $72,
-        $73, $74, $75, $76, $77, $78, $79, $80, $81,
-        $82, $83, $84, $85, $86, $87, $88, $89, $90,
-        $91, $92, $93, $94, $95, $96, $97, $98
-      )
-    `, [
-      fname, fnameen, fnameru,
-      lname, lnameen, lnameru,
-      previouslname, previouslnameen, previouslnameru,
-      fathername, fathernameen, fathernameru,
-      mothername, mothernameen, mothernameru,
-      calledby, calledbyen, calledbyru,
-      birthcountry, otherbirthcountry,
-      birthcity, birthcityen, birthcityru,
-      gender,
-      placeofdeath, placeofdeathen, placeofdeathru,
-      deathdetails, deathdetailsen, deathdetailsru,
-      biography, biographyen, biographyru,
-      otherparticipation,
-      otherdecoration, otherdecorationen, otherdecorationru,
-      fightingdesc, fightingdescen, fightingdescru,
-      shortdesc,
-      armyrole, armyroleen, armyroleru,
-      releasereason, releasereasonen, releasereasonru,
-      enlistreason,
-      platoonname, platoonnameen, platoonnameru,
-      wounddetails, wounddetailsen, wounddetailsru,
-      gettodesc, gettodescen, gettodescru,
-      otherfightingcontext,
-      armyid,
-      datebreaker,
-      parsedDob, parsedDod, parsedAliyaDate,
-      medal, medalen, medalru,
-      degree, degreeen, degreeru,
-      front, fronten, frontru,
-      battle, battleen, battleru,
-      battleyear,
-      battleyear2,
-      front2, fronten2, frontru2,
-      battle2, battleen2, battleru2,
-      medal2, medalen2, medalru2,
-      remarks, remarksen, remarksru,
-      title, titleen, titleru,
-      remarks2, remarksen2, remarksru2,
-      linkurl, useremail,recordcomplete
-    ]);
+  INSERT INTO ${SOLDIER_TABLE} (
+    fname, fnameen, fnameru,
+    lname, lnameen, lnameru,
+    previouslname, previouslnameen, previouslnameru,
+    fathername, fathernameen, fathernameru,
+    mothername, mothernameen, mothernameru,
+    calledby, calledbyen, calledbyru,
+    birthcountry, otherbirthcountry,
+    birthcity, birthcityen, birthcityru,
+    gender,
+    placeofdeath, placeofdeathen, placeofdeathru,
+    deathdetails, deathdetailsen, deathdetailsru,
+    biography, biographyen, biographyru,
+    otherparticipation,
+    otherdecoration, otherdecorationen, otherdecorationru,
+    fightingdesc, fightingdescen, fightingdescru,
+    shortdesc,
+    armyrole, armyroleen, armyroleru,
+    releasereason, releasereasonen, releasereasonru,
+    enlistreason,
+    platoonname, platoonnameen, platoonnameru,
+    wounddetails, wounddetailsen, wounddetailsru,
+    gettodesc, gettodescen, gettodescru,
+    otherfightingcontext,
+    armyid,
+    datebreaker,
+    dob, dod, aliyadate,
+    
+   
+    medal, medalen, medalru,
+    degree, degreeen, degreeru,
+    front, fronten, frontru,
+    battle, battleen, battleru,
+    battleyear,
+   
+    battleyear2,
+    front2, fronten2, frontru2,
+    battle2, battleen2, battleru2,
+    medal2, medalen2, medalru2,
+    remarks, remarksen, remarksru,
+   
+    title, titleen, titleru,
+    remarks2, remarksen2, remarksru2,
+    linkurl
+  ) VALUES (
+    $1, $2, $3, $4, $5, $6, $7, $8, $9,
+    $10, $11, $12, $13, $14, $15, $16, $17, $18,
+    $19, $20, $21, $22, $23, $24, $25, $26, $27,
+    $28, $29, $30, $31, $32, $33, $34, $35, $36,
+    $37, $38, $39, $40, $41, $42, $43, $44, $45,
+    $46, $47, $48, $49, $50, $51, $52, $53, $54,
+    $55, $56, $57, $58, $59, $60, $61, $62, $63,
+    $64, $65, $66, $67, $68, $69, $70, $71, $72,
+    $73, $74, $75, $76, $77, $78, $79, $80, $81,
+    $82, $83, $84, $85, $86, $87, $88, $89, $90,
+    $91, $92, $93, $94, $95, $96, $97
+   
+  )
+`, [
+  fname, fnameen, fnameru,
+  lname, lnameen, lnameru,
+  previouslname, previouslnameen, previouslnameru,
+  fathername, fathernameen, fathernameru,
+  mothername, mothernameen, mothernameru,
+  calledby, calledbyen, calledbyru,
+  birthcountry, otherbirthcountry,
+  birthcity, birthcityen, birthcityru,
+  gender,
+  placeofdeath, placeofdeathen, placeofdeathru,
+  deathdetails, deathdetailsen, deathdetailsru,
+  biography, biographyen, biographyru,
+  otherparticipation,
+  otherdecoration, otherdecorationen, otherdecorationru,
+  fightingdesc, fightingdescen, fightingdescru,
+  shortdesc,
+  armyrole, armyroleen, armyroleru,
+  releasereason, releasereasonen, releasereasonru,
+  enlistreason,
+  platoonname, platoonnameen, platoonnameru,
+  wounddetails, wounddetailsen, wounddetailsru,
+  gettodesc, gettodescen, gettodescru,
+  otherfightingcontext,
+  armyid,
+  datebreaker,
+  parsedDob, parsedDod, parsedAliyaDate,
+  
+ 
+  medal, medalen, medalru,
+  degree, degreeen, degreeru,
+  front, fronten, frontru,
+  battle, battleen, battleru,
+  battleyear,
+ 
+  battleyear2,
+  front2, fronten2, frontru2,
+  battle2, battleen2, battleru2,
+  medal2, medalen2, medalru2,
+  remarks, remarksen, remarksru,
+ 
+  title, titleen, titleru,
+  remarks2, remarksen2, remarksru2,
+  linkurl, useremail
+]);
 
-    res.redirect('/?saved=true');
 
+    res.redirect('/soldierlistFULL');
   } catch (error) {
     console.error('Error inserting record:', error.message);
     res.status(500).send(`
@@ -425,86 +422,31 @@ app.post('/addFULL', async (req, res) => {
   }
 });
 
+app.get('/change-lang', (req, res) => {
+  const lang = req.query.lang;
+  res.cookie('i18n', lang, { maxAge: 900000, httpOnly: true });
+  res.redirect('back');
+});
 
-
-
-function formatIfDate(date) {
-  return date ? format(new Date(date), 'dd/MM/yyyy') : 'N/A';
-}
-//const { format } = require('date-fns'); // Ensure this is at the top if not already
-
-// Route to display the multilingual search form
+// Route to display the search form
 app.get('/search', (req, res) => {
-  const locale = req.query.lang || req.cookies.lang || 'he';
-  res.render('search', {
-    locale,
-    firstname: '',
-    lastname: '',
-    useremail: ''
-  });
-});
-
-// Route to search by email (exact match or partial, case-insensitive)
-app.get('/searchByEmail', async (req, res) => {
-  const { useremail, lang } = req.query;
-
-  if (lang) req.setLocale(lang);
-  const locale = req.getLocale();
-
-  try {
-    if (!useremail) {
-      return res.status(400).send('Email is required');
-    }
-
-    const query = `
-      SELECT * FROM ${SOLDIER_TABLE}
-      WHERE useremail ILIKE $1
-    `;
-    const values = [useremail];
-
-    const soldiers = await db.any(query, values);
-
-    const formattedSoldiers = soldiers.map(soldier => ({
-      ...soldier,
-      dob: soldier.dob ? format(new Date(soldier.dob), 'dd/MM/yyyy') : 'N/A',
-      dod: soldier.dod ? format(new Date(soldier.dod), 'dd/MM/yyyy') : 'N/A',
-      translatedFname: lang === 'he' ? soldier.fname : lang === 'en' ? soldier.fnameen : soldier.fnameru,
-      translatedLname: lang === 'he' ? soldier.lname : lang === 'en' ? soldier.lnameen : soldier.lnameru
-    }));
-
-    res.render('searchResults', {
-      soldiers: formattedSoldiers,
-      locale,
-      lang,
-      useremail
+    const locale = req.query.lang || req.cookies.lang || 'he'; // fallback to cookie or Hebrew
+res.render('search', {
+      locale: locale,
+      
+      // other template variables as needed
     });
-
-    console.log(`Email search results for: ${useremail}`);
-  } catch (err) {
-    console.error('Error searching by email:', err);
-    res.status(500).send('Server error at searchByEmail');
-  }
+ 
+ // res.render('search'); // Ensure you have a 'search.ejs' template in your 'views' directory
 });
 
-// Route to handle general search (first name, last name, email)
+// Route to handle search results - FIXED for map_soldierdetails
 app.get('/searchResults', async (req, res) => {
-  let { firstname, lastname, useremail, lang } = req.query;
+  let { firstname, lastname, lang } = req.query; // include lang param
 
-  if (lang) req.setLocale(lang);
-  const locale = req.getLocale();
-
-  // Email validation regex (simple but effective)
-  const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-
-  // If email is missing or invalid, return to the search form with an error
-  if (!useremail || !emailRegex.test(useremail)) {
-    return res.render('search', {
-      locale,
-      firstname,
-      lastname,
-      useremail,
-      error: req.__('error.invalidEmail') || 'Please enter a valid email address.'
-    });
+  // Set locale from lang, assuming you have i18n middleware setup
+  if (lang) {
+    req.setLocale(lang);
   }
 
   try {
@@ -519,38 +461,49 @@ app.get('/searchResults', async (req, res) => {
       query += ` AND (lname ILIKE $${values.push(`%${lastname}%`)} OR lnameen ILIKE $${values.length} OR lnameru ILIKE $${values.length})`;
     }
 
-    if (useremail) {
-      query += ` AND useremail ILIKE $${values.push(`%${useremail}%`)}`;
-    }
-
-    query += ` AND (recordcomplete IS NULL OR recordcomplete = FALSE)`;
-
     const soldiers = await db.any(query, values);
 
     const formattedSoldiers = soldiers.map(soldier => ({
       ...soldier,
       dob: soldier.dob ? format(new Date(soldier.dob), 'dd/MM/yyyy') : 'N/A',
       dod: soldier.dod ? format(new Date(soldier.dod), 'dd/MM/yyyy') : 'N/A',
-      translatedFname: lang === 'he' ? soldier.fname : lang === 'en' ? soldier.fnameen : soldier.fnameru,
-      translatedLname: lang === 'he' ? soldier.lname : lang === 'en' ? soldier.lnameen : soldier.lnameru
+      // You can add language-specific first names here, example:
+      translatedFname:
+        lang === 'he' ? soldier.fname :
+        lang === 'en' ? soldier.fnameen :
+        lang === 'ru' ? soldier.fnameru :
+        soldier.fname,
+      translatedLname:
+        lang === 'he' ? soldier.lname :
+        lang === 'en' ? soldier.lnameen :
+        lang === 'ru' ? soldier.lnameru :
+        soldier.lname
     }));
 
+    // Pass variables to the EJS view so dropdown and inputs keep their values
     res.render('searchResults', {
       soldiers: formattedSoldiers,
-      locale,
+      locale: req.getLocale(),
       lang,
       firstname,
-      lastname,
-      useremail
+      lastname
     });
-
-    console.log('Search results returned successfully');
+     console.log('searchResults route hit');
   } catch (err) {
-    console.error('Error fetching search results:', err);
+    console.error('Error fetching soldiers:', err);
     res.status(500).send('Server error at searchResults');
   }
 });
 
+
+
+
+
+
+
+function formatIfDate(date) {
+  return date ? format(new Date(date), 'dd/MM/yyyy') : 'N/A';
+}
 
 // Route to display the form for updating a soldier
 
@@ -627,7 +580,7 @@ app.post('/updateSoldier/:id', async (req, res) => {
     tablebreaker3,
     title, titleen, titleru,
     remarks2, remarksen2, remarksru2,
-    linkurl, recordcomplete
+    linkurl
   } = req.body;
 
   try {
@@ -688,8 +641,8 @@ app.post('/updateSoldier/:id', async (req, res) => {
         tablebreaker3 = $101,
         title = $102, titleen = $103, titleru = $104,
         remarks2 = $105, remarksen2 = $106, remarksru2 = $107,
-        linkurl = $108, recordcomplete = $109
-      WHERE id = $110`,
+        linkurl = $108
+      WHERE id = $109`,
       [
         fname || null, fnameen || null, fnameru || null,
         lname || null, lnameen || null, lnameru || null,
@@ -736,7 +689,7 @@ app.post('/updateSoldier/:id', async (req, res) => {
         tablebreaker3 || null,
         title || null, titleen || null, titleru || null,
         remarks2 || null, remarksen2 || null, remarksru2 || null,
-        linkurl || null, recordcomplete,
+        linkurl || null,
         id
       ]
     );
@@ -744,7 +697,7 @@ app.post('/updateSoldier/:id', async (req, res) => {
     console.log(`Successfully updated soldier with ID ${id}`);
 
     // Redirect after success
-    res.redirect('/search');
+    res.redirect('/soldierlistFULL');
 
   } catch (error) {
     console.error('Error updating soldier:', error);

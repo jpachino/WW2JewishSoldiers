@@ -3,11 +3,19 @@
 
   "title": "Add Soldier",
   "titleUpdate" :"Update Soldier",
-  "submit": "Submit",
+  "submit": "Submit"
+
+  ,
 
   "home": {
     "title": "WW2 Soldier Entry System",
-    "description": "1.5 million Jewish Soldiers served in WW2 for the Allied countries.\n\n500,000 from the United States\n\n500,000 from Russia\n\n500,000 from the rest of the Allied countries.\n\nOver 250,000 Jewish soldiers failed to come home.\n\nWe honor the memory of all our soldiers.\n\nThis website is a portal to load information about our honored soldiers.\n\nThey fought for the freedom of our world and we are ever in their debt."
+    "description": "1.5 million Jewish Soldiers served in WW2 for the Allied countries.\n\n550,000 from the United States\n\n500,000 from Russia\n\n500,000 from the rest of the Allied countries.\n\nOver 250,000 Jewish soldiers failed to come home.\n\nWe honor the memory of all our soldiers.\n\nThis website is a portal to load information about our honored soldiers.\n\nThey fought for the freedom of our world and we are ever in their debt.",
+    
+    "emailPlaceholder": "e.g. john@example.com",
+    "continueButton": "Press here to continue enter a soldier's information",
+    "chooseAction": "Please choose an action:",
+    "addNewSoldier": "Add New Soldier",
+    "changeSoldierInfo": "Change Soldier Information"
   },
 
   "nav": {
@@ -17,15 +25,17 @@
     "searchUpdate": "Search and Update Soldier",
     
     "searchResults": "Search Results"
+    
   },
 
   "search": {
     "title": "Search Soldiers",
     "enterFirstName": "Enter first name",
     "enterLastName": "Enter last name",
+    "enterEmail": "Enter your email",
     "searchButton": "Search"
   },
-
+  
   "fields": {
     "fname": "First Name",
     "fnameen": "First Name (EN)",
@@ -86,9 +96,10 @@
     "remarksen": "Remarks (EN)",
     "remarksru": "Remarks (RU)",
     "linkurl": "Link",
+    "useremail": "Your Email",
     "id": "ID"
   },
-
+  
   "sections": {
     "basic": "Basic Details",
     "family": "Family",
@@ -103,13 +114,27 @@
     "infoHeader": "Soldier Registration Form",
     "infoText": "This form will be used to enter information into the computerized information system of the site...",
     "sendMaterials": "Additional materials (PDF, etc.) please send to",
-    "thankYou": "Thank you for your cooperation."
+    "thankYou": "Thank you for your cooperation.",
+    "mark_complete": "I confirm that the record is complete and accurate",
+    "mark_complete_note": "Once marked complete, changes can only be made by contacting us.",
+    "mark_complete_note2":"Do not click complete record box if you want to make future changes to this soldier information.",
+    "mark_complete_note3":"The record will be stored and you can continue to update the soldier information until this box is checked."
   },
   "actions": {
     "edit": "Edit",
     "backToSearch": "Back to Search"
   },
   "messages": {
-    "noResults": "No soldiers found."
-  }
+    "noResults": "No soldiers found.",
+    "saved": "Record saved successfully."
+
+  },
+  "searchResults": {
+  "resultsFor": "Search results for"
+},
+"error": {
+  "invalidEmail": "Please enter a valid email address."
+}
+
+
 }

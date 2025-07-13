@@ -15,12 +15,12 @@
     textarea { resize: vertical; }
   </style>
 </head>
-<!--<div id="confirmModal" class="modal hidden">
+<div id="confirmModal" class="modal hidden">
   <div class="modal-content">
     <p id="confirmText"></p>
     <button id="confirmYes">Yes</button>
     <button id="confirmNo">No</button>
-  </div>-->
+  </div>
 </div>
 
 
@@ -34,7 +34,7 @@
       </nav>
     </div>
   </header>
-  <br /><br /><br /><br /><br /><br><br><br>
+
   <form method="get" action="">
     <select name="lang" onchange="this.form.submit()">
       <option value="he" <%= (locale === 'he' ? 'selected' : '') %>>עברית</option>
@@ -407,24 +407,15 @@
   <label for="linkurl"><%= __('fields.linkurl') %>:</label>
   <input type="url" name="linkurl" id="linkurl" />
 
-   
+    <label for="remarksru"><%= __('fields.remarksru') %>:</label>
+  <textarea name="remarksru" id="remarksru"></textarea>
+
+  <label for="linkurl"><%= __('fields.linkurl') %>:</label>
+  <input type="url" name="linkurl" id="linkurl" />
+
   <label for="useremail"><%= __('fields.useremail') %>:</label>
   <input type="email" name="useremail" id="useremail" required />
-  <div class="checkbox-group">
-  <label>
-    <input type="checkbox" name="recordcomplete" id="recordcomplete" value="true" />
-    <%= __('form.mark_complete') %>
-  </label>
-  <p class="note">
-    <%= __('form.mark_complete_note') %>
-  </p>
-  <p class="note">
-    <%= __('form.mark_complete_note2') %>
-  </p>
-  <p class="note">
-    <%= __('form.mark_complete_note3') %>
-  </p>
-</div>
+
   
 </fieldset>
 
@@ -432,10 +423,12 @@
 </form>
 
 </fieldset>
-</body>
-  </div>
 
-<!--<script>
+<button type="submit"><%= __('submit') %></button>
+</form>
+   
+  </div>
+<script>
   document.querySelector('form[action="/addfull"]').addEventListener('submit', function (e) {
   e.preventDefault(); // Stop form from submitting
 
@@ -497,6 +490,6 @@
 
 </script>
 
-</body>-->
+</body>
 </html>
  

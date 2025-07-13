@@ -349,6 +349,9 @@ const SoldierDetails = db.define('map_soldierdetails', {
   },
   linkurl: {
     type: Sequelize.TEXT
+  },
+  useremail:{
+    email:Sequelize.TEXT
   }
 }, {
   timestamps: false

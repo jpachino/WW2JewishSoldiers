@@ -15,9 +15,9 @@
     <h1><%= __('titleUpdate') %></h1>
     <nav>
       <a href="/"><%= __('nav.home') %></a>
-      <a href="/soldierlistFULL"><%= __('nav.soldierList') %></a>
+      <!--<a href="/soldierlistFULL"><%= __('nav.soldierList') %></a>
       <a href="/addFULL"><%= __('nav.addSoldier') %></a>
-      <a href="/search"><%= __('nav.searchUpdate') %></a>
+      <a href="/search"><%= __('nav.searchUpdate') %></a>-->
     </nav>
   </div>
   </header>
@@ -229,10 +229,10 @@
       <fieldset>
         <legend><%= __('fields.idf_enlistdate') %> & <%= __('fields.idf_releasedate') %></legend>
 
-        <label for="idf_enlistdate"><%= __('fields.idf_enlistdate') %></label>
+        <!--<label for="idf_enlistdate"><%= __('fields.idf_enlistdate') %></label>
         <input type="date" name="idf_enlistdate" id="idf_enlistdate" value="<%= soldier.idf_enlistdate ? soldier.idf_enlistdate.toISOString().substring(0, 10) : '' %>">
 
-        <label for="idf_releasedate"><%= __('fields.idf_releasedate') %></label>
+        <label for="idf_releasedate"><%= __('fields.idf_releasedate') %></label>-->
         <input type="date" name="idf_releasedate" id="idf_releasedate" value="<%= soldier.idf_releasedate ? soldier.idf_releasedate.toISOString().substring(0, 10) : '' %>">
       </fieldset>
 
@@ -303,7 +303,15 @@
         <label for="linkurl"><%= __('fields.linkurl') %></label>
         <input type="url" name="linkurl" id="linkurl" value="<%= soldier.linkurl || '' %>">
       </fieldset>
-
+      <div>
+  <label>
+    <input type="checkbox" name="recordcomplete" value="true" <%= soldier && soldier.recordcomplete ? 'checked disabled' : '' %> />
+    <%= __('form.mark_complete') %>
+  </label>
+  <p class="note">
+    <%= __('form.mark_complete_note') %>
+  </p>
+</div>
       <div class="form-actions">
         <button type="submit"><%= __('Update') %></button>
         <a href="/soldierlistFULL"><%= __('Back to list') %></a>
