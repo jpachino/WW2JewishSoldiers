@@ -1,0 +1,149 @@
+<!DOCTYPE html>
+<html lang="<%= locale %>">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title><%= __('admin.completedTitle') %></title>
+  <link rel="stylesheet" href="/styles/styles.css" />
+  <style>
+    .preview-box {
+      margin-top: 2rem;
+      padding: 1rem;
+      border: 1px solid #ccc;
+      border-radius: 10px;
+      background-color: #f9f9f9;
+    }
+    .preview-box h2 {
+      margin-top: 0;
+    }
+  </style>
+  <script>
+    function submitForm(targetFormId) {
+      const checkboxes = document.querySelectorAll('input[name="selectedIds"]:checked');
+      const selectedIds = Array.from(checkboxes).map(cb => cb.value);
+
+      if (selectedIds.length === 0) {
+        alert("<%= __('admin.selectAtLeastOne') || 'Please select at least one record.' %>");
+        return false;
+      }
+
+      const targetForm = document.getElementById(targetFormId);
+
+      // Remove any old hidden inputs
+      targetForm.querySelectorAll('input[name="selectedIds"]').forEach(el => el.remove());
+
+      // Add selected IDs as hidden fields
+      selectedIds.forEach(id => {
+        const input = document.createElement('input');
+        input.type = 'hidden';
+        input.name = 'selectedIds';
+        input.value = id;
+        targetForm.appendChild(input);
+      });
+
+      console.log("📤 Submitting selected IDs:", selectedIds);
+      targetForm.submit();
+    }
+
+    function previewSelected() {
+      const allRows = document.querySelectorAll("tbody tr");
+      const selectedIds = Array.from(document.querySelectorAll('input[name="selectedIds"]:checked')).map(cb => cb.value);
+
+      if (selectedIds.length === 0) {
+        alert("<%= __('admin.selectAtLeastOne') || 'Please select at least one record.' %>");
+        return;
+      }
+
+      const previewArea = document.getElementById("previewArea");
+      const previewTableBody = document.getElementById("previewBody");
+      previewTableBody.innerHTML = ""; // Clear previous preview
+
+      allRows.forEach(row => {
+        const checkbox = row.querySelector('input[type="checkbox"]');
+        if (checkbox && selectedIds.includes(checkbox.value)) {
+          const clonedRow = row.cloneNode(true);
+          clonedRow.removeChild(clonedRow.firstElementChild); // Remove checkbox cell
+          previewTableBody.appendChild(clonedRow);
+        }
+      });
+
+      previewArea.style.display = "block";
+    }
+  </script>
+</head>
+
+<body>
+  <header>
+    <div class="container">
+      <h1><%= __('admin.completedTitle') %></h1>
+      <nav>
+        <a href="/"><%= __('nav.home') %></a>
+      </nav>
+    </div>
+  </header>
+
+  <main class="container">
+    <% if (soldiers && soldiers.length > 0) { %>
+      <table>
+        <thead>
+          <tr>
+            <th><%= __('form.select') || 'Select' %></th>
+            <th>ID</th>
+            <th><%= __('form.firstName') %></th>
+            <th><%= __('form.lastName') %></th>
+            <th><%= __('form.email') %></th>
+            <th><%= __('form.dob') %></th>
+          </tr>
+        </thead>
+        <tbody>
+          <% soldiers.forEach(s => { %>
+            <tr>
+              <td><input type="checkbox" name="selectedIds" value="<%= s.id %>" /></td>
+              <td><%= s.id %></td>
+              <td><%= s.fname || '' %></td>
+              <td><%= s.lname || '' %></td>
+              <td><%= s.useremail %></td>
+              <td><%= s.dob ? new Date(s.dob).toLocaleDateString(locale) : '' %></td>
+            </tr>
+          <% }) %>
+        </tbody>
+      </table>
+
+      <br />
+
+      <form id="excelForm" method="POST" action="/admin/downloadExcel">
+        <input type="hidden" name="adminemail" value="<%= adminemail %>" />
+        <button type="button" onclick="submitForm('excelForm')">
+          <%= __('admin.downloadExcel') || 'Download Excel' %>
+        </button>
+        <button type="button" onclick="previewSelected()">
+          <%= __('admin.previewSelected') || 'Preview Selected' %>
+        </button>
+      </form>
+
+      <!-- Preview Section -->
+      <div id="previewArea" class="preview-box" style="display: none;">
+        <h2><%= __('admin.previewHeading') || 'Preview Selected Records' %></h2>
+        <table>
+          <thead>
+            <tr>
+              <th>ID</th>
+              <th><%= __('form.firstName') %></th>
+              <th><%= __('form.lastName') %></th>
+              <th><%= __('form.email') %></th>
+              <th><%= __('form.dob') %></th>
+            </tr>
+          </thead>
+          <tbody id="previewBody"></tbody>
+        </table>
+      </div>
+
+    <% } else { %>
+      <p><%= __('admin.noCompleted') || 'No completed records found.' %></p>
+    <% } %>
+  </main>
+</body>
+</html>
+
+
+

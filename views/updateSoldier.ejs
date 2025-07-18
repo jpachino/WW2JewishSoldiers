@@ -30,7 +30,8 @@
   </select>
   </form>
   <div class="container">
-    <form action="/updateSoldier/<%= soldier.id %>" method="post">
+    <!--<form action="/updateSoldier/<%= soldier.id %>" method="post">-->
+      <form action="/updateSoldier/<%= soldier.id %>" method="post" enctype="multipart/form-data">
 
       <fieldset>
         <legend><%= __('fields.fname') %> & <%= __('fields.lname') %></legend>
@@ -303,6 +304,12 @@
         <label for="linkurl"><%= __('fields.linkurl') %></label>
         <input type="url" name="linkurl" id="linkurl" value="<%= soldier.linkurl || '' %>">
       </fieldset>
+      <fieldset>
+        <legend><%= __('sections.uploads') || 'Upload Files' %></legend>
+        <label for="files"><%= __('form.upload_files') || 'Upload supporting files (images, documents, etc)' %></label>
+        <input type="file" id="files" name="files" multiple />
+      </fieldset>
+
       <div>
   <label>
     <input type="checkbox" name="recordcomplete" value="true" <%= soldier && soldier.recordcomplete ? 'checked disabled' : '' %> />
@@ -312,6 +319,8 @@
     <%= __('form.mark_complete_note') %>
   </p>
 </div>
+  
+
       <div class="form-actions">
         <button type="submit"><%= __('Update') %></button>
         <a href="/soldierlistFULL"><%= __('Back to list') %></a>

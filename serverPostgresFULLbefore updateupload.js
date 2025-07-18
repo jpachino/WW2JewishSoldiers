@@ -613,123 +613,180 @@ app.get('/updateSoldier/:id', async (req, res) => {
 // FIXED: Route to handle form submission for updating a soldier
 
 
-
-
-app.post('/updateSoldier/:id', upload.array('files'), async (req, res) => {
-  console.log('Update route hit:', req.params.id);
+app.post('/updateSoldier/:id', async (req, res) => {
+  console.log("Update route hit with id:", req.params.id);
   const { id } = req.params;
+  const { 
+    fname, fnameen, fnameru,
+    lname, lnameen, lnameru,
+    previouslname, previouslnameen, previouslnameru,
+    fathername, fathernameen, fathernameru,
+    mothername, mothernameen, mothernameru,
+    calledby, calledbyen, calledbyru,
+    birthcountry, otherbirthcountry,
+    birthcity, birthcityen, birthcityru,
+    gender,
+    placeofdeath, placeofdeathen, placeofdeathru,
+    deathdetails, deathdetailsen, deathdetailsru,
+    biography, biographyen, biographyru,
+    otherparticipation,
+    otherdecoration, otherdecorationen, otherdecorationru,
+    fightingdesc, fightingdescen, fightingdescru,
+    idf_otherforce, idf_otherrank,
+    idf_desc, idf_descen, idf_descru,
+    idf_serviceplace, idf_platoonname,
+    shortdesc,
+    armyrole, armyroleen, armyroleru,
+    releasereason, releasereasonen, releasereasonru,
+    enlistreason,
+    platoonname, platoonnameen, platoonnameru,
+    wounddetails, wounddetailsen, wounddetailsru,
+    gettodesc, gettodescen, gettodescru,
+    otherfightingcontext,
+    armyid,
+    datebreaker,
+    dob, dod, aliyadate,
+    idf_enlistdate, idf_releasedate,
+    tablebreaker,
+    medal, medalen, medalru,
+    degree, degreeen, degreeru,
+    front, fronten, frontru,
+    battle, battleen, battleru,
+    battleyear,
+    tablebreaker2,
+    battleyear2,
+    front2, fronten2, frontru2,
+    battle2, battleen2, battleru2,
+    medal2, medalen2, medalru2,
+    remarks, remarksen, remarksru,
+    tablebreaker3,
+    title, titleen, titleru,
+    remarks2, remarksen2, remarksru2,
+    linkurl, recordcomplete
+  } = req.body;
 
   try {
-    const existingSoldier = await db.oneOrNone(`SELECT * FROM ${SOLDIER_TABLE} WHERE id = $1`, [id]);
-    if (!existingSoldier) {
-      return res.status(404).send('Soldier not found');
-    }
+    // Parse dates or set null
+    const parsedDob = dob ? new Date(dob) : null;
+    const parsedDod = dod ? new Date(dod) : null;
+    const parsedAliyaDate = aliyadate ? new Date(aliyadate) : null;
+    const parsedIdfEnlistDate = idf_enlistdate ? new Date(idf_enlistdate) : null;
+    const parsedIdfReleaseDate = idf_releasedate ? new Date(idf_releasedate) : null;
 
-    // Parse date fields
-    const parsedDob = req.body.dob ? new Date(req.body.dob) : null;
-    const parsedDod = req.body.dod ? new Date(req.body.dod) : null;
-    const parsedAliyaDate = req.body.aliyadate ? new Date(req.body.aliyadate) : null;
-    const parsedIdfEnlistDate = req.body.idf_enlistdate ? new Date(req.body.idf_enlistdate) : null;
-    const parsedIdfReleaseDate = req.body.idf_releasedate ? new Date(req.body.idf_releasedate) : null;
+    console.log(`Updating soldier ID ${id}`);
+    console.log('Parsed dates:', { parsedDob, parsedDod, parsedAliyaDate, parsedIdfEnlistDate, parsedIdfReleaseDate });
 
-    const inputData = {
-      fname: req.body.fname, fnameen: req.body.fnameen, fnameru: req.body.fnameru,
-      lname: req.body.lname, lnameen: req.body.lnameen, lnameru: req.body.lnameru,
-      previouslname: req.body.previouslname, previouslnameen: req.body.previouslnameen, previouslnameru: req.body.previouslnameru,
-      fathername: req.body.fathername, fathernameen: req.body.fathernameen, fathernameru: req.body.fathernameru,
-      mothername: req.body.mothername, mothernameen: req.body.mothernameen, mothernameru: req.body.mothernameru,
-      calledby: req.body.calledby, calledbyen: req.body.calledbyen, calledbyru: req.body.calledbyru,
-      birthcountry: req.body.birthcountry, otherbirthcountry: req.body.otherbirthcountry,
-      birthcity: req.body.birthcity, birthcityen: req.body.birthcityen, birthcityru: req.body.birthcityru,
-      gender: req.body.gender,
-      placeofdeath: req.body.placeofdeath, placeofdeathen: req.body.placeofdeathen, placeofdeathru: req.body.placeofdeathru,
-      deathdetails: req.body.deathdetails, deathdetailsen: req.body.deathdetailsen, deathdetailsru: req.body.deathdetailsru,
-      biography: req.body.biography, biographyen: req.body.biographyen, biographyru: req.body.biographyru,
-      otherparticipation: req.body.otherparticipation,
-      otherdecoration: req.body.otherdecoration, otherdecorationen: req.body.otherdecorationen, otherdecorationru: req.body.otherdecorationru,
-      fightingdesc: req.body.fightingdesc, fightingdescen: req.body.fightingdescen, fightingdescru: req.body.fightingdescru,
-      idf_otherforce: req.body.idf_otherforce, idf_otherrank: req.body.idf_otherrank,
-      idf_desc: req.body.idf_desc, idf_descen: req.body.idf_descen, idf_descru: req.body.idf_descru,
-      idf_serviceplace: req.body.idf_serviceplace, idf_platoonname: req.body.idf_platoonname,
-      shortdesc: req.body.shortdesc,
-      armyrole: req.body.armyrole, armyroleen: req.body.armyroleen, armyroleru: req.body.armyroleru,
-      releasereason: req.body.releasereason, releasereasonen: req.body.releasereasonen, releasereasonru: req.body.releasereasonru,
-      enlistreason: req.body.enlistreason,
-      platoonname: req.body.platoonname, platoonnameen: req.body.platoonnameen, platoonnameru: req.body.platoonnameru,
-      wounddetails: req.body.wounddetails, wounddetailsen: req.body.wounddetailsen, wounddetailsru: req.body.wounddetailsru,
-      gettodesc: req.body.gettodesc, gettodescen: req.body.gettodescen, gettodescru: req.body.gettodescru,
-      otherfightingcontext: req.body.otherfightingcontext,
-      armyid: req.body.armyid,
-      datebreaker: req.body.datebreaker,
-      dob: parsedDob, dod: parsedDod, aliyadate: parsedAliyaDate,
-      idf_enlistdate: parsedIdfEnlistDate, idf_releasedate: parsedIdfReleaseDate,
-      tablebreaker: req.body.tablebreaker,
-      medal: req.body.medal, medalen: req.body.medalen, medalru: req.body.medalru,
-      degree: req.body.degree, degreeen: req.body.degreeen, degreeru: req.body.degreeru,
-      front: req.body.front, fronten: req.body.fronten, frontru: req.body.frontru,
-      battle: req.body.battle, battleen: req.body.battleen, battleru: req.body.battleru,
-      battleyear: req.body.battleyear,
-      tablebreaker2: req.body.tablebreaker2,
-      battleyear2: req.body.battleyear2,
-      front2: req.body.front2, fronten2: req.body.fronten2, frontru2: req.body.frontru2,
-      battle2: req.body.battle2, battleen2: req.body.battleen2, battleru2: req.body.battleru2,
-      medal2: req.body.medal2, medalen2: req.body.medalen2, medalru2: req.body.medalru2,
-      remarks: req.body.remarks, remarksen: req.body.remarksen, remarksru: req.body.remarksru,
-      tablebreaker3: req.body.tablebreaker3,
-      title: req.body.title, titleen: req.body.titleen, titleru: req.body.titleru,
-      remarks2: req.body.remarks2, remarksen2: req.body.remarksen2, remarksru2: req.body.remarksru2,
-      linkurl: req.body.linkurl,
-      recordcomplete: req.body.recordcomplete
-    };
+    await db.none(
+      `UPDATE ${SOLDIER_TABLE} SET
+        fname = $1, fnameen = $2, fnameru = $3,
+        lname = $4, lnameen = $5, lnameru = $6,
+        previouslname = $7, previouslnameen = $8, previouslnameru = $9,
+        fathername = $10, fathernameen = $11, fathernameru = $12,
+        mothername = $13, mothernameen = $14, mothernameru = $15,
+        calledby = $16, calledbyen = $17, calledbyru = $18,
+        birthcountry = $19, otherbirthcountry = $20,
+        birthcity = $21, birthcityen = $22, birthcityru = $23,
+        gender = $24,
+        placeofdeath = $25, placeofdeathen = $26, placeofdeathru = $27,
+        deathdetails = $28, deathdetailsen = $29, deathdetailsru = $30,
+        biography = $31, biographyen = $32, biographyru = $33,
+        otherparticipation = $34,
+        otherdecoration = $35, otherdecorationen = $36, otherdecorationru = $37,
+        fightingdesc = $38, fightingdescen = $39, fightingdescru = $40,
+        idf_otherforce = $41, idf_otherrank = $42,
+        idf_desc = $43, idf_descen = $44, idf_descru = $45,
+        idf_serviceplace = $46, idf_platoonname = $47,
+        shortdesc = $48,
+        armyrole = $49, armyroleen = $50, armyroleru = $51,
+        releasereason = $52, releasereasonen = $53, releasereasonru = $54,
+        enlistreason = $55,
+        platoonname = $56, platoonnameen = $57, platoonnameru = $58,
+        wounddetails = $59, wounddetailsen = $60, wounddetailsru = $61,
+        gettodesc = $62, gettodescen = $63, gettodescru = $64,
+        otherfightingcontext = $65,
+        armyid = $66,
+        datebreaker = $67,
+        dob = $68, dod = $69, aliyadate = $70,
+        idf_enlistdate = $71, idf_releasedate = $72,
+        tablebreaker = $73,
+        medal = $74, medalen = $75, medalru = $76,
+        degree = $77, degreeen = $78, degreeru = $79,
+        front = $80, fronten = $81, frontru = $82,
+        battle = $83, battleen = $84, battleru = $85,
+        battleyear = $86,
+        tablebreaker2 = $87,
+        battleyear2 = $88,
+        front2 = $89, fronten2 = $90, frontru2 = $91,
+        battle2 = $92, battleen2 = $93, battleru2 = $94,
+        medal2 = $95, medalen2 = $96, medalru2 = $97,
+        remarks = $98, remarksen = $99, remarksru = $100,
+        tablebreaker3 = $101,
+        title = $102, titleen = $103, titleru = $104,
+        remarks2 = $105, remarksen2 = $106, remarksru2 = $107,
+        linkurl = $108, recordcomplete = $109
+      WHERE id = $110`,
+      [
+        fname || null, fnameen || null, fnameru || null,
+        lname || null, lnameen || null, lnameru || null,
+        previouslname || null, previouslnameen || null, previouslnameru || null,
+        fathername || null, fathernameen || null, fathernameru || null,
+        mothername || null, mothernameen || null, mothernameru || null,
+        calledby || null, calledbyen || null, calledbyru || null,
+        birthcountry || null, otherbirthcountry || null,
+        birthcity || null, birthcityen || null, birthcityru || null,
+        gender || null,
+        placeofdeath || null, placeofdeathen || null, placeofdeathru || null,
+        deathdetails || null, deathdetailsen || null, deathdetailsru || null,
+        biography || null, biographyen || null, biographyru || null,
+        otherparticipation || null,
+        otherdecoration || null, otherdecorationen || null, otherdecorationru || null,
+        fightingdesc || null, fightingdescen || null, fightingdescru || null,
+        idf_otherforce || null, idf_otherrank || null,
+        idf_desc || null, idf_descen || null, idf_descru || null,
+        idf_serviceplace || null, idf_platoonname || null,
+        shortdesc || null,
+        armyrole || null, armyroleen || null, armyroleru || null,
+        releasereason || null, releasereasonen || null, releasereasonru || null,
+        enlistreason || null,
+        platoonname || null, platoonnameen || null, platoonnameru || null,
+        wounddetails || null, wounddetailsen || null, wounddetailsru || null,
+        gettodesc || null, gettodescen || null, gettodescru || null,
+        otherfightingcontext || null,
+        armyid || null,
+        datebreaker || null,
+        parsedDob, parsedDod, parsedAliyaDate,
+        parsedIdfEnlistDate, parsedIdfReleaseDate,
+        tablebreaker || null,
+        medal || null, medalen || null, medalru || null,
+        degree || null, degreeen || null, degreeru || null,
+        front || null, fronten || null, frontru || null,
+        battle || null, battleen || null, battleru || null,
+        battleyear || null,
+        tablebreaker2 || null,
+        battleyear2 || null,
+        front2 || null, fronten2 || null, frontru2 || null,
+        battle2 || null, battleen2 || null, battleru2 || null,
+        medal2 || null, medalen2 || null, medalru2 || null,
+        remarks || null, remarksen || null, remarksru || null,
+        tablebreaker3 || null,
+        title || null, titleen || null, titleru || null,
+        remarks2 || null, remarksen2 || null, remarksru2 || null,
+        linkurl || null, recordcomplete,
+        id
+      ]
+    );
 
-    const updates = [];
-    const values = [];
-    let i = 1;
-
-    for (const key in inputData) {
-      const newValue = inputData[key] === '' ? null : inputData[key];
-      const oldValue = existingSoldier[key] === '' ? null : existingSoldier[key];
-
-      const isDate = newValue instanceof Date || oldValue instanceof Date;
-      const same = isDate
-        ? newValue?.toISOString() === new Date(oldValue)?.toISOString()
-        : newValue == oldValue;
-
-    
-      if (!same) {
-        console.log(`Field changed: ${key} old: ${oldValue} new: ${newValue}`);
-        updates.push(`"${key}" = $${i}`);
-        values.push(newValue);
-        i++;
-      }
-    }
-
-    if (updates.length === 0) {
-      console.log("No changes detected, skipping update.");
-      return res.redirect('/search');
-    }
-
-    const updateSQL = `UPDATE ${SOLDIER_TABLE} SET ${updates.join(', ')} WHERE id = $${i}`;
-    values.push(id);
-
-    await db.none(updateSQL, values);
     console.log(`Successfully updated soldier with ID ${id}`);
-    if (req.files && req.files.length > 0) {
-      const fileInserts = req.files.map(file =>
-        db.none(
-          `INSERT INTO uploaded_files (soldier_id, original_name, file_path)
-           VALUES ($1, $2, $3)`,
-          [id, file.originalname, file.path]
-        )
-      );
-      await Promise.all(fileInserts);
-      console.log(`Stored ${req.files.length} uploaded files for soldier ID ${id}`);
-    }
-    //res.redirect('/search');
-     res.redirect('/?saved=true');
+
+    // Redirect after success
+    res.redirect('/search');
 
   } catch (error) {
     console.error('Error updating soldier:', error);
+    console.error('Error details:', error.message);
+    if (error.stack) console.error('Stack trace:', error.stack);
+    if (error.query) console.error('Failed query:', error.query);
+
     res.status(500).send(`
       <h1>Error Updating Soldier</h1>
       <p>Message: ${error.message}</p>
@@ -739,9 +796,6 @@ app.post('/updateSoldier/:id', upload.array('files'), async (req, res) => {
     `);
   }
 });
-
-
-
 
 
 // Route: Show completed records for a given admin

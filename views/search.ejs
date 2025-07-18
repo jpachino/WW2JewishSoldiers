@@ -9,16 +9,30 @@
 <body>
   <header>
     <div class="container">
-      <h1><%= __('search.title') %></h1>
+      <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap;">
+        <h1><%= __('search.title') %></h1>
+
+        <!-- 🌐 Language Selector -->
+        <form method="get" action="">
+  <select name="lang" onchange="this.form.submit()">
+    <option value="he" <%= (locale === 'he' ? 'selected' : '') %>>עברית</option>
+    <option value="en" <%= (locale === 'en' ? 'selected' : '') %>>English</option>
+    <option value="ru" <%= (locale === 'ru' ? 'selected' : '') %>>Русский</option>
+  </select>
+</form>
+      </div>
+
       <nav>
         <a href="/"><%= __('nav.home') %></a>
+        <!-- Hidden nav links for future use -->
         <!--<a href="/soldierlistFULL"><%= __('nav.soldierList') %></a>
-        <a href="/addFULL"><%= __('nav.addSoldier') %></a>-->
+        <a href="/addFull"><%= __('nav.addSoldier') %></a>
+        <a href="/search"><%= __('nav.searchUpdate') %></a>-->
       </nav>
     </div>
   </header>
 
-  <br /><br /><br /><br /><br /><br />
+  <br ><br ><br ><br> <br><br><br>
 
   <div class="container">
     <form action="/searchResults" method="get">

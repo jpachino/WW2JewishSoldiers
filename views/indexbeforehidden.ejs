@@ -6,11 +6,33 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title><%= __('home.title') %></title>
   <link rel="stylesheet" href="/styles/styles.css" />
+  <!--<style>
+    .lang-select {
+      font-size: 1rem;
+      padding: 4px 8px;
+      border-radius: 6px;
+    }
+
+    main {
+      padding-top: 160px; /* Ensures content is visible below the fixed header */
+      text-align: center;
+    }
+
+    .choice-form {
+      margin-top: 3rem;
+    }
+
+    .choice-form button {
+      margin: 0 1rem;
+      padding: 10px 20px;
+      font-size: 1.2rem;
+      cursor: pointer;
+    }
+  </style>-->
 </head>
 
-<body>
- 
 
+<body>
   <header>
     <div class="container">
       <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap;">
@@ -28,7 +50,6 @@
 
       <nav>
         <a href="/"><%= __('nav.home') %></a>
-        <!-- Hidden nav links for future use -->
         <!--<a href="/soldierlistFULL"><%= __('nav.soldierList') %></a>
         <a href="/addFull"><%= __('nav.addSoldier') %></a>
         <a href="/search"><%= __('nav.searchUpdate') %></a>-->
@@ -37,13 +58,6 @@
   </header>
 
   <main class="container">
-     <% if (saved) { %>
-  <div class="success-box">
-   
-    ✅ <%= __('form.saved_success') || 'Record and files saved successfully!' %>
-  </div>
-  <% } %>
-
     <h3 style="white-space: pre-line;">
       <%= __('home.description') %>
     </h3>
@@ -54,17 +68,6 @@
       <button type="button" onclick="redirectToAdd()"><%= __('home.addNewSoldier') %></button>
       <button type="button" onclick="redirectToChange()"><%= __('home.changeSoldierInfo') %></button>
     </form>
-
-    <!-- Hidden Admin Link (invisible unless hovered) -->
-    <div style="text-align: right; font-size: 0.8rem; margin-top: 20px;">
-      <a href="#" 
-         style="color: transparent; text-decoration: none;" 
-         onmouseover="this.style.color='#ccc'" 
-         onmouseout="this.style.color='transparent'" 
-         onclick="promptAdminAccess(event)">
-        •
-      </a>
-    </div>
   </main>
 
   <script>
@@ -72,47 +75,10 @@
       window.location.href = '/addFull';
     }
 
- 
     function redirectToChange() {
-      const lang = '<%= locale %>';
-      window.location.href = `/search?lang=${lang}`;
+      window.location.href = '/search';
     }
-
-    // Password-protected admin access
-    function promptAdminAccess(e) {
-      e.preventDefault();
-      const password = prompt("Enter admin password:");
-      if (password === 'TestPass123') {
-        window.location.href = '/admin/completedRecords?adminemail=admin@ww2jewishsoldiers.com&lang=<%= locale %>';
-      } else if (password !== null) {
-        alert("Incorrect password.");
-      }
-    }
-
-    // Optional: Keyboard shortcut Ctrl+Shift+A
-    document.addEventListener('keydown', function(e) {
-      if (e.ctrlKey && e.shiftKey && e.key === 'A') {
-        promptAdminAccess(e);
-      }
-     
-
-
-
-
-    });
   </script>
-  <script>
-  // Auto-hide success message after 5 seconds
-  const successBox = document.querySelector('.success-box');
-  if (successBox) {
-    setTimeout(() => {
-      successBox.style.transition = 'opacity 0.5s ease';
-      successBox.style.opacity = '0';
-      setTimeout(() => successBox.remove(), 500); // fully remove after fade-out
-    }, 5000); // hide after 5 seconds
-  }
-</script>
-
 </body>
 </html>
 

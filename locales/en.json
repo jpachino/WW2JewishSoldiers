@@ -35,6 +35,21 @@
     "enterEmail": "Enter your email",
     "searchButton": "Search"
   },
+ 
+  "sections": {
+    "basic":"basic information",
+    "bio": "bio",
+    "parents": "parents",
+    "military": "military",
+    "family": "family",
+    "birthdeath": "birth and death information",
+    "finalnotes": "final notes",
+    "uploads":"uploads",
+    "datesmedals":"dates and medals",
+    "files": "files"
+  
+},
+
   
   "fields": {
     "fname": "First Name",
@@ -100,15 +115,7 @@
     "id": "ID"
   },
   
-  "sections": {
-    "basic": "Basic Details",
-    "family": "Family",
-    "birthdeath": "Birth and Death",
-    "biopart": "Biography and Participation",
-    "idf": "Military Service",
-    "datesmedals": "Dates and Medals",
-    "finalnotes": "Final Remarks"
-  },
+  
 
   "form": {
     "infoHeader": "Soldier Registration Form",
@@ -118,8 +125,25 @@
     "mark_complete": "I confirm that the record is complete and accurate",
     "mark_complete_note": "Once marked complete, changes can only be made by contacting us.",
     "mark_complete_note2":"Do not click complete record box if you want to make future changes to this soldier information.",
-    "mark_complete_note3":"The record will be stored and you can continue to update the soldier information until this box is checked."
+    "mark_complete_note3":"The record will be stored and you can continue to update the soldier information until this box is checked.",
+    "select": "Select",
+    "firstName": "First Name",
+    "lastName": "Last Name",
+    "email": "Your Email",
+    "dob": "Date of Birth",
+    "saved_success": "Record and files saved successfully!",
+    "upload_files":"Upload Files"
+
   },
+"admin": {
+  "completedTitle": "Completed Records",
+  "downloadExcel": "Download Excel",
+  "downloadTxt": "Download TXT",
+  "noCompleted": "No completed records found.",
+  "previewSelected": "Preview Selected",
+  "previewHeading": "Preview Selected Records"
+
+},
   "actions": {
     "edit": "Edit",
     "backToSearch": "Back to Search"

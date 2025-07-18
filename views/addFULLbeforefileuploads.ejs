@@ -26,62 +26,23 @@
 
 
 <body>
- <header>
+  <header>
     <div class="container">
-      <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap;">
-        <h1><%= __('title') %></h1>
-
-        <!-- 🌐 Language Selector -->
-        <form method="get" action="">
-  <select name="lang" onchange="this.form.submit()">
-    <option value="he" <%= (locale === 'he' ? 'selected' : '') %>>עברית</option>
-    <option value="en" <%= (locale === 'en' ? 'selected' : '') %>>English</option>
-    <option value="ru" <%= (locale === 'ru' ? 'selected' : '') %>>Русский</option>
-  </select>
-</form>
-      </div>
-
+      <h1><%= __('title') %></h1>
       <nav>
-        <a href="/"><%= __('nav.home') %></a>
-        <!-- Hidden nav links for future use -->
-        <!--<a href="/soldierlistFULL"><%= __('nav.soldierList') %></a>
-        <a href="/addFull"><%= __('nav.addSoldier') %></a>
-        <a href="/search"><%= __('nav.searchUpdate') %></a>-->
+        <a href="/"> <%= __('nav.home') %> </a>
       </nav>
     </div>
   </header>
-  
   <br /><br /><br /><br /><br /><br><br><br>
- <% if (locale === 'he') { %>
-  <div class="important-note" style="background-color: #fff9c4; color: #333; border: 2px solid #fdd835; padding: 15px; margin: 20px auto; max-width: 900px; border-radius: 6px; font-family: Arial, sans-serif; font-size: 1.1em;" dir="rtl">
-    ⚠️ <strong>הערה חשובה:</strong> אנא בדוק אם החייל שלך כבר קיים באתר 
-    <a href="https://infocenters.co.il/jwm" target="_blank">https://infocenters.co.il/jwm</a>
-    לפני הזנת המידע כאן.
-  </div>
-<% } else if (locale === 'ru') { %>
-  <div class="important-note" style="background-color: #fff9c4; color: #333; border: 2px solid #fdd835; padding: 15px; margin: 20px auto; max-width: 900px; border-radius: 6px; font-family: Arial, sans-serif; font-size: 1.1em;">
-    ⚠️ <strong>Важное замечание:</strong> Пожалуйста, проверьте, указан ли ваш солдат на сайте 
-    <a href="https://infocenters.co.il/jwm" target="_blank">https://infocenters.co.il/jwm</a> 
-    перед вводом информации здесь.
-  </div>
-<% } else { %>
-  <div class="important-note" style="background-color: #fff9c4; color: #333; border: 2px solid #fdd835; padding: 15px; margin: 20px auto; max-width: 900px; border-radius: 6px; font-family: Arial, sans-serif; font-size: 1.1em;">
-    ⚠️ <strong>Important Note:</strong> Please check for your soldier on 
-    <a href="https://infocenters.co.il/jwm" target="_blank">https://infocenters.co.il/jwm</a> 
-    <strong>before</strong> entering his/her information here.
-  </div>
-<% } %>
-
-
-
-  <!--<form method="get" action="">
+  <form method="get" action="">
     <select name="lang" onchange="this.form.submit()">
       <option value="he" <%= (locale === 'he' ? 'selected' : '') %>>עברית</option>
       <option value="en" <%= (locale === 'en' ? 'selected' : '') %>>English</option>
       <option value="ru" <%= (locale === 'ru' ? 'selected' : '') %>>Русский</option>
     </select>
     
-  </form>-->
+  </form>
 
   <div class="info-container">
     <% if (locale === 'en') { %>
@@ -117,9 +78,7 @@
 
 
   <!--<form action="/addfull" method="POST">-->
-   <!-- <form action="/addfull" method="POST" id="soldierForm">-->
-  <form action="/addFULL" method="POST" enctype="multipart/form-data" id="soldierForm">
-
+    <form action="/addfull" method="POST" id="soldierForm">
   <input type="hidden" id="recordcomplete" name="recordcomplete" value="false" />
 
     <fieldset>
@@ -283,7 +242,7 @@
 
 
  <fieldset>
-  <legend><%= __('sections.bio') %></legend>
+  <legend><%= __('sections.biopart') %></legend>
 
   <div class="trio-row">
     <div class="input-group">
@@ -382,8 +341,7 @@
 
   <label for="dob"><%= __('fields.dob') %>:</label>
   <input type="date" name="dob" id="dob" />
-  
-    
+
   <label for="dod"><%= __('fields.dod') %>:</label>
   <input type="date" name="dod" id="dod" />
 
@@ -448,13 +406,8 @@
 
   <label for="linkurl"><%= __('fields.linkurl') %>:</label>
   <input type="url" name="linkurl" id="linkurl" />
-    </fieldset>
-  <fieldset>
-    <legend><%= __('sections.uploads') || 'Upload Files' %></legend>
-    <label for="files"><%= __('form.upload_files') || 'Upload supporting files (images, documents, etc)' %></label>
-    <input type="file" id="files" name="files" multiple />
-  </fieldset>
-   <fieldset>
+
+   
   <label for="useremail"><%= __('fields.useremail') %>:</label>
   <input type="email" name="useremail" id="useremail" required />
   <div class="checkbox-group">
@@ -482,6 +435,68 @@
 </body>
   </div>
 
+<!--<script>
+  document.querySelector('form[action="/addfull"]').addEventListener('submit', function (e) {
+  e.preventDefault(); // Stop form from submitting
 
+  const message = {
+    en: `
+      This record will now be saved.<br><br>
+      <strong>Have you finished entering all soldier information?</strong><br><br>
+      If you wish to edit this record, choose No and you will be able to return and continue making changes.<br><br>
+      If you mark this record as complete, you will no longer be able to edit it.<br><br>
+      Only administrators will be able to make changes going forward.<br><br>
+      To make future changes after marked complete, please contact us.
+    `,
+
+    he: `
+      הרישום יישמר כעת.<br><br>
+      <strong>האם סיימת להזין את כל פרטי החייל?</strong><br><br>
+      אם ברצונך לערוך את הרישום, בחר לא ותוכל לחזור ולהמשיך לערוך.<br><br>
+      אם תסמן את הרישום כהושלם, לא תוכל עוד לערוך אותו.<br><br>
+      רק מנהלים יוכלו לבצע שינויים בעתיד.<br><br>
+      לביצוע שינויים לאחר שסומן כהושלם, אנא צור איתנו קשר.
+    `,
+
+    ru: `
+      Эта запись будет сохранена.<br><br>
+      <strong>Вы завершили ввод всей информации о солдате?</strong><br><br>
+      Если вы хотите отредактировать эту запись, выберите «Нет», и вы сможете вернуться и продолжить внесение изменений.<br><br>
+      Если вы отметите запись как завершённую, вы больше не сможете её редактировать.<br><br>
+      Только администраторы смогут вносить изменения в будущем.<br><br>
+      Для будущих изменений после завершения записи, пожалуйста, свяжитесь с нами.
+    `
+  };
+
+  const lang = "<%= locale %>";
+  const text = message[lang] || message['en'];
+
+  const modal = document.getElementById('confirmModal');
+  const confirmText = document.getElementById('confirmText');
+  const yesBtn = document.getElementById('confirmYes');
+  const noBtn = document.getElementById('confirmNo');
+  const form = this;
+
+  // Use innerHTML to render line breaks and bold
+  confirmText.innerHTML = text;
+  modal.classList.remove('hidden');
+
+  yesBtn.onclick = function () {
+    document.getElementById('recordcomplete').value = 'true';
+    modal.classList.add('hidden');
+    form.submit();
+  };
+
+  noBtn.onclick = function () {
+  document.getElementById('recordcomplete').value = 'false';
+  modal.classList.add('hidden');
+  form.submit(); // <-- Add this line to submit the form!
+};
+
+});
+
+</script>
+
+</body>-->
 </html>
  
