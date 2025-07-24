@@ -1,106 +1,169 @@
 <!DOCTYPE html>
 <html lang="<%= locale %>">
+  <style>
+    .info-box { background-color: #f8f9fa; border-left: 6px solid #007bff; padding: 20px; margin: 20px auto; max-width: 800px; border-radius: 6px; font-family: Arial, sans-serif; line-height: 1.6; color: #333; }
+    form { max-width: 1000px; margin: 0 auto; }
+    fieldset { margin-top: 25px; border-radius: 6px; padding: 15px; border: 1px solid #ccc; }
+    .trio-row { display: flex; gap: 10px; margin-bottom: 10px; }
+    .trio-row .input-group { flex: 1; display: flex; flex-direction: column; }
+    .single-row { margin-bottom: 10px; display: flex; flex-direction: column; }
+    textarea { resize: vertical; }
+  </style>
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title><%= __('fields.id') %> – <%= __('fields.fname') %> <%= __('fields.lname') %></title>
+  
   <link rel="stylesheet" href="/styles/styles.css">
 </head>
 <body>
  
   <title><%= __('nav.title2') %></title>
-  <header>
+ 
+   <header>
     <div class="container">
-      <div class="container">
-    <h1><%= __('titleUpdate') %></h1>
-    <nav>
-      <a href="/"><%= __('nav.home') %></a>
-      <!--<a href="/soldierlistFULL"><%= __('nav.soldierList') %></a>
-      <a href="/addFULL"><%= __('nav.addSoldier') %></a>
-      <a href="/search"><%= __('nav.searchUpdate') %></a>-->
-    </nav>
-  </div>
+      <div style="display: flex;  align-items: center; flex-wrap: wrap;">
+        <h1><%= __('titleUpdate') %></h1>
+      
+        <!-- 🌐 Language Selector 
+         <form method="get" action="" style="margin-inline-start: auto;
+          <form  method="get" action="" style="margin-inline-start: auto;">
+        
+    <select name="lang" onchange="this.form.submit()">
+      <option value="he" <%= (locale === 'he' ? 'selected' : '') %>>עברית</option>
+      <option value="en" <%= (locale === 'en' ? 'selected' : '') %>>English</option>
+      <option value="ru" <%= (locale === 'ru' ? 'selected' : '') %>>Русский</option>
+   </select>
+    </form>-->
+      </div>
+
+      <nav>
+        <a href="/"><%= __('nav.home') %></a>
+        <!-- Hidden nav links for future use -->
+        <!--<a href="/soldierlistFULL"><%= __('nav.soldierList') %></a>
+        <a href="/addFull"><%= __('nav.addSoldier') %></a>
+        <a href="/search"><%= __('nav.searchUpdate') %></a>-->
+      </nav>
+    </div>
   </header>
-  <br /><br /><br /><br /><br /><br><br><br>
-  <form method="get" action="">
+ 
+  <!-- Language switcher that keeps search parameters -->
+  <form method="get" action="" style="margin-top: 2rem;">
+   
+    <select name="lang" onchange="this.form.submit()">
+      <option value="he" <%= locale === 'he' ? 'selected' : '' %>>עברית</option>
+      <option value="en" <%= locale === 'en' ? 'selected' : '' %>>English</option>
+      <option value="ru" <%= locale === 'ru' ? 'selected' : '' %>>Русский</option>
+    </select>
+  </form>
+  <!--<form method="get" action="">
   <select name="lang" onchange="this.form.submit()">
     <option value="he" <%= (locale === 'he' ? 'selected' : '') %>>עברית</option>
     <option value="en" <%= (locale === 'en' ? 'selected' : '') %>>English</option>
     <option value="ru" <%= (locale === 'ru' ? 'selected' : '') %>>Русский</option>
   </select>
-  </form>
+  </form>-->
   <div class="container">
     <!--<form action="/updateSoldier/<%= soldier.id %>" method="post">-->
       <form action="/updateSoldier/<%= soldier.id %>" method="post" enctype="multipart/form-data">
 
-      <fieldset>
-        <legend><%= __('fields.fname') %> & <%= __('fields.lname') %></legend>
-        <label for="fname"><%= __('fields.fname') %></label>
-        <input type="text" name="fname" id="fname" value="<%= soldier.fname || '' %>">
-
-        <label for="fnameen"><%= __('fields.fnameen') %></label>
-        <input type="text" name="fnameen" id="fnameen" value="<%= soldier.fnameen || '' %>">
-
-        <label for="fnameru"><%= __('fields.fnameru') %></label>
-        <input type="text" name="fnameru" id="fnameru" value="<%= soldier.fnameru || '' %>">
-
+    <fieldset>
+         <legend><%= __('sections.basic') %></legend>
+      <div class="trio-row">
+        <div class="input-group">
+          <label for="fname"><%= __('fields.fname') %></label>
+          <input type="text" name="fname" id="fname" value="<%= soldier.fname || '' %>">
+        </div>
+          <div class="input-group">
+          <label for="fnameen"><%= __('fields.fnameen') %></label>
+          <input type="text" name="fnameen" id="fnameen" value="<%= soldier.fnameen || '' %>">
+        </div>
+        <div class="input-group">
+          <label for="fnameru"><%= __('fields.fnameru') %></label>
+          <input type="text" name="fnameru" id="fnameru" value="<%= soldier.fnameru || '' %>">
+        </div>
+      </div>
+      <div class="trio-row">
+        <div class="input-group">
         <label for="lname"><%= __('fields.lname') %></label>
         <input type="text" name="lname" id="lname" value="<%= soldier.lname || '' %>">
-
-        <label for="lnameen"><%= __('fields.lnameen') %></label>
-        <input type="text" name="lnameen" id="lnameen" value="<%= soldier.lnameen || '' %>">
-
-        <label for="lnameru"><%= __('fields.lnameru') %></label>
-        <input type="text" name="lnameru" id="lnameru" value="<%= soldier.lnameru || '' %>">
+        </div>
+          <div class="input-group">  
+            <label for="lnameen"><%= __('fields.lnameen') %></label>
+            <input type="text" name="lnameen" id="lnameen" value="<%= soldier.lnameen || '' %>">
+          </div>
+        <div class="input-group">
+          <label for="lnameru"><%= __('fields.lnameru') %></label>
+          <input type="text" name="lnameru" id="lnameru" value="<%= soldier.lnameru || '' %>">
+        </div>
+        </div>
+      <div class="trio-row">
+        <div class="input-group">
+          <label for="previouslname"><%= __('fields.previouslname') %></label>
+          <input type="text" name="previouslname" id="previouslname" value="<%= soldier.previouslname || '' %>">
+        </div>
+        <div class="input-group">
+          <label for="previouslnameen"><%= __('fields.previouslnameen') %></label>
+          <input type="text" name="previouslnameen" id="previouslnameen" value="<%= soldier.previouslnameen || '' %>">
+        </div>
+        <div class="input-group">
+          <label for="previouslnameru"><%= __('fields.previouslnameru') %></label>
+          <input type="text" name="previouslnameru" id="previouslnameru" value="<%= soldier.previouslnameru || '' %>">
+        </div>
       </fieldset>
 
       <fieldset>
-        <legend><%= __('fields.previouslname') %></legend>
-        <label for="previouslname"><%= __('fields.previouslname') %></label>
-        <input type="text" name="previouslname" id="previouslname" value="<%= soldier.previouslname || '' %>">
-
-        <label for="previouslnameen"><%= __('fields.previouslnameen') %></label>
-        <input type="text" name="previouslnameen" id="previouslnameen" value="<%= soldier.previouslnameen || '' %>">
-
-        <label for="previouslnameru"><%= __('fields.previouslnameru') %></label>
-        <input type="text" name="previouslnameru" id="previouslnameru" value="<%= soldier.previouslnameru || '' %>">
-      </fieldset>
-
-      <fieldset>
-        <legend><%= __('fields.fathername') %> & <%= __('fields.mothername') %></legend>
-        <label for="fathername"><%= __('fields.fathername') %></label>
-        <input type="text" name="fathername" id="fathername" value="<%= soldier.fathername || '' %>">
-
-        <label for="fathernameen"><%= __('fields.fathernameen') %></label>
-        <input type="text" name="fathernameen" id="fathernameen" value="<%= soldier.fathernameen || '' %>">
-
+      <legend><%= __('sections.family') %></legend>
+      <div class="trio-row">
+        <div class="input-group">
+          <label for="fathername"><%= __('fields.fathername') %></label>
+          <input type="text" name="fathername" id="fathername" value="<%= soldier.fathername || '' %>">
+        </div> 
+        <div class="input-group">
+          <label for="fathernameen"><%= __('fields.fathernameen') %></label>
+          <input type="text" name="fathernameen" id="fathernameen" value="<%= soldier.fathernameen || '' %>">
+        </div>
+        
+        <div class="input-group">
         <label for="fathernameru"><%= __('fields.fathernameru') %></label>
         <input type="text" name="fathernameru" id="fathernameru" value="<%= soldier.fathernameru || '' %>">
-
-        <label for="mothername"><%= __('fields.mothername') %></label>
-        <input type="text" name="mothername" id="mothername" value="<%= soldier.mothername || '' %>">
-
-        <label for="mothernameen"><%= __('fields.mothernameen') %></label>
-        <input type="text" name="mothernameen" id="mothernameen" value="<%= soldier.mothernameen || '' %>">
-
-        <label for="mothernameru"><%= __('fields.mothernameru') %></label>
-        <input type="text" name="mothernameru" id="mothernameru" value="<%= soldier.mothernameru || '' %>">
-      </fieldset>
+        </div>
+      </div>
+      <div class="trio-row">
+        <div class="input-group"> 
+          <label for="mothername"><%= __('fields.mothername') %></label>
+          <input type="text" name="mothername" id="mothername" value="<%= soldier.mothername || '' %>">
+        </div>
+        
+        <div class="input-group">
+          <label for="mothernameen"><%= __('fields.mothernameen') %></label>
+          <input type="text" name="mothernameen" id="mothernameen" value="<%= soldier.mothernameen || '' %>">
+        </div>
+        <div class="input-group">
+         <label for="mothernameru"><%= __('fields.mothernameru') %></label>
+          <input type="text" name="mothernameru" id="mothernameru" value="<%= soldier.mothernameru || '' %>">
+        </div>
+      </div>
+      
+       <div class="trio-row">
+        <div class="input-group">
+          <label for="calledby"><%= __('fields.calledby') %></label>
+          <input type="text" name="calledby" id="calledby" value="<%= soldier.calledby || '' %>">
+        </div>
+        <div class="input-group">
+         <label for="calledbyen"><%= __('fields.calledbyen') %></label>
+          <input type="text" name="calledbyen" id="calledbyen" value="<%= soldier.calledbyen || '' %>">
+        </div>
+        
+        <div class="input-group">
+          <label for="calledbyru"><%= __('fields.calledbyru') %></label>
+          <input type="text" name="calledbyru" id="calledbyru" value="<%= soldier.calledbyru || '' %>">
+        </div>
+       </div>
+        </fieldset>
 
       <fieldset>
-        <legend><%= __('fields.calledby') %></legend>
-        <label for="calledby"><%= __('fields.calledby') %></label>
-        <input type="text" name="calledby" id="calledby" value="<%= soldier.calledby || '' %>">
-
-        <label for="calledbyen"><%= __('fields.calledbyen') %></label>
-        <input type="text" name="calledbyen" id="calledbyen" value="<%= soldier.calledbyen || '' %>">
-
-        <label for="calledbyru"><%= __('fields.calledbyru') %></label>
-        <input type="text" name="calledbyru" id="calledbyru" value="<%= soldier.calledbyru || '' %>">
-      </fieldset>
-
-      <fieldset>
-        <legend><%= __('fields.birthcountry') %></legend>
+         <legend><%= __('sections.birthdeath') %></legend>
         <label for="birthcountry"><%= __('fields.birthcountry') %></label>
         <select name="birthcountry" id="birthcountry">
           <option value=""><%= __('fields.birthcountry') %></option>
@@ -111,85 +174,112 @@
 
         <label for="otherbirthcountry"><%= __('fields.otherbirthcountry') %></label>
         <input type="text" name="otherbirthcountry" id="otherbirthcountry" value="<%= soldier.otherbirthcountry || '' %>">
-
-        <label for="birthcity"><%= __('fields.birthcity') %></label>
-        <input type="text" name="birthcity" id="birthcity" value="<%= soldier.birthcity || '' %>">
-
-        <label for="birthcityen"><%= __('fields.birthcityen') %></label>
-        <input type="text" name="birthcityen" id="birthcityen" value="<%= soldier.birthcityen || '' %>">
-
-        <label for="birthcityru"><%= __('fields.birthcityru') %></label>
-        <input type="text" name="birthcityru" id="birthcityru" value="<%= soldier.birthcityru || '' %>">
-      </fieldset>
-
-      <fieldset>
-        <legend><%= __('fields.gender') %></legend>
+        <div class="trio-row">
+          <div class="input-group">
+            <label for="birthcity"><%= __('fields.birthcity') %></label>
+            <input type="text" name="birthcity" id="birthcity" value="<%= soldier.birthcity || '' %>">
+          </div>
+          <div class="input-group">
+            <label for="birthcityen"><%= __('fields.birthcityen') %></label>
+            <input type="text" name="birthcityen" id="birthcityen" value="<%= soldier.birthcityen || '' %>">
+          </div>
+          <div class="input-group">
+            <label for="birthcityru"><%= __('fields.birthcityru') %></label>
+            <input type="text" name="birthcityru" id="birthcityru" value="<%= soldier.birthcityru || '' %>">
+          </div>
+        </div>
+      
         <label for="gender"><%= __('fields.gender') %></label>
         <input type="text" name="gender" id="gender" value="<%= soldier.gender || '' %>">
-      </fieldset>
+     
 
-      <fieldset>
-        <legend><%= __('fields.placeofdeath') %></legend>
-        <label for="placeofdeath"><%= __('fields.placeofdeath') %></label>
-        <input type="text" name="placeofdeath" id="placeofdeath" value="<%= soldier.placeofdeath || '' %>">
-
-        <label for="placeofdeathen"><%= __('fields.placeofdeathen') %></label>
-        <input type="text" name="placeofdeathen" id="placeofdeathen" value="<%= soldier.placeofdeathen || '' %>">
-
+        <div class="trio-row">
+          <div class="input-group">
+        
+            <label for="placeofdeath"><%= __('fields.placeofdeath') %></label>
+            <input type="text" name="placeofdeath" id="placeofdeath" value="<%= soldier.placeofdeath || '' %>">
+          </div>
+        <div class="input-group">
+          <label for="placeofdeathen"><%= __('fields.placeofdeathen') %></label>
+          <input type="text" name="placeofdeathen" id="placeofdeathen" value="<%= soldier.placeofdeathen || '' %>">
+        </div>
+        
+        <div class="input-group">
         <label for="placeofdeathru"><%= __('fields.placeofdeathru') %></label>
         <input type="text" name="placeofdeathru" id="placeofdeathru" value="<%= soldier.placeofdeathru || '' %>">
-      </fieldset>
-
-      <fieldset>
-        <legend><%= __('fields.deathdetails') %></legend>
-        <label for="deathdetails"><%= __('fields.deathdetails') %></label>
-        <textarea name="deathdetails" id="deathdetails"><%= soldier.deathdetails || '' %></textarea>
-
+        </div>
+        </div>
+      
+        <div class="trio-row">
+          <div class="input-group">
+          <label for="deathdetails"><%= __('fields.deathdetails') %></label>
+          <textarea name="deathdetails" id="deathdetails"><%= soldier.deathdetails || '' %></textarea>
+          </div>
+        <div class="input-group">
         <label for="deathdetailsen"><%= __('fields.deathdetailsen') %></label>
         <textarea name="deathdetailsen" id="deathdetailsen"><%= soldier.deathdetailsen || '' %></textarea>
-
+        </div>
+      <div class="input-group">
         <label for="deathdetailsru"><%= __('fields.deathdetailsru') %></label>
         <textarea name="deathdetailsru" id="deathdetailsru"><%= soldier.deathdetailsru || '' %></textarea>
+        </div>
+      </div>
       </fieldset>
 
       <fieldset>
-        <legend><%= __('fields.biography') %></legend>
-        <label for="biography"><%= __('fields.biography') %></label>
-        <textarea name="biography" id="biography"><%= soldier.biography || '' %></textarea>
-
-        <label for="biographyen"><%= __('fields.biographyen') %></label>
-        <textarea name="biographyen" id="biographyen"><%= soldier.biographyen || '' %></textarea>
-
-        <label for="biographyru"><%= __('fields.biographyru') %></label>
-        <textarea name="biographyru" id="biographyru"><%= soldier.biographyru || '' %></textarea>
-      </fieldset>
-
-      <fieldset>
-        <legend><%= __('fields.otherparticipation') %></legend>
-        <label for="otherparticipation"><%= __('fields.otherparticipation') %></label>
-        <input type="text" name="otherparticipation" id="otherparticipation" value="<%= soldier.otherparticipation || '' %>">
-
-        <label for="otherdecoration"><%= __('fields.otherdecoration') %></label>
-        <input type="text" name="otherdecoration" id="otherdecoration" value="<%= soldier.otherdecoration || '' %>">
-
-        <label for="otherdecorationen"><%= __('fields.otherdecorationen') %></label>
-        <input type="text" name="otherdecorationen" id="otherdecorationen" value="<%= soldier.otherdecorationen || '' %>">
-
-        <label for="otherdecorationru"><%= __('fields.otherdecorationru') %></label>
-        <input type="text" name="otherdecorationru" id="otherdecorationru" value="<%= soldier.otherdecorationru || '' %>">
-      </fieldset>
-
-      <fieldset>
-        <legend><%= __('fields.fightingdesc') %></legend>
-        <label for="fightingdesc"><%= __('fields.fightingdesc') %></label>
-        <textarea name="fightingdesc" id="fightingdesc"><%= soldier.fightingdesc || '' %></textarea>
-
-        <label for="fightingdescen"><%= __('fields.fightingdescen') %></label>
-        <textarea name="fightingdescen" id="fightingdescen"><%= soldier.fightingdescen || '' %></textarea>
-
-        <label for="fightingdescru"><%= __('fields.fightingdescru') %></label>
-        <textarea name="fightingdescru" id="fightingdescru"><%= soldier.fightingdescru || '' %></textarea>
-      </fieldset>
+         <legend><%= __('sections.bio') %></legend>
+         <div class="trio-row">
+          <div class="input-group">
+            <label for="biography"><%= __('fields.biography') %></label>
+            <textarea name="biography" id="biography"><%= soldier.biography || '' %></textarea>
+          </div>
+          <div class="input-group">
+            <label for="biographyen"><%= __('fields.biographyen') %></label>
+            <textarea name="biographyen" id="biographyen"><%= soldier.biographyen || '' %></textarea>
+          </div>
+         
+          <div class="input-group">
+            <label for="biographyru"><%= __('fields.biographyru') %></label>
+            <textarea name="biographyru" id="biographyru"><%= soldier.biographyru || '' %></textarea>
+          </div>
+         </div>
+         <label for="otherparticipation"><%= __('fields.otherparticipation') %></label>
+          <input type="text" name="otherparticipation" id="otherparticipation" value="<%= soldier.otherparticipation || '' %>">
+         
+          <div class="trio-row">
+          <div class="input-group">
+           
+            <label for="otherdecoration"><%= __('fields.otherdecoration') %></label>
+            <input type="text" name="otherdecoration" id="otherdecoration" value="<%= soldier.otherdecoration || '' %>">
+          </div>
+          <div class="input-group">
+            <label for="otherdecorationen"><%= __('fields.otherdecorationen') %></label>
+            <input type="text" name="otherdecorationen" id="otherdecorationen" value="<%= soldier.otherdecorationen || '' %>">
+          </div> 
+          <div class="input-group"> 
+            <label for="otherdecorationru"><%= __('fields.otherdecorationru') %></label>
+            <input type="text" name="otherdecorationru" id="otherdecorationru" value="<%= soldier.otherdecorationru || '' %>">
+          </div>
+         </div>
+          
+        <div class="trio-row">
+          <div class="input-group">
+            <label for="fightingdesc"><%= __('fields.fightingdesc') %></label>
+            <textarea name="fightingdesc" id="fightingdesc"><%= soldier.fightingdesc || '' %></textarea>
+          </div>
+         
+          <div class="input-group">
+            <label for="fightingdescen"><%= __('fields.fightingdescen') %></label>
+            <textarea name="fightingdescen" id="fightingdescen"><%= soldier.fightingdescen || '' %></textarea>
+          </div>
+          
+          <div class="input-group">
+            <label for="fightingdescru"><%= __('fields.fightingdescru') %></label>
+            <textarea name="fightingdescru" id="fightingdescru"><%= soldier.fightingdescru || '' %></textarea>
+          </div>
+        </div>
+      
+          </fieldset>
 
       <!--<fieldset>
         <legend>IDF Service</legend>
@@ -215,7 +305,7 @@
       </fieldset>-->
 
       <fieldset>
-        <legend><%= __('fields.dob') %>, <%= __('fields.dod') %>, <%= __('fields.aliyadate') %></legend>
+        <legend><%= __('sections.datesmedals') %></legend>
 
         <label for="dob"><%= __('fields.dob') %></label>
         <input type="date" name="dob" id="dob" value="<%= soldier.dob ? soldier.dob.toISOString().substring(0, 10) : '' %>">
@@ -225,69 +315,66 @@
 
         <label for="aliyadate"><%= __('fields.aliyadate') %></label>
         <input type="date" name="aliyadate" id="aliyadate" value="<%= soldier.aliyadate ? soldier.aliyadate.toISOString().substring(0, 10) : '' %>">
-      </fieldset>
-
-      <fieldset>
-        <legend><%= __('fields.idf_enlistdate') %> & <%= __('fields.idf_releasedate') %></legend>
+      
 
         <!--<label for="idf_enlistdate"><%= __('fields.idf_enlistdate') %></label>
         <input type="date" name="idf_enlistdate" id="idf_enlistdate" value="<%= soldier.idf_enlistdate ? soldier.idf_enlistdate.toISOString().substring(0, 10) : '' %>">
 
-        <label for="idf_releasedate"><%= __('fields.idf_releasedate') %></label>-->
-        <input type="date" name="idf_releasedate" id="idf_releasedate" value="<%= soldier.idf_releasedate ? soldier.idf_releasedate.toISOString().substring(0, 10) : '' %>">
-      </fieldset>
-
+        <label for="idf_releasedate"><%= __('fields.idf_releasedate') %></label>
+        <input type="date" name="idf_releasedate" id="idf_releasedate" value="<%= soldier.idf_releasedate ? soldier.idf_releasedate.toISOString().substring(0, 10) : '' %>">-->
+     
+         <div class="trio-row">
+          <div class="input-group">
       
-  <div class="trio-row">
-    <div class="trio-row">
-  
-</div>
+          <label for="medal"><%= __('fields.medal') %>:</label>
+          <select name="medal" id="medal">
+          <option value="">{ <%= __('select') %> }</option>
+          <% medals.forEach(m => { %>
+          <option value="<%= m.id %>" <%= String(m.id) === String(soldier.medal) ? 'selected' : '' %>><%= m.title %></option>
+          <% }); %>
 
+        </select>
+          <% medals.forEach(m => { %>
+          <% if (String(m.id) === String(soldier.medal)) { %>
+            <script>console.log('Matched medal ID: <%= m.id %> with soldier.medal = <%= soldier.medal %>');</script>
+          <% } %>
+          <% }); %>
+      </div>
+    <!-- Medal EN -->
+    
+    <div class="input-group">
+      <label for="medalen"><%= __('fields.medalen') %>:</label>
+      <select name="medalen" id="medalen">
+        <option value="">{ <%= __('select') %> }</option>
+        <% medals.forEach(m => { %>
+        <option value="<%= m.id %>" <%= String(m.id) === String(soldier.medalen) ? 'selected' : '' %>><%= m.title %></option>
+        <% }); %>
+      </select>
+        <% medals.forEach(m => { %>
+        <% if (String(m.id) === String(soldier.medalen)) { %>
+        <script>console.log('Matched medal ID: <%= m.id %> with soldier.medal = <%= soldier.medal %>');</script>
+      <% } %>
+      <% }); %>
+    </div>
+     <div class="input-group">
+    <!-- Medal RU -->
+    <label for="medalru"><%= __('fields.medalru') %>:</label>
+      <select name="medalru" id="medalru">
+      <option value="">{ <%= __('select') %> }</option>
+      <% medals.forEach(m => { %>
+        <option value="<%= m.id %>" <%= String(m.id) === String(soldier.medalru) ? 'selected' : '' %>><%= m.title %></option>
+      <% }); %>
+    </select>
+    <% medals.forEach(m => { %>
+       <% if (String(m.id) === String(soldier.medalru)) { %>
+        <script>console.log('Matched medal ID: <%= m.id %> with soldier.medal = <%= soldier.medal %>');</script>
+      <% } %>
+    <% }); %>
 
- <label for="medal"><%= __('fields.medal') %>:</label>
-<select name="medal" id="medal">
-  <option value="">{ <%= __('select') %> }</option>
-  <% medals.forEach(m => { %>
-    <option value="<%= m.id %>" <%= String(m.id) === String(soldier.medal) ? 'selected' : '' %>><%= m.title %></option>
-  <% }); %>
-</select>
-<% medals.forEach(m => { %>
-  <% if (String(m.id) === String(soldier.medal)) { %>
-    <script>console.log('Matched medal ID: <%= m.id %> with soldier.medal = <%= soldier.medal %>');</script>
-  <% } %>
-<% }); %>
-
-<!-- Medal EN -->
- <label for="medalen"><%= __('fields.medalen') %>:</label>
-<select name="medalen" id="medalen">
-  <option value="">{ <%= __('select') %> }</option>
-  <% medals.forEach(m => { %>
-    <option value="<%= m.id %>" <%= String(m.id) === String(soldier.medalen) ? 'selected' : '' %>><%= m.title %></option>
-  <% }); %>
-</select>
-<% medals.forEach(m => { %>
-  <% if (String(m.id) === String(soldier.medalen)) { %>
-    <script>console.log('Matched medal ID: <%= m.id %> with soldier.medal = <%= soldier.medal %>');</script>
-  <% } %>
-<% }); %>
-
-<!-- Medal RU -->
- <label for="medalru"><%= __('fields.medalru') %>:</label>
-<select name="medalru" id="medalru">
-  <option value="">{ <%= __('select') %> }</option>
-  <% medals.forEach(m => { %>
-    <option value="<%= m.id %>" <%= String(m.id) === String(soldier.medalru) ? 'selected' : '' %>><%= m.title %></option>
-  <% }); %>
-</select>
-<% medals.forEach(m => { %>
-  <% if (String(m.id) === String(soldier.medalru)) { %>
-    <script>console.log('Matched medal ID: <%= m.id %> with soldier.medal = <%= soldier.medal %>');</script>
-  <% } %>
-<% }); %>
-
-
+     </div>
+    </fieldset>
       <fieldset>
-        <legend><%= __('fields.remarks') %></legend>
+     <legend><%= __('sections.finalnotes') %></legend>
 
         <label for="remarks"><%= __('fields.remarks') %></label>
         <textarea name="remarks" id="remarks"><%= soldier.remarks || '' %></textarea>
@@ -297,10 +384,8 @@
 
         <label for="remarksru"><%= __('fields.remarksru') %></label>
         <textarea name="remarksru" id="remarksru"><%= soldier.remarksru || '' %></textarea>
-      </fieldset>
+     
 
-      <fieldset>
-        <legend><%= __('fields.linkurl') %></legend>
         <label for="linkurl"><%= __('fields.linkurl') %></label>
         <input type="url" name="linkurl" id="linkurl" value="<%= soldier.linkurl || '' %>">
       </fieldset>

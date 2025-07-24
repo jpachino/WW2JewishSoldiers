@@ -12,14 +12,14 @@
       <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap;">
         <h1><%= __('search.title') %></h1>
 
-        <!-- 🌐 Language Selector -->
+        <!-- 🌐 Language Selector 
         <form method="get" action="">
   <select name="lang" onchange="this.form.submit()">
     <option value="he" <%= (locale === 'he' ? 'selected' : '') %>>עברית</option>
     <option value="en" <%= (locale === 'en' ? 'selected' : '') %>>English</option>
     <option value="ru" <%= (locale === 'ru' ? 'selected' : '') %>>Русский</option>
   </select>
-</form>
+</form>-->
       </div>
 
       <nav>
@@ -31,11 +31,18 @@
       </nav>
     </div>
   </header>
+  <!-- 🌐 Language Selector -->
+        <form method="get" action="" style="margin-top: 2rem;">
+  <select name="lang" onchange="this.form.submit()">
+    <option value="he" <%= (locale === 'he' ? 'selected' : '') %>>עברית</option>
+    <option value="en" <%= (locale === 'en' ? 'selected' : '') %>>English</option>
+    <option value="ru" <%= (locale === 'ru' ? 'selected' : '') %>>Русский</option>
+  </select>
+</form>
 
-  <br ><br ><br ><br> <br><br><br>
 
   <div class="container">
-    <form action="/searchResults" method="get">
+    <form action="/searchResults" method="get"style="margin-top: 2rem;">
       <input
         type="text"
         name="firstname"

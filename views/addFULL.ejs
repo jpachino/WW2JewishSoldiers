@@ -31,14 +31,14 @@
       <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap;">
         <h1><%= __('title') %></h1>
 
-        <!-- 🌐 Language Selector -->
+        <!-- 🌐 Language Selector 
         <form method="get" action="">
   <select name="lang" onchange="this.form.submit()">
     <option value="he" <%= (locale === 'he' ? 'selected' : '') %>>עברית</option>
     <option value="en" <%= (locale === 'en' ? 'selected' : '') %>>English</option>
     <option value="ru" <%= (locale === 'ru' ? 'selected' : '') %>>Русский</option>
   </select>
-</form>
+</form>-->
       </div>
 
       <nav>
@@ -51,7 +51,25 @@
     </div>
   </header>
   
-  <br /><br /><br /><br /><br /><br><br><br>
+ 
+       <!-- 🌐 Language Selector 
+        
+        <form method="get" action="">
+  <select name="lang" onchange="this.form.submit()" >
+    <option value="he" <%= (locale === 'he' ? 'selected' : '') %>>עברית</option>
+    <option value="en" <%= (locale === 'en' ? 'selected' : '') %>>English</option>
+    <option value="ru" <%= (locale === 'ru' ? 'selected' : '') %>>Русский</option>
+  </select>
+</form>-->
+ <!-- 🌐 Language Selector -->
+       <form action="/change-lang" method="get" style="margin-top: 2rem;">
+          <select name="lang" class="lang-select" onchange="this.form.submit()">
+            <option value="he" <%= locale === 'he' ? 'selected' : '' %>> עברית</option>
+            <option value="en" <%= locale === 'en' ? 'selected' : '' %>>English</option>
+            <option value="ru" <%= locale === 'ru' ? 'selected' : '' %>>Русский</option>
+          </select>
+        </form>
+
  <% if (locale === 'he') { %>
   <div class="important-note" style="background-color: #fff9c4; color: #333; border: 2px solid #fdd835; padding: 15px; margin: 20px auto; max-width: 900px; border-radius: 6px; font-family: Arial, sans-serif; font-size: 1.1em;" dir="rtl">
     ⚠️ <strong>הערה חשובה:</strong> אנא בדוק אם החייל שלך כבר קיים באתר 
@@ -390,11 +408,11 @@
   <label for="aliyadate"><%= __('fields.aliyadate') %>:</label>
   <input type="date" name="aliyadate" id="aliyadate" />
 
-  <label for="idf_enlistdate"><%= __('fields.idf_enlistdate') %>:</label>
+  <!--<label for="idf_enlistdate"><%= __('fields.idf_enlistdate') %>:</label>
   <input type="date" name="idf_enlistdate" id="idf_enlistdate" />
 
   <label for="idf_releasedate"><%= __('fields.idf_releasedate') %>:</label>
-  <input type="date" name="idf_releasedate" id="idf_releasedate" />
+  <input type="date" name="idf_releasedate" id="idf_releasedate" />-->
 
   <div class="trio-row">
     <div class="trio-row">
@@ -435,6 +453,7 @@
 </fieldset>
 
     <fieldset>
+     
   <legend><%= __('sections.finalnotes') %></legend>
 
   <label for="remarks"><%= __('fields.remarks') %>:</label>

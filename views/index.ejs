@@ -16,14 +16,14 @@
       <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap;">
         <h1><%= __('home.title') %></h1>
 
-        <!-- 🌐 Language Selector -->
+        <!-- 🌐 Language Selector 
         <form action="/change-lang" method="get">
           <select name="lang" class="lang-select" onchange="this.form.submit()">
             <option value="he" <%= locale === 'he' ? 'selected' : '' %>>🇮🇱 עברית</option>
             <option value="en" <%= locale === 'en' ? 'selected' : '' %>>🇺🇸 English</option>
             <option value="ru" <%= locale === 'ru' ? 'selected' : '' %>>🇷🇺 Русский</option>
           </select>
-        </form>
+        </form>-->
       </div>
 
       <nav>
@@ -36,7 +36,18 @@
     </div>
   </header>
 
-  <main class="container">
+     <!-- 🌐 Language Selector -->
+       <form action="/change-lang" method="get" style="margin-top: 2rem;">
+          <select name="lang" class="lang-select" onchange="this.form.submit()">
+            <option value="he" <%= locale === 'he' ? 'selected' : '' %>>🇮🇱 עברית</option>
+            <option value="en" <%= locale === 'en' ? 'selected' : '' %>>🇺🇸 English</option>
+            <option value="ru" <%= locale === 'ru' ? 'selected' : '' %>>🇷🇺 Русский</option>
+          </select>
+        </form>
+
+    <!--<main class="container" style="margin-top: 3rem;">-->
+      <main class="container">
+
      <% if (saved) { %>
   <div class="success-box">
    
@@ -44,9 +55,9 @@
   </div>
   <% } %>
 
-    <h3 style="white-space: pre-line;">
+    <h4 style="white-space: pre-line;">
       <%= __('home.description') %>
-    </h3>
+    </h4>
 
     <!-- Choice Form -->
     <form class="choice-form" id="choiceForm">

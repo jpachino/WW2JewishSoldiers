@@ -2,7 +2,9 @@
 body {
   font-family: 'Roboto', sans-serif;
   margin: 0;
-  padding: 0;
+  
+  padding-top: 70px; /* Adjust based on your actual header height */
+
   background-color: #eeedf4;
   color: #09020b;
 }
@@ -50,8 +52,10 @@ header a:hover {
 /* Main Content Styles */
 main {
   
-  padding-top: 120px; /* Reduced from 80px to bring content higher */
+  padding-top: 0px; /* Reduced from 80px to bring content higher */
+  margin-top: 0px;
   text-align: center;
+  
 }
 
 h2 {

@@ -53,8 +53,15 @@
         <tbody>
           <% soldiers.forEach(soldier => { %>
             <tr>
-              <td><%= soldier.translatedFname %></td>
-              <td><%= soldier.translatedLname %></td>
+              <!--<td><%= soldier.translatedFname %></td>
+              <td><%= soldier.translatedLname %></td>-->
+              <td>
+              <%= locale === 'he' ? soldier.fname : (locale === 'ru' ? soldier.fnameru : soldier.fnameen) %>
+            </td>
+            <td>
+              <%= locale === 'he' ? soldier.lname : (locale === 'ru' ? soldier.lnameru : soldier.lnameen) %>
+            </td>
+              
               <td><%= soldier.birthcountry %></td>
               <td><%= soldier.fathername %></td>
               <td><%= soldier.dob %></td>
