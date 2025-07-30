@@ -235,12 +235,14 @@ app.get('/addFull', async (req, res) => {
 
   try {
     // Use db.any from pg-promise
+  const countries = await db.any('SELECT id, title FROM "countries_TBL" ORDER BY title');
   const medals = await db.any('SELECT id, title FROM "medals_TBL" ORDER BY title');
 
 
     console.log('Rendering addFULL.ejs form');
     res.render('addFULL', {
       locale: locale,
+      countries:countries,
       medals: medals
       // other template variables as needed
     });

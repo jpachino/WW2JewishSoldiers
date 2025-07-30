@@ -389,11 +389,31 @@
         <label for="linkurl"><%= __('fields.linkurl') %></label>
         <input type="url" name="linkurl" id="linkurl" value="<%= soldier.linkurl || '' %>">
       </fieldset>
-      <fieldset>
+      <!--<fieldset>
         <legend><%= __('sections.uploads') || 'Upload Files' %></legend>
         <label for="files"><%= __('form.upload_files') || 'Upload supporting files (images, documents, etc)' %></label>
         <input type="file" id="files" name="files" multiple />
-      </fieldset>
+      </fieldset>-->
+      <fieldset>
+  <legend><%= __('sections.uploads') %></legend>
+
+  <label class="file-upload-label">
+    <%= __('form.upload_files') %>
+  </label>
+
+  <div class="custom-file-input">
+    <!-- Hide the default file input UI -->
+    <input type="file" id="files" name="files" multiple onchange="updateFileName()" hidden />
+    
+    <!-- This button triggers the hidden input -->
+    <button type="button" onclick="document.getElementById('files').click()">
+      <%= __('form.select_files') %>
+    </button>
+
+    <!-- This shows the selected filenames or 'No files chosen' -->
+    <span id="file-label"><%= __('form.no_file_chosen') %></span>
+  </div>
+  </fieldset>
 
       <div>
   <label>
@@ -406,9 +426,10 @@
 </div>
   
 
-      <div class="form-actions">
-        <button type="submit"><%= __('Update') %></button>
-        <a href="/soldierlistFULL"><%= __('Back to list') %></a>
+  <div class="form-actions">
+    <button type="submit"><%= __('buttons.update') %></button>
+    <!--<a href="/index"><%= __('buttons.backToList') %></a>-->
+
       </div>
     </form>
   </div>

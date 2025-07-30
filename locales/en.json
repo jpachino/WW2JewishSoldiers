@@ -1,8 +1,8 @@
 {
   "langCode": "en",
 
-  "title": "Add Soldier",
-  "titleUpdate" :"Update Soldier",
+  "title": "Add Soldier Information",
+  "titleUpdate" :"Update Soldier Information",
   "submit": "Submit"
 
   ,
@@ -47,6 +47,7 @@
     "uploads":"uploads",
     "datesmedals":"dates and medals",
     "files": "files"
+   
   
 },
 
@@ -132,7 +133,9 @@
     "email": "Your Email",
     "dob": "Date of Birth",
     "saved_success": "Record and files saved successfully!",
-    "upload_files":"Upload Files"
+    "upload_files":"Upload Files",
+     "no_file_chosen": "No files chosen",
+     "select_files": "Select files"
 
   },
 "admin": {
@@ -158,7 +161,13 @@
 },
 "error": {
   "invalidEmail": "Please enter a valid email address."
-}
+},
+
+  "buttons": {
+    "update": "Update",
+    "backToList": "Back to list"
+  }
+
 
 
 }

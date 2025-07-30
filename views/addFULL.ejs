@@ -238,10 +238,18 @@
    <fieldset>
   <legend><%= __('sections.birthdeath') %></legend>
 
-  <div class="single-row">
+  <!--<div class="single-row">
     <label for="birthcountry"><%= __('fields.birthcountry') %></label>
     <input type="text" name="birthcountry" id="birthcountry" />
-  </div>
+  </div>-->
+     <label for="birthcountry"><%= __('fields.birthcountry') %></label>
+        <select name="birthcountry" id="birthcountry">
+          <option value=""><%= __('fields.birthcountry') %></option>
+          <% countries.forEach(c => { %>
+            <option value="<%= c.title %>"><%= c.title %></option>
+
+          <% }) %>
+        </select>
 
   <div class="single-row">
     <label for="otherbirthcountry"><%= __('fields.otherbirthcountry') %></label>
@@ -468,11 +476,49 @@
   <label for="linkurl"><%= __('fields.linkurl') %>:</label>
   <input type="url" name="linkurl" id="linkurl" />
     </fieldset>
-  <fieldset>
+  <!---<fieldset>
     <legend><%= __('sections.uploads') || 'Upload Files' %></legend>
     <label for="files"><%= __('form.upload_files') || 'Upload supporting files (images, documents, etc)' %></label>
     <input type="file" id="files" name="files" multiple />
   </fieldset>
+  <fieldset>
+  <legend><%= __('sections.uploads') %></legend>
+  <label for="files"><%= __('form.upload_files') %></label>
+  <input type="file" id="files" name="files" multiple />
+</fieldset>
+<fieldset>
+  <legend><%= __('sections.uploads') %></legend>
+  
+  <label for="files" class="file-upload-label">
+    <%= __('form.upload_files') %>
+  </label>
+
+  <div class="custom-file-input">
+    <input type="file" id="files" name="files" multiple onchange="updateFileName()" />
+    <label for="files" id="file-label"><%= __('form.no_file_chosen') %></label>
+  </div>
+</fieldset>-->
+<fieldset>
+  <legend><%= __('sections.uploads') %></legend>
+
+  <label class="file-upload-label">
+    <%= __('form.upload_files') %>
+  </label>
+
+  <div class="custom-file-input">
+    <!-- Hide the default file input UI -->
+    <input type="file" id="files" name="files" multiple onchange="updateFileName()" hidden />
+    
+    <!-- This button triggers the hidden input -->
+    <button type="button" onclick="document.getElementById('files').click()">
+      <%= __('form.select_files') %>
+    </button>
+
+    <!-- This shows the selected filenames or 'No files chosen' -->
+    <span id="file-label"><%= __('form.no_file_chosen') %></span>
+  </div>
+</fieldset>
+
    <fieldset>
   <label for="useremail"><%= __('fields.useremail') %>:</label>
   <input type="email" name="useremail" id="useremail" required />
