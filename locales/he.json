@@ -2,9 +2,8 @@
   "langCode": "he",
 
   "title":  "הוסף מידע על חייל",
-
-
   "titleUpdate":  "עדכן מידע של חייל",
+  "titleAdminUpdate": "עדכון חייל על ידי מנהל",
   "submit": "שלח",
 
 
@@ -79,6 +78,8 @@
     "birthcityen": "עיר לידה (EN)",
     "birthcityru": "עיר לידה (RU)",
     "gender": "מין",
+    "male": "זכר",
+    "female": "נקבה",
     "placeofdeath": "מקום פטירה (IL)",
     "placeofdeathen": "מקום פטירה (EN)",
     "placeofdeathru": "מקום פטירה (RU)",
@@ -122,7 +123,9 @@
     "idf": "שירות צבאי",
     "datesmedals": "תאריכים ועיטורים",
     "finalnotes": "הערות אחרונות",
-    "id": "מזהה"
+    "id": "מזהה",
+    "other": "אחר",
+    "enter_custom": "הזן עיטור מותאם אישית"
 
   },
 
@@ -132,10 +135,10 @@
     "sendMaterials": "חומרים נוספים (PDF וכו') נא לשלוח לכתובת",
     "thankYou": "תודה על שיתוף הפעולה.",
     "mark_complete": "אני מאשר/ת כי המידע שלם ונכון",
-    
     "mark_complete_note": "לאחר הסימון כשלם, לא תוכל/י לערוך את המידע ללא פנייה אלינו.",
     "mark_complete_note2": "אל תלחץ על תיבת הסימון אם ברצונך לבצע שינויים עתידיים בפרטי החייל.",
     "mark_complete_note3":"הרישום יישמר ותוכל להמשיך לעדכן את הפרטים עד שתסמן תיבה זו.",
+    "admin_complete": "אני כמנהל מאשר כי הרשומה מוכנה להורדה",
     "select": "בחר",
     "firstName": "שם פרטי",
     "lastName": "שם משפחה",
@@ -143,8 +146,10 @@
     "dob": "תאריך לידה",
     "saved_success": "הרשומה והקבצים נשמרו בהצלחה!",
     "upload_files": "העלה קבצים תומכים (תמונות, מסמכים וכו')",
-     "no_file_chosen": "לא נבחרו קבצים",
-     "select_files": "בחר קבצים"
+    "no_file_chosen": "לא נבחרו קבצים",
+    "select_files": "בחר קבצים",
+    "admin_ready_for_download": "מוכן להורדה",
+    "admin_approved_date": "תאריך אישור מנהל"
 
     },
   "admin": {

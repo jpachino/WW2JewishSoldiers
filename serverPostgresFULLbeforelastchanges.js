@@ -825,12 +825,12 @@ app.get('/adminUpdateSoldier/:id', async (req, res) => {
 
 // Route: Show completed records for a given admin
 app.get('/admin/completedRecords', async (req, res) => {
-  let { adminemail, saved } = req.query;
+  let { adminemail,saved } = req.query;
   const locale = req.getLocale();
 
   console.log('✅ /admin/completedRecords route hit');
-  console.log(adminemail);
-
+  console.log (adminemail);
+  // Validate adminemail presence
   if (!adminemail || adminemail.trim() === '') {
     return res.status(400).send('Admin email required');
   }
@@ -839,11 +839,13 @@ app.get('/admin/completedRecords', async (req, res) => {
     let completedSoldiers;
 
     if (adminemail === "admin@ww2jewishsoldiers.com") {
+      // Show ALL completed records if admin email is the joint admin
       completedSoldiers = await db.any(`
         SELECT * FROM ${SOLDIER_TABLE}
         WHERE recordcomplete = true
       `);
     } else {
+      // Otherwise show only completed records for the specific adminemail
       completedSoldiers = await db.any(`
         SELECT * FROM ${SOLDIER_TABLE}
         WHERE recordcomplete = true AND useremail ILIKE $1
@@ -853,7 +855,7 @@ app.get('/admin/completedRecords', async (req, res) => {
     res.render('completedRecords', {
       locale,
       adminemail,
-      saved: saved === 'true',
+      saved: saved === 'true', // ✅ This passes it as a boolean
       soldiers: completedSoldiers
     });
   } catch (err) {
@@ -863,46 +865,38 @@ app.get('/admin/completedRecords', async (req, res) => {
 });
 
 
+
 app.post('/adminUpdateSoldier/:id', upload.array('files'), async (req, res) => {
   console.log('Update Admin Update route hit:', req.params.id);
   const { id } = req.params;
-  const adminemail = req.body.adminemail || req.query.adminemail;
-
+  const adminemail = req.body.adminemail || req.query.adminemail; // Secure fallback
   try {
     const existingSoldier = await db.oneOrNone(`SELECT * FROM ${SOLDIER_TABLE} WHERE id = $1`, [id]);
     if (!existingSoldier) {
       return res.status(404).send('Soldier not found');
     }
 
-    const admin_ready_for_download = Array.isArray(req.body.admin_ready_for_download)
-      ? req.body.admin_ready_for_download.includes('true') || req.body.admin_ready_for_download.includes('on')
-      : req.body.admin_ready_for_download === 'true' || req.body.admin_ready_for_download === 'on';
+    // Parse date fields
+    const parsedDob = req.body.dob ? new Date(req.body.dob) : null;
+    const parsedDod = req.body.dod ? new Date(req.body.dod) : null;
+    const parsedAliyaDate = req.body.aliyadate ? new Date(req.body.aliyadate) : null;
+    const parsedIdfEnlistDate = req.body.idf_enlistdate ? new Date(req.body.idf_enlistdate) : null;
+    const parsedIdfReleaseDate = req.body.idf_releasedate ? new Date(req.body.idf_releasedate) : null;
+   // const parsedRecordCompleteDate = req.body.record_complete_date ? new Date(req.body.record_complete_date) : null;
+   // const parsedAdminApprovedDate = req.body.admin_approved_date ? new Date(req.body.admin_approved_date) : null;
+    //const parsedDownloadedDate = req.body.downloaded_date ? new Date(req.body.downloaded_date) : null;
+    // ✅ Determine if recordcomplete is checked (convert string to boolean)
+const admin_ready_for_download = Array.isArray(req.body.admin_ready_for_download)
+  ? req.body.admin_ready_for_download.includes('true') || req.body.admin_ready_for_download.includes('on')
+  : req.body.admin_ready_for_download === 'true' || req.body.admin_ready_for_download === 'on';
 
-    let admin_approved_date = existingSoldier.admin_approved_date;
-    let record_complete_date = existingSoldier.record_complete_date;
-    let downloaded_date = existingSoldier.downloaded_date;
-
-    //if (admin_ready_for_download && !existingSoldier.admin_ready_for_download) {
-     // admin_approved_date = new Date();
-    //} else if (!admin_ready_for_download) {
-    //  admin_approved_date = null;
-    //}
-if ('admin_ready_for_download' in req.body) {
+// ✅ Automatically set record_complete_date only if newly marked complete
+  let admin_approved_date  = null;
   if (admin_ready_for_download && !existingSoldier.admin_ready_for_download) {
-    admin_approved_date = new Date();
-  } else if (!admin_ready_for_download && existingSoldier.admin_ready_for_download) {
-    admin_approved_date = null;
+    admin_approved_date = new Date(); // mark now
+  } else if (!admin_ready_for_download) {
+    admin_approved_date = null; // clear if unchecked
   }
-}
-
-    if (!existingSoldier.record_complete_date && req.body.recordcomplete) {
-      record_complete_date = new Date();
-    }
-
-    if (req.body.downloaded_date) {
-      downloaded_date = new Date(req.body.downloaded_date);
-    }
-
 
     const inputData = {
       fname: req.body.fname, fnameen: req.body.fnameen, fnameru: req.body.fnameru,
@@ -957,11 +951,7 @@ if ('admin_ready_for_download' in req.body) {
       linkurl: req.body.linkurl,
       recordcomplete: existingSoldier.recordcomplete,
       record_complete_date: existingSoldier.record_complete_date,
-      admin_ready_for_download: ('admin_ready_for_download' in req.body)
-      ? admin_ready_for_download
-      :   existingSoldier.admin_ready_for_download,
-
-      //admin_ready_for_download: req.body.admin_ready_for_download, 
+      admin_ready_for_download: req.body.admin_ready_for_download, 
       admin_approved_date
      
     };

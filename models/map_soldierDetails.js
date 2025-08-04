@@ -352,7 +352,28 @@ const SoldierDetails = db.define('map_soldierdetails', {
   },
   useremail:{
     email:Sequelize.TEXT
-  }
+  },
+  recordcomplete: {
+  type: Sequelize.BOOLEAN,
+  defaultValue: false
+  },
+  record_complete_date: {
+    type: Sequelize.DATE,
+    allowNull: true
+  },
+  admin_ready_for_download: {
+    type: Sequelize.BOOLEAN,
+    defaultValue: false
+  },
+  admin_approved_date: {
+    type: Sequelize.DATE,
+    allowNull: true
+  },
+  downloaded_date: {
+    type: Sequelize.DATE,
+    allowNull: true
+  },
+
 }, {
   timestamps: false
 });

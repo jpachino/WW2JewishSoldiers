@@ -3,6 +3,7 @@
 
   "title": "Add Soldier Information",
   "titleUpdate" :"Update Soldier Information",
+  "titleAdminUpdate": "Admin Soldier Update",
   "submit": "Submit"
 
   ,
@@ -77,6 +78,8 @@
     "birthcityen": "City of Birth (EN)",
     "birthcityru": "City of Birth (RU)",
     "gender": "Gender",
+    "male": "Male",
+    "female": "Female",
     "placeofdeath": "Place of Death (IL)",
     "placeofdeathen": "Place of Death (EN)",
     "placeofdeathru": "Place of Death (RU)",
@@ -113,7 +116,9 @@
     "remarksru": "Remarks (RU)",
     "linkurl": "Link",
     "useremail": "Your Email",
-    "id": "ID"
+    "id": "ID",
+    "other": "Other",
+    "enter_custom": "Enter custom medal"
   },
   
   
@@ -127,6 +132,7 @@
     "mark_complete_note": "Once marked complete, changes can only be made by contacting us.",
     "mark_complete_note2":"Do not click complete record box if you want to make future changes to this soldier information.",
     "mark_complete_note3":"The record will be stored and you can continue to update the soldier information until this box is checked.",
+    "admin_complete": "I as an administrator confirm that the record is ready for download",
     "select": "Select",
     "firstName": "First Name",
     "lastName": "Last Name",
@@ -134,8 +140,10 @@
     "dob": "Date of Birth",
     "saved_success": "Record and files saved successfully!",
     "upload_files":"Upload Files",
-     "no_file_chosen": "No files chosen",
-     "select_files": "Select files"
+    "no_file_chosen": "No files chosen",
+    "select_files": "Select files",
+    "admin_ready_for_download": "Ready for Download",
+    "admin_approved_date": "Admin Approval Date"
 
   },
 "admin": {

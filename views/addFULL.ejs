@@ -14,6 +14,8 @@
     .single-row { margin-bottom: 10px; display: flex; flex-direction: column; }
     textarea { resize: vertical; }
   </style>
+ 
+
 </head>
 <!--<div id="confirmModal" class="modal hidden">
   <div class="modal-content">
@@ -52,15 +54,7 @@
   </header>
   
  
-       <!-- 🌐 Language Selector 
-        
-        <form method="get" action="">
-  <select name="lang" onchange="this.form.submit()" >
-    <option value="he" <%= (locale === 'he' ? 'selected' : '') %>>עברית</option>
-    <option value="en" <%= (locale === 'en' ? 'selected' : '') %>>English</option>
-    <option value="ru" <%= (locale === 'ru' ? 'selected' : '') %>>Русский</option>
-  </select>
-</form>-->
+       
  <!-- 🌐 Language Selector -->
        <form action="/change-lang" method="get" style="margin-top: 2rem;">
           <select name="lang" class="lang-select" onchange="this.form.submit()">
@@ -92,14 +86,7 @@
 
 
 
-  <!--<form method="get" action="">
-    <select name="lang" onchange="this.form.submit()">
-      <option value="he" <%= (locale === 'he' ? 'selected' : '') %>>עברית</option>
-      <option value="en" <%= (locale === 'en' ? 'selected' : '') %>>English</option>
-      <option value="ru" <%= (locale === 'ru' ? 'selected' : '') %>>Русский</option>
-    </select>
-    
-  </form>-->
+ 
 
   <div class="info-container">
     <% if (locale === 'en') { %>
@@ -137,6 +124,9 @@
   <!--<form action="/addfull" method="POST">-->
    <!-- <form action="/addfull" method="POST" id="soldierForm">-->
   <form action="/addFULL" method="POST" enctype="multipart/form-data" id="soldierForm">
+  
+  <!-- all your fields -->
+
 
   <input type="hidden" id="recordcomplete" name="recordcomplete" value="false" />
 
@@ -271,10 +261,20 @@
     </div>
   </div>
 
-  <div class="single-row">
+  <!--<div class="single-row">
     <label for="gender"><%= __('fields.gender') %></label>
     <input type="text" name="gender" id="gender" />
-  </div>
+  </div>-->
+  
+<div class="single-row">
+  <label for="gender"><%= __('fields.gender') %></label>
+  <select name="gender" id="gender">
+    <option value="male" <%= (!soldier.gender || soldier.gender === 'male') ? 'selected' : '' %>><%= __('fields.male') %></option>
+    <option value="female" <%= soldier.gender === 'female' ? 'selected' : '' %>><%= __('fields.female') %></option>
+  </select>
+</div>
+
+
 
   <div class="trio-row">
     <div class="input-group">
@@ -422,7 +422,7 @@
   <label for="idf_releasedate"><%= __('fields.idf_releasedate') %>:</label>
   <input type="date" name="idf_releasedate" id="idf_releasedate" />-->
 
-  <div class="trio-row">
+  <!--<div class="trio-row">
     <div class="trio-row">
   <div class="input-group">
     <label for="medal"><%= __('fields.medal') %>:</label>
@@ -442,7 +442,7 @@
         <option value="<%= m.id %>"><%= m.title %></option>
       <% }); %>
     </select>
-    <!--<input type="text" name="medalen" id="medalen" />-->
+   
   </div>
 
   <div class="input-group">
@@ -453,7 +453,47 @@
         <option value="<%= m.id %>"><%= m.title %></option>
       <% }); %>
     </select>
-    <!--<input type="text" name="medalru" id="medalru" />-->
+    
+  </div>
+</div>-->
+<div class="trio-row">
+  <!-- Hebrew Medal -->
+  <div class="input-group">
+    <label for="medal"><%= __('fields.medal') %>:</label>
+    <select name="medal" id="medal" onchange="toggleCustomInput('medal')">
+      <option value="">{ <%= __('select') %> }</option>
+      <% medals.forEach(m => { %>
+        <option value="<%= m.id %>"><%= m.title %></option>
+      <% }); %>
+      <option value="other"><%= __('fields.other') %></option>
+    </select>
+    <input type="text" name="medal_custom" id="medal_custom" class="hidden" placeholder="<%= __('fields.enter_custom') %>" />
+  </div>
+
+  <!-- English Medal -->
+  <div class="input-group">
+    <label for="medalen"><%= __('fields.medalen') %>:</label>
+    <select name="medalen" id="medalen" onchange="toggleCustomInput('medalen')">
+      <option value="">{ <%= __('select') %> }</option>
+      <% medals.forEach(m => { %>
+        <option value="<%= m.id %>"><%= m.title %></option>
+      <% }); %>
+      <option value="other"><%= __('fields.other') %></option>
+    </select>
+    <input type="text" name="medalen_custom" id="medalen_custom" class="hidden" placeholder="<%= __('fields.enter_custom') %>" />
+  </div>
+
+  <!-- Russian Medal -->
+  <div class="input-group">
+    <label for="medalru"><%= __('fields.medalru') %>:</label>
+    <select name="medalru" id="medalru" onchange="toggleCustomInput('medalru')">
+      <option value="">{ <%= __('select') %> }</option>
+      <% medals.forEach(m => { %>
+        <option value="<%= m.id %>"><%= m.title %></option>
+      <% }); %>
+      <option value="other"><%= __('fields.other') %></option>
+    </select>
+    <input type="text" name="medalru_custom" id="medalru_custom" class="hidden" placeholder="<%= __('fields.enter_custom') %>" />
   </div>
 </div>
 
@@ -541,11 +581,43 @@
 </fieldset>
 
 <button type="submit"><%= __('submit') %></button>
-</form>
+
 
 </fieldset>
+</form>
+<script>
+  function updateFileName() {
+    const input = document.getElementById('files');
+    const label = document.getElementById('file-label');
+    if (input.files.length > 0) {
+      const names = Array.from(input.files).map(f => f.name).join(', ');
+      label.textContent = names;
+      console.log('Selected files:', names);  // for debugging
+    } else {
+      //label.textContent = '<%= __('form.no_file_chosen') %>';
+      console.log('No files chosen');
+    }
+  }
+</script>
+
 </body>
-  </div>
+ <!-- </div>-->
+<script>
+  
+  function toggleCustomInput(fieldId) {
+    const select = document.getElementById(fieldId);
+    const custom = document.getElementById(fieldId + '_custom');
+
+    if (select.value === 'other') {
+      custom.classList.remove('hidden');
+      custom.required = true;
+    } else {
+      custom.classList.add('hidden');
+      custom.required = false;
+      custom.value = '';
+    }
+  }
+</script>
 
 
 </html>
