@@ -125,7 +125,8 @@
     "finalnotes": "הערות אחרונות",
     "id": "מזהה",
     "other": "אחר",
-    "enter_custom": "הזן עיטור מותאם אישית"
+    "enter_custom": "הזן עיטור מותאם אישית",
+    "downloaded_date": "תאריך הורדה"
 
   },
 
@@ -150,6 +151,7 @@
     "select_files": "בחר קבצים",
     "admin_ready_for_download": "מוכן להורדה",
     "admin_approved_date": "תאריך אישור מנהל"
+
 
     },
   "admin": {

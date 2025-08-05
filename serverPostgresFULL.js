@@ -1071,9 +1071,19 @@ app.post('/admin/downloadExcel', async (req, res) => {
       key: key,
     }));
 
-    selectedSoldiers.forEach(soldier => {
-      worksheet.addRow(soldier);
-    });
+  selectedSoldiers.forEach(soldier => {
+  worksheet.addRow(soldier);
+  });
+
+    // ✅ Update downloaded_date for each selected record
+const now = new Date();
+  await db.none(`
+    UPDATE ${SOLDIER_TABLE}
+    SET downloaded_date = $1
+    WHERE id IN ($2:csv)
+  `, [now, ids]);
+
+console.log(`✅ Updated downloaded_date for ${ids.length} records`);
 
     res.setHeader(
       'Content-Disposition',

@@ -139,7 +139,7 @@
           fields.forEach(field => {
             const group = document.createElement("div");
             group.classList.add("field-group");
-            group.innerHTML = `<strong>${field}:</strong> ${isDateField(field) ? formatDate(record[field]) : (record[field] ?? '')}`;
+            group.innerHTML = `<strong>${field}</strong> ${isDateField(field) ? formatDate(record[field]) : (record[field] ?? '')}`;
             row.appendChild(group);
           });
 
@@ -220,7 +220,9 @@
               <th><%= __('form.email') %></th>
               <th><%= __('form.dob') %></th>
               <th><%= __('form.admin_approved_date') %></th>
+              <th><%= __('fields.downloaded_date') %></th> 
               <th><%= __('actions.edit') %></th>
+              
             </tr>
           </thead>
           <tbody>
@@ -235,6 +237,9 @@
                 <!--<td><%= s.admin_approved_date ? new Date(s.admin_approved_date).toLocaleDateString('en-GB', { day: '2-digit', month: '2-digit', year: 'numeric' }) : '' %></td>-->
                 <td <% if (s.admin_approved_date) { %> style="background-color: #d4edda;" <% } %>>
                     <%= s.admin_approved_date ? new Date(s.admin_approved_date).toLocaleDateString('en-GB', { day: '2-digit', month: '2-digit', year: 'numeric' }) : '' %>
+                </td>
+                 <td <% if (s.downloaded_date) { %> style="background-color: #fff3cd;" <% } %>>
+                    <%= s.downloaded_date ? new Date(s.downloaded_date).toLocaleDateString('en-GB', { day: '2-digit', month: '2-digit', year: 'numeric' }) : '' %>
                 </td>
                 <td><a href="/adminupdateSoldier/<%= s.id %>"><%= __('actions.edit') %></a></td>
               </tr>
