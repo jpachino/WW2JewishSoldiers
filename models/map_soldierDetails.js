@@ -373,7 +373,15 @@ const SoldierDetails = db.define('map_soldierdetails', {
     type: Sequelize.DATE,
     allowNull: true
   },
-
+  other_medal:{
+    type: Sequelize.TEXT
+  },
+  other_medalen:{
+    type: Sequelize.TEXT
+  },
+  other_medalru:{
+    type: Sequelize.TEXT
+  },
 }, {
   timestamps: false
 });

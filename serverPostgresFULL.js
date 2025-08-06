@@ -334,7 +334,8 @@ app.post('/addFULL', upload.array('files'), async (req, res) => {
       remarks, remarksen, remarksru,
       title, titleen, titleru,
       remarks2, remarksen2, remarksru2,
-      linkurl, useremail, recordcomplete, record_complete_date, admin_ready_for_download, admin_approved_date, downloaded_date
+      linkurl, useremail, recordcomplete, record_complete_date, admin_ready_for_download, admin_approved_date, downloaded_date,
+      other_medal, other_medalen, other_medalru
     } = cleaned;
 
     // Convert date strings to Date objects or null
@@ -386,7 +387,8 @@ app.post('/addFULL', upload.array('files'), async (req, res) => {
         title, titleen, titleru,
         remarks2, remarksen2, remarksru2,
         linkurl, useremail, recordcomplete, record_complete_date, 
-        admin_ready_for_download, admin_approved_date, downloaded_date
+        admin_ready_for_download, admin_approved_date, downloaded_date,
+        other_medal, other_medalen, other_medalru
       ) VALUES (
         $1, $2, $3, $4, $5, $6, $7, $8, $9,
         $10, $11, $12, $13, $14, $15, $16, $17, $18,
@@ -398,7 +400,8 @@ app.post('/addFULL', upload.array('files'), async (req, res) => {
         $64, $65, $66, $67, $68, $69, $70, $71, $72,
         $73, $74, $75, $76, $77, $78, $79, $80, $81,
         $82, $83, $84, $85, $86, $87, $88, $89, $90,
-        $91, $92, $93, $94, $95, $96, $97, $98, $99, $100,$101, $102
+        $91, $92, $93, $94, $95, $96, $97, $98, $99, $100,$101, $102, 
+        $103, $104, $105
       ) RETURNING id
     `, [
       fname, fnameen, fnameru,
@@ -441,7 +444,7 @@ app.post('/addFULL', upload.array('files'), async (req, res) => {
       remarks2, remarksen2, remarksru2,
       linkurl, useremail, recordcomplete,
       record_complete_date, admin_ready_for_download, 
-      admin_approved_date, downloaded_date
+      admin_approved_date, downloaded_date,other_medal, other_medalen, other_medalru
     ]);
 
     const soldierId = insertedSoldier.id;
@@ -721,7 +724,10 @@ const recordcomplete = Array.isArray(req.body.recordcomplete)
       record_complete_date, 
       admin_ready_for_download: req.body.admin_ready_for_download, 
       admin_approved_date: parsedAdminApprovedDate,
-      downloaded_date:  parsedDownloadedDate
+      downloaded_date:  parsedDownloadedDate,
+      other_medal: req.body.other_medal,
+      other_medalen: req.body.other_medalen,
+      other_medalru: req.body.other_medalru
     };
 
     const updates = [];
@@ -960,9 +966,15 @@ if ('admin_ready_for_download' in req.body) {
       admin_ready_for_download: ('admin_ready_for_download' in req.body)
       ? admin_ready_for_download
       :   existingSoldier.admin_ready_for_download,
+      admin_approved_date: existingSoldier.admin_approved_date,
+      downloaded_date: existingSoldier.downloaded_date,
+      other_medal: req.body.other_medal,
+      other_medalen: req.body.other_medalen,
+      other_medalru: req.body.other_medalru,
 
-      //admin_ready_for_download: req.body.admin_ready_for_download, 
-      admin_approved_date
+
+
+      
      
     };
 
@@ -1071,9 +1083,13 @@ app.post('/admin/downloadExcel', async (req, res) => {
       key: key,
     }));
 
+  //selectedSoldiers.forEach(soldier => {
+  //worksheet.addRow(soldier);
+  //});
   selectedSoldiers.forEach(soldier => {
-  worksheet.addRow(soldier);
-  });
+  const modifiedSoldier = { ...soldier, id: `A${soldier.id}` };
+  worksheet.addRow(modifiedSoldier);
+});
 
     // ✅ Update downloaded_date for each selected record
 const now = new Date();

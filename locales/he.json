@@ -126,7 +126,10 @@
     "id": "מזהה",
     "other": "אחר",
     "enter_custom": "הזן עיטור מותאם אישית",
-    "downloaded_date": "תאריך הורדה"
+    "downloaded_date": "תאריך הורדה",
+    "other_medal": "עיטור אחר (IL)",
+    "other_medalen": "עיטור אחר (EN)",
+    "other_medalru": "עיטור אחר (RU)"
 
   },
 

@@ -14,35 +14,79 @@
     .single-row { margin-bottom: 10px; display: flex; flex-direction: column; }
     textarea { resize: vertical; }
   </style>
+ 
+
 </head>
-<div id="confirmModal" class="modal hidden">
+<!--<div id="confirmModal" class="modal hidden">
   <div class="modal-content">
     <p id="confirmText"></p>
     <button id="confirmYes">Yes</button>
     <button id="confirmNo">No</button>
-  </div>
+  </div>-->
 </div>
 
 
 
 <body>
-  <header>
+ <header>
     <div class="container">
-      <h1><%= __('title') %></h1>
+      <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap;">
+        <h1><%= __('title') %></h1>
+
+        <!-- 🌐 Language Selector 
+        <form method="get" action="">
+  <select name="lang" onchange="this.form.submit()">
+    <option value="he" <%= (locale === 'he' ? 'selected' : '') %>>עברית</option>
+    <option value="en" <%= (locale === 'en' ? 'selected' : '') %>>English</option>
+    <option value="ru" <%= (locale === 'ru' ? 'selected' : '') %>>Русский</option>
+  </select>
+</form>-->
+      </div>
+
       <nav>
-        <a href="/"> <%= __('nav.home') %> </a>
+        <a href="/"><%= __('nav.home') %></a>
+        <!-- Hidden nav links for future use -->
+        <!--<a href="/soldierlistFULL"><%= __('nav.soldierList') %></a>
+        <a href="/addFull"><%= __('nav.addSoldier') %></a>
+        <a href="/search"><%= __('nav.searchUpdate') %></a>-->
       </nav>
     </div>
   </header>
+  
+ 
+       
+ <!-- 🌐 Language Selector -->
+       <form action="/change-lang" method="get" style="margin-top: 2rem;">
+          <select name="lang" class="lang-select" onchange="this.form.submit()">
+            <option value="he" <%= locale === 'he' ? 'selected' : '' %>> עברית</option>
+            <option value="en" <%= locale === 'en' ? 'selected' : '' %>>English</option>
+            <option value="ru" <%= locale === 'ru' ? 'selected' : '' %>>Русский</option>
+          </select>
+        </form>
 
-  <form method="get" action="">
-    <select name="lang" onchange="this.form.submit()">
-      <option value="he" <%= (locale === 'he' ? 'selected' : '') %>>עברית</option>
-      <option value="en" <%= (locale === 'en' ? 'selected' : '') %>>English</option>
-      <option value="ru" <%= (locale === 'ru' ? 'selected' : '') %>>Русский</option>
-    </select>
-    
-  </form>
+ <% if (locale === 'he') { %>
+  <div class="important-note" style="background-color: #fff9c4; color: #333; border: 2px solid #fdd835; padding: 15px; margin: 20px auto; max-width: 900px; border-radius: 6px; font-family: Arial, sans-serif; font-size: 1.1em;" dir="rtl">
+    ⚠️ <strong>הערה חשובה:</strong> אנא בדוק אם החייל שלך כבר קיים באתר 
+    <a href="https://infocenters.co.il/jwm" target="_blank">https://infocenters.co.il/jwm</a>
+    לפני הזנת המידע כאן.
+  </div>
+<% } else if (locale === 'ru') { %>
+  <div class="important-note" style="background-color: #fff9c4; color: #333; border: 2px solid #fdd835; padding: 15px; margin: 20px auto; max-width: 900px; border-radius: 6px; font-family: Arial, sans-serif; font-size: 1.1em;">
+    ⚠️ <strong>Важное замечание:</strong> Пожалуйста, проверьте, указан ли ваш солдат на сайте 
+    <a href="https://infocenters.co.il/jwm" target="_blank">https://infocenters.co.il/jwm</a> 
+    перед вводом информации здесь.
+  </div>
+<% } else { %>
+  <div class="important-note" style="background-color: #fff9c4; color: #333; border: 2px solid #fdd835; padding: 15px; margin: 20px auto; max-width: 900px; border-radius: 6px; font-family: Arial, sans-serif; font-size: 1.1em;">
+    ⚠️ <strong>Important Note:</strong> Please check for your soldier on 
+    <a href="https://infocenters.co.il/jwm" target="_blank">https://infocenters.co.il/jwm</a> 
+    <strong>before</strong> entering his/her information here.
+  </div>
+<% } %>
+
+
+
+ 
 
   <div class="info-container">
     <% if (locale === 'en') { %>
@@ -78,7 +122,12 @@
 
 
   <!--<form action="/addfull" method="POST">-->
-    <form action="/addfull" method="POST" id="soldierForm">
+   <!-- <form action="/addfull" method="POST" id="soldierForm">-->
+  <form action="/addFULL" method="POST" enctype="multipart/form-data" id="soldierForm">
+  
+  <!-- all your fields -->
+
+
   <input type="hidden" id="recordcomplete" name="recordcomplete" value="false" />
 
     <fieldset>
@@ -179,10 +228,18 @@
    <fieldset>
   <legend><%= __('sections.birthdeath') %></legend>
 
-  <div class="single-row">
+  <!--<div class="single-row">
     <label for="birthcountry"><%= __('fields.birthcountry') %></label>
     <input type="text" name="birthcountry" id="birthcountry" />
-  </div>
+  </div>-->
+     <label for="birthcountry"><%= __('fields.birthcountry') %></label>
+        <select name="birthcountry" id="birthcountry">
+          <option value=""><%= __('fields.birthcountry') %></option>
+          <% countries.forEach(c => { %>
+            <option value="<%= c.title %>"><%= c.title %></option>
+
+          <% }) %>
+        </select>
 
   <div class="single-row">
     <label for="otherbirthcountry"><%= __('fields.otherbirthcountry') %></label>
@@ -204,10 +261,20 @@
     </div>
   </div>
 
-  <div class="single-row">
+  <!--<div class="single-row">
     <label for="gender"><%= __('fields.gender') %></label>
     <input type="text" name="gender" id="gender" />
-  </div>
+  </div>-->
+  
+<div class="single-row">
+  <label for="gender"><%= __('fields.gender') %></label>
+  <select name="gender" id="gender">
+    <option value="male" <%= (!soldier.gender || soldier.gender === 'male') ? 'selected' : '' %>><%= __('fields.male') %></option>
+    <option value="female" <%= soldier.gender === 'female' ? 'selected' : '' %>><%= __('fields.female') %></option>
+  </select>
+</div>
+
+
 
   <div class="trio-row">
     <div class="input-group">
@@ -242,7 +309,7 @@
 
 
  <fieldset>
-  <legend><%= __('sections.biopart') %></legend>
+  <legend><%= __('sections.bio') %></legend>
 
   <div class="trio-row">
     <div class="input-group">
@@ -341,20 +408,21 @@
 
   <label for="dob"><%= __('fields.dob') %>:</label>
   <input type="date" name="dob" id="dob" />
-
+  
+    
   <label for="dod"><%= __('fields.dod') %>:</label>
   <input type="date" name="dod" id="dod" />
 
   <label for="aliyadate"><%= __('fields.aliyadate') %>:</label>
   <input type="date" name="aliyadate" id="aliyadate" />
 
-  <label for="idf_enlistdate"><%= __('fields.idf_enlistdate') %>:</label>
+  <!--<label for="idf_enlistdate"><%= __('fields.idf_enlistdate') %>:</label>
   <input type="date" name="idf_enlistdate" id="idf_enlistdate" />
 
   <label for="idf_releasedate"><%= __('fields.idf_releasedate') %>:</label>
-  <input type="date" name="idf_releasedate" id="idf_releasedate" />
+  <input type="date" name="idf_releasedate" id="idf_releasedate" />-->
 
-  <div class="trio-row">
+  <!--<div class="trio-row">
     <div class="trio-row">
   <div class="input-group">
     <label for="medal"><%= __('fields.medal') %>:</label>
@@ -374,7 +442,7 @@
         <option value="<%= m.id %>"><%= m.title %></option>
       <% }); %>
     </select>
-    <!--<input type="text" name="medalen" id="medalen" />-->
+   
   </div>
 
   <div class="input-group">
@@ -385,7 +453,47 @@
         <option value="<%= m.id %>"><%= m.title %></option>
       <% }); %>
     </select>
-    <!--<input type="text" name="medalru" id="medalru" />-->
+    
+  </div>
+</div>-->
+<div class="trio-row">
+  <!-- Hebrew Medal -->
+  <div class="input-group">
+    <label for="medal"><%= __('fields.medal') %>:</label>
+    <select name="medal" id="medal" onchange="toggleCustomInput('medal')">
+      <option value="">{ <%= __('select') %> }</option>
+      <% medals.forEach(m => { %>
+        <option value="<%= m.id %>"><%= m.title %></option>
+      <% }); %>
+      <option value="other"><%= __('fields.other') %></option>
+    </select>
+    <input type="text" name="medal_custom" id="medal_custom" class="hidden" placeholder="<%= __('fields.enter_custom') %>" />
+  </div>
+
+  <!-- English Medal -->
+  <div class="input-group">
+    <label for="medalen"><%= __('fields.medalen') %>:</label>
+    <select name="medalen" id="medalen" onchange="toggleCustomInput('medalen')">
+      <option value="">{ <%= __('select') %> }</option>
+      <% medals.forEach(m => { %>
+        <option value="<%= m.id %>"><%= m.title %></option>
+      <% }); %>
+      <option value="other"><%= __('fields.other') %></option>
+    </select>
+    <input type="text" name="medalen_custom" id="medalen_custom" class="hidden" placeholder="<%= __('fields.enter_custom') %>" />
+  </div>
+
+  <!-- Russian Medal -->
+  <div class="input-group">
+    <label for="medalru"><%= __('fields.medalru') %>:</label>
+    <select name="medalru" id="medalru" onchange="toggleCustomInput('medalru')">
+      <option value="">{ <%= __('select') %> }</option>
+      <% medals.forEach(m => { %>
+        <option value="<%= m.id %>"><%= m.title %></option>
+      <% }); %>
+      <option value="other"><%= __('fields.other') %></option>
+    </select>
+    <input type="text" name="medalru_custom" id="medalru_custom" class="hidden" placeholder="<%= __('fields.enter_custom') %>" />
   </div>
 </div>
 
@@ -393,6 +501,7 @@
 </fieldset>
 
     <fieldset>
+     
   <legend><%= __('sections.finalnotes') %></legend>
 
   <label for="remarks"><%= __('fields.remarks') %>:</label>
@@ -406,90 +515,110 @@
 
   <label for="linkurl"><%= __('fields.linkurl') %>:</label>
   <input type="url" name="linkurl" id="linkurl" />
+    </fieldset>
+  <!---<fieldset>
+    <legend><%= __('sections.uploads') || 'Upload Files' %></legend>
+    <label for="files"><%= __('form.upload_files') || 'Upload supporting files (images, documents, etc)' %></label>
+    <input type="file" id="files" name="files" multiple />
+  </fieldset>
+  <fieldset>
+  <legend><%= __('sections.uploads') %></legend>
+  <label for="files"><%= __('form.upload_files') %></label>
+  <input type="file" id="files" name="files" multiple />
+</fieldset>
+<fieldset>
+  <legend><%= __('sections.uploads') %></legend>
+  
+  <label for="files" class="file-upload-label">
+    <%= __('form.upload_files') %>
+  </label>
 
-    <label for="remarksru"><%= __('fields.remarksru') %>:</label>
-  <textarea name="remarksru" id="remarksru"></textarea>
+  <div class="custom-file-input">
+    <input type="file" id="files" name="files" multiple onchange="updateFileName()" />
+    <label for="files" id="file-label"><%= __('form.no_file_chosen') %></label>
+  </div>
+</fieldset>-->
+<fieldset>
+  <legend><%= __('sections.uploads') %></legend>
 
-  <label for="linkurl"><%= __('fields.linkurl') %>:</label>
-  <input type="url" name="linkurl" id="linkurl" />
+  <label class="file-upload-label">
+    <%= __('form.upload_files') %>
+  </label>
 
+  <div class="custom-file-input">
+    <!-- Hide the default file input UI -->
+    <input type="file" id="files" name="files" multiple onchange="updateFileName()" hidden />
+    
+    <!-- This button triggers the hidden input -->
+    <button type="button" onclick="document.getElementById('files').click()">
+      <%= __('form.select_files') %>
+    </button>
+
+    <!-- This shows the selected filenames or 'No files chosen' -->
+    <span id="file-label"><%= __('form.no_file_chosen') %></span>
+  </div>
+</fieldset>
+
+   <fieldset>
   <label for="useremail"><%= __('fields.useremail') %>:</label>
   <input type="email" name="useremail" id="useremail" required />
-
+  <div class="checkbox-group">
+  <label>
+    <input type="checkbox" name="recordcomplete" id="recordcomplete" value="true" />
+    <%= __('form.mark_complete') %>
+  </label>
+  <p class="note">
+    <%= __('form.mark_complete_note') %>
+  </p>
+  <p class="note">
+    <%= __('form.mark_complete_note2') %>
+  </p>
+  <p class="note">
+    <%= __('form.mark_complete_note3') %>
+  </p>
+</div>
   
 </fieldset>
 
 <button type="submit"><%= __('submit') %></button>
-</form>
+
 
 </fieldset>
-
-<button type="submit"><%= __('submit') %></button>
 </form>
-   
-  </div>
 <script>
-  document.querySelector('form[action="/addfull"]').addEventListener('submit', function (e) {
-  e.preventDefault(); // Stop form from submitting
-
-  const message = {
-    en: `
-      This record will now be saved.<br><br>
-      <strong>Have you finished entering all soldier information?</strong><br><br>
-      If you wish to edit this record, choose No and you will be able to return and continue making changes.<br><br>
-      If you mark this record as complete, you will no longer be able to edit it.<br><br>
-      Only administrators will be able to make changes going forward.<br><br>
-      To make future changes after marked complete, please contact us.
-    `,
-
-    he: `
-      הרישום יישמר כעת.<br><br>
-      <strong>האם סיימת להזין את כל פרטי החייל?</strong><br><br>
-      אם ברצונך לערוך את הרישום, בחר לא ותוכל לחזור ולהמשיך לערוך.<br><br>
-      אם תסמן את הרישום כהושלם, לא תוכל עוד לערוך אותו.<br><br>
-      רק מנהלים יוכלו לבצע שינויים בעתיד.<br><br>
-      לביצוע שינויים לאחר שסומן כהושלם, אנא צור איתנו קשר.
-    `,
-
-    ru: `
-      Эта запись будет сохранена.<br><br>
-      <strong>Вы завершили ввод всей информации о солдате?</strong><br><br>
-      Если вы хотите отредактировать эту запись, выберите «Нет», и вы сможете вернуться и продолжить внесение изменений.<br><br>
-      Если вы отметите запись как завершённую, вы больше не сможете её редактировать.<br><br>
-      Только администраторы смогут вносить изменения в будущем.<br><br>
-      Для будущих изменений после завершения записи, пожалуйста, свяжитесь с нами.
-    `
-  };
-
-  const lang = "<%= locale %>";
-  const text = message[lang] || message['en'];
-
-  const modal = document.getElementById('confirmModal');
-  const confirmText = document.getElementById('confirmText');
-  const yesBtn = document.getElementById('confirmYes');
-  const noBtn = document.getElementById('confirmNo');
-  const form = this;
-
-  // Use innerHTML to render line breaks and bold
-  confirmText.innerHTML = text;
-  modal.classList.remove('hidden');
-
-  yesBtn.onclick = function () {
-    document.getElementById('recordcomplete').value = 'true';
-    modal.classList.add('hidden');
-    form.submit();
-  };
-
-  noBtn.onclick = function () {
-  document.getElementById('recordcomplete').value = 'false';
-  modal.classList.add('hidden');
-  form.submit(); // <-- Add this line to submit the form!
-};
-
-});
-
+  function updateFileName() {
+    const input = document.getElementById('files');
+    const label = document.getElementById('file-label');
+    if (input.files.length > 0) {
+      const names = Array.from(input.files).map(f => f.name).join(', ');
+      label.textContent = names;
+      console.log('Selected files:', names);  // for debugging
+    } else {
+      //label.textContent = '<%= __('form.no_file_chosen') %>';
+      console.log('No files chosen');
+    }
+  }
 </script>
 
 </body>
+ <!-- </div>-->
+<script>
+  
+  function toggleCustomInput(fieldId) {
+    const select = document.getElementById(fieldId);
+    const custom = document.getElementById(fieldId + '_custom');
+
+    if (select.value === 'other') {
+      custom.classList.remove('hidden');
+      custom.required = true;
+    } else {
+      custom.classList.add('hidden');
+      custom.required = false;
+      custom.value = '';
+    }
+  }
+</script>
+
+
 </html>
  

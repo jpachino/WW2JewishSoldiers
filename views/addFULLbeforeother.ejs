@@ -423,7 +423,38 @@
   <input type="date" name="idf_releasedate" id="idf_releasedate" />-->
 
   <!--<div class="trio-row">
+    <div class="trio-row">
+  <div class="input-group">
+    <label for="medal"><%= __('fields.medal') %>:</label>
+    <select name="medal" id="medal">
+      <option value="">{ <%= __('select') %> }</option>
+      <% medals.forEach(m => { %>
+        <option value="<%= m.id %>"><%= m.title %></option>
+      <% }); %>
+    </select>
+  </div>
+
+  <div class="input-group">
+    <label for="medalen"><%= __('fields.medalen') %>:</label>
+    <select name="medalen" id="medalen">
+      <option value="">{ <%= __('select') %> }</option>
+      <% medals.forEach(m => { %>
+        <option value="<%= m.id %>"><%= m.title %></option>
+      <% }); %>
+    </select>
    
+  </div>
+
+  <div class="input-group">
+    <label for="medalru"><%= __('fields.medalru') %>:</label>
+    <select name="medalru" id="medalru">
+      <option value="">{ <%= __('select') %> }</option>
+      <% medals.forEach(m => { %>
+        <option value="<%= m.id %>"><%= m.title %></option>
+      <% }); %>
+    </select>
+    
+  </div>
 </div>-->
 <div class="trio-row">
   <!-- Hebrew Medal -->
@@ -436,9 +467,7 @@
     <% }); %>
     <option value="other"><%= __('fields.other') %></option>
   </select>
-  <br>
-  <label for="other_medal"><%= __('fields.other_medal') %></label>
-  <input type="text" name="other_medal" id = "other_medal" class="hidden" placeholder="<%= __('fields.other_medal') %>" />
+  <input type="text" name="medal_custom" id="medal_custom" class="hidden" placeholder="<%= __('fields.enter_custom') %>" />
 </div>
 
 <!-- English Medal -->
@@ -451,9 +480,7 @@
     <% }); %>
     <option value="other"><%= __('fields.other') %></option>
   </select>
-  <br>
-  <label for="other_medalen"><%= __('fields.other_medalen') %></label>
-  <input type="text" name="other_medalen" id="other_medalen" class="hidden" placeholder="<%= __('fields.other_medalen') %>" />
+  <input type="text" name="medalen_custom" id="medalen_custom" class="hidden" placeholder="<%= __('fields.enter_custom') %>" />
 </div>
 
 <!-- Russian Medal -->
@@ -466,9 +493,7 @@
     <% }); %>
     <option value="other"><%= __('fields.other') %></option>
   </select>
-  <br>
-  <label for="other_medalru"><%= __('fields.other_medalru') %></label>
-  <input type="text" name="other_medalru" id="other_medalru" class="hidden" placeholder="<%= __('fields.other_medalru') %>" />
+  <input type="text" name="medalru_custom" id="medalru_custom" class="hidden" placeholder="<%= __('fields.enter_custom') %>" />
 </div>
 
 </div>

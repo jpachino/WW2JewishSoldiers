@@ -119,7 +119,10 @@
     "id": "ID",
     "other": "Other",
     "enter_custom": "Enter custom medal",
-    "downloaded_date": "Downloaded Date"
+    "downloaded_date": "Downloaded Date",
+    "other_medal": "Other Medal(s) (IL)",
+    "other_medalen": "Other Medal(s) (EN)",
+    "other_medalru": "Other Medal(s) (RU)"
   },
   
   

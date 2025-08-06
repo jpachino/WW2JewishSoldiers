@@ -351,55 +351,50 @@
         <label for="idf_releasedate"><%= __('fields.idf_releasedate') %></label>
         <input type="date" name="idf_releasedate" id="idf_releasedate" value="<%= soldier.idf_releasedate ? soldier.idf_releasedate.toISOString().substring(0, 10) : '' %>">-->
      
-         <div class="trio-row">
-          <div class="input-group">
-      
-          <label for="medal"><%= __('fields.medal') %>:</label>
-          <select name="medal" id="medal">
-          <option value="">{ <%= __('select') %> }</option>
-          <% medals.forEach(m => { %>
-          <option value="<%= m.id %>" <%= String(m.id) === String(soldier.medal) ? 'selected' : '' %>><%= m.title %></option>
-          <% }); %>
-
-        </select>
-          <% medals.forEach(m => { %>
-          <% if (String(m.id) === String(soldier.medal)) { %>
-            <script>console.log('Matched medal ID: <%= m.id %> with soldier.medal = <%= soldier.medal %>');</script>
-          <% } %>
-          <% }); %>
-      </div>
-    <!-- Medal EN -->
-    
+`   <div class="trio-row">
+    <!-- Medal HE -->
     <div class="input-group">
-      <label for="medalen"><%= __('fields.medalen') %>:</label>
-      <select name="medalen" id="medalen">
-        <option value="">{ <%= __('select') %> }</option>
-        <% medals.forEach(m => { %>
-        <option value="<%= m.id %>" <%= String(m.id) === String(soldier.medalen) ? 'selected' : '' %>><%= m.title %></option>
-        <% }); %>
-      </select>
-        <% medals.forEach(m => { %>
-        <% if (String(m.id) === String(soldier.medalen)) { %>
-        <script>console.log('Matched medal ID: <%= m.id %> with soldier.medal = <%= soldier.medal %>');</script>
-      <% } %>
-      <% }); %>
-    </div>
-     <div class="input-group">
-    <!-- Medal RU -->
-    <label for="medalru"><%= __('fields.medalru') %>:</label>
-      <select name="medalru" id="medalru">
-      <option value="">{ <%= __('select') %> }</option>
+    <label for="medal"><%= __('fields.medal') %>:</label>
+    <select name="medal" id="medal">
+      <option value=""><%= __('select') %></option>
       <% medals.forEach(m => { %>
-        <option value="<%= m.id %>" <%= String(m.id) === String(soldier.medalru) ? 'selected' : '' %>><%= m.title %></option>
+        <option value="<%= m.title %>" <%= m.title === soldier.medal ? 'selected' : '' %>><%= m.title %></option>
       <% }); %>
     </select>
-    <% medals.forEach(m => { %>
-       <% if (String(m.id) === String(soldier.medalru)) { %>
-        <script>console.log('Matched medal ID: <%= m.id %> with soldier.medal = <%= soldier.medal %>');</script>
-      <% } %>
-    <% }); %>
+    <br>
+    <label for="other_medal"><%= __('fields.other_medal') %></label>
+    <input type="text" name="other_medal" id="other_medal" value="<%= soldier.other_medal || '' %>">
+  </div>
 
-     </div>
+  <!-- Medal EN -->
+  <div class="input-group">
+    <label for="medalen"><%= __('fields.medalen') %>:</label>
+    <select name="medalen" id="medalen">
+      <option value=""><%= __('select') %></option>
+      <% medals.forEach(m => { %>
+        <option value="<%= m.title %>" <%= m.title === soldier.medalen ? 'selected' : '' %>><%= m.title %></option>
+      <% }); %>
+    </select>
+    <br>
+    <label for="other_medalen"><%= __('fields.other_medalen') %></label>
+    <input type="text" name="other_medalen" id="other_medalen" value="<%= soldier.other_medalen || '' %>">
+  </div>
+
+  <!-- Medal RU -->
+  <div class="input-group">
+    <label for="medalru"><%= __('fields.medalru') %>:</label>
+    <select name="medalru" id="medalru">
+      <option value=""><%= __('select') %></option>
+      <% medals.forEach(m => { %>
+        <option value="<%= m.title %>" <%= m.title === soldier.medalru ? 'selected' : '' %>><%= m.title %></option>
+      <% }); %>
+    </select>
+    <br>
+    <label for="other_medalru"><%= __('fields.other_medalru') %></label>
+    <input type="text" name="other_medalru" id="other_medalru" value="<%= soldier.other_medalru || '' %>">
+  </div>
+</div>
+
     </fieldset>
       <fieldset>
      <legend><%= __('sections.finalnotes') %></legend>

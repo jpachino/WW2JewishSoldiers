@@ -103,7 +103,10 @@
     "id": "Идентификатор",
     "other": "Other",
     "enter_custom": "Enter custom medal",
-    "downloaded_date": "Дата загрузки"
+    "downloaded_date": "Дата загрузки",
+    "other_medal": "Другая награда (IL)",
+    "other_medalen": "Другая награда (EN)",
+    "other_medalru": "Другая награда (RU)"
   },
 
 
