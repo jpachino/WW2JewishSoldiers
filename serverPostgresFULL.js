@@ -966,8 +966,8 @@ if ('admin_ready_for_download' in req.body) {
       admin_ready_for_download: ('admin_ready_for_download' in req.body)
       ? admin_ready_for_download
       :   existingSoldier.admin_ready_for_download,
-      admin_approved_date: existingSoldier.admin_approved_date,
-      downloaded_date: existingSoldier.downloaded_date,
+      admin_approved_date: admin_approved_date,
+      downloaded_date: downloaded_date,
       other_medal: req.body.other_medal,
       other_medalen: req.body.other_medalen,
       other_medalru: req.body.other_medalru,
