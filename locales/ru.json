@@ -106,7 +106,13 @@
     "downloaded_date": "Дата загрузки",
     "other_medal": "Другая награда (IL)",
     "other_medalen": "Другая награда (EN)",
-    "other_medalru": "Другая награда (RU)"
+    "other_medalru": "Другая награда (RU)",
+    "category": "Категория",
+    "army": "Армия",
+    "resistance": "Сопротивление",
+    "partizan": "Партизан",
+    "participation": "Участие",
+    "corps": "Корпус"
   },
 
 

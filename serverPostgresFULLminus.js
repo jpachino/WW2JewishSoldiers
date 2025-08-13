@@ -44,7 +44,7 @@ const db = pgp(cn);
 
 
 // Define the table name as a constant for consistency
-const SOLDIER_TABLE = 'soldierdetails';
+const SOLDIER_TABLE = 'map_soldierdetails';
 
 // Test connection and log database details
 db.connect()
@@ -56,7 +56,7 @@ db.connect()
       const versionResult = await obj.query('SELECT version()');
       console.log('PostgreSQL version:', versionResult[0].version);
       
-      // Check if oldierdetails table exists
+      // Check if map_soldierdetails table exists
       const tableCheck = await obj.query(`
         SELECT EXISTS (
           SELECT FROM information_schema.tables 
@@ -146,7 +146,7 @@ app.get('/', (req, res) => {
 
 
 
-// Route to display the soldier list from oldierdetails
+// Route to display the soldier list from map_soldierdetails
 app.get('/soldierlistSoldier', async (req, res) => {
   try {
     console.log(`Fetching soldiers from ${SOLDIER_TABLE}`);
@@ -155,7 +155,7 @@ app.get('/soldierlistSoldier', async (req, res) => {
     const testConnection = await db.one('SELECT 1 as connected');
     console.log('Database connection test:', testConnection);
     
-    // List all tables to verify soldierdetails exists
+    // List all tables to verify map_soldierdetails exists
     const tables = await db.any(`
       SELECT table_name 
       FROM information_schema.tables 
@@ -191,7 +191,7 @@ app.get('/soldierlistSoldier', async (req, res) => {
   }
 });
 
-// Route to display the full soldier list from soldierdetails
+// Route to display the full soldier list from map_soldierdetails
 app.get('/soldierlistFULL', async (req, res) => {
   try {
     const soldiers = await db.any(`SELECT * FROM ${SOLDIER_TABLE}`);
@@ -236,26 +236,13 @@ app.get('/addFull', async (req, res) => {
   try {
     // Use db.any from pg-promise
   const countries = await db.any('SELECT id, title FROM "countries_TBL" ORDER BY title');
-  const corps = await db.any('SELECT id, title FROM "corps_TBL" ORDER BY title');
-  const category = await db.any('SELECT id, title FROM "category_TBL" ORDER BY title');
-  const army = await db.any('SELECT id, title FROM "army_TBL" ORDER BY title');
-  const resistance = await db.any('SELECT id, title FROM "resistance_TBL" ORDER BY title');
-  const partizan = await db.any('SELECT id, title FROM "partizan_TBL" ORDER BY title');
-  const participation = await db.any('SELECT id, title FROM "participation_TBL" ORDER BY title');
   const medals = await db.any('SELECT id, title FROM "medals_TBL" ORDER BY title');
-  
 
 
     console.log('Rendering addFULL.ejs form');
     res.render('addFULL', {
       locale: locale,
       countries:countries,
-      category: category,
-      army: army,
-      resistance: resistance,
-      partizan: partizan,
-      participation: participation,
-      corps:corps,
       medals: medals,
       soldier: {},
       // other template variables as needed
@@ -291,18 +278,21 @@ app.post('/addFULL', upload.array('files'), async (req, res) => {
   console.log('🧾 Uploaded files:', req.files);
 
   try {
+    // Convert empty strings to null
     const cleaned = cleanNulls(req.body);
 
+    // Convert checkbox string to boolean
     cleaned.recordcomplete = Array.isArray(cleaned.recordcomplete)
       ? cleaned.recordcomplete.includes('true') || cleaned.recordcomplete.includes('on')
       : cleaned.recordcomplete === 'true' || cleaned.recordcomplete === 'on';
     
-    if (cleaned.recordcomplete) {
-      cleaned.record_complete_date = new Date();
+      if (cleaned.recordcomplete) {
+          cleaned.record_complete_date = new Date();
     } else {
-      cleaned.record_complete_date = null;
+          cleaned.record_complete_date = null;
     }
 
+    // Destructure from cleaned body
     const {
       fname, fnameen, fnameru,
       lname, lnameen, lnameru,
@@ -331,7 +321,7 @@ app.post('/addFULL', upload.array('files'), async (req, res) => {
       datebreaker,
       dob, dod, aliyadate,
       idf_enlistdate, idf_releasedate,
-      //tablebreaker,
+      tablebreaker,
       medal, medalen, medalru,
       degree, degreeen, degreeru,
       front, fronten, frontru,
@@ -344,33 +334,18 @@ app.post('/addFULL', upload.array('files'), async (req, res) => {
       remarks, remarksen, remarksru,
       title, titleen, titleru,
       remarks2, remarksen2, remarksru2,
-      linkurl,            // already present
-       category, army, resistance,     // NEW
-      partizan, participation, corps,             // NEW
-      useremail, recordcomplete, record_complete_date, 
-      admin_ready_for_download, admin_approved_date, downloaded_date,
+      linkurl, useremail, recordcomplete, record_complete_date, admin_ready_for_download, admin_approved_date, downloaded_date,
       other_medal, other_medalen, other_medalru
     } = cleaned;
 
-    // Parse dates
-   // const parsedDob = dob ? new Date(dob) : null;
-    //const parsedDod = dod ? new Date(dod) : null;
-    //const parsedAliyaDate = aliyadate ? new Date(aliyadate) : null;
-    //const parsedIdfEnlistDate = idf_enlistdate ? new Date(idf_enlistdate) : null;
-    //const parsedIdfReleaseDate = idf_releasedate ? new Date(idf_releasedate) : null;
-    // Safe date parsing:
-    function parseDateSafe(dateString) {
-      if (!dateString) return null;
-      const d = new Date(dateString);
-      return isNaN(d.getTime()) ? null : d;
-    }
+    // Convert date strings to Date objects or null
+    const parsedDob = dob ? new Date(dob) : null;
+    const parsedDod = dod ? new Date(dod) : null;
+    const parsedAliyaDate = aliyadate ? new Date(aliyadate) : null;
+    const parsedIdfEnlistDate = idf_enlistdate ? new Date(idf_enlistdate) : null;
+    const parsedIdfReleaseDate = idf_releasedate ? new Date(idf_releasedate) : null;
 
-    const parsedDob = parseDateSafe(dob);
-    const parsedDod = parseDateSafe(dod);
-    const parsedAliyaDate = parseDateSafe(aliyadate);
-    const parsedIdfEnlistDate = parseDateSafe(idf_enlistdate);
-    const parsedIdfReleaseDate = parseDateSafe(idf_releasedate);
-
+    // Insert into the main soldier table
     const insertedSoldier = await db.one(`
       INSERT INTO ${SOLDIER_TABLE} (
         fname, fnameen, fnameru,
@@ -411,11 +386,7 @@ app.post('/addFULL', upload.array('files'), async (req, res) => {
         remarks, remarksen, remarksru,
         title, titleen, titleru,
         remarks2, remarksen2, remarksru2,
-        linkurl,
-       
-        category, army, resistance,     
-        partizan, participation, corps,            
-        useremail, recordcomplete, record_complete_date, 
+        linkurl, useremail, recordcomplete, record_complete_date, 
         admin_ready_for_download, admin_approved_date, downloaded_date,
         other_medal, other_medalen, other_medalru
       ) VALUES (
@@ -429,9 +400,8 @@ app.post('/addFULL', upload.array('files'), async (req, res) => {
         $64, $65, $66, $67, $68, $69, $70, $71, $72,
         $73, $74, $75, $76, $77, $78, $79, $80, $81,
         $82, $83, $84, $85, $86, $87, $88, $89, $90,
-        $91, $92, $93, $94, $95, $96, $97, $98, $99, $100,
-        $101, $102,   -- NEW fields take these slots
-        $103, $104, $105, $106, $107, $108, $109, $110, $111
+        $91, $92, $93, $94, $95, $96, $97, $98, $99, $100,$101, $102, 
+        $103, $104, $105
       ) RETURNING id
     `, [
       fname, fnameen, fnameru,
@@ -472,32 +442,25 @@ app.post('/addFULL', upload.array('files'), async (req, res) => {
       remarks, remarksen, remarksru,
       title, titleen, titleru,
       remarks2, remarksen2, remarksru2,
-      linkurl,
-      category,
-      army,
-      resistance, 
-      partizan,
-      participation,
-      corps,
-       
-       
-      useremail, recordcomplete, record_complete_date,
-      admin_ready_for_download, admin_approved_date, downloaded_date,
-      other_medal, other_medalen, other_medalru
+      linkurl, useremail, recordcomplete,
+      record_complete_date, admin_ready_for_download, 
+      admin_approved_date, downloaded_date,other_medal, other_medalen, other_medalru
     ]);
 
     const soldierId = insertedSoldier.id;
 
+    // Save uploaded file metadata if any
     if (req.files && req.files.length > 0) {
-      const fileInserts = req.files.map(file =>
-        db.none(
-          `INSERT INTO uploaded_files (soldier_id, original_name, file_path)
-           VALUES ($1, $2, $3)`,
-          [soldierId, file.originalname, file.path]
-        )
-      );
-      await Promise.all(fileInserts);
-    }
+  const fileInserts = req.files.map(file =>
+    db.none(
+      `INSERT INTO uploaded_files (soldier_id, original_name, file_path)
+       VALUES ($1, $2, $3)`,
+      [soldierId, file.originalname, file.path]
+    )
+  );
+  await Promise.all(fileInserts);
+}
+
 
     res.redirect('/?saved=true');
 
@@ -511,6 +474,7 @@ app.post('/addFULL', upload.array('files'), async (req, res) => {
     `);
   }
 });
+
 
 // Route to search by email (exact match or partial, case-insensitive)
 app.get('/searchByEmail', async (req, res) => {

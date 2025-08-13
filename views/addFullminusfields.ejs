@@ -222,13 +222,7 @@
       <input type="text" name="calledbyru" id="calledbyru" />
     </div>
   </div>
-   <div class="single-row">
-  <label for="gender"><%= __('fields.gender') %></label>
-  <select name="gender" id="gender">
-    <option value="male" <%= (!soldier.gender || soldier.gender === 'male') ? 'selected' : '' %>><%= __('fields.male') %></option>
-    <option value="female" <%= soldier.gender === 'female' ? 'selected' : '' %>><%= __('fields.female') %></option>
-  </select>
-  </div>
+   
     </fieldset>
 
    <fieldset>
@@ -271,17 +265,19 @@
       <input type="text" name="birthcityru" id="birthcityru" />
     </div>
   </div>
-  <label for="dob"><%= __('fields.dob') %>:</label>
-  <input type="date" name="dob" id="dob" />
+
+  <!--<div class="single-row">
+    <label for="gender"><%= __('fields.gender') %></label>
+    <input type="text" name="gender" id="gender" />
+  </div>-->
   
-    
-  <label for="dod"><%= __('fields.dod') %>:</label>
-  <input type="date" name="dod" id="dod" />
-
-  <label for="aliyadate"><%= __('fields.aliyadate') %>:</label>
-  <input type="date" name="aliyadate" id="aliyadate" />
-   
-
+<div class="single-row">
+  <label for="gender"><%= __('fields.gender') %></label>
+  <select name="gender" id="gender">
+    <option value="male" <%= (!soldier.gender || soldier.gender === 'male') ? 'selected' : '' %>><%= __('fields.male') %></option>
+    <option value="female" <%= soldier.gender === 'female' ? 'selected' : '' %>><%= __('fields.female') %></option>
+  </select>
+</div>
 
 
 
@@ -301,40 +297,19 @@
   </div>
 
   <div class="trio-row">
-  <div class="input-group">
-    <label for="deathdetails"><%= __('fields.deathdetails') %></label>
-    <select name="deathdetails" id="deathdetails">
-      <option value="">-- בחר --</option>
-      <option value="נפטר">נפטר</option>
-      <option value="נפל בקרב">נפל בקרב</option>
-      <option value="נפל במילוי תפקידו">נפל במילוי תפקידו</option>
-      <option value="נרצח">נרצח</option>
-    </select>
+    <div class="input-group">
+      <label for="deathdetails"><%= __('fields.deathdetails') %></label>
+      <textarea name="deathdetails" id="deathdetails"></textarea>
+    </div>
+    <div class="input-group">
+      <label for="deathdetailsen"><%= __('fields.deathdetailsen') %></label>
+      <textarea name="deathdetailsen" id="deathdetailsen"></textarea>
+    </div>
+    <div class="input-group">
+      <label for="deathdetailsru"><%= __('fields.deathdetailsru') %></label>
+      <textarea name="deathdetailsru" id="deathdetailsru"></textarea>
+    </div>
   </div>
-
-  <div class="input-group">
-    <label for="deathdetailsen"><%= __('fields.deathdetailsen') %></label>
-    <select name="deathdetailsen" id="deathdetailsen">
-      <option value="">-- Select --</option>
-      <option value="Deceased">Deceased</option>
-      <option value="Fallen in battle">Fallen in battle</option>
-      <option value="Fallen in the line of duty">Fallen in the line of duty</option>
-      <option value="Murdered">Murdered</option>
-    </select>
-  </div>
-
-  <div class="input-group">
-    <label for="deathdetailsru"><%= __('fields.deathdetailsru') %></label>
-    <select name="deathdetailsru" id="deathdetailsru">
-      <option value="">-- Выбрать --</option>
-      <option value="Умер">Умер</option>
-      <option value="Пал в бою">Пал в бою</option>
-      <option value="Погиб при исполнении служебных обязанностей">Погиб при исполнении служебных обязанностей</option>
-      <option value="Убит">Убит</option>
-    </select>
-  </div>
-</div>
-
 </fieldset>
 
 
@@ -344,160 +319,23 @@
   <div class="trio-row">
     <div class="input-group">
       <label for="biography"><%= __('fields.biography') %></label>
-      <!--<textarea name="biography" id="biography"></textarea>-->
-      
-      <textarea id="biography" name="biography" rows="10" cols="60" placeholder="Enter biography here..."></textarea>
-
+      <textarea name="biography" id="biography"></textarea>
     </div>
     <div class="input-group">
       <label for="biographyen"><%= __('fields.biographyen') %></label>
-      
-      <textarea id="biographyen" name="biographyen" rows="10" cols="60" placeholder="הכנס כאן ביוגרפיה..."></textarea>
-
+      <textarea name="biographyen" id="biographyen"></textarea>
     </div>
     <div class="input-group">
       <label for="biographyru"><%= __('fields.biographyru') %></label>
-      <textarea id="biographyru" name="biographyru" rows="10" cols="60" placeholder="Введите биографию здесь..."></textarea>
-      
+      <textarea name="biographyru" id="biographyru"></textarea>
     </div>
   </div>
 
+  <div class="single-row">
+    <label for="otherparticipation"><%= __('fields.otherparticipation') %></label>
+    <input type="text" name="otherparticipation" id="otherparticipation" />
+  </div>
 
- </fieldset>
-
- <fieldset>
-  <div class="input-group">
-      <label for="shortdesc"><%= __('fields.shortdesc') %></label>
-      <input type="text" name="shortdesc" id="shortdesc" />
-  </div>
-  
-   
-  <div>
-  <label for="category"><%= __('fields.category') %></label>
-  <select name="category" id="category">
-  
-    <option value=""><%= __('fields.category') %></option>
-    <% category.forEach(c => { %>
-      <option value="<%= c.title%>" <%= soldier.category === c.title ? 'selected' : '' %>>
-        <%= c.title %>
-      </option>
-    <% }) %>
- 
-  </select>
-  </div>
-  x
-  <div class="trio-row">
-    <div class="input-group">
-      <label for="armyrole"><%= __('fields.armyrole') %></label>
-      <input type="text" name="armyrole" id="armyrole" />
-    </div>
-    <div class="input-group">
-      <label for="armyroleen"><%= __('fields.armyroleen') %></label>
-      <input type="text" name="armyroleen" id="armyroleen" />
-    </div>
-    <div class="input-group">
-      <label for="armyroleru"><%= __('fields.armyroleru') %></label>
-      <input type="text" name="otherdecorationru" id="otherdecorationru" />
-    </div>
-  </div>
-  
-   <div>
-  <label for="army"><%= __('fields.army') %></label>
-  <select name="army" id="army">
-  <option value=""><%= __('fields.army') %></option>
-
-    <% army.forEach(c => { %>
-      <option value="<%= c.title%>" <%= soldier.army === c.title ? 'selected' : '' %>>
-        <%= c.title %>
-      </option>
-    <% }) %>
- 
-  </select>
-  </div>
-  <div class="input-group">
-    <label for="enlistreason"><%= __('fields.enlistreason') %></label>
-    <select name="enlistreason" id="enlistreason">
-     <option value="">-- בחר --</option>
-     <option value=" התנדבות"> התנדבות</option>
-     <option value="גיוס חובה">גיוס חובה </option>
-    </select>
-  </div>
-   <div class="trio-row">
-    <div class="input-group">
-      <label for="releasereason"><%= __('fields.releasereason') %></label>
-      <input type="text" name="releasereason" id="releasereason" />
-    </div>
-    <div class="input-group">
-      <label for="releasereasonen"><%= __('fields.releasereasonen') %></label>
-      <input type="text" name="releasereasonen" id="releasereasonen" />
-    </div>
-    <div class="input-group">
-      <label for="releasereasonru"><%= __('fields.releasereasonru') %></label>
-      <input type="text" name="releasereasonru" id="releasereasonnru" />
-    </div>
-  </div>
-  
-</div>
-   <div>
-  <label for="resistance"><%= __('fields.resistance') %></label>
-  <select name="resistance" id="resistance">
-  <option value=""><%= __('fields.resistance') %></option>
-
-    <% resistance.forEach(c => { %>
-      <option value="<%= c.title%>" <%= soldier.resistance === c.title ? 'selected' : '' %>>
-        <%= c.title %>
-      </option>
-    <% }) %>
- 
-  </select>
-  </div> 
-   <div>
-  <label for="partizan"><%= __('fields.partizan') %></label>
-  <select name="partizan" id="partizan">
-  <option value=""><%= __('fields.partizan') %></option>
-
-    <% partizan.forEach(c => { %>
-      <option value="<%= c.title%>" <%= soldier.partizan === c.title ? 'selected' : '' %>>
-        <%= c.title %>
-      </option>
-    <% }) %>
- 
-  </select>
-  </div>  
-   <div>
-  <label for="participation"><%= __('fields.participation') %></label>
-  <select name="participation" id="participation">
-  <option value=""><%= __('fields.participation') %></option>
-
-    <% participation.forEach(c => { %>
-      <option value="<%= c.title%>" <%= soldier.participation === c.title ? 'selected' : '' %>>
-        <%= c.title %>
-      </option>
-    <% }) %>
- 
-  </select>
-  </div>
-   <div class="input-group">
-      <label for="otherparticipation"><%= __('fields.otherparticipation') %></label>
-      <input type="text" name="otherparticipation" id="otherparticipation" />
-    </div>
-  <div>
-    <label for="corps"><%= __('fields.corps') %></label>
-    <select name="corps" id="corps">
-    <option value=""><%= __('fields.corps') %></option>
-
-    <% corps.forEach(c => { %>
-      <option value="<%= c.title%>" <%= soldier.corps === c.title ? 'selected' : '' %>>
-        <%= c.title %>
-      </option>
-    <% }) %>
- 
-  </select>
-  </div>
-  <div class="input-group">
-      <label for="otherparticipation"><%= __('fields.otherparticipation') %></label>
-      <input type="text" name="otherparticipation" id="otherparticipation" />
-    </div>
   <div class="trio-row">
     <div class="input-group">
       <label for="otherdecoration"><%= __('fields.otherdecoration') %></label>

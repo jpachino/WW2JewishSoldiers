@@ -122,7 +122,14 @@
     "downloaded_date": "Downloaded Date",
     "other_medal": "Other Medal(s) (IL)",
     "other_medalen": "Other Medal(s) (EN)",
-    "other_medalru": "Other Medal(s) (RU)"
+    "other_medalru": "Other Medal(s) (RU)",
+    "category": "Category",
+    "army": "Army",
+    "resistance": "Resistance",
+    "partizan": "Partisan",
+    "participation": "Participation",
+    "corps": "Corps",
+    "shortdesc": "Short Desc"
   },
   
   

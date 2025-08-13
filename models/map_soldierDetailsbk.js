@@ -351,13 +351,7 @@ const SoldierDetails = db.define('map_soldierdetails', {
   linkurl: {
     type: Sequelize.TEXT
   },
- // tablebreaker4: {
-  //  type: Sequelize.TEXT
-  //},
-  //corps: {
-    //type: Sequelize.TEXT
-  //},
-  useremail:{
+   useremail:{
     email:Sequelize.TEXT
   },
   recordcomplete: {
@@ -387,12 +381,6 @@ const SoldierDetails = db.define('map_soldierdetails', {
     type: Sequelize.TEXT
   },
   other_medalru:{
-    type: Sequelize.TEXT
-  },
-  tablebreaker4: {
-    type: Sequelize.TEXT
-  },
-  corps: {
     type: Sequelize.TEXT
   },
 }, {

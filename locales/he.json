@@ -86,9 +86,11 @@
     "deathdetails": "פרטי פטירה (IL)",
     "deathdetailsen": "פרטי פטירה (EN)",
     "deathdetailsru": "פרטי פטירה (RU)",
-    "biography": "ביוגרפיה (IL)",
-    "biographyen": "ביוגרפיה (EN)",
-    "biographyru": "ביוגרפיה (RU)",
+    
+    "biography": "קורות חיים (IL)",
+    "biographyen": "קורות חיים (EN)",
+    "biographyru": "קורות חיים (RU)",
+    
     "otherparticipation": "השתתפויות נוספות",
     "otherdecoration": "עיטורים נוספים (IL)",
     "otherdecorationen": "עיטורים נוספים (EN)",
@@ -129,7 +131,14 @@
     "downloaded_date": "תאריך הורדה",
     "other_medal": "עיטור אחר (IL)",
     "other_medalen": "עיטור אחר (EN)",
-    "other_medalru": "עיטור אחר (RU)"
+    "other_medalru": "עיטור אחר (RU)",
+    "category": "קטגוריה",
+    "army": "צבא",
+    "resistance": "התנגדות",
+    "partizan": "פרטיזן",
+    "participation": "השתתפות",
+    "corps": "חיל",
+    "shortdesc":"תיאור קצר"
 
   },
 

@@ -305,4 +305,39 @@ html[lang="ru"] {
   font-size: 1rem;
   box-shadow: 0 2px 4px rgba(0,0,0,0.1);
 }
+/* Apply to all dropdowns in the form */
+select {
+  width: 250px;       /* still larger width */
+  height: 38px;       /* comfortable height */
+  font-size: 14px;    /* slightly smaller text */
+  padding: 5px 10px;  /* space inside box */
+  border-radius: 6px; /* softer corners */
+}
+
+
+/* Make the dropdown arrow a bit bigger on most browsers */
+form select {
+  appearance: none; /* Remove default OS styles */
+  background-image: url("data:image/svg+xml;utf8,<svg fill='%23999' height='20' viewBox='0 0 24 24' width='20' xmlns='http://www.w3.org/2000/svg'><path d='M7 10l5 5 5-5z'/></svg>");
+  background-repeat: no-repeat;
+  background-position: right 10px center;
+  background-size: 20px;
+  padding-right: 40px; /* Space for arrow */
+}
+
+/* Style dropdown options too */
+form select option {
+  font-size: 1.1em;
+  padding: 8px;
+}
+textarea {
+  width: 100%;
+  height: 200px;
+  font-size: 14px;
+  padding: 10px;
+  line-height: 1.4;
+  resize: vertical; /* allow vertical resizing */
+  border-radius: 6px;
+  border: 1px solid #ccc;
+}
 
