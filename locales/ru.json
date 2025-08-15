@@ -112,7 +112,17 @@
     "resistance": "Сопротивление",
     "partizan": "Партизан",
     "participation": "Участие",
-    "corps": "Корпус"
+    "corps": "Корпус",
+    "shortdesc": "Краткое описание",
+    "armyrole": "Роль в армии (IL)",
+    "armyroleen": "Роль в армии (EN)",
+    "armyroleru": "Роль в армии (RU)",
+    "enlistreasonru": "Причина призыва",
+    "releasereason": "Причина увольнения (IL)",
+    "releasereasonen": "Причина увольнения (EN)",
+    "releasereasonru": "Причина увольнения (RU)",
+    "armyid": "Военный билет"
+
   },
 
 

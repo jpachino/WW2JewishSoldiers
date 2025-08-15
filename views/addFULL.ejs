@@ -385,7 +385,7 @@
  
   </select>
   </div>
-  x
+  
   <div class="trio-row">
     <div class="input-group">
       <label for="armyrole"><%= __('fields.armyrole') %></label>
@@ -397,7 +397,7 @@
     </div>
     <div class="input-group">
       <label for="armyroleru"><%= __('fields.armyroleru') %></label>
-      <input type="text" name="otherdecorationru" id="otherdecorationru" />
+      <input type="text" name="armyroleru" id="armyroleru" />
     </div>
   </div>
   
@@ -413,7 +413,12 @@
     <% }) %>
  
   </select>
-  </div>
+  </div> <br>
+  <div class="input-group">
+      <label for="armyid"><%= __('fields.armyid') %></label>
+      <input type="text" name="armyid" id="armyid" />
+    </div>
+
   <div class="input-group">
     <label for="enlistreason"><%= __('fields.enlistreason') %></label>
     <select name="enlistreason" id="enlistreason">
@@ -464,6 +469,24 @@
  
   </select>
   </div>  
+  <div class="trio-row">
+    <div class="input-group">
+      <label for="gettodesc"><%= __('fields.gettodesc') %></label>
+      <input type="text" name="gettodesc" id="gettodesc" />
+    </div>
+    <div class="input-group">
+      <label for="gettodescen"><%= __('fields.gettodescen') %></label>
+      <input type="text" name="gettodescen" id="gettodescen" />
+    </div>
+    <div class="input-group">
+      <label for="gettodescru"><%= __('fields.gettodescru') %></label>
+      <input type="text" name="gettodescru" id="gettodescru" />
+    </div>
+  </div>
+   <div class="input-group">
+      <label for="otherfightingcontext"><%= __('fields.otherfightingcontext') %></label>
+      <input type="text" name="otherfightingcontext" id="otherfightingcontext" />
+    </div>
    <div>
   <label for="participation"><%= __('fields.participation') %></label>
   <select name="participation" id="participation">
@@ -481,6 +504,21 @@
       <label for="otherparticipation"><%= __('fields.otherparticipation') %></label>
       <input type="text" name="otherparticipation" id="otherparticipation" />
     </div>
+  <div class="trio-row">
+    <div class="input-group">
+      <label for="platoonname"><%= __('fields.platoonname') %></label>
+      <input type="text" name="platoonname" id="platoonname" />
+    </div>
+    <div class="input-group">
+      <label for="platoonnameen"><%= __('fields.platoonnameen') %></label>
+      <input type="text" name="platoonnameen" id="platoonnameen" />
+    </div>
+    <div class="input-group">
+      <label for="platoonnameru"><%= __('fields.platoonnameru') %></label>
+      <input type="text" name="platoonnameru" id="platoonnameru" />
+    </div>
+  </div>
+
   <div>
     <label for="corps"><%= __('fields.corps') %></label>
     <select name="corps" id="corps">
@@ -494,10 +532,20 @@
  
   </select>
   </div>
-  <div class="input-group">
-      <label for="otherparticipation"><%= __('fields.otherparticipation') %></label>
-      <input type="text" name="otherparticipation" id="otherparticipation" />
+ <div class="trio-row">
+    <div class="input-group">
+      <label for="wounddetails"><%= __('fields.wounddetails') %></label>
+      <input type="text" name="wounddetails" id="wounddetails" />
     </div>
+    <div class="input-group">
+      <label for="wounddetailsen"><%= __('fields.wounddetailsen') %></label>
+      <input type="text" name="wounddetailsen" id="wounddetailsen" />
+    </div>
+    <div class="input-group">
+      <label for="wounddetailsru"><%= __('fields.wounddetailsru') %></label>
+      <input type="text" name="wounddetailsru" id="wounddetailsru" />
+    </div>
+  </div>
   <div class="trio-row">
     <div class="input-group">
       <label for="otherdecoration"><%= __('fields.otherdecoration') %></label>
@@ -570,7 +618,7 @@
 </fieldset>-->
 
 
-  <fieldset>
+  <!--<fieldset>
   <legend><%= __('sections.datesmedals') %></legend>
 
   <label for="dob"><%= __('fields.dob') %>:</label>
@@ -583,7 +631,7 @@
   <label for="aliyadate"><%= __('fields.aliyadate') %>:</label>
   <input type="date" name="aliyadate" id="aliyadate" />
 
-  <!--<label for="idf_enlistdate"><%= __('fields.idf_enlistdate') %>:</label>
+ <label for="idf_enlistdate"><%= __('fields.idf_enlistdate') %>:</label>
   <input type="date" name="idf_enlistdate" id="idf_enlistdate" />
 
   <label for="idf_releasedate"><%= __('fields.idf_releasedate') %>:</label>
@@ -593,7 +641,8 @@
    
 </div>-->
 <div class="trio-row">
-  <!-- Hebrew Medal -->
+  
+  <!-- Hebrew Medal 
 <div class="input-group">
   <label for="medal"><%= __('fields.medal') %>:</label>
   <select name="medal" id="medal" onchange="toggleCustomInput('medal')">
@@ -608,7 +657,7 @@
   <input type="text" name="other_medal" id = "other_medal" class="hidden" placeholder="<%= __('fields.other_medal') %>" />
 </div>
 
-<!-- English Medal -->
+ English Medal 
 <div class="input-group">
   <label for="medalen"><%= __('fields.medalen') %>:</label>
   <select name="medalen" id="medalen" onchange="toggleCustomInput('medalen')">
@@ -623,7 +672,7 @@
   <input type="text" name="other_medalen" id="other_medalen" class="hidden" placeholder="<%= __('fields.other_medalen') %>" />
 </div>
 
-<!-- Russian Medal -->
+ Russian Medal 
 <div class="input-group">
   <label for="medalru"><%= __('fields.medalru') %>:</label>
   <select name="medalru" id="medalru" onchange="toggleCustomInput('medalru')">
@@ -636,7 +685,7 @@
   <br>
   <label for="other_medalru"><%= __('fields.other_medalru') %></label>
   <input type="text" name="other_medalru" id="other_medalru" class="hidden" placeholder="<%= __('fields.other_medalru') %>" />
-</div>
+</div>-->
 
 </div>
 

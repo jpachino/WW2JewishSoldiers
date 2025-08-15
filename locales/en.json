@@ -129,7 +129,15 @@
     "partizan": "Partisan",
     "participation": "Participation",
     "corps": "Corps",
-    "shortdesc": "Short Desc"
+    "shortdesc": "Short Desc",
+    "armyrole": "Army Role (IL)",
+    "armyroleen": "Army Role (EN)",
+    "armyroleru": "Army Role (RU)",
+    "enlistreason": "Enlist Reason",
+    "releasereason": "Release Reason (IL)",
+    "releasereasonen": "Release Reason (EN)",
+    "releasereasonru": "Release Reason (RU)",
+    "armyid": "Army ID"
   },
   
   

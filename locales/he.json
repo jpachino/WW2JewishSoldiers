@@ -95,9 +95,9 @@
     "otherdecoration": "עיטורים נוספים (IL)",
     "otherdecorationen": "עיטורים נוספים (EN)",
     "otherdecorationru": "עיטורים נוספים (RU)",
-    "fightingdesc": "תיאור לחימה (IL)",
-    "fightingdescen": "תיאור לחימה (EN)",
-    "fightingdescru": "תיאור לחימה (RU)",
+    "fightingdesc": "סיפור אישי (IL)",
+    "fightingdescen": "סיפור אישי (EN)",
+    "fightingdescru": "סיפור אישי (RU)",
     "idf_otherforce": "כוח אחר בצה\"ל",
     "idf_otherrank": "דרגה אחרת בצה\"ל",
      "idf_desc": "תיאור שירות בצה\"ל (IL)",
@@ -138,7 +138,16 @@
     "partizan": "פרטיזן",
     "participation": "השתתפות",
     "corps": "חיל",
-    "shortdesc":"תיאור קצר"
+    "shortdesc":"תיאור קצר",
+    "armyrole": "תפקיד",
+    "armyroleen": "תפקיד (EN)",
+    "armyroleru":"תפקיד (RU)",
+    "enlistreason": "סיבת גיוס",
+    "releasereason": "סיבת שחרור",
+    "releasereasonen": "סיבת שחרור (EN)",
+    "releasereasonru":"סיבת שחרור (RU)",
+    "armyid": "מ.א."
+  
 
   },
 
