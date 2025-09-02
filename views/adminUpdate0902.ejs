@@ -521,160 +521,181 @@
           <span id="file-label"><%= __('form.no_file_chosen') %></span>
         </div>
       </fieldset>    <h2><%= __('sections.battleHistory') %></h2>
-<!-- =================== Battle History =================== -->
-<fieldset>
-    <legend><%= __('sections.battleHistory') %></legend>
-    <div id="battle-container">
+<!-- Battle History Section -->
+<div class="form-section">
+    <h3>Battle History</h3>
+
+    <div id="battle-history-container">
         <% if (battleHistory && battleHistory.length > 0) { %>
-            <% battleHistory.forEach((battle, index) => { %>
-                <div class="battle-row mb-3">
-                    <input type="hidden" name="battleId[]" value="<%= battle.id %>">
-                    <input type="hidden" name="delete_battle_id[]" value="">
-                   <!-- <button type="button" class="btn btn-sm btn-outline-danger remove-entry mb-2">✕ Remove</button>-->
-                    
+            <% battleHistory.forEach((bh, index) => { %>
+                <div class="battle-block">
+                    <input type="hidden" name="battle_id[]" value="<%= bh.id %>">
+
                     <div class="trio-row">
-                        <label><%= __('fields.year') %></label>
-                        <input type="number" name="battleyear[]" class="form-control" value="<%= battle.battleyear || '' %>">
-                        
-                    </div>
-                    
-                    <div class="trio-row">
-                        <label><%= __('fields.front') %></label>
-                        <input type="text" name="front[]" class="form-control" value="<%= battle.front || '' %>">
-                        <label><%= __('fields.fronten') %></label>
-                        <input type="text" name="fronten[]" class="form-control" value="<%= battle.fronten || '' %>">
-                        <label><%= __('fields.frontru') %></label>
-                        <input type="text" name="frontru[]" class="form-control" value="<%= battle.frontru || '' %>">
-                    </div>
-                    
-                    <div class="trio-row">
-                        <label><%= __('fields.battle') %></label>
-                        <input type="text" name="battle[]" class="form-control" value="<%= battle.battle || '' %>">
-                        <label><%= __('fields.battleen') %></label>
-                        <input type="text" name="battleen[]" class="form-control" value="<%= battle.battleen || '' %>">
-                        <label><%= __('fields.battleru') %></label>
-                        <input type="text" name="battleru[]" class="form-control" value="<%= battle.battleru || '' %>">
-                    </div>
-                    
-                    <div class="trio-row">
-                        <label><%= __('fields.medal') %></label>
-                        <input type="text" name="battle_medal[]" class="form-control" value="<%= battle.medal || '' %>">
-                        <label><%= __('fields.medalen') %></label>
-                        <input type="text" name="battle_medalen[]" class="form-control" value="<%= battle.medalen || '' %>">
-                        <label><%= __('fields.medalru') %></label>
-                        <input type="text" name="battle_medalru[]" class="form-control" value="<%= battle.medalru || '' %>">
-                    </div>
-                    
-                    
-                    
-                    <div class="trio-row">
-                        <label><%= __('fields.degreerank') %></label>
-                        <input type="text" name="degreerank[]" class="form-control" value="<%= battle.degreerank || '' %>">
-                        <label><%= __('fields.degreeranken') %></label>
-                        <input type="text" name="degreeranken[]" class="form-control" value="<%= battle.degreeranken || '' %>">
-                        <label><%= __('fields.degreerankru') %></label>
-                        <input type="text" name="degreerankru[]" class="form-control" value="<%= battle.degreerankru || '' %>">
-                    </div>
-                    
-                    <div class="trio-row">
-                        <label><%= __('fields.job') %></label>
-                        <input type="text" name="job[]" class="form-control" value="<%= battle.job || '' %>">
-                        <label><%= __('fields.joben') %></label>
-                        <input type="text" name="joben[]" class="form-control" value="<%= battle.joben || '' %>">
-                        <label><%= __('fields.jobru') %></label>
-                        <input type="text" name="jobru[]" class="form-control" value="<%= battle.jobru || '' %>">
+                        <label>Year</label>
+                        <input type="number" name="battleyear[]" value="<%= bh.battleyear || '' %>">
                     </div>
 
                     <div class="trio-row">
-                        <label><%= __('fields.details') %></label>
-                        <textarea name="battle_details[]" class="form-control" rows="2"><%= battle.details || '' %></textarea>
-                        <label><%= __('fields.detailsen') %></label>
-                        <textarea name="battle_detailsen[]" class="form-control" rows="2"><%= battle.detailsen || '' %></textarea>
-                        <label><%= __('fields.detailsru') %></label>
-                        <textarea name="battle_detailsru[]" class="form-control" rows="2"><%= battle.detailsru || '' %></textarea>
+                        <label>Front (IL)</label>
+                        <input type="text" name="front[]" value="<%= bh.front || '' %>">
+                        <label>Front (EN)</label>
+                        <input type="text" name="fronten[]" value="<%= bh.fronten || '' %>">
+                        <label>Front (RU)</label>
+                        <input type="text" name="frontru[]" value="<%= bh.frontru || '' %>">
                     </div>
+
+                    <div class="trio-row">
+                        <label>Battle (IL)</label>
+                        <input type="text" name="battle[]" value="<%= bh.battle || '' %>">
+                        <label>Battle (EN)</label>
+                        <input type="text" name="battleen[]" value="<%= bh.battleen || '' %>">
+                        <label>Battle (RU)</label>
+                        <input type="text" name="battleru[]" value="<%= bh.battleru || '' %>">
+                    </div>
+
+                    <div class="trio-row">
+                        <label>Medal (IL)</label>
+                        <input type="text" name="battle_medal[]" value="<%= bh.medal || '' %>">
+                        <label>Medal (EN)</label>
+                        <input type="text" name="medal_en[]" value="<%= bh.medalen || '' %>">
+                        <label>Medal (RU)</label>
+                        <input type="text" name="medal_ru[]" value="<%= bh.medalru || '' %>">
+                    </div>
+
+                    <div class="trio-row">
+                        <label>Details (IL)</label>
+                        <input type="text" name="battle_details[]" value="<%= bh.details || '' %>">
+                        <label>Details (EN)</label>
+                        <input type="text" name="detailsen[]" value="<%= bh.detailsen || '' %>">
+                        <label>Details (RU)</label>
+                        <input type="text" name="detailsru[]" value="<%= bh.detailsru || '' %>">
+                    </div>
+
+                    <div class="trio-row">
+                        <label>Rank (IL)</label>
+                        <input type="text" name="degreerank[]" value="<%= bh.degreerank || '' %>">
+                        <label>Rank (EN)</label>
+                        <input type="text" name="ranken[]" value="<%= bh.degreeranken || '' %>">
+                        <label>Rank (RU)</label>
+                        <input type="text" name="rankru[]" value="<%= bh.degreerankru || '' %>">
+                    </div>
+
+                    <div class="trio-row">
+                        <label>Job (IL)</label>
+                        <input type="text" name="jobbattle[]" value="<%= bh.job || '' %>">
+                        <label>Job (EN)</label>
+                        <input type="text" name="joben[]" value="<%= bh.joben || '' %>">
+                        <label>Job (RU)</label>
+                        <input type="text" name="jobru[]" value="<%= bh.jobru || '' %>">
+                    </div>
+
+                    <div class="delete-checkbox">
+                        <label>
+                            <input type="checkbox" name="delete_battle[]" value="<%= bh.id %>"> Delete this battle
+                        </label>
+                    </div>
+                    <hr>
                 </div>
             <% }) %>
         <% } %>
     </div>
-    <button type="button" id="add-battle-entry" class="btn btn-sm btn-outline-secondary mt-2">
-        <%= __('sections.addAnotherBattle') %>
-    </button>
-</fieldset>
 
-<template id="battle-template">
-    <div class="battle-row mb-3">
-        <input type="hidden" name="battleId[]" value="">
-        <input type="hidden" name="delete_battle_id[]" value="">
-        <!-- commenting out delete/remove portion
-        <button type="button" class="btn btn-sm btn-outline-danger remove-entry mb-2">✕ Remove</button>
-    -->
-        <div class="trio-row">
-            <label><%= __('fields.year') %></label>
-            <input type="number" name="battleyear[]" class="form-control">
-            <label><%= __('fields.yearen') %></label>
-            <input type="number" name="battleyearen[]" class="form-control">
-            <label><%= __('fields.yearru') %></label>
-            <input type="number" name="battleyearru[]" class="form-control">
-        </div>
-    
-        <div class="trio-row">
-            <label><%= __('fields.front') %></label>
-            <input type="text" name="front[]" class="form-control">
-            <label><%= __('fields.fronten') %></label>
-            <input type="text" name="fronten[]" class="form-control">
-            <label><%= __('fields.frontru') %></label>
-            <input type="text" name="frontru[]" class="form-control">
-        </div>
-    
-        <div class="trio-row">
-            <label><%= __('fields.battle') %></label>
-            <input type="text" name="battle[]" class="form-control">
-            <label><%= __('fields.battleen') %></label>
-            <input type="text" name="battleen[]" class="form-control">
-            <label><%= __('fields.battleru') %></label>
-            <input type="text" name="battleru[]" class="form-control">
-        </div>
-    
-        <div class="trio-row">
-            <label><%= __('fields.medal') %></label>
-            <input type="text" name="battle_medal[]" class="form-control">
-            <label><%= __('fields.medalen') %></label>
-            <input type="text" name="battle_medalen[]" class="form-control">
-            <label><%= __('fields.medalru') %></label>
-            <input type="text" name="battle_medalru[]" class="form-control">
-        </div>
-    
-        
-    
-        <div class="trio-row">
-            <label><%= __('fields.degreerank') %></label>
-            <input type="text" name="degreerank[]" class="form-control">
-            <label><%= __('fields.degreeranken') %></label>
-            <input type="text" name="degreeranken[]" class="form-control">
-            <label><%= __('fields.degreerankru') %></label>
-            <input type="text" name="degreerankru[]" class="form-control">
-        </div>
-    
-        <div class="trio-row">
-            <label><%= __('fields.job') %></label>
-            <input type="text" name="job[]" class="form-control">
-            <label><%= __('fields.joben') %></label>
-            <input type="text" name="joben[]" class="form-control">
-            <label><%= __('fields.jobru') %></label>
-            <input type="text" name="jobru[]" class="form-control">
-        </div>
-        <div class="trio-row">
-            <label><%= __('fields.details') %></label>
-            <textarea name="battle_details[]" class="form-control" rows="2"></textarea>
-            <label><%= __('fields.detailsen') %></label>
-            <textarea name="battle_detailsen[]" class="form-control" rows="2"></textarea>
-            <label><%= __('fields.detailsru') %></label>
-            <textarea name="battle_detailsru[]" class="form-control" rows="2"></textarea>
-        </div>
+    <div>
+        <a class="add-battle-btn" onclick="addBattleBlock()">+ Add Battle</a>
     </div>
-</template>
+</div>
 
+<script>
+function addBattleBlock() {
+    const container = document.getElementById('battle-history-container');
+    const index = container.children.length;
+
+    const block = document.createElement('div');
+    block.classList.add('battle-block');
+
+    block.innerHTML = `
+        <div class="trio-row">
+            <label>Year</label>
+            <input type="number" name="battleyear[]">
+        </div>
+
+        <div class="trio-row">
+            <label>Front (IL)</label>
+            <input type="text" name="front[]">
+            <label>Front (EN)</label>
+            <input type="text" name="fronten[]">
+            <label>Front (RU)</label>
+            <input type="text" name="frontru[]">
+        </div>
+
+        <div class="trio-row">
+            <label>Battle (IL)</label>
+            <input type="text" name="battle[]">
+            <label>Battle (EN)</label>
+            <input type="text" name="battleen[]">
+            <label>Battle (RU)</label>
+            <input type="text" name="battleru[]">
+        </div>
+
+        <div class="trio-row">
+            <label>Medal (IL)</label>
+            <input type="text" name="battle_medal[]">
+            <label>Medal (EN)</label>
+            <input type="text" name="medal_en[]">
+            <label>Medal (RU)</label>
+            <input type="text" name="medal_ru[]">
+        </div>
+
+        <div class="trio-row">
+            <label>Details (IL)</label>
+            <input type="text" name="battle_details[]">
+            <label>Details (EN)</label>
+            <input type="text" name="detailsen[]">
+            <label>Details (RU)</label>
+            <input type="text" name="detailsru[]">
+        </div>
+
+        <div class="trio-row">
+            <label>Rank (IL)</label>
+            <input type="text" name="degreerank[]">
+            <label>Rank (EN)</label>
+            <input type="text" name="ranken[]">
+            <label>Rank (RU)</label>
+            <input type="text" name="rankru[]">
+        </div>
+
+        <div class="trio-row">
+            <label>Job (IL)</label>
+            <input type="text" name="jobbattle[]">
+            <label>Job (EN)</label>
+            <input type="text" name="joben[]">
+            <label>Job (RU)</label>
+            <input type="text" name="jobru[]">
+        </div>
+
+        <div class="delete-checkbox">
+            <label>
+                <input type="checkbox" name="delete_battle[]" value=""> Delete this battle
+            </label>
+        </div>
+        <hr>
+    `;
+
+    container.appendChild(block);
+}
+</script>
+
+
+        <label for="linkurl"><%= __('fields.linkurl') %></label>
+        <input type="url" name="linkurl" id="linkurl" value="<%= soldier.linkurl || '' %>">
+      </fieldset>
+      <!--<fieldset>
+        <legend><%= __('sections.uploads') || 'Upload Files' %></legend>
+        <label for="files"><%= __('form.upload_files') || 'Upload supporting files (images, documents, etc)' %></label>
+        <input type="file" id="files" name="files" multiple />
+      </fieldset>-->
+      <fieldset>
   <legend><%= __('sections.uploads') %></legend>
 
   <label class="file-upload-label">
@@ -709,59 +730,100 @@
 
       </div>
     </form>
-  
- 
-<!-- =================== Scripts =================== -->
-<script>
-    document.addEventListener('DOMContentLoaded', () => {
-        const container = document.getElementById('battle-container');
-        const addBtn = document.getElementById('add-battle-entry');
-        const template = document.getElementById('battle-template').content;
-
-        // Add new battle row
-        addBtn.addEventListener('click', () => {
-            const newRow = document.importNode(template, true);
-            container.appendChild(newRow);
-        });
-
-        // ✅ Updated: Handle removal by marking for deletion and hiding the row
-        container.addEventListener('click', (e) => {
-            if (e.target.classList.contains('remove-entry')) {
-                const row = e.target.closest('.battle-row');
-                if (row) {
-                    const battleIdInput = row.querySelector('input[name="battleId[]"]');
-                    const deleteInput = row.querySelector('input[name="delete_battle_id[]"]');
-
-                    // If it's an existing record with an ID
-                    if (battleIdInput && battleIdInput.value) {
-                        deleteInput.value = battleIdInput.value;
-                    }
-                    
-                    // Hide the row from view
-                    row.style.display = 'none';
-
-                    // Optional: Disable all inputs in the row to prevent accidental submission
-                    //row.querySelectorAll('input, textarea, select').forEach(input => input.disabled = true);
-                }
-            }
-        });
-    });
-</script>
-
-
-<script>
-
+  </div>
+  <script>
   function updateFileName() {
     const input = document.getElementById('files');
     const label = document.getElementById('file-label');
     if (input.files.length > 0) {
-     if (input.files.length > 0) {
-      label.textContent = Array.from(input.files).map(f => f.name).join(', ');
+      const names = Array.from(input.files).map(f => f.name).join(', ');
+      label.textContent = names;
+      console.log('Selected files:', names);  // for debugging
     } else {
-      label.textContent = '<%= __("fields.noFilesChosen") %>';
+      //label.textContent = '<%= __('form.no_file_chosen') %>';
+      console.log('No files chosen');
     }
   }
+</script>
+<script>
+function addBattleBlock() {
+    const container = document.getElementById('battle-history-container');
+    const index = container.children.length;
+
+    const block = document.createElement('div');
+    block.classList.add('battle-block');
+
+    block.innerHTML = `
+        <div class="trio-row">
+            <label>Year</label>
+            <input type="number" name="battleyear[]">
+        </div>
+
+        <div class="trio-row">
+            <label>Front (IL)</label>
+            <input type="text" name="front[]">
+            <label>Front (EN)</label>
+            <input type="text" name="fronten[]">
+            <label>Front (RU)</label>
+            <input type="text" name="frontru[]">
+        </div>
+
+        <div class="trio-row">
+            <label>Battle (IL)</label>
+            <input type="text" name="battle[]">
+            <label>Battle (EN)</label>
+            <input type="text" name="battleen[]">
+            <label>Battle (RU)</label>
+            <input type="text" name="battleru[]">
+        </div>
+
+        <div class="trio-row">
+            <label>Medal (IL)</label>
+            <input type="text" name="battle_medal[]">
+            <label>Medal (EN)</label>
+            <input type="text" name="medal_en[]">
+            <label>Medal (RU)</label>
+            <input type="text" name="medal_ru[]">
+        </div>
+
+        <div class="trio-row">
+            <label>Details (IL)</label>
+            <input type="text" name="battle_details[]">
+            <label>Details (EN)</label>
+            <input type="text" name="detailsen[]">
+            <label>Details (RU)</label>
+            <input type="text" name="detailsru[]">
+        </div>
+
+        <div class="trio-row">
+            <label>Rank (IL)</label>
+            <input type="text" name="degreerank[]">
+            <label>Rank (EN)</label>
+            <input type="text" name="ranken[]">
+            <label>Rank (RU)</label>
+            <input type="text" name="rankru[]">
+        </div>
+
+        <div class="trio-row">
+            <label>Job (IL)</label>
+            <input type="text" name="jobbattle[]">
+            <label>Job (EN)</label>
+            <input type="text" name="joben[]">
+            <label>Job (RU)</label>
+            <input type="text" name="jobru[]">
+        </div>
+
+        <div class="delete-checkbox">
+            <label>
+                <input type="checkbox" name="delete_battle[]" value=""> Delete this battle
+            </label>
+        </div>
+        <hr>
+    `;
+
+    container.appendChild(block);
 }
 </script>
+
 </body>
 </html>

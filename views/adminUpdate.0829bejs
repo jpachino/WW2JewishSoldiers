@@ -1,0 +1,137 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Update Soldier</title>
+    <link rel="stylesheet" href="/styles.css">
+    <script>
+        // JS to dynamically add a new battle history row
+        function addBattleHistoryRow() {
+            const container = document.getElementById('battle-history-container');
+            const index = container.querySelectorAll('.battle-history-row').length;
+
+            const newRow = document.createElement('div');
+            newRow.classList.add('battle-history-row');
+            newRow.innerHTML = `
+                <h4>Battle Entry ${index + 1}</h4>
+                <label>Year (IL): <input type="text" name="battleyear[]" /></label>
+                <label>Year (EN): <input type="text" name="battleyearen[]" /></label>
+                <label>Year (RU): <input type="text" name="battleyearru[]" /></label>
+                <label>Front (IL): <input type="text" name="front[]" /></label>
+                <label>Front (EN): <input type="text" name="fronten[]" /></label>
+                <label>Front (RU): <input type="text" name="frontru[]" /></label>
+                <label>Battle (IL): <input type="text" name="battle[]" /></label>
+                <label>Battle (EN): <input type="text" name="battleen[]" /></label>
+                <label>Battle (RU): <input type="text" name="battleru[]" /></label>
+                <label>Medal (IL): <input type="text" name="battle_medal[]" /></label>
+                <label>Medal (EN): <input type="text" name="battle_medalen[]" /></label>
+                <label>Medal (RU): <input type="text" name="battle_medalru[]" /></label>
+                <label>Details (IL): <textarea name="battle_details[]"></textarea></label>
+                <label>Details (EN): <textarea name="battle_detailsen[]"></textarea></label>
+                <label>Details (RU): <textarea name="battle_detailsru[]"></textarea></label>
+                <label>Degree Rank (IL): <input type="text" name="degreerank[]" /></label>
+                <label>Degree Rank (EN): <input type="text" name="degreeranken[]" /></label>
+                <label>Degree Rank (RU): <input type="text" name="degreerankru[]" /></label>
+                <label>Job (IL): <input type="text" name="job[]" /></label>
+                <label>Job (EN): <input type="text" name="joben[]" /></label>
+                <label>Job (RU): <input type="text" name="jobru[]" /></label>
+                <button type="button" onclick="removeBattleHistoryRow(this)">Remove</button>
+            `;
+            container.appendChild(newRow);
+        }
+
+        function removeBattleHistoryRow(button) {
+            button.parentElement.remove();
+        }
+
+        // File input label update
+        function updateFileName() {
+            const input = document.getElementById('files');
+            const label = document.getElementById('file-label');
+            if (input.files.length > 0) {
+                const names = Array.from(input.files).map(f => f.name).join(', ');
+                label.textContent = names;
+                console.log('Selected files:', names);
+            } else {
+                label.textContent = 'No files chosen';
+                console.log('No files chosen');
+            }
+        }
+    </script>
+    <style>
+        .battle-history-row {
+            border: 1px solid #ccc;
+            padding: 10px;
+            margin-bottom: 15px;
+        }
+        .message.success { color: green; }
+        .message.error { color: red; }
+    </style>
+</head>
+<body>
+
+<h1>Update Soldier Details</h1>
+
+<!-- ✅ Show success/error message safely -->
+<% if (typeof message !== 'undefined' && message) { %>
+    <div class="message <%= messageType || '' %>"><%= message %></div>
+<% } %>
+
+<form action="/updateSoldier/<%= soldier.id %>" method="POST" enctype="multipart/form-data">
+    <fieldset>
+        <legend>Basic Details</legend>
+        <label>First Name (IL): <input type="text" name="fname" value="<%= soldier.fname || '' %>"></label>
+        <label>First Name (EN): <input type="text" name="fnameen" value="<%= soldier.fnameen || '' %>"></label>
+        <label>First Name (RU): <input type="text" name="fnameru" value="<%= soldier.fnameru || '' %>"></label>
+        <!-- Add more soldier fields as needed -->
+    </fieldset>
+
+    <h2>Battle History</h2>
+    <div id="battle-history-container">
+        <% if (battleHistory && battleHistory.length > 0) { %>
+            <% battleHistory.forEach((bh, index) => { %>
+                <div class="battle-history-row">
+                    <h4>Battle Entry <%= index + 1 %></h4>
+                    <label>Year (IL): <input type="text" name="battleyear[]" value="<%= bh.battleyear || '' %>" /></label>
+                    <label>Year (EN): <input type="text" name="battleyearen[]" value="<%= bh.battleyearen || '' %>" /></label>
+                    <label>Year (RU): <input type="text" name="battleyearru[]" value="<%= bh.battleyearru || '' %>" /></label>
+                    <label>Front (IL): <input type="text" name="front[]" value="<%= bh.front || '' %>" /></label>
+                    <label>Front (EN): <input type="text" name="fronten[]" value="<%= bh.fronten || '' %>" /></label>
+                    <label>Front (RU): <input type="text" name="frontru[]" value="<%= bh.frontru || '' %>" /></label>
+                    <label>Battle (IL): <input type="text" name="battle[]" value="<%= bh.battle || '' %>" /></label>
+                    <label>Battle (EN): <input type="text" name="battleen[]" value="<%= bh.battleen || '' %>" /></label>
+                    <label>Battle (RU): <input type="text" name="battleru[]" value="<%= bh.battleru || '' %>" /></label>
+                    <label>Medal (IL): <input type="text" name="battle_medal[]" value="<%= bh.medal || '' %>" /></label>
+                    <label>Medal (EN): <input type="text" name="battle_medalen[]" value="<%= bh.medalen || '' %>" /></label>
+                    <label>Medal (RU): <input type="text" name="battle_medalru[]" value="<%= bh.medalru || '' %>" /></label>
+                    <label>Details (IL): <textarea name="battle_details[]"><%= bh.details || '' %></textarea></label>
+                    <label>Details (EN): <textarea name="battle_detailsen[]"><%= bh.detailsen || '' %></textarea></label>
+                    <label>Details (RU): <textarea name="battle_detailsru[]"><%= bh.detailsru || '' %></textarea></label>
+                    <label>Degree Rank (IL): <input type="text" name="degreerank[]" value="<%= bh.degreerank || '' %>" /></label>
+                    <label>Degree Rank (EN): <input type="text" name="degreeranken[]" value="<%= bh.degreeranken || '' %>" /></label>
+                    <label>Degree Rank (RU): <input type="text" name="degreerankru[]" value="<%= bh.degreerankru || '' %>" /></label>
+                    <label>Job (IL): <input type="text" name="job[]" value="<%= bh.job || '' %>" /></label>
+                    <label>Job (EN): <input type="text" name="joben[]" value="<%= bh.joben || '' %>" /></label>
+                    <label>Job (RU): <input type="text" name="jobru[]" value="<%= bh.jobru || '' %>" /></label>
+                    <button type="button" onclick="removeBattleHistoryRow(this)">Remove</button>
+                </div>
+            <% }) %>
+        <% } else { %>
+            <p>No battle history found. Click "Add Battle" to add entries.</p>
+        <% } %>
+    </div>
+
+    <button type="button" onclick="addBattleHistoryRow()">Add Battle</button>
+
+    <fieldset>
+        <legend>Upload Files</legend>
+        <input type="file" id="files" name="files" multiple onchange="updateFileName()">
+        <p id="file-label">No files chosen</p>
+    </fieldset>
+
+    <button type="submit">Update Soldier</button>
+</form>
+
+</body>
+</html>
+

@@ -98,6 +98,9 @@
     "remarks": "Примечания (IL)",
     "remarksen": "Примечания (EN)",
     "remarksru": "Примечания (RU)",
+    "urltitle": "Заголовок URL (IL)",
+    "urltitleen": "Заголовок URL (EN)",
+    "urltitleru": "Заголовок URL (RU)",
     "linkurl": "Ссылка",
     "useremail":"Ваш адрес электронной почты",
     "id": "Идентификатор",
@@ -121,7 +124,33 @@
     "releasereason": "Причина увольнения (IL)",
     "releasereasonen": "Причина увольнения (EN)",
     "releasereasonru": "Причина увольнения (RU)",
-    "armyid": "Военный билет"
+    "armyid": "Военный билет",
+    "battleHistory": "История сражений",
+    "year": "Год (IL)",
+    "yearen": "Год (EN)",
+    "yearru": "Год (RU)",
+    "front": "Фронт (IL)",
+    "fronten": "Фронт (EN)",
+    "frontru": "Фронт (RU)",
+    
+    "battle": "Сражение (IL)",
+    "battleen": "Сражение (EN)",
+    "battleru": "Сражение (RU)",
+    "details": "Детали (IL)",
+    "detailsen": "Детали (EN)",
+    "detailsru": "Детали (RU)",
+    "degreerank": "Ранг (IL)",
+    "degreeranken": "Ранг (EN)",
+    "degreerankru": "Ранг (RU)",
+    "job": "Должность (IL)",
+    "joben": "Должность (EN)",
+    "jobru": "Должность (RU)",
+    "degreerank": "Звание (IL)",
+    "degreeranken": "Звание (EN)",
+    "degreerankru": "Звание (RU)",
+    "title": "Заголовок (IL)",
+    "titleen": "Заголовок (EN)",
+    "titleru": "Заголовок (RU)"
 
   },
 
@@ -133,10 +162,24 @@
     "military": "Военная служба",
     "family": "Семья",
     "birthdeath": "Информация о рождении и смерти",
-    "finalnotes": "Заключительные примечания",
+    "urlnotes": "Детали URL",
     "uploads": "Загрузка файлов",
     "datesmedals": "Даты и награды",
-    "files": "Файлы"
+    "files": "Файлы",
+    "addAnotherBattle": "Добавить еще одно сражение",
+    "platoonname": "Подразделение",
+    "platoonnameen": "Подразделение (EN)",
+    "platoonnameru": "Подразделение (RU)",
+    "wounddetails": "Детали ранения",
+    "wounddetailsen": "Детали ранения (EN)",
+    "wounddetailsru": "Детали ранения (RU)",
+
+    "gettodesc": "Описание гетто",
+    "gettodescen": "Описание гетто (EN)",
+    "gettodescru": "Описание гетто (RU)",
+
+    "otherfightingcontext": "Другой контекст боевых действий",
+    "battleHistory": "История сражений"
   },
 
 

@@ -44,10 +44,12 @@
     "military": "military",
     "family": "family",
     "birthdeath": "birth and death information",
-    "finalnotes": "final notes",
+    "urlnotes": "URL details",
     "uploads":"uploads",
     "datesmedals":"dates and medals",
-    "files": "files"
+    "files": "files",
+    "addAnotherBattle": "Add Another Battle",
+    "battleHistory": "Battle History"
    
   
 },
@@ -114,6 +116,11 @@
     "remarks": "Remarks (IL)",
     "remarksen": "Remarks (EN)",
     "remarksru": "Remarks (RU)",
+    "urltitle": "URL Title (IL)",
+    "urltitleen": "URL Title (EN)",
+    "urltitleru": "URL Title (RU)",
+    
+
     "linkurl": "Link",
     "useremail": "Your Email",
     "id": "ID",
@@ -137,7 +144,47 @@
     "releasereason": "Release Reason (IL)",
     "releasereasonen": "Release Reason (EN)",
     "releasereasonru": "Release Reason (RU)",
-    "armyid": "Army ID"
+    "armyid": "Army ID",
+    "battleHistory": "Battle History",
+    "year": "Year (IL)",
+    "yearen": "Year (EN)",
+    "yearru": "Year (RU)",
+    "front": "Front (IL)",
+    "fronten": "Front (EN)",
+    "frontru": "Front (RU)",
+    "battle": "Battle (IL)",
+    "battleen": "Battle (EN)",
+    "battleru": "Battle (RU)",
+    "details": "Details (IL)",
+    "detailsen": "Details (EN)",
+    "detailsru": "Details (RU)",
+    "degreerank": "Rank (IL)",
+    "degreeranken":"Rank (EN)",
+    "degreerankru": "Rank (RU)",
+    "job": "Job (IL)",
+    "joben": "Job (EN)",
+    "jobru": "Job (RU)",
+
+    "platoonname": "Unit (IL)",
+    "platoonnameen": "Unit (EN)",
+    "platoonnameru": "Unit (RU)",
+    "wounddetails": "Wound details (IL)",
+    "wounddetailsen": "Wound details (EN)",
+    "wounddetailsru": "Wound details (RU)",
+
+    "gettodesc": "Ghetto description (IL)",
+    "gettodescen": "Ghetto description (EN)",
+    "gettodescru": "Ghetto description (RU)",
+
+    "otherfightingcontext": "Other Fighting context (IL)",
+    "title":"Title (IL)",
+    "titleen":"Title (EN)",
+    "titleru":"Title (RU)"
+  
+
+    
+
+    
   },
   
   

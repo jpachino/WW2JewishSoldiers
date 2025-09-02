@@ -1,5 +1,10 @@
 <!DOCTYPE html>
 <html lang="<%= locale %>">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title><%= __('nav.title2') %></title>
+  <link rel="stylesheet" href="/styles/styles.css" />
   <style>
     .info-box { background-color: #f8f9fa; border-left: 6px solid #007bff; padding: 20px; margin: 20px auto; max-width: 800px; border-radius: 6px; font-family: Arial, sans-serif; line-height: 1.6; color: #333; }
     form { max-width: 1000px; margin: 0 auto; }
@@ -9,66 +14,37 @@
     .single-row { margin-bottom: 10px; display: flex; flex-direction: column; }
     textarea { resize: vertical; }
   </style>
-<head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title><%= __('fields.id') %> – <%= __('fields.fname') %> <%= __('fields.lname') %></title>
-  
-  <link rel="stylesheet" href="/styles/styles.css">
 </head>
-<body>  
- 
-  <title><%= __('nav.title2') %></title>
- 
-   <header>
-    <div class="container">
-      <div style="display: flex;  align-items: center; flex-wrap: wrap;">
-        <h1><%= __('titleAdminUpdate') %></h1>
-      
-        <!-- 🌐 Language Selector 
-         <form method="get" action="" style="margin-inline-start: auto;
-          <form  method="get" action="" style="margin-inline-start: auto;">
-        
-    <select name="lang" onchange="this.form.submit()">
-      <option value="he" <%= (locale === 'he' ? 'selected' : '') %>>עברית</option>
-      <option value="en" <%= (locale === 'en' ? 'selected' : '') %>>English</option>
-      <option value="ru" <%= (locale === 'ru' ? 'selected' : '') %>>Русский</option>
-   </select>
-    </form>-->
-      </div>
 
+<body>
+
+  <header>
+    <div class="container">
+      <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap;">
+        <h1><%= __('titleUpdate') %></h1>
+         </div>
       <nav>
         <a href="/"><%= __('nav.home') %></a>
-        <!-- Hidden nav links for future use -->
-        <!--<a href="/soldierlistFULL"><%= __('nav.soldierList') %></a>
-        <a href="/addFull"><%= __('nav.addSoldier') %></a>
-        <a href="/search"><%= __('nav.searchUpdate') %></a>-->
       </nav>
     </div>
+        <form method="get" action="" style="margin-top: 2rem;">
+          <select name="lang" class="lang-select" onchange="this.form.submit()">
+            <option value="he" <%= locale === 'he' ? 'selected' : '' %>>עברית</option>
+            <option value="en" <%= locale === 'en' ? 'selected' : '' %>>English</option>
+            <option value="ru" <%= locale === 'ru' ? 'selected' : '' %>>Русский</option>
+          </select>
+        </form>
+      </div>
+      <!--<nav>
+        <a href="/"><%= __('nav.home') %></a>
+      </nav>-->
+    </div>
   </header>
- 
-  <!-- Language switcher that keeps search parameters -->
-  <form method="get" action="" style="margin-top: 2rem;">
-   
-    <select name="lang" onchange="this.form.submit()">
-      <option value="he" <%= locale === 'he' ? 'selected' : '' %>>עברית</option>
-      <option value="en" <%= locale === 'en' ? 'selected' : '' %>>English</option>
-      <option value="ru" <%= locale === 'ru' ? 'selected' : '' %>>Русский</option>
-    </select>
-  </form>
-  <!--<form method="get" action="">
-  <select name="lang" onchange="this.form.submit()">
-    <option value="he" <%= (locale === 'he' ? 'selected' : '') %>>עברית</option>
-    <option value="en" <%= (locale === 'en' ? 'selected' : '') %>>English</option>
-    <option value="ru" <%= (locale === 'ru' ? 'selected' : '') %>>Русский</option>
-  </select>
-  </form>-->
-  <div class="container">
-    <!--<form action="/updateSoldier/<%= soldier.id %>" method="post">-->
-      
-        <form action="/adminUpdateSoldier/<%= soldier.id %>?adminemail=<%= adminemail %>" method="POST" enctype="multipart/form-data">
 
-        <fieldset>
+  <div class="container">
+    <form action="/updateSoldier/<%= soldier.id %>" method="post" enctype="multipart/form-data" id="soldierForm">
+          <br> <br> <br> <br> <br> <br> <br>
+      <fieldset>
         <legend><%= __('sections.basic') %></legend>
         <div class="trio-row">
           <div class="input-group">
@@ -292,10 +268,10 @@
 
       <fieldset>
         <legend><%= __('sections.military') %></legend>
-        <!---<div class="input-group">
+        <div class="input-group">
           <label for="shortdesc"><%= __('fields.shortdesc') %></label>
           <input type="text" name="shortdesc" id="shortdesc" value="<%= soldier.shortdesc || '' %>" />
-        </div>-->
+        </div>
         <div>
           <label for="category"><%= __('fields.category') %></label>
           <select name="category" id="category">
@@ -334,7 +310,7 @@
         </div> <br>
         <div class="input-group">
           <label for="armyid"><%= __('fields.armyid') %></label>
-          <input type="number" name="armyid" id="armyid" value="<%= soldier.armyid || '' %>" />
+          <input type="text" name="armyid" id="armyid" value="<%= soldier.armyid || '' %>" />
         </div>
         <div class="input-group">
           <label for="enlistreason"><%= __('fields.enlistreason') %></label>
@@ -498,12 +474,12 @@
             <input type="text" name="titleru" id="titleru" value="<%= soldier.titleru || '' %>" />
           </div>
         </div>
-        <!--<label for="remarks"><%= __('fields.remarks') %>:</label>
+        <label for="remarks"><%= __('fields.remarks') %>:</label>
         <textarea name="remarks" id="remarks"><%= soldier.remarks || '' %></textarea>
         <label for="remarksen"><%= __('fields.remarksen') %>:</label>
         <textarea name="remarksen" id="remarksen"><%= soldier.remarksen || '' %></textarea>
         <label for="remarksru"><%= __('fields.remarksru') %>:</label>
-        <textarea name="remarksru" id="remarksru"><%= soldier.remarksru || '' %></textarea>-->
+        <textarea name="remarksru" id="remarksru"><%= soldier.remarksru || '' %></textarea>
         <label for="linkurl"><%= __('fields.linkurl') %>:</label>
         <input type="url" name="linkurl" id="linkurl" value="<%= soldier.linkurl || '' %>" />
       </fieldset>
@@ -520,7 +496,9 @@
           </button>
           <span id="file-label"><%= __('form.no_file_chosen') %></span>
         </div>
-      </fieldset>    <h2><%= __('sections.battleHistory') %></h2>
+      </fieldset>
+      
+
 <!-- =================== Battle History =================== -->
 <fieldset>
     <legend><%= __('sections.battleHistory') %></legend>
@@ -530,12 +508,15 @@
                 <div class="battle-row mb-3">
                     <input type="hidden" name="battleId[]" value="<%= battle.id %>">
                     <input type="hidden" name="delete_battle_id[]" value="">
-                   <!-- <button type="button" class="btn btn-sm btn-outline-danger remove-entry mb-2">✕ Remove</button>-->
+                    <button type="button" class="btn btn-sm btn-outline-danger remove-entry mb-2">✕ Remove</button>
                     
                     <div class="trio-row">
                         <label><%= __('fields.year') %></label>
                         <input type="number" name="battleyear[]" class="form-control" value="<%= battle.battleyear || '' %>">
-                        
+                        <label><%= __('fields.year') %> (EN)</label>
+                        <input type="number" name="battleyearen[]" class="form-control" value="<%= battle.battleyearen || '' %>">
+                        <label><%= __('fields.year') %> (RU)</label>
+                        <input type="number" name="battleyearru[]" class="form-control" value="<%= battle.battleyearru || '' %>">
                     </div>
                     
                     <div class="trio-row">
@@ -565,7 +546,14 @@
                         <input type="text" name="battle_medalru[]" class="form-control" value="<%= battle.medalru || '' %>">
                     </div>
                     
-                    
+                    <div class="trio-row">
+                        <label><%= __('fields.details') %></label>
+                        <textarea name="battle_details[]" class="form-control" rows="2"><%= battle.details || '' %></textarea>
+                        <label><%= __('fields.detailsen') %></label>
+                        <textarea name="battle_detailsen[]" class="form-control" rows="2"><%= battle.detailsen || '' %></textarea>
+                        <label><%= __('fields.detailsru') %></label>
+                        <textarea name="battle_detailsru[]" class="form-control" rows="2"><%= battle.detailsru || '' %></textarea>
+                    </div>
                     
                     <div class="trio-row">
                         <label><%= __('fields.degreerank') %></label>
@@ -584,15 +572,6 @@
                         <label><%= __('fields.jobru') %></label>
                         <input type="text" name="jobru[]" class="form-control" value="<%= battle.jobru || '' %>">
                     </div>
-
-                    <div class="trio-row">
-                        <label><%= __('fields.details') %></label>
-                        <textarea name="battle_details[]" class="form-control" rows="2"><%= battle.details || '' %></textarea>
-                        <label><%= __('fields.detailsen') %></label>
-                        <textarea name="battle_detailsen[]" class="form-control" rows="2"><%= battle.detailsen || '' %></textarea>
-                        <label><%= __('fields.detailsru') %></label>
-                        <textarea name="battle_detailsru[]" class="form-control" rows="2"><%= battle.detailsru || '' %></textarea>
-                    </div>
                 </div>
             <% }) %>
         <% } %>
@@ -606,9 +585,8 @@
     <div class="battle-row mb-3">
         <input type="hidden" name="battleId[]" value="">
         <input type="hidden" name="delete_battle_id[]" value="">
-        <!-- commenting out delete/remove portion
         <button type="button" class="btn btn-sm btn-outline-danger remove-entry mb-2">✕ Remove</button>
-    -->
+    
         <div class="trio-row">
             <label><%= __('fields.year') %></label>
             <input type="number" name="battleyear[]" class="form-control">
@@ -645,7 +623,14 @@
             <input type="text" name="battle_medalru[]" class="form-control">
         </div>
     
-        
+        <div class="trio-row">
+            <label><%= __('fields.details') %></label>
+            <textarea name="battle_details[]" class="form-control" rows="2"></textarea>
+            <label><%= __('fields.detailsen') %></label>
+            <textarea name="battle_detailsen[]" class="form-control" rows="2"></textarea>
+            <label><%= __('fields.detailsru') %></label>
+            <textarea name="battle_detailsru[]" class="form-control" rows="2"></textarea>
+        </div>
     
         <div class="trio-row">
             <label><%= __('fields.degreerank') %></label>
@@ -664,42 +649,17 @@
             <label><%= __('fields.jobru') %></label>
             <input type="text" name="jobru[]" class="form-control">
         </div>
-        <div class="trio-row">
-            <label><%= __('fields.details') %></label>
-            <textarea name="battle_details[]" class="form-control" rows="2"></textarea>
-            <label><%= __('fields.detailsen') %></label>
-            <textarea name="battle_detailsen[]" class="form-control" rows="2"></textarea>
-            <label><%= __('fields.detailsru') %></label>
-            <textarea name="battle_detailsru[]" class="form-control" rows="2"></textarea>
-        </div>
     </div>
 </template>
 
-  <legend><%= __('sections.uploads') %></legend>
-
-  <label class="file-upload-label">
-    <%= __('form.upload_files') %>
-  </label>
-
-  <div class="custom-file-input">
-    <!-- Hide the default file input UI -->
-    <input type="file" id="files" name="files" multiple onchange="updateFileName()" hidden />
-    
-    <!-- This button triggers the hidden input -->
-    <button type="button" onclick="document.getElementById('files').click()">
-      <%= __('form.select_files') %>
-    </button>
-
-    <!-- This shows the selected filenames or 'No files chosen' -->
-    <span id="file-label"><%= __('form.no_file_chosen') %></span>
-  </div>
-  </fieldset>
-
-      <div>
+ <div>
   <label>
-    <input type="checkbox" name="admin_ready_for_download" value="true" <%= soldier && soldier.admin_ready_for_download ? 'checked disabled' : '' %> />
-    <%= __('form.admin_complete') %>
- 
+    <input type="checkbox" name="recordcomplete" value="true" <%= soldier && soldier.recordcomplete ? 'checked disabled' : '' %> />
+    <%= __('form.mark_complete') %>
+  </label>
+  <p class="note">
+    <%= __('form.mark_complete_note') %>
+  </p>
 </div>
   
 
@@ -709,8 +669,7 @@
 
       </div>
     </form>
-  
- 
+
 <!-- =================== Scripts =================== -->
 <script>
     document.addEventListener('DOMContentLoaded', () => {
@@ -748,20 +707,19 @@
     });
 </script>
 
-
 <script>
 
+
+  // Update uploaded file names
   function updateFileName() {
     const input = document.getElementById('files');
     const label = document.getElementById('file-label');
     if (input.files.length > 0) {
-     if (input.files.length > 0) {
       label.textContent = Array.from(input.files).map(f => f.name).join(', ');
     } else {
       label.textContent = '<%= __("fields.noFilesChosen") %>';
     }
   }
-}
 </script>
 </body>
 </html>

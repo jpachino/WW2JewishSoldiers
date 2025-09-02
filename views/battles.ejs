@@ -1,0 +1,119 @@
+<!DOCTYPE html>
+<html lang="<%= locale %>">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title><%= __('nav.battles') %></title>
+  <link rel="stylesheet" href="/styles/styles.css" />
+  <style>
+    .info-box { background-color: #f8f9fa; border-left: 6px solid #007bff; padding: 20px; margin: 20px auto; max-width: 800px; border-radius: 6px; font-family: Arial, sans-serif; line-height: 1.6; color: #333; }
+    form { max-width: 1000px; margin: 0 auto; }
+    fieldset { margin-top: 25px; border-radius: 6px; padding: 15px; border: 1px solid #ccc; }
+    .battle-entry { border: 1px solid #ddd; padding: 10px; margin-bottom: 15px; border-radius: 5px; }
+    .trio-row { display: flex; gap: 10px; margin-bottom: 10px; }
+    .trio-row .input-group { flex: 1; display: flex; flex-direction: column; }
+    .single-row { margin-bottom: 10px; display: flex; flex-direction: column; }
+    textarea { resize: vertical; }
+    .btn-delete { color: white; background: red; border: none; padding: 5px 10px; border-radius: 4px; cursor: pointer; }
+    .btn-edit { color: white; background: blue; border: none; padding: 5px 10px; border-radius: 4px; cursor: pointer; }
+  </style>
+</head>
+
+<body>
+<header>
+  <div class="container">
+    <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap;">
+      <h1><%= __('title') %></h1>
+    </div>
+    <nav>
+      <a href="/"><%= __('nav.home') %></a>
+    </nav>
+  </div>
+</header>
+
+<!-- 🌐 Language Selector -->
+<form action="/change-lang" method="get" style="margin-top: 2rem;">
+  <select name="lang" class="lang-select" onchange="this.form.submit()">
+    <option value="he" <%= locale === 'he' ? 'selected' : '' %>>עברית</option>
+    <option value="en" <%= locale === 'en' ? 'selected' : '' %>>English</option>
+    <option value="ru" <%= locale === 'ru' ? 'selected' : '' %>>Русский</option>
+  </select>
+</form>
+
+<h3>Battle History for <%= soldier.fname %> <%= soldier.lname %></h3>
+
+<!-- ✅ Existing Battles Section -->
+<% if (existingBattles && existingBattles.length > 0) { %>
+  <h4>Existing Battles</h4>
+  <ul>
+    <% existingBattles.forEach(battle => { %>
+      <li>
+        <strong><%= battle.year %></strong> - <%= battle.battle %> (<%= battle.front %>)
+        | Medal: <%= battle.medal || 'None' %>
+        <br>
+        <%= battle.details %>
+        <br>
+        <form action="/battles/<%= battle.id %>/edit" method="GET" style="display:inline;">
+          <button type="submit" class="btn-edit">Edit</button>
+        </form>
+        <form action="/battles/<%= battle.id %>?_method=DELETE" method="POST" style="display:inline;">
+          <button type="submit" class="btn-delete">Delete</button>
+        </form>
+      </li>
+    <% }); %>
+  </ul>
+<% } else { %>
+  <p>No battles added yet.</p>
+<% } %>
+
+<!-- ✅ Form to Add Multiple Battles Dynamically -->
+<form action="/soldiers/<%= soldier.id %>/battles" method="POST" id="battleForm">
+  <input type="hidden" name="soldier_id" value="<%= soldier.id %>">
+
+  <h4>Add New Battle(s)</h4>
+  <div id="battle-history-container">
+    <div class="battle-entry">
+      <div>
+        <label>Year:</label>
+        <input type="number" name="battleyear[]" placeholder="Year">
+      </div>
+      <div>
+        <label>Front:</label>
+        <input type="text" name="front[]" placeholder="Front">
+      </div>
+      <div>
+        <label>Battle:</label>
+        <input type="text" name="battle[]" placeholder="Battle">
+      </div>
+      <div>
+        <label>Medal:</label>
+        <input type="text" name="battle_medal[]" placeholder="Medal">
+      </div>
+      <div>
+        <label>Details:</label>
+        <textarea name="battle_details[]" rows="3" placeholder="Details"></textarea>
+      </div>
+    </div>
+  </div>
+
+  <button type="button" id="add-battle-btn">Add Another Battle</button>
+  <button type="submit">Save Battles</button>
+</form>
+
+<script>
+  const container = document.getElementById('battle-history-container');
+  const addBtn = document.getElementById('add-battle-btn');
+
+  addBtn.addEventListener('click', () => {
+    const newEntry = document.querySelector('.battle-entry').cloneNode(true);
+    newEntry.querySelectorAll('input, textarea').forEach(i => i.value = '');
+    container.appendChild(newEntry);
+  });
+</script>
+
+</body>
+</html>
+
+
+
+ 

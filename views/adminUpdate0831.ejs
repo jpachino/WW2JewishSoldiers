@@ -1,0 +1,716 @@
+<!DOCTYPE html>
+<html lang="<%= locale %>">
+  <style>
+    .info-box { background-color: #f8f9fa; border-left: 6px solid #007bff; padding: 20px; margin: 20px auto; max-width: 800px; border-radius: 6px; font-family: Arial, sans-serif; line-height: 1.6; color: #333; }
+    form { max-width: 1000px; margin: 0 auto; }
+    fieldset { margin-top: 25px; border-radius: 6px; padding: 15px; border: 1px solid #ccc; }
+    .trio-row { display: flex; gap: 10px; margin-bottom: 10px; }
+    .trio-row .input-group { flex: 1; display: flex; flex-direction: column; }
+    .single-row { margin-bottom: 10px; display: flex; flex-direction: column; }
+    textarea { resize: vertical; }
+  </style>
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title><%= __('fields.id') %> – <%= __('fields.fname') %> <%= __('fields.lname') %></title>
+  
+  <link rel="stylesheet" href="/styles/styles.css">
+</head>
+<body>
+ 
+  <title><%= __('nav.title2') %></title>
+ 
+   <header>
+    <div class="container">
+      <div style="display: flex;  align-items: center; flex-wrap: wrap;">
+        <h1><%= __('titleAdminUpdate') %></h1>
+      
+        <!-- 🌐 Language Selector 
+         <form method="get" action="" style="margin-inline-start: auto;
+          <form  method="get" action="" style="margin-inline-start: auto;">
+        
+    <select name="lang" onchange="this.form.submit()">
+      <option value="he" <%= (locale === 'he' ? 'selected' : '') %>>עברית</option>
+      <option value="en" <%= (locale === 'en' ? 'selected' : '') %>>English</option>
+      <option value="ru" <%= (locale === 'ru' ? 'selected' : '') %>>Русский</option>
+   </select>
+    </form>-->
+      </div>
+
+      <nav>
+        <a href="/"><%= __('nav.home') %></a>
+        <!-- Hidden nav links for future use -->
+        <!--<a href="/soldierlistFULL"><%= __('nav.soldierList') %></a>
+        <a href="/addFull"><%= __('nav.addSoldier') %></a>
+        <a href="/search"><%= __('nav.searchUpdate') %></a>-->
+      </nav>
+    </div>
+  </header>
+ 
+  <!-- Language switcher that keeps search parameters -->
+  <form method="get" action="" style="margin-top: 2rem;">
+   
+    <select name="lang" onchange="this.form.submit()">
+      <option value="he" <%= locale === 'he' ? 'selected' : '' %>>עברית</option>
+      <option value="en" <%= locale === 'en' ? 'selected' : '' %>>English</option>
+      <option value="ru" <%= locale === 'ru' ? 'selected' : '' %>>Русский</option>
+    </select>
+  </form>
+  <!--<form method="get" action="">
+  <select name="lang" onchange="this.form.submit()">
+    <option value="he" <%= (locale === 'he' ? 'selected' : '') %>>עברית</option>
+    <option value="en" <%= (locale === 'en' ? 'selected' : '') %>>English</option>
+    <option value="ru" <%= (locale === 'ru' ? 'selected' : '') %>>Русский</option>
+  </select>
+  </form>-->
+  <div class="container">
+    <!--<form action="/updateSoldier/<%= soldier.id %>" method="post">-->
+      
+        <form action="/adminUpdateSoldier/<%= soldier.id %>?adminemail=<%= adminemail %>" method="POST" enctype="multipart/form-data">
+
+    <fieldset>
+         <legend><%= __('sections.basic') %></legend>
+         <input type="hidden" name="adminemail" value="<%= adminemail %>">
+
+      <div class="trio-row">
+        <div class="input-group">
+          <label for="fname"><%= __('fields.fname') %></label>
+          <input type="text" name="fname" id="fname" value="<%= soldier.fname || '' %>">
+        </div>
+          <div class="input-group">
+          <label for="fnameen"><%= __('fields.fnameen') %></label>
+          <input type="text" name="fnameen" id="fnameen" value="<%= soldier.fnameen || '' %>">
+        </div>
+        <div class="input-group">
+          <label for="fnameru"><%= __('fields.fnameru') %></label>
+          <input type="text" name="fnameru" id="fnameru" value="<%= soldier.fnameru || '' %>">
+        </div>
+      </div>
+      <div class="trio-row">
+        <div class="input-group">
+        <label for="lname"><%= __('fields.lname') %></label>
+        <input type="text" name="lname" id="lname" value="<%= soldier.lname || '' %>">
+        </div>
+          <div class="input-group">  
+            <label for="lnameen"><%= __('fields.lnameen') %></label>
+            <input type="text" name="lnameen" id="lnameen" value="<%= soldier.lnameen || '' %>">
+          </div>
+        <div class="input-group">
+          <label for="lnameru"><%= __('fields.lnameru') %></label>
+          <input type="text" name="lnameru" id="lnameru" value="<%= soldier.lnameru || '' %>">
+        </div>
+        </div>
+      <div class="trio-row">
+        <div class="input-group">
+          <label for="previouslname"><%= __('fields.previouslname') %></label>
+          <input type="text" name="previouslname" id="previouslname" value="<%= soldier.previouslname || '' %>">
+        </div>
+        <div class="input-group">
+          <label for="previouslnameen"><%= __('fields.previouslnameen') %></label>
+          <input type="text" name="previouslnameen" id="previouslnameen" value="<%= soldier.previouslnameen || '' %>">
+        </div>
+        <div class="input-group">
+          <label for="previouslnameru"><%= __('fields.previouslnameru') %></label>
+          <input type="text" name="previouslnameru" id="previouslnameru" value="<%= soldier.previouslnameru || '' %>">
+        </div>
+      </fieldset>
+
+      <fieldset>
+      <legend><%= __('sections.family') %></legend>
+      <div class="trio-row">
+        <div class="input-group">
+          <label for="fathername"><%= __('fields.fathername') %></label>
+          <input type="text" name="fathername" id="fathername" value="<%= soldier.fathername || '' %>">
+        </div> 
+        <div class="input-group">
+          <label for="fathernameen"><%= __('fields.fathernameen') %></label>
+          <input type="text" name="fathernameen" id="fathernameen" value="<%= soldier.fathernameen || '' %>">
+        </div>
+        
+        <div class="input-group">
+        <label for="fathernameru"><%= __('fields.fathernameru') %></label>
+        <input type="text" name="fathernameru" id="fathernameru" value="<%= soldier.fathernameru || '' %>">
+        </div>
+      </div>
+      <div class="trio-row">
+        <div class="input-group"> 
+          <label for="mothername"><%= __('fields.mothername') %></label>
+          <input type="text" name="mothername" id="mothername" value="<%= soldier.mothername || '' %>">
+        </div>
+        
+        <div class="input-group">
+          <label for="mothernameen"><%= __('fields.mothernameen') %></label>
+          <input type="text" name="mothernameen" id="mothernameen" value="<%= soldier.mothernameen || '' %>">
+        </div>
+        <div class="input-group">
+         <label for="mothernameru"><%= __('fields.mothernameru') %></label>
+          <input type="text" name="mothernameru" id="mothernameru" value="<%= soldier.mothernameru || '' %>">
+        </div>
+      </div>
+      
+       <div class="trio-row">
+        <div class="input-group">
+          <label for="calledby"><%= __('fields.calledby') %></label>
+          <input type="text" name="calledby" id="calledby" value="<%= soldier.calledby || '' %>">
+        </div>
+        <div class="input-group">
+         <label for="calledbyen"><%= __('fields.calledbyen') %></label>
+          <input type="text" name="calledbyen" id="calledbyen" value="<%= soldier.calledbyen || '' %>">
+        </div>
+        
+        <div class="input-group">
+          <label for="calledbyru"><%= __('fields.calledbyru') %></label>
+          <input type="text" name="calledbyru" id="calledbyru" value="<%= soldier.calledbyru || '' %>">
+        </div>
+       </div>
+        </fieldset>
+
+      <fieldset>
+         <legend><%= __('sections.birthdeath') %></legend>
+        <label for="birthcountry"><%= __('fields.birthcountry') %></label>
+        <select name="birthcountry" id="birthcountry">
+          <option value=""><%= __('fields.birthcountry') %></option>
+          <% countries.forEach(c => { %>
+            <option value="<%= c.title %>" <%= c.title === soldier.birthcountry ? 'selected' : '' %>><%= c.title %></option>
+          <% }) %>
+        </select>
+
+        <label for="otherbirthcountry"><%= __('fields.otherbirthcountry') %></label>
+        <input type="text" name="otherbirthcountry" id="otherbirthcountry" value="<%= soldier.otherbirthcountry || '' %>">
+        <div class="trio-row">
+          <div class="input-group">
+            <label for="birthcity"><%= __('fields.birthcity') %></label>
+            <input type="text" name="birthcity" id="birthcity" value="<%= soldier.birthcity || '' %>">
+          </div>
+          <div class="input-group">
+            <label for="birthcityen"><%= __('fields.birthcityen') %></label>
+            <input type="text" name="birthcityen" id="birthcityen" value="<%= soldier.birthcityen || '' %>">
+          </div>
+          <div class="input-group">
+            <label for="birthcityru"><%= __('fields.birthcityru') %></label>
+            <input type="text" name="birthcityru" id="birthcityru" value="<%= soldier.birthcityru || '' %>">
+          </div>
+        </div>
+      
+        <label for="gender"><%= __('fields.gender') %></label>
+        <input type="text" name="gender" id="gender" value="<%= soldier.gender || '' %>">
+     
+
+        <div class="trio-row">
+          <div class="input-group">
+        
+            <label for="placeofdeath"><%= __('fields.placeofdeath') %></label>
+            <input type="text" name="placeofdeath" id="placeofdeath" value="<%= soldier.placeofdeath || '' %>">
+          </div>
+        <div class="input-group">
+          <label for="placeofdeathen"><%= __('fields.placeofdeathen') %></label>
+          <input type="text" name="placeofdeathen" id="placeofdeathen" value="<%= soldier.placeofdeathen || '' %>">
+        </div>
+        
+        <div class="input-group">
+        <label for="placeofdeathru"><%= __('fields.placeofdeathru') %></label>
+        <input type="text" name="placeofdeathru" id="placeofdeathru" value="<%= soldier.placeofdeathru || '' %>">
+        </div>
+        </div>
+      
+        <div class="trio-row">
+          <div class="input-group">
+          <label for="deathdetails"><%= __('fields.deathdetails') %></label>
+          <textarea name="deathdetails" id="deathdetails"><%= soldier.deathdetails || '' %></textarea>
+          </div>
+        <div class="input-group">
+        <label for="deathdetailsen"><%= __('fields.deathdetailsen') %></label>
+        <textarea name="deathdetailsen" id="deathdetailsen"><%= soldier.deathdetailsen || '' %></textarea>
+        </div>
+      <div class="input-group">
+        <label for="deathdetailsru"><%= __('fields.deathdetailsru') %></label>
+        <textarea name="deathdetailsru" id="deathdetailsru"><%= soldier.deathdetailsru || '' %></textarea>
+        </div>
+      </div>
+      </fieldset>
+
+      <fieldset>
+         <legend><%= __('sections.bio') %></legend>
+         <div class="trio-row">
+          <div class="input-group">
+            <label for="biography"><%= __('fields.biography') %></label>
+            <textarea name="biography" id="biography"><%= soldier.biography || '' %></textarea>
+          </div>
+          <div class="input-group">
+            <label for="biographyen"><%= __('fields.biographyen') %></label>
+            <textarea name="biographyen" id="biographyen"><%= soldier.biographyen || '' %></textarea>
+          </div>
+         
+          <div class="input-group">
+            <label for="biographyru"><%= __('fields.biographyru') %></label>
+            <textarea name="biographyru" id="biographyru"><%= soldier.biographyru || '' %></textarea>
+          </div>
+         </div>
+         <label for="otherparticipation"><%= __('fields.otherparticipation') %></label>
+          <input type="text" name="otherparticipation" id="otherparticipation" value="<%= soldier.otherparticipation || '' %>">
+         
+          <div class="trio-row">
+          <div class="input-group">
+           
+            <label for="otherdecoration"><%= __('fields.otherdecoration') %></label>
+            <input type="text" name="otherdecoration" id="otherdecoration" value="<%= soldier.otherdecoration || '' %>">
+          </div>
+          <div class="input-group">
+            <label for="otherdecorationen"><%= __('fields.otherdecorationen') %></label>
+            <input type="text" name="otherdecorationen" id="otherdecorationen" value="<%= soldier.otherdecorationen || '' %>">
+          </div> 
+          <div class="input-group"> 
+            <label for="otherdecorationru"><%= __('fields.otherdecorationru') %></label>
+            <input type="text" name="otherdecorationru" id="otherdecorationru" value="<%= soldier.otherdecorationru || '' %>">
+          </div>
+         </div>
+          
+        <div class="trio-row">
+          <div class="input-group">
+            <label for="fightingdesc"><%= __('fields.fightingdesc') %></label>
+            <textarea name="fightingdesc" id="fightingdesc"><%= soldier.fightingdesc || '' %></textarea>
+          </div>
+         
+          <div class="input-group">
+            <label for="fightingdescen"><%= __('fields.fightingdescen') %></label>
+            <textarea name="fightingdescen" id="fightingdescen"><%= soldier.fightingdescen || '' %></textarea>
+          </div>
+          
+          <div class="input-group">
+            <label for="fightingdescru"><%= __('fields.fightingdescru') %></label>
+            <textarea name="fightingdescru" id="fightingdescru"><%= soldier.fightingdescru || '' %></textarea>
+          </div>
+        </div>
+      
+          </fieldset>
+
+      <!--<fieldset>
+        <legend>IDF Service</legend>
+        <label for="idf_otherforce"><%= __('fields.idf_otherforce') %></label>
+        <input type="text" name="idf_otherforce" id="idf_otherforce" value="<%= soldier.idf_otherforce || '' %>">
+
+        <label for="idf_otherrank"><%= __('fields.idf_otherrank') %></label>
+
+        <label for="idf_desc"><%= __('fields.idf_desc') %></label>
+        <textarea name="idf_desc" id="idf_desc"><%= soldier.idf_desc || '' %></textarea>
+
+        <label for="idf_descen"><%= __('fields.idf_descen') %></label>
+        <textarea name="idf_descen" id="idf_descen"><%= soldier.idf_descen || '' %></textarea>
+
+        <label for="idf_descru"><%= __('fields.idf_descru') %></label>
+        <textarea name="idf_descru" id="idf_descru"><%= soldier.idf_descru || '' %></textarea>
+
+        <label for="idf_serviceplace"><%= __('fields.idf_serviceplace') %></label>
+        <input type="text" name="idf_serviceplace" id="idf_serviceplace" value="<%= soldier.idf_serviceplace || '' %>">
+
+        <label for="idf_platoonname"><%= __('fields.idf_platoonname') %></label>
+        <input type="text" name="idf_platoonname" id="idf_platoonname" value="<%= soldier.idf_platoonname || '' %>">
+      </fieldset>-->
+
+      <fieldset>
+        <legend><%= __('sections.datesmedals') %></legend>
+
+         <%
+  // Block for Date of Birth (dob)
+  const dob = soldier.dob;
+  let formattedDate = '';
+  if (dob) {
+    const year = dob.getFullYear(); // CORRECT: use 'dob'
+    const month = String(dob.getMonth() + 1).padStart(2, '0');
+    const day = String(dob.getDate()).padStart(2, '0');
+    formattedDate = `${year}-${month}-${day}`;
+  }
+%>
+<label for="dob"><%= __('fields.dob') %></label>
+<input type="date" name="dob" id="dob" value="<%= formattedDate %>">
+
+<%
+  // Block for Date of Death (dod)
+  const dod = soldier.dod;
+  let formattedDod = ''; // Note: The variable name was formattedDOD but you used formattedDod later. Using lowercase 'd' for consistency.
+  if (dod) {
+    // ERROR: You're using 'date' and the variable formattedDod is not being used
+    const year = dod.getFullYear(); // CORRECT: use 'dod'
+    const month = String(dod.getMonth() + 1).padStart(2, '0');
+    const day = String(dod.getDate()).padStart(2, '0');
+    formattedDod = `${year}-${month}-${day}`;
+  }
+%>
+<label for="dod"><%= __('fields.dod') %></label>
+<input type="date" name="dod" id="dod" value="<%= formattedDod %>">
+
+        <!--<label for="aliyadate"><%= __('fields.aliyadate') %></label>
+       <input type="date" name="aliyadate" id="aliyadate" value="<%= soldier.aliyadate ? soldier.aliyadate.toISOString().substring(0, 10) : '' %>">-->
+       
+
+      
+
+        <!--<label for="idf_enlistdate"><%= __('fields.idf_enlistdate') %></label>
+        <input type="date" name="idf_enlistdate" id="idf_enlistdate" value="<%= soldier.idf_enlistdate ? soldier.idf_enlistdate.toISOString().substring(0, 10) : '' %>">
+
+        <label for="idf_releasedate"><%= __('fields.idf_releasedate') %></label>
+        <input type="date" name="idf_releasedate" id="idf_releasedate" value="<%= soldier.idf_releasedate ? soldier.idf_releasedate.toISOString().substring(0, 10) : '' %>">-->
+     
+`   <div class="trio-row">
+    <!-- Medal HE -->
+    <div class="input-group">
+    <label for="medal"><%= __('fields.medal') %>:</label>
+    <select name="medal" id="medal">
+      <option value=""><%= __('select') %></option>
+      <% medals.forEach(m => { %>
+        <option value="<%= m.title %>" <%= m.title === soldier.medal ? 'selected' : '' %>><%= m.title %></option>
+      <% }); %>
+    </select>
+    <br>
+    <label for="other_medal"><%= __('fields.other_medal') %></label>
+    <input type="text" name="other_medal" id="other_medal" value="<%= soldier.other_medal || '' %>">
+  </div>
+
+  <!-- Medal EN -->
+  <div class="input-group">
+    <label for="medalen"><%= __('fields.medalen') %>:</label>
+    <select name="medalen" id="medalen">
+      <option value=""><%= __('select') %></option>
+      <% medals.forEach(m => { %>
+        <option value="<%= m.title %>" <%= m.title === soldier.medalen ? 'selected' : '' %>><%= m.title %></option>
+      <% }); %>
+    </select>
+    <br>
+    <label for="other_medalen"><%= __('fields.other_medalen') %></label>
+    <input type="text" name="other_medalen" id="other_medalen" value="<%= soldier.other_medalen || '' %>">
+  </div>
+
+  <!-- Medal RU -->
+  <div class="input-group">
+    <label for="medalru"><%= __('fields.medalru') %>:</label>
+    <select name="medalru" id="medalru">
+      <option value=""><%= __('select') %></option>
+      <% medals.forEach(m => { %>
+        <option value="<%= m.title %>" <%= m.title === soldier.medalru ? 'selected' : '' %>><%= m.title %></option>
+      <% }); %>
+    </select>
+    <br>
+    <label for="other_medalru"><%= __('fields.other_medalru') %></label>
+    <input type="text" name="other_medalru" id="other_medalru" value="<%= soldier.other_medalru || '' %>">
+  </div>
+</div>
+
+    </fieldset>
+      <fieldset>
+     <legend><%= __('sections.urlnotes') %></legend>
+
+        <label for="remarks"><%= __('fields.remarks') %></label>
+        <textarea name="remarks" id="remarks"><%= soldier.remarks || '' %></textarea>
+
+        <label for="remarksen"><%= __('fields.remarksen') %></label>
+        <textarea name="remarksen" id="remarksen"><%= soldier.remarksen || '' %></textarea>
+
+        <label for="remarksru"><%= __('fields.remarksru') %></label>
+        <textarea name="remarksru" id="remarksru"><%= soldier.remarksru || '' %></textarea>
+        <h2><%= __('sections.battleHistory') %></h2>
+<!-- Battle History Section -->
+<div class="form-section">
+    <h3>Battle History</h3>
+
+    <div id="battle-history-container">
+        <% if (battleHistory && battleHistory.length > 0) { %>
+            <% battleHistory.forEach((bh, index) => { %>
+                <div class="battle-block">
+                    <input type="hidden" name="battle_id[]" value="<%= bh.id %>">
+
+                    <div class="trio-row">
+                        <label>Year</label>
+                        <input type="number" name="battleyear[]" value="<%= bh.battleyear || '' %>">
+                    </div>
+
+                    <div class="trio-row">
+                        <label>Front (IL)</label>
+                        <input type="text" name="front[]" value="<%= bh.front || '' %>">
+                        <label>Front (EN)</label>
+                        <input type="text" name="fronten[]" value="<%= bh.fronten || '' %>">
+                        <label>Front (RU)</label>
+                        <input type="text" name="frontru[]" value="<%= bh.frontru || '' %>">
+                    </div>
+
+                    <div class="trio-row">
+                        <label>Battle (IL)</label>
+                        <input type="text" name="battle[]" value="<%= bh.battle || '' %>">
+                        <label>Battle (EN)</label>
+                        <input type="text" name="battleen[]" value="<%= bh.battleen || '' %>">
+                        <label>Battle (RU)</label>
+                        <input type="text" name="battleru[]" value="<%= bh.battleru || '' %>">
+                    </div>
+
+                    <div class="trio-row">
+                        <label>Medal (IL)</label>
+                        <input type="text" name="battle_medal[]" value="<%= bh.medal || '' %>">
+                        <label>Medal (EN)</label>
+                        <input type="text" name="medal_en[]" value="<%= bh.medalen || '' %>">
+                        <label>Medal (RU)</label>
+                        <input type="text" name="medal_ru[]" value="<%= bh.medalru || '' %>">
+                    </div>
+
+                    <div class="trio-row">
+                        <label>Details (IL)</label>
+                        <input type="text" name="battle_details[]" value="<%= bh.details || '' %>">
+                        <label>Details (EN)</label>
+                        <input type="text" name="detailsen[]" value="<%= bh.detailsen || '' %>">
+                        <label>Details (RU)</label>
+                        <input type="text" name="detailsru[]" value="<%= bh.detailsru || '' %>">
+                    </div>
+
+                    <div class="trio-row">
+                        <label>Rank (IL)</label>
+                        <input type="text" name="degreerank[]" value="<%= bh.degreerank || '' %>">
+                        <label>Rank (EN)</label>
+                        <input type="text" name="ranken[]" value="<%= bh.degreeranken || '' %>">
+                        <label>Rank (RU)</label>
+                        <input type="text" name="rankru[]" value="<%= bh.degreerankru || '' %>">
+                    </div>
+
+                    <div class="trio-row">
+                        <label>Job (IL)</label>
+                        <input type="text" name="jobbattle[]" value="<%= bh.job || '' %>">
+                        <label>Job (EN)</label>
+                        <input type="text" name="joben[]" value="<%= bh.joben || '' %>">
+                        <label>Job (RU)</label>
+                        <input type="text" name="jobru[]" value="<%= bh.jobru || '' %>">
+                    </div>
+
+                    <div class="delete-checkbox">
+                        <label>
+                            <input type="checkbox" name="delete_battle[]" value="<%= bh.id %>"> Delete this battle
+                        </label>
+                    </div>
+                    <hr>
+                </div>
+            <% }) %>
+        <% } %>
+    </div>
+
+    <div>
+        <a class="add-battle-btn" onclick="addBattleBlock()">+ Add Battle</a>
+    </div>
+</div>
+
+<script>
+function addBattleBlock() {
+    const container = document.getElementById('battle-history-container');
+    const index = container.children.length;
+
+    const block = document.createElement('div');
+    block.classList.add('battle-block');
+
+    block.innerHTML = `
+        <div class="trio-row">
+            <label>Year</label>
+            <input type="number" name="battleyear[]">
+        </div>
+
+        <div class="trio-row">
+            <label>Front (IL)</label>
+            <input type="text" name="front[]">
+            <label>Front (EN)</label>
+            <input type="text" name="fronten[]">
+            <label>Front (RU)</label>
+            <input type="text" name="frontru[]">
+        </div>
+
+        <div class="trio-row">
+            <label>Battle (IL)</label>
+            <input type="text" name="battle[]">
+            <label>Battle (EN)</label>
+            <input type="text" name="battleen[]">
+            <label>Battle (RU)</label>
+            <input type="text" name="battleru[]">
+        </div>
+
+        <div class="trio-row">
+            <label>Medal (IL)</label>
+            <input type="text" name="battle_medal[]">
+            <label>Medal (EN)</label>
+            <input type="text" name="medal_en[]">
+            <label>Medal (RU)</label>
+            <input type="text" name="medal_ru[]">
+        </div>
+
+        <div class="trio-row">
+            <label>Details (IL)</label>
+            <input type="text" name="battle_details[]">
+            <label>Details (EN)</label>
+            <input type="text" name="detailsen[]">
+            <label>Details (RU)</label>
+            <input type="text" name="detailsru[]">
+        </div>
+
+        <div class="trio-row">
+            <label>Rank (IL)</label>
+            <input type="text" name="degreerank[]">
+            <label>Rank (EN)</label>
+            <input type="text" name="ranken[]">
+            <label>Rank (RU)</label>
+            <input type="text" name="rankru[]">
+        </div>
+
+        <div class="trio-row">
+            <label>Job (IL)</label>
+            <input type="text" name="jobbattle[]">
+            <label>Job (EN)</label>
+            <input type="text" name="joben[]">
+            <label>Job (RU)</label>
+            <input type="text" name="jobru[]">
+        </div>
+
+        <div class="delete-checkbox">
+            <label>
+                <input type="checkbox" name="delete_battle[]" value=""> Delete this battle
+            </label>
+        </div>
+        <hr>
+    `;
+
+    container.appendChild(block);
+}
+</script>
+
+
+        <label for="linkurl"><%= __('fields.linkurl') %></label>
+        <input type="url" name="linkurl" id="linkurl" value="<%= soldier.linkurl || '' %>">
+      </fieldset>
+      <!--<fieldset>
+        <legend><%= __('sections.uploads') || 'Upload Files' %></legend>
+        <label for="files"><%= __('form.upload_files') || 'Upload supporting files (images, documents, etc)' %></label>
+        <input type="file" id="files" name="files" multiple />
+      </fieldset>-->
+      <fieldset>
+  <legend><%= __('sections.uploads') %></legend>
+
+  <label class="file-upload-label">
+    <%= __('form.upload_files') %>
+  </label>
+
+  <div class="custom-file-input">
+    <!-- Hide the default file input UI -->
+    <input type="file" id="files" name="files" multiple onchange="updateFileName()" hidden />
+    
+    <!-- This button triggers the hidden input -->
+    <button type="button" onclick="document.getElementById('files').click()">
+      <%= __('form.select_files') %>
+    </button>
+
+    <!-- This shows the selected filenames or 'No files chosen' -->
+    <span id="file-label"><%= __('form.no_file_chosen') %></span>
+  </div>
+  </fieldset>
+
+      <div>
+  <label>
+    <input type="checkbox" name="admin_ready_for_download" value="true" <%= soldier && soldier.admin_ready_for_download ? 'checked disabled' : '' %> />
+    <%= __('form.admin_complete') %>
+ 
+</div>
+  
+
+  <div class="form-actions">
+    <button type="submit"><%= __('buttons.update') %></button>
+    <!--<a href="/index"><%= __('buttons.backToList') %></a>-->
+
+      </div>
+    </form>
+  </div>
+  <script>
+  function updateFileName() {
+    const input = document.getElementById('files');
+    const label = document.getElementById('file-label');
+    if (input.files.length > 0) {
+      const names = Array.from(input.files).map(f => f.name).join(', ');
+      label.textContent = names;
+      console.log('Selected files:', names);  // for debugging
+    } else {
+      //label.textContent = '<%= __('form.no_file_chosen') %>';
+      console.log('No files chosen');
+    }
+  }
+</script>
+<script>
+function addBattleBlock() {
+    const container = document.getElementById('battle-history-container');
+    const index = container.children.length;
+
+    const block = document.createElement('div');
+    block.classList.add('battle-block');
+
+    block.innerHTML = `
+        <div class="trio-row">
+            <label>Year</label>
+            <input type="number" name="battleyear[]">
+        </div>
+
+        <div class="trio-row">
+            <label>Front (IL)</label>
+            <input type="text" name="front[]">
+            <label>Front (EN)</label>
+            <input type="text" name="fronten[]">
+            <label>Front (RU)</label>
+            <input type="text" name="frontru[]">
+        </div>
+
+        <div class="trio-row">
+            <label>Battle (IL)</label>
+            <input type="text" name="battle[]">
+            <label>Battle (EN)</label>
+            <input type="text" name="battleen[]">
+            <label>Battle (RU)</label>
+            <input type="text" name="battleru[]">
+        </div>
+
+        <div class="trio-row">
+            <label>Medal (IL)</label>
+            <input type="text" name="battle_medal[]">
+            <label>Medal (EN)</label>
+            <input type="text" name="medal_en[]">
+            <label>Medal (RU)</label>
+            <input type="text" name="medal_ru[]">
+        </div>
+
+        <div class="trio-row">
+            <label>Details (IL)</label>
+            <input type="text" name="battle_details[]">
+            <label>Details (EN)</label>
+            <input type="text" name="detailsen[]">
+            <label>Details (RU)</label>
+            <input type="text" name="detailsru[]">
+        </div>
+
+        <div class="trio-row">
+            <label>Rank (IL)</label>
+            <input type="text" name="degreerank[]">
+            <label>Rank (EN)</label>
+            <input type="text" name="ranken[]">
+            <label>Rank (RU)</label>
+            <input type="text" name="rankru[]">
+        </div>
+
+        <div class="trio-row">
+            <label>Job (IL)</label>
+            <input type="text" name="jobbattle[]">
+            <label>Job (EN)</label>
+            <input type="text" name="joben[]">
+            <label>Job (RU)</label>
+            <input type="text" name="jobru[]">
+        </div>
+
+        <div class="delete-checkbox">
+            <label>
+                <input type="checkbox" name="delete_battle[]" value=""> Delete this battle
+            </label>
+        </div>
+        <hr>
+    `;
+
+    container.appendChild(block);
+}
+</script>
+
+</body>
+</html>

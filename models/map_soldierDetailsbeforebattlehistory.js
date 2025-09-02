@@ -351,27 +351,12 @@ const SoldierDetails = db.define('map_soldierdetails', {
   linkurl: {
     type: Sequelize.TEXT
   },
-  tablebreaker4: {
-    type: Sequelize.TEXT
-  },
-  category: {
-    type: Sequelize.TEXT
-  },
-  army:{
-    type: Sequelize.TEXT
-  },
-  resistance: {
-    type: Sequelize.TEXT
-  },
-  partizan: {
-    type: Sequelize.TEXT
-  },
-  participation: {
-    type: Sequelize.TEXT
-  },
-  corps: {
-    type: Sequelize.TEXT
-  },
+ // tablebreaker4: {
+  //  type: Sequelize.TEXT
+  //},
+  //corps: {
+    //type: Sequelize.TEXT
+  //},
   useremail:{
     email:Sequelize.TEXT
   },
@@ -404,12 +389,12 @@ const SoldierDetails = db.define('map_soldierdetails', {
   other_medalru:{
     type: Sequelize.TEXT
   },
-  addbattle: {
-    type: Sequelize.BOOLEAN,
-    defaultValue: false
+  tablebreaker4: {
+    type: Sequelize.TEXT
   },
-
- 
+  corps: {
+    type: Sequelize.TEXT
+  },
 }, {
   timestamps: false
 });

@@ -44,10 +44,13 @@
     "military": "שירות צבאי",
     "family": "משפחה",
     "birthdeath": "מידע על לידה ופטירה",
-    "finalnotes": "הערות סופיות",
+    "urlnotes": "פרטי כתובת האתר",
     "uploads": "העלאות קבצים",
     "datesmedals": "תאריכים ועיטורים",
-    "files": "קבצים"
+    "files": "קבצים",
+     "addAnotherBattle": "הוסף קרב נוסף",
+     "battleHistory": "היסטוריית קרבות"
+
   
 },
 
@@ -116,6 +119,9 @@
      "remarks": "הערות (IL)",
     "remarksen": "הערות (EN)",
     "remarksru": "הערות (RU)",
+    "urltitle": "כתובת קישור (IL)",
+    "urltitleen": "כתובת קישור (EN)",
+    "urltitleru": "כתובת קישור (RU)",
     "linkurl": "קישור",
     "useremail":"האימייל שלך",
     "basic": "פרטים בסיסיים",
@@ -134,10 +140,10 @@
     "other_medalru": "עיטור אחר (RU)",
     "category": "קטגוריה",
     "army": "צבא",
-    "resistance": "התנגדות",
+    "resistance": "מחתרת",
     "partizan": "פרטיזן",
     "participation": "השתתפות",
-    "corps": "חיל",
+    "corps": "שיוך חיל",
     "shortdesc":"תיאור קצר",
     "armyrole": "תפקיד",
     "armyroleen": "תפקיד (EN)",
@@ -146,7 +152,51 @@
     "releasereason": "סיבת שחרור",
     "releasereasonen": "סיבת שחרור (EN)",
     "releasereasonru":"סיבת שחרור (RU)",
-    "armyid": "מ.א."
+    "armyid": "מ.א.",
+    
+    "battleHistory": "היסטוריית קרבות",
+    "year": "שנה (IL)",
+    "yearen": "שנה  (EN)",
+    "yearru": "שנה (RU)",
+
+    "front": "חזית (IL)",
+    "fronten": "חזית  (EN)",
+    "frontru": "חזית  (RU)",
+
+    "battle": "קרב (IL)",
+    "battleen": "קרב  (EN)",
+    "battleru": "קרב  (RU)",
+
+    "details": "פרטים (IL)",
+    "detailsen": "פרטים  (EN)",
+    "detailsru": "פרטים  (RU)",
+
+    "job": "תפקיד (IL)",
+    "joben": "תפקיד (EN)",
+    "jobru": "תפקיד (RU)",
+
+    "degreerank": "דרגה (IL)",
+    "degreeranken": "דרגה (EN)",
+    "degreerankru": "דרגה (RU)",
+
+     "platoonname": "יחידה (IL)",
+    "platoonnameen": "יחידה (EN)",
+    "platoonnameru": "יחידה (RU)",
+    "wounddetails": "פרטי פציעה (IL)",
+    "wounddetailsen": "פרטי פציעה (EN)",
+    "wounddetailsru": "פרטי פציעה (RU)",
+
+     "gettodesc": "תיאור גטו (IL)",
+    "gettodescen": "תיאור גטו (EN)",
+    "gettodescru": "תיאור גטו (RU)",
+
+    "otherfightingcontext": "הקשר לחימה אחר",
+    "title":"כותרת (IL)",
+    "titleen":"כותרת (EN)",
+    "titleru":"כותרת (RU)"
+   
+
+
   
 
   },

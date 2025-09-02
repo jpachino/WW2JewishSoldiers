@@ -1,0 +1,51 @@
+<!DOCTYPE html>
+<html lang="<%= locale %>">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title><%= __('nav.title_battles') %></title>
+  <link rel="stylesheet" href="/styles/styles.css" />
+  <style>
+    .info-box { background-color: #f8f9fa; border-left: 6px solid #007bff; padding: 20px; margin: 20px auto; max-width: 800px; border-radius: 6px; font-family: Arial, sans-serif; line-height: 1.6; color: #333; }
+    form { max-width: 1000px; margin: 0 auto; }
+    fieldset { margin-top: 25px; border-radius: 6px; padding: 15px; border: 1px solid #ccc; }
+    .trio-row { display: flex; gap: 10px; margin-bottom: 10px; }
+    .trio-row .input-group { flex: 1; display: flex; flex-direction: column; }
+    .single-row { margin-bottom: 10px; display: flex; flex-direction: column; }
+    textarea { resize: vertical; }
+  </style>
+ <div class="container mt-4">
+  <h2>Add Battle History for <%= soldier.name %></h2>
+  
+  <form action="/soldiers/<%= soldier.id %>/history/add" method="POST">
+    
+    <div class="mb-3">
+      <label for="year" class="form-label">Year</label>
+      <input type="number" name="year" id="year" class="form-control" placeholder="e.g., 1942" required>
+    </div>
+    
+    <div class="mb-3">
+      <label for="front" class="form-label">Front</label>
+      <input type="text" name="front" id="front" class="form-control" placeholder="e.g., Eastern Front" required>
+    </div>
+    
+    <div class="mb-3">
+      <label for="battle" class="form-label">Battle</label>
+      <input type="text" name="battle" id="battle" class="form-control" placeholder="e.g., Battle of Stalingrad" required>
+    </div>
+    
+    <div class="mb-3">
+      <label for="medal" class="form-label">Medal</label>
+      <input type="text" name="medal" id="medal" class="form-control" placeholder="e.g., Medal of Honor">
+    </div>
+    
+    <div class="mb-3">
+      <label for="details" class="form-label">Details / Remarks</label>
+      <textarea name="details" id="details" class="form-control" rows="4" placeholder="Additional details..."></textarea>
+    </div>
+    
+    <button type="submit" class="btn btn-primary">Add History</button>
+    <a href="/soldiers/<%= soldier.id %>" class="btn btn-secondary">Cancel</a>
+    
+  </form>
+</div>

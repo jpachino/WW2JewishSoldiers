@@ -764,7 +764,10 @@ app.get('/updateSoldier/:id', async (req, res) => {
     }
     // Format all date fields to neutralize timezone shifts
     
+    console.log (soldier.dob, "dob");
+
     
+    console.log(soldier.dod , "dod")
     //soldier.aliyadate = formatDate(soldier.aliyadate);
     //soldier.idf_enlistdate = formatDate(soldier.idf_enlistdate);
     //soldier.idf_releasedate = formatDate(soldier.idf_releasedate);
@@ -784,7 +787,7 @@ app.get('/updateSoldier/:id', async (req, res) => {
    
     
     // Fetch existing battles for this soldier
-    const battleHistory = await db.any('SELECT * FROM "soldier_battle_history" WHERE soldier_id = $1 ORDER BY id', [id]);
+    const battleHistory = await db.any('SELECT * FROM "soldier_battle_history" WHERE soldier_id = $1 ORDER BY battleyear', [id]);
     
     // Render the template passing soldier and countries
     res.render('updateSoldier', { soldier, 
@@ -796,9 +799,12 @@ app.get('/updateSoldier/:id', async (req, res) => {
       resistance, 
       partizan, 
       participation, 
-      battleHistory: battleHistory || [], 
+      battleHistory, 
       // Pass the existing battles to the template
    
+
+     
+
      });
   } catch (err) {
     console.error('Error rendering update form:', err);
@@ -859,28 +865,11 @@ app.post('/updateSoldier/:id', upload.array('files'), async (req, res) => {
             placeofdeath: req.body.placeofdeath, placeofdeathen: req.body.placeofdeathen, placeofdeathru: req.body.placeofdeathru,
             deathdetails: req.body.deathdetails, deathdetailsen: req.body.deathdetailsen, deathdetailsru: req.body.deathdetailsru,
             biography: req.body.biography, biographyen: req.body.biographyen, biographyru: req.body.biographyru,
-            otherparticipation: req.body.otherparticipation,
-            otherdecoration: req.body.otherdecoration, otherdecorationen: req.body.otherdecorationen, otherdecorationru: req.body.otherdecorationru,
-            fightingdesc: req.body.fightingdesc, fightingdescen: req.body.fightingdescen, fightingdescru: req.body.fightingdescru,
             dob: req.body.dob, dod: req.body.dod,
             shortdesc: req.body.shortdesc,
-            armyrole: req.body.armyrole, armyroleen: req.body.armyroleen, armyroleru: req.body.armyroleru,
-            releasereason: req.body.releasereason, releasereasonen: req.body.releasereasonen, releasereasonru: req.body.releasereasonru,
-            enlistreason: req.body.enlistreason,
-            platoonname: req.body.platoonname, platoonnameen: req.body.platoonnameen, platoonnameru: req.body.platoonnameru,
-            wounddetails: req.body.wounddetails, wounddetailsen: req.body.wounddetailsen, wounddetailsru: req.body.wounddetailsru,
-            gettodesc: req.body.gettodesc, gettodescen: req.body.gettodescen, gettodescru: req.body.gettodescru,
-            otherfightingcontext: req.body.otherfightingcontext,
-            armyid: req.body.armyid,
-            title: req.body.title, titleen: req.body.titleen, titleru: req.body.titleru,
-            remarks2: req.body.remarks2, remarksen2: req.body.remarksen2, remarksru2: req.body.remarksru2,
-            linkurl: req.body.linkurl,
             remarks: req.body.remarks, remarksen: req.body.remarksen, remarksru: req.body.remarksru,
             recordcomplete,
-            record_complete_date,
-            other_medal: req.body.other_medal,
-            other_medalen: req.body.other_medalen,
-            other_medalru: req.body.other_medalru
+            record_complete_date
         };
 
         // Build dynamic update query for soldier details
@@ -997,8 +986,7 @@ app.post('/updateSoldier/:id', upload.array('files'), async (req, res) => {
             }
         });
 
-        res.redirect ('/');
-        //res.redirect(`/updateSoldier/${id}?saved=true`);
+        res.redirect(`/updateSoldier/${id}?saved=true`);
     } catch (error) {
         console.error('Error updating soldier:', error);
         res.status(500).send(`
@@ -1042,7 +1030,7 @@ app.get('/adminUpdateSoldier/:id', async (req, res) => {
       [id]
     );
 
-    // Render the template passing soldier, countries, battleHistory
+    // Pass battleHistory to the template
     res.render('adminUpdate', {
       soldier,
       countries,
@@ -1062,354 +1050,7 @@ app.get('/adminUpdateSoldier/:id', async (req, res) => {
   }
 });
 
-app.post('/adminUpdateSoldier/:id', upload.array('files'), async (req, res) => {
-  console.log('Update Admin Update route hit:', req.params.id);
-  const { id } = req.params;
-  const adminemail = req.body.adminemail || req.query.adminemail;
 
-  try {
-    const existingSoldier = await db.oneOrNone(`SELECT * FROM ${SOLDIER_TABLE} WHERE id = $1`, [id]);
-    if (!existingSoldier) {
-      return res.status(404).send('Soldier not found');
-    }
-     // Extract all battle-related arrays and IDs for update logic
-        const {
-            battleId = [],
-            battleyear = [] || [],
-            front = [], fronten = [], frontru = [],
-            battle = [], battleen = [], battleru = [],
-            battle_medal = [], battle_medalen = [], battle_medalru = [],
-            battle_details = [], battle_detailsen = [], battle_detailsru = [],
-            degreerank = [], degreeranken = [], degreerankru = [],
-            job = [], joben = [], jobru = []
-        } = req.body;
-
-    const admin_ready_for_download = Array.isArray(req.body.admin_ready_for_download)
-      ? req.body.admin_ready_for_download.includes('true') || req.body.admin_ready_for_download.includes('on')
-      : req.body.admin_ready_for_download === 'true' || req.body.admin_ready_for_download === 'on';
-
-    let admin_approved_date = existingSoldier.admin_approved_date;
-    let record_complete_date = existingSoldier.record_complete_date;
-    let downloaded_date = existingSoldier.downloaded_date;
-
-    //if (admin_ready_for_download && !existingSoldier.admin_ready_for_download) {
-     // admin_approved_date = new Date();
-    //} else if (!admin_ready_for_download) {
-    //  admin_approved_date = null;
-    //}
-if ('admin_ready_for_download' in req.body) {
-  if (admin_ready_for_download && !existingSoldier.admin_ready_for_download) {
-    admin_approved_date = new Date();
-  } else if (!admin_ready_for_download && existingSoldier.admin_ready_for_download) {
-    admin_approved_date = null;
-  }
-}
-
-    if (!existingSoldier.record_complete_date && req.body.recordcomplete) {
-      record_complete_date = new Date();
-    }
-
-    if (req.body.downloaded_date) {
-      downloaded_date = new Date(req.body.downloaded_date);
-    }
-
-
-    const inputData = {
-      fname: req.body.fname, fnameen: req.body.fnameen, fnameru: req.body.fnameru,
-      lname: req.body.lname, lnameen: req.body.lnameen, lnameru: req.body.lnameru,
-      previouslname: req.body.previouslname, previouslnameen: req.body.previouslnameen, previouslnameru: req.body.previouslnameru,
-      fathername: req.body.fathername, fathernameen: req.body.fathernameen, fathernameru: req.body.fathernameru,
-      mothername: req.body.mothername, mothernameen: req.body.mothernameen, mothernameru: req.body.mothernameru,
-      calledby: req.body.calledby, calledbyen: req.body.calledbyen, calledbyru: req.body.calledbyru,
-      birthcountry: req.body.birthcountry, otherbirthcountry: req.body.otherbirthcountry,
-      birthcity: req.body.birthcity, birthcityen: req.body.birthcityen, birthcityru: req.body.birthcityru,
-      gender: req.body.gender,
-      placeofdeath: req.body.placeofdeath, placeofdeathen: req.body.placeofdeathen, placeofdeathru: req.body.placeofdeathru,
-      deathdetails: req.body.deathdetails, deathdetailsen: req.body.deathdetailsen, deathdetailsru: req.body.deathdetailsru,
-      biography: req.body.biography, biographyen: req.body.biographyen, biographyru: req.body.biographyru,
-      otherparticipation: req.body.otherparticipation,
-      otherdecoration: req.body.otherdecoration, otherdecorationen: req.body.otherdecorationen, otherdecorationru: req.body.otherdecorationru,
-      fightingdesc: req.body.fightingdesc, fightingdescen: req.body.fightingdescen, fightingdescru: req.body.fightingdescru,
-      //idf_otherforce: req.body.idf_otherforce, idf_otherrank: req.body.idf_otherrank,
-      //idf_desc: req.body.idf_desc, idf_descen: req.body.idf_descen, idf_descru: req.body.idf_descru,
-      //idf_serviceplace: req.body.idf_serviceplace, idf_platoonname: req.body.idf_platoonname,
-      shortdesc: req.body.shortdesc,
-      armyrole: req.body.armyrole, armyroleen: req.body.armyroleen, armyroleru: req.body.armyroleru,
-      releasereason: req.body.releasereason, releasereasonen: req.body.releasereasonen, releasereasonru: req.body.releasereasonru,
-      enlistreason: req.body.enlistreason,
-      platoonname: req.body.platoonname, platoonnameen: req.body.platoonnameen, platoonnameru: req.body.platoonnameru,
-      wounddetails: req.body.wounddetails, wounddetailsen: req.body.wounddetailsen, wounddetailsru: req.body.wounddetailsru,
-      gettodesc: req.body.gettodesc, gettodescen: req.body.gettodescen, gettodescru: req.body.gettodescru,
-      otherfightingcontext: req.body.otherfightingcontext,
-      armyid: req.body.armyid,
-      //datebreaker: req.body.datebreaker,
-      dob:req.body.dob, 
-      dod:req.body.dod, 
-      //aliyadate: req.body.aliyadate,
-      //idf_enlistdate: req.body.idf_enlistdate,
-      //idf_releasedate: req.body.idf_releasedate,
-      //idf_enlistdate, idf_releasedate,
-      //tablebreaker: req.body.tablebreaker,
-      //medal: req.body.medal, medalen: req.body.medalen, medalru: req.body.medalru,
-      //degree: req.body.degree, degreeen: req.body.degreeen, degreeru: req.body.degreeru,
-      //front: req.body.front, fronten: req.body.fronten, frontru: req.body.frontru,
-      //battle: req.body.battle, battleen: req.body.battleen, battleru: req.body.battleru,
-      //battleyear: req.body.battleyear,
-      //tablebreaker2: req.body.tablebreaker2,
-      //battleyear2: req.body.battleyear2,
-      //front2: req.body.front2, fronten2: req.body.fronten2, frontru2: req.body.frontru2,
-      //battle2: req.body.battle2, battleen2: req.body.battleen2, battleru2: req.body.battleru2,
-      //medal2: req.body.medal2, medalen2: req.body.medalen2, medalru2: req.body.medalru2,
-      //remarks: req.body.remarks, remarksen: req.body.remarksen, remarksru: req.body.remarksru,
-      //tablebreaker3: req.body.tablebreaker3,
-      title: req.body.title, titleen: req.body.titleen, titleru: req.body.titleru,
-      remarks2: req.body.remarks2, remarksen2: req.body.remarksen2, remarksru2: req.body.remarksru2,
-      linkurl: req.body.linkurl,
-      recordcomplete: existingSoldier.recordcomplete,
-      record_complete_date: existingSoldier.record_complete_date,
-      admin_ready_for_download: ('admin_ready_for_download' in req.body)
-      ? admin_ready_for_download
-      :   existingSoldier.admin_ready_for_download,
-      admin_approved_date: admin_approved_date,
-      downloaded_date: downloaded_date,
-      other_medal: req.body.other_medal,
-      other_medalen: req.body.other_medalen,
-      other_medalru: req.body.other_medalru
-     
-    };
-
-  const updates = [];
-  const values = [];
-  let i = 1;
-
-  // Normalize DATE fields to string for accurate comparison
-  const normalizeDate = val =>
-  val instanceof Date
-    ? val.toISOString().slice(0, 10)
-    : typeof val === 'string' && /^\d{4}-\d{2}-\d{2}$/.test(val)
-      ? val
-      : null;
-
-const dateFields = [
-  'dob', 'dod', 'aliyadate', 'idf_enlistdate', 'idf_releasedate', 
-  'record_complete_date', 'admin_approved_date', 'downloaded_date'
-];
-
-for (const key in inputData) {
-  let newValue = inputData[key] === '' ? null : inputData[key];
-  let oldValue = existingSoldier[key] === '' ? null : existingSoldier[key];
-
-  let same;
-  if (dateFields.includes(key)) {
-    same = normalizeDate(newValue) === normalizeDate(oldValue);
-  } else {
-    same = newValue == oldValue;
-  }
-
-  if (!same) {
-    console.log(`Field changed: ${key}, old: ${oldValue}, new: ${newValue}`);
-    updates.push(`"${key}" = $${i}`);
-    values.push(newValue);
-    i++;
-  }
-}
-await db.tx(async t => {
-            // ✅ Update soldier details only if needed
-            if (updates.length > 0) {
-                const updateSQL = `UPDATE ${SOLDIER_TABLE} SET ${updates.join(', ')} WHERE id = $${i}`;
-                values.push(id);
-                await t.none(updateSQL, values);
-                console.log(`Updated soldier ID ${id}`);
-            } else {
-                console.log(`No changes in soldier details for ID ${id}`);
-            }
-
-            // ✅ Update or Insert battle history without deleting existing ones
-            /*for (let j = 0; j < battleyear.length; j++) {
-                const hasContent =
-                    (battleyear[j] && battleyear[j].trim() !== '') ||
-                    (front[j] && front[j].trim() !== '') ||
-                    (battle[j] && battle[j].trim() !== '');
-
-                if (hasContent) {
-                    if (battleId[j]) {
-                        // ✅ Update existing battle record
-                        console.log ("update existing battle record")
-                        await t.none(
-                            `UPDATE soldier_battle_history
-                             SET battleyear=$1, 
-                                 front=$2, fronten=$3, frontru=$4,
-                                 battle=$5, battleen=$6, battleru=$7,
-                                 medal=$8, medalen=$9, medalru=$10,
-                                 details=$11, detailsen=$12, detailsru=$13,
-                                 degreerank=$14, degreeranken=$15, degreerankru=$16,
-                                 job=$17, joben=$18, jobru=$19,
-                                 updated_at=NOW()
-                             WHERE id=$20 AND soldier_id=$21`,
-                            [
-                                battleyear[j] || null, 
-                                front[j] || null, fronten[j] || null, frontru[j] || null,
-                                battle[j] || null, battleen[j] || null, battleru[j] || null,
-                                battle_medal[j] || null, battle_medalen[j] || null, battle_medalru[j] || null,
-                                battle_details[j] || null, battle_detailsen[j] || null, battle_detailsru[j] || null,
-                                degreerank[j] || null, degreeranken[j] || null, degreerankru[j] || null,
-                                job[j] || null, joben[j] || null, jobru[j] || null,
-                                battleId[j], id
-                            ]
-                        );
-                    } else {
-                        // ✅ Insert new battle record
-                        console.log ("inster new battle history")
-                        await t.none(
-                            `INSERT INTO soldier_battle_history (
-                                soldier_id, battleyear,
-                                front, fronten, frontru,
-                                battle, battleen, battleru,
-                                medal, medalen, medalru,
-                                details, detailsen, detailsru,
-                                degreerank, degreeranken, degreerankru,
-                                job, joben, jobru
-                             ) VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11,$12,$13,$14,$15,$16,$17,$18,$19,$20)`,
-                            [
-                                id,
-                                battleyear[j] || null, 
-                                front[j] || null, fronten[j] || null, frontru[j] || null,
-                                battle[j] || null, battleen[j] || null, battleru[j] || null,
-                                battle_medal[j] || null, battle_medalen[j] || null, battle_medalru[j] || null,
-                                battle_details[j] || null, battle_detailsen[j] || null, battle_detailsru[j] || null,
-                                degreerank[j] || null, degreeranken[j] || null, degreerankru[j] || null,
-                                job[j] || null, joben[j] || null, jobru[j] || null
-                            ]
-                        );
-                    }
-                }
-            }
-                
-    
-    if (updates.length === 0) {
-      console.log("No changes detected, skipping update.");
-      return res.redirect(`/admin/completedRecords?adminemail=${encodeURIComponent(adminemail)}`);
-
-    }
-
-    //const updateSQL = `UPDATE ${SOLDIER_TABLE} SET ${updates.join(', ')} WHERE id = $${i}`;
-    //values.push(id);
-
-    //await db.none(updateSQL, values);
-    console.log(`Successfully updated soldier with ID ${id}`);
-    if (req.files && req.files.length > 0) {
-      const fileInserts = req.files.map(file =>
-        db.none(
-          `INSERT INTO uploaded_files (soldier_id, original_name, file_path)
-           VALUES ($1, $2, $3)`,
-          [id, file.originalname, file.path]
-        )
-      );
-      await Promise.all(fileInserts);
-      console.log(`Stored ${req.files.length} uploaded files for soldier ID ${id}`);
-    }
-});
-    res.redirect(`/admin/completedRecords?adminemail=${encodeURIComponent(adminemail)}&saved=true`);
-    
-     //res.redirect('/?saved=true');
-
-  } catch (error) {
-    console.error('Error updating soldier:', error);
-    res.status(500).send(`
-      <h1>Error Updating Soldier</h1>
-      <p>Message: ${error.message}</p>
-      <pre>${error.stack || 'No stack trace available'}</pre>
-      ${error.query ? `<p>Query: ${error.query}</p>` : ''}
-      <a href="/adminUpdateSoldier/${id}?adminemail=${encodeURIComponent('admin@ww2jewishsoldiers.com')}">Go back to form</a>
-    `);
-  }
-});*/
-
-// ✅ Now the Battle History Sync logic
-            const existingBattleIds = await t.map(
-                `SELECT id FROM soldier_battle_history WHERE soldier_id=$1`,
-                [id],
-                row => row.id
-            );
-
-            const receivedBattleIds = [];
-
-            for (let j = 0; j < battleyear.length; j++) {
-                const hasContent =
-                    (battleyear[j] && battleyear[j].trim() !== '') ||
-                    (front[j] && front[j].trim() !== '') ||
-                    (battle[j] && battle[j].trim() !== '');
-
-                if (!hasContent) continue;
-
-                if (battleId[j]) {
-                    receivedBattleIds.push(parseInt(battleId[j], 10));
-
-                    await t.none(
-                        `UPDATE soldier_battle_history
-                         SET battleyear=$1, front=$2, fronten=$3, frontru=$4,
-                             battle=$5, battleen=$6, battleru=$7,
-                             medal=$8, medalen=$9, medalru=$10,
-                             details=$11, detailsen=$12, detailsru=$13,
-                             degreerank=$14, degreeranken=$15, degreerankru=$16,
-                             job=$17, joben=$18, jobru=$19,
-                             updated_at=NOW()
-                         WHERE id=$20 AND soldier_id=$21`,
-                        [
-                            battleyear[j] || null, 
-                            front[j] || null, fronten[j] || null, frontru[j] || null,
-                            battle[j] || null, battleen[j] || null, battleru[j] || null,
-                            battle_medal[j] || null, battle_medalen[j] || null, battle_medalru[j] || null,
-                            battle_details[j] || null, battle_detailsen[j] || null, battle_detailsru[j] || null,
-                            degreerank[j] || null, degreeranken[j] || null, degreerankru[j] || null,
-                            job[j] || null, joben[j] || null, jobru[j] || null,
-                            battleId[j], id
-                        ]
-                    );
-                } else {
-                    const newBattleId = await t.one(
-                        `INSERT INTO soldier_battle_history (
-                            soldier_id, battleyear,
-                            front, fronten, frontru,
-                            battle, battleen, battleru,
-                            medal, medalen, medalru,
-                            details, detailsen, detailsru,
-                            degreerank, degreeranken, degreerankru,
-                            job, joben, jobru
-                         ) VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11,$12,$13,$14,$15,$16,$17,$18,$19,$20)
-                         RETURNING id`,
-                        [
-                            id,
-                            battleyear[j] || null, 
-                            front[j] || null, fronten[j] || null, frontru[j] || null,
-                            battle[j] || null, battleen[j] || null, battleru[j] || null,
-                            battle_medal[j] || null, battle_medalen[j] || null, battle_medalru[j] || null,
-                            battle_details[j] || null, battle_detailsen[j] || null, battle_detailsru[j] || null,
-                            degreerank[j] || null, degreeranken[j] || null, degreerankru[j] || null,
-                            job[j] || null, joben[j] || null, jobru[j] || null
-                        ]
-                    );
-                    receivedBattleIds.push(newBattleId.id);
-                }
-            }
-
-            const idsToDelete = existingBattleIds.filter(id => !receivedBattleIds.includes(id));
-
-            if (idsToDelete.length > 0) {
-                await t.none(
-                    `DELETE FROM soldier_battle_history WHERE soldier_id=$1 AND id IN ($2:csv)`,
-                    [id, idsToDelete]
-                );
-                console.log(`Deleted ${idsToDelete.length} removed battle history records`);
-            }
-        });
-
-        res.redirect('/'); // ✅ redirect home after success
-    } catch (err) {
-        console.error('Error updating soldier:', err);
-        res.status(500).send('Internal Server Error');
-    }
-});
 
  
 
