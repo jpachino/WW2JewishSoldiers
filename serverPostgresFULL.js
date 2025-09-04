@@ -669,7 +669,7 @@ app.get('/searchByEmail', async (req, res) => {
 // Route to display the multilingual search form
 
 app.get('/search', (req, res) => {
-  console.log('✅ /search route hit');
+ 
   const lang = req.query.lang || req.cookies.lang || 'he';
   req.setLocale(lang);
   const locale = req.getLocale();
@@ -743,7 +743,7 @@ app.get('/searchResults', async (req, res) => {
       useremail
     });
 
-    console.log('Search results returned successfully');
+    //console.log('Search results returned successfully');
   } catch (err) {
     console.error('Error fetching search results:', err);
     res.status(500).send('Server error at searchResults');
@@ -1283,7 +1283,7 @@ await db.tx(async t => {
                         );
                     }
                 }
-            }
+            }*/
                 
     
     if (updates.length === 0) {
@@ -1323,93 +1323,8 @@ await db.tx(async t => {
       <a href="/adminUpdateSoldier/${id}?adminemail=${encodeURIComponent('admin@ww2jewishsoldiers.com')}">Go back to form</a>
     `);
   }
-});*/
-
-// ✅ Now the Battle History Sync logic
-            const existingBattleIds = await t.map(
-                `SELECT id FROM soldier_battle_history WHERE soldier_id=$1`,
-                [id],
-                row => row.id
-            );
-
-            const receivedBattleIds = [];
-
-            for (let j = 0; j < battleyear.length; j++) {
-                const hasContent =
-                    (battleyear[j] && battleyear[j].trim() !== '') ||
-                    (front[j] && front[j].trim() !== '') ||
-                    (battle[j] && battle[j].trim() !== '');
-
-                if (!hasContent) continue;
-
-                if (battleId[j]) {
-                    receivedBattleIds.push(parseInt(battleId[j], 10));
-
-                    await t.none(
-                        `UPDATE soldier_battle_history
-                         SET battleyear=$1, front=$2, fronten=$3, frontru=$4,
-                             battle=$5, battleen=$6, battleru=$7,
-                             medal=$8, medalen=$9, medalru=$10,
-                             details=$11, detailsen=$12, detailsru=$13,
-                             degreerank=$14, degreeranken=$15, degreerankru=$16,
-                             job=$17, joben=$18, jobru=$19,
-                             updated_at=NOW()
-                         WHERE id=$20 AND soldier_id=$21`,
-                        [
-                            battleyear[j] || null, 
-                            front[j] || null, fronten[j] || null, frontru[j] || null,
-                            battle[j] || null, battleen[j] || null, battleru[j] || null,
-                            battle_medal[j] || null, battle_medalen[j] || null, battle_medalru[j] || null,
-                            battle_details[j] || null, battle_detailsen[j] || null, battle_detailsru[j] || null,
-                            degreerank[j] || null, degreeranken[j] || null, degreerankru[j] || null,
-                            job[j] || null, joben[j] || null, jobru[j] || null,
-                            battleId[j], id
-                        ]
-                    );
-                } else {
-                    const newBattleId = await t.one(
-                        `INSERT INTO soldier_battle_history (
-                            soldier_id, battleyear,
-                            front, fronten, frontru,
-                            battle, battleen, battleru,
-                            medal, medalen, medalru,
-                            details, detailsen, detailsru,
-                            degreerank, degreeranken, degreerankru,
-                            job, joben, jobru
-                         ) VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11,$12,$13,$14,$15,$16,$17,$18,$19,$20)
-                         RETURNING id`,
-                        [
-                            id,
-                            battleyear[j] || null, 
-                            front[j] || null, fronten[j] || null, frontru[j] || null,
-                            battle[j] || null, battleen[j] || null, battleru[j] || null,
-                            battle_medal[j] || null, battle_medalen[j] || null, battle_medalru[j] || null,
-                            battle_details[j] || null, battle_detailsen[j] || null, battle_detailsru[j] || null,
-                            degreerank[j] || null, degreeranken[j] || null, degreerankru[j] || null,
-                            job[j] || null, joben[j] || null, jobru[j] || null
-                        ]
-                    );
-                    receivedBattleIds.push(newBattleId.id);
-                }
-            }
-
-            const idsToDelete = existingBattleIds.filter(id => !receivedBattleIds.includes(id));
-
-            if (idsToDelete.length > 0) {
-                await t.none(
-                    `DELETE FROM soldier_battle_history WHERE soldier_id=$1 AND id IN ($2:csv)`,
-                    [id, idsToDelete]
-                );
-                console.log(`Deleted ${idsToDelete.length} removed battle history records`);
-            }
-        });
-
-        res.redirect('/'); // ✅ redirect home after success
-    } catch (err) {
-        console.error('Error updating soldier:', err);
-        res.status(500).send('Internal Server Error');
-    }
 });
+
 
  
 

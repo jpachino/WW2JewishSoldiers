@@ -40,10 +40,37 @@
       <table>
         <thead>
           <tr>
+            <% if (locale === 'he') { %>
             <th><%= __('fields.fname') %></th>
+            <% } else if (locale === 'en') { %>
+               <th><%= __('fields.fnameen') %></th>
+            <% } else if (locale === 'ru') { %>
+               <th><%= __('fields.fnameru') %></th>
+               <% } else { %>
+                <th><%= __('fields.fname') %></th> <!-- default Hebrew -->
+              <% } %>
+
+              <% if (locale === 'he') { %>
             <th><%= __('fields.lname') %></th>
+            <% } else if (locale === 'en') { %>
+               <th><%= __('fields.lnameen') %></th>
+            <% } else if (locale === 'ru') { %>
+               <th><%= __('fields.lnameru') %></th>
+               <% } else { %>
+                <th><%= __('fields.lname') %></th> <!-- default Hebrew -->
+              <% } %>
+              
             <th><%= __('fields.birthcountry') %></th>
+           
+            <% if (locale === 'he') { %>
             <th><%= __('fields.fathername') %></th>
+            <% } else if (locale === 'en') { %>
+               <th><%= __('fields.fathernameen') %></th>
+            <% } else if (locale === 'ru') { %>
+               <th><%= __('fields.fathernameru') %></th>
+               <% } else { %>
+                <th><%= __('fields.fathername') %></th> <!-- default Hebrew -->
+              <% } %>
             <th><%= __('fields.dob') %></th>
             <th><%= __('fields.dod') %></th>
             <th><%= __('fields.id') %></th>
@@ -55,15 +82,43 @@
             <tr>
               <!--<td><%= soldier.translatedFname %></td>
               <td><%= soldier.translatedLname %></td>-->
-              <td>
-              <%= locale === 'he' ? soldier.fname : (locale === 'ru' ? soldier.fnameru : soldier.fnameen) %>
-            </td>
             <td>
-              <%= locale === 'he' ? soldier.lname : (locale === 'ru' ? soldier.lnameru : soldier.lnameen) %>
+              <% if (locale === 'he') { %>
+                <%= soldier.fname %>
+              <% } else if (locale === 'en') { %>
+                <%= soldier.fnameen %>
+              <% } else if (locale === 'ru') { %>
+                <%= soldier.fnameru %>
+              <% } else { %>
+                <%= soldier.fname %> <!-- default Hebrew -->
+              <% } %>
             </td>
+
+            <td>
+              <% if (locale === 'he') { %>
+                <%= soldier.lname %>
+              <% } else if (locale === 'en') { %>
+                <%= soldier.lnameen %>
+              <% } else if (locale === 'ru') { %>
+                <%= soldier.lnameru %>
+              <% } else { %>
+                <%= soldier.lname %>
+              <% } %>
+            </td>
+
               
               <td><%= soldier.birthcountry %></td>
-              <td><%= soldier.fathername %></td>
+              <td>
+              <% if (locale === 'he') { %>
+                <%= soldier.fathername %>
+              <% } else if (locale === 'en') { %>
+                <%= soldier.fathernameen %>
+              <% } else if (locale === 'ru') { %>
+                <%= soldier.fathernameru %>
+              <% } else { %>
+                <%= soldier.fathername %>
+              <% } %>
+            </td>
               <td><%= soldier.dob %></td>
               <td><%= soldier.dod %></td>
               <td><%= soldier.id %></td>
