@@ -319,7 +319,20 @@ app.post('/addFULL', upload.array('files'), async (req, res) => {
       battle_medal = [],
       battle_details = [],
       degreerank  = [],
-      job = []
+      job = [],
+      fronten = [],
+      battleen = [],
+      battle_medalen = [],
+      battle_detailsen = [],
+      degreeranken  = [],
+      joben = [],
+      frontru = [],
+      battleru = [],
+      battle_medalru = [],
+      battle_detailsru = [],
+      degreerankru  = [],
+      jobru = [],
+
     } = req.body;
 
     await db.tx(async t => {
@@ -422,14 +435,31 @@ app.post('/addFULL', upload.array('files'), async (req, res) => {
                      (battle_medal[i] && battle_medal[i].trim() !== '') ||
                      (battle_details[i] && battle_details[i].trim() !== '')||
                      (degreerank[i] && degreerank[i].trim() !== '')||
-                     (job[i] && job[i].trim() !== '');
+                     (job[i] && job[i].trim() !== '') ||
+                     (fronten[i] && fronten[i].trim() !== '') ||
+                     (battleen[i] && battleen[i].trim() !== '') ||
+                     (battle_medalen[i] && battle_medalen[i].trim() !== '') ||
+                     (battle_detailsen[i] && battle_detailsen[i].trim() !== '')||
+                     (degreeranken[i] && degreeranken[i].trim() !== '')||
+                     (joben[i] && joben[i].trim() !== '') ||
+                     (frontru[i] && frontru[i].trim() !== '') ||
+                     (battleru[i] && battleru[i].trim() !== '') ||
+                     (battle_medalru[i] && battle_medalru[i].trim() !== '') ||
+                     (battle_detailsru[i] && battle_detailsru[i].trim() !== '')||
+                     (degreerankru[i] && degreerankru[i].trim() !== '')||
+                     (jobru[i] && jobru[i].trim() !== '');
+                 
   
   if (!hasContent) continue; // Skip empty rows
     console.log("at insert")
   await t.none(`
     INSERT INTO soldier_battle_history
-      (soldier_id, battleyear, front, battle, medal, details, degreerank, job)
-    VALUES ($1,$2,$3,$4,$5,$6,$7,$8)
+      (soldier_id, battleyear, front, battle, medal, details, degreerank, job,
+      fronten, battleen, medalen, detailsen, degreeranken, joben,
+      frontru, battleru, medalru, detailsru, degreerankru, jobru)
+    VALUES ($1,$2,$3,$4,$5,$6,$7,$8,
+    $9, $10, $11, $12, $13, $14,
+    $15, $16, $17, $18, $19, $20)
   `, [
     soldierId,
     battleyear[i] ? parseInt(battleyear[i], 10) : null,
@@ -439,6 +469,19 @@ app.post('/addFULL', upload.array('files'), async (req, res) => {
     battle_details[i] || null,
     degreerank[i] || null,
     job[i] || null,
+    fronten[i] || null,
+    battleen[i] || null,
+    battle_medalen[i] || null,
+    battle_detailsen[i] || null,
+    degreeranken[i] || null,
+    joben[i] || null,
+    frontru[i] || null,
+    battleru[i] || null,
+    battle_medalru[i] || null,
+    battle_detailsru[i] || null,
+    degreerankru[i] || null,
+    jobru[i] || null
+
 
   ]);
 }
