@@ -312,6 +312,20 @@
           <label for="armyid"><%= __('fields.armyid') %></label>
           <input type="number" name="armyid" id="armyid" value="<%= soldier.armyid || '' %>" />
         </div>
+         <div class="trio-row">
+          <div class="input-group">
+            <label for="platoonname"><%= __('fields.platoonname') %></label>
+            <input type="text" name="platoonname" id="platoonname" value="<%= soldier.platoonname || '' %>" />
+          </div>
+          <div class="input-group">
+            <label for="platoonnameen"><%= __('fields.platoonnameen') %></label>
+            <input type="text" name="platoonnameen" id="platoonnameen" value="<%= soldier.platoonnameen || '' %>" />
+          </div>
+          <div class="input-group">
+            <label for="platoonnameru"><%= __('fields.platoonnameru') %></label>
+            <input type="text" name="platoonnameru" id="platoonnameru" value="<%= soldier.platoonnameru || '' %>" />
+          </div>
+        </div>
         <div class="input-group">
           <label for="enlistreason"><%= __('fields.enlistreason') %></label>
           <select name="enlistreason" id="enlistreason">
@@ -389,20 +403,7 @@
           <label for="otherparticipation"><%= __('fields.otherparticipation') %></label>
           <input type="text" name="otherparticipation" id="otherparticipation" value="<%= soldier.otherparticipation || '' %>" />
         </div>
-        <div class="trio-row">
-          <div class="input-group">
-            <label for="platoonname"><%= __('fields.platoonname') %></label>
-            <input type="text" name="platoonname" id="platoonname" value="<%= soldier.platoonname || '' %>" />
-          </div>
-          <div class="input-group">
-            <label for="platoonnameen"><%= __('fields.platoonnameen') %></label>
-            <input type="text" name="platoonnameen" id="platoonnameen" value="<%= soldier.platoonnameen || '' %>" />
-          </div>
-          <div class="input-group">
-            <label for="platoonnameru"><%= __('fields.platoonnameru') %></label>
-            <input type="text" name="platoonnameru" id="platoonnameru" value="<%= soldier.platoonnameru || '' %>" />
-          </div>
-        </div>
+        
         <div>
           <label for="corps"><%= __('fields.corps') %></label>
           <select name="corps" id="corps">

@@ -95,9 +95,10 @@
     "biographyru": "קורות חיים (RU)",
     
     "otherparticipation": "השתתפויות נוספות",
-    "otherdecoration": "עיטורים נוספים (IL)",
-    "otherdecorationen": "עיטורים נוספים (EN)",
-    "otherdecorationru": "עיטורים נוספים (RU)",
+    
+    "otherdecoration": "מדליות/עיטורים (IL)",
+    "otherdecorationen": "מדליות/עיטורים (EN)",
+    "otherdecorationru": "מדליות/עיטורים (RU)",
     "fightingdesc": "סיפור אישי (IL)",
     "fightingdescen": "סיפור אישי (EN)",
     "fightingdescru": "סיפור אישי (RU)",
@@ -179,16 +180,16 @@
     "degreeranken": "דרגה (EN)",
     "degreerankru": "דרגה (RU)",
 
-     "platoonname": "יחידה (IL)",
+    "platoonname": "יחידה (IL)",
     "platoonnameen": "יחידה (EN)",
     "platoonnameru": "יחידה (RU)",
     "wounddetails": "פרטי פציעה (IL)",
     "wounddetailsen": "פרטי פציעה (EN)",
     "wounddetailsru": "פרטי פציעה (RU)",
 
-     "gettodesc": "תיאור גטו (IL)",
-    "gettodescen": "תיאור גטו (EN)",
-    "gettodescru": "תיאור גטו (RU)",
+     "gettodesc": "גטו/מחנה (IL)",
+    "gettodescen": "גטו/מחנה (EN)",
+    "gettodescru": "גטו/מחנה (RU)",
 
     "otherfightingcontext": "הקשר לחימה אחר",
     "title":"כותרת (IL)",
