@@ -803,54 +803,63 @@ app.get('/searchResults', async (req, res) => {
 
 // Route to display the form for updating a soldier
 
-// NOTE: This file assumes 'db' (pg-promise instance), 'SOLDIER_TABLE', and 'upload' (multer instance) are defined elsewhere.
-// You will need to insert this code back into your existing server.js file.
-
-// Route to show the form for updating a soldier
 app.get('/updateSoldier/:id', async (req, res) => {
-    const { id } = req.params;
-    console.log('Get /updateSoldier/:id hit for ID:', id);
-
-    try {
-        const soldier = await db.oneOrNone(`SELECT * FROM ${SOLDIER_TABLE} WHERE id = $1`, [id]);
-        if (!soldier) {
-            // FIX: Removed extraneous single quotes ('') which would cause a syntax error
-            return res.status(404).send('Soldier not found');
-        }
-
-        const countries = await db.any('SELECT id, title_heb, title_eng, title_rus FROM "countries_TBL" ');
-        // Fetch medals list
-        const medals = await db.any('SELECT id, title FROM "medals_TBL" ORDER BY title');
-        // Fetch all lookup tables
-        const corps = await db.any('SELECT id, title_heb, title_eng, title_rus FROM "corps_TBL" ');
-        const category = await db.any('SELECT id, title_heb, title_eng, title_rus FROM "category_TBL" ');
-        const army = await db.any('SELECT id, title_heb, title_eng, title_rus FROM "army_TBL" ');
-        const resistance = await db.any('SELECT id, title_heb, title_eng, title_rus FROM "resistance_TBL" ');
-        const partizan = await db.any('SELECT id, title_heb, title_eng, title_rus FROM "partizan_TBL" ');
-        const participation = await db.any('SELECT id, title_heb, title_eng, title_rus FROM "participation_TBL" ');
-        
-
-        // Fetch existing battles for this soldier
-        const battleHistory = await db.any('SELECT * FROM "soldier_battle_history" WHERE soldier_id = $1 ORDER BY id', [id]);
-
-        // Render the template passing soldier and lookup data
-        res.render('updateSoldier', {
-            soldier,
-            countries,
-            medals,
-            corps,
-            category,
-            army,
-            resistance,
-            partizan,
-            participation,
-            battleHistory: battleHistory || [],
-        });
-    } catch (err) {
-        console.error('Error rendering update form:', err);
-        res.status(500).send('Server error');
+  const { id } = req.params;
+  console.log('here updatesolder get')
+  
+  try {
+    const soldier = await db.oneOrNone(`SELECT * FROM ${SOLDIER_TABLE} WHERE id = $1`, [id]);
+    if (!soldier) {
+      return res.status(404).send('Soldier not found');''
     }
+    // Format all date fields to neutralize timezone shifts
+    
+    
+    //soldier.aliyadate = formatDate(soldier.aliyadate);
+    //soldier.idf_enlistdate = formatDate(soldier.idf_enlistdate);
+    //soldier.idf_releasedate = formatDate(soldier.idf_releasedate);
+    // Add any other date fields here
+    // Fetch all countries from countries_TBL
+    const countries = await db.any('SELECT id, title_heb, title_eng, title_rus FROM "countries_TBL" ');
+    // Fetch medals list
+    const medals = await db.any('SELECT id, title FROM "medals_TBL" ORDER BY title');
+    // Fetch all lookup tables
+   
+    const corps = await db.any('SELECT id, title_heb, title_eng, title_rus FROM "corps_TBL" ');
+    const category = await db.any('SELECT id, title_heb, title_eng, title_rus FROM "category_TBL" ');
+    const army = await db.any('SELECT id, title_heb, title_eng, title_rus FROM "army_TBL" ');
+    const resistance = await db.any('SELECT id, title_heb, title_eng, title_rus FROM "resistance_TBL" ');
+    const partizan = await db.any('SELECT id, title_heb, title_eng, title_rus FROM "partizan_TBL" ');
+    const participation = await db.any('SELECT id, title_heb, title_eng, title_rus FROM "participation_TBL" ');
+   
+    
+    // Fetch existing battles for this soldier
+    const battleHistory = await db.any('SELECT * FROM "soldier_battle_history" WHERE soldier_id = $1 ORDER BY id', [id]);
+    
+    // Render the template passing soldier and countries
+    res.render('updateSoldier', { soldier, 
+      countries,
+      medals,
+      corps, 
+      category, 
+      army, 
+      resistance, 
+      partizan, 
+      participation, 
+      battleHistory: battleHistory || [], 
+      // Pass the existing battles to the template
+   
+     });
+  } catch (err) {
+    console.error('Error rendering update form:', err);
+    res.status(500).send('Server error');
+  }
 });
+ 
+
+// FIXED: Route to handle form submission for updating a soldier
+
+
 
 
 // Route to handle form submission for updating a soldier
@@ -922,30 +931,7 @@ app.post('/updateSoldier/:id', upload.array('files'), async (req, res) => {
             record_complete_date,
             other_medal: req.body.other_medal,
             other_medalen: req.body.other_medalen,
-            other_medalru: req.body.other_medalru,
-            uprising_participant: req.body.uprising_participant,
-            
-            
-            //medal_id: req.body.medal_id, 
-            //corps_id: req.body.corps_id,
-            //category_id: req.body.category_id,
-            //resistance_id: req.body.resistance_id,
-            //partizan_id: req.body.partizan_id,
-            //participation_id: req.body.participation_id,
-            metals: req.body.medal,
-            corps: req.body.corps,         // ⬅️ Keep: This already works
-            category: req.body.category,   // ⬅️ Keep: This already works
-            army: req.body.army,           // ⬅️ NEW: Saves the army title string
-            resistance: req.body.resistance, // ⬅️ NEW: Saves the resistance title string
-            partizan: req.body.partizan,   // ⬅️ NEW: Saves the partizan title string
-            participation: req.body.participation, // ⬅️ NEW: Saves the participation title string
-            
-            // Assuming these are also IDs from lookup tables/dates that need to be in inputData
-            aliyadate: req.body.aliyadate,
-            idf_enlistdate: req.body.idf_enlistdate,
-            idf_releasedate: req.body.idf_releasedate,
-            admin_approved_date: req.body.admin_approved_date,
-            downloaded_date: req.body.downloaded_date,
+            other_medalru: req.body.other_medalru,uprising_participant
         };
 
         // Build dynamic update query for soldier details
@@ -956,24 +942,15 @@ app.post('/updateSoldier/:id', upload.array('files'), async (req, res) => {
         const normalizeDate = val =>
             val instanceof Date ? val.toISOString().slice(0, 10) : typeof val === 'string' && /^\d{4}-\d{2}-\d{2}$/.test(val) ? val : null;
 
-        // FIX: Expanded dateFields list to include all potential date fields in inputData
         const dateFields = [
             'dob', 'dod', 'aliyadate', 'idf_enlistdate', 'idf_releasedate',
             'record_complete_date', 'admin_approved_date', 'downloaded_date'
         ];
 
         for (const key in inputData) {
-            // Check if the property is defined in existingSoldier to avoid comparison errors on undefined keys
-            if (!(key in existingSoldier)) {
-                 // Log a warning if a key in inputData doesn't exist in the database model
-                 console.warn(`Warning: Input key '${key}' does not exist in ${SOLDIER_TABLE} model and will be skipped in update logic.`);
-                 continue; 
-            }
-
             const newValue = inputData[key] === '' ? null : inputData[key];
             const oldValue = existingSoldier[key] === '' ? null : existingSoldier[key];
 
-            // Normalize and compare dates, otherwise compare value
             const same = dateFields.includes(key)
                 ? normalizeDate(newValue) === normalizeDate(oldValue)
                 : newValue == oldValue;
@@ -991,14 +968,14 @@ app.post('/updateSoldier/:id', upload.array('files'), async (req, res) => {
                 const updateSQL = `UPDATE ${SOLDIER_TABLE} SET ${updates.join(', ')} WHERE id = $${i}`;
                 values.push(id);
                 await t.none(updateSQL, values);
-                console.log(`Updated soldier ID ${id}. Changed fields: ${updates.length}`);
+                console.log(`Updated soldier ID ${id}`);
+            
+
             } else {
-                console.log(`No changes in main soldier details for ID ${id}`);
+                console.log(`No changes in soldier details for ID ${id}`);
             }
 
-            // --- BATTLE HISTORY UPDATE/INSERT LOGIC ---
-            // This logic correctly handles updating existing records (if battleId[j] exists)
-            // and inserting new records (if battleId[j] is null/empty).
+            // ✅ Update or Insert battle history without deleting existing ones
             for (let j = 0; j < battleyear.length; j++) {
                 const hasContent =
                     (battleyear[j] && battleyear[j].trim() !== '') ||
@@ -1008,7 +985,7 @@ app.post('/updateSoldier/:id', upload.array('files'), async (req, res) => {
                 if (hasContent) {
                     if (battleId[j]) {
                         // ✅ Update existing battle record
-                        console.log("Updating existing battle record:", battleId[j]);
+                        console.log ("update existing battle record")
                         await t.none(
                             `UPDATE soldier_battle_history
                              SET battleyear=$1, 
@@ -1033,7 +1010,7 @@ app.post('/updateSoldier/:id', upload.array('files'), async (req, res) => {
                         );
                     } else {
                         // ✅ Insert new battle record
-                        console.log("Inserting new battle history record.");
+                        console.log ("inster new battle history")
                         await t.none(
                             `INSERT INTO soldier_battle_history (
                                 soldier_id, battleyear,
@@ -1086,240 +1063,224 @@ app.post('/updateSoldier/:id', upload.array('files'), async (req, res) => {
     }
 });
 
+app.get('/adminUpdateSoldier/:id', async (req, res) => {
+  const { id } = req.params;
+  const adminemail = req.query.adminemail;
 
-app.get('/admin/completedRecords', async (req, res) => {
-    const { id } = req.params; // NOTE: :id is not needed for a list view, only for an update view.
-    const adminemail = req.query.adminemail;
-    const saved = req.query.saved === 'true'; // Check for success message
+  // Redirect if adminemail is missing
+  if (!adminemail) {
+    return res.redirect(`/adminUpdateSoldier/${id}?adminemail=admin@ww2jewishsoldiers.com`);
+  }
 
-    // Redirect if adminemail is missing (Good practice)
-    if (!adminemail) {
-        // Redirect to a safe page or back to the list with a default admin email
-        return res.redirect(`/admin/completedRecords?adminemail=admin@ww2jewishsoldiers.com`);
+  try {
+    const soldier = await db.oneOrNone(`SELECT * FROM ${SOLDIER_TABLE} WHERE id = $1`, [id]);
+    if (!soldier) {
+      return res.status(404).send('Soldier not found');
     }
 
-    try {
-        // 1. Fetch all soldier records where recordcomplete is TRUE
-        const soldiers = await db.any(
-            `SELECT * FROM ${SOLDIER_TABLE} 
-             WHERE recordcomplete = TRUE 
-             ORDER BY lname, fname`
-        );
-        
-        // 2. Fetch all lookup tables (You'll need these if you display details)
-        const countries = await db.any('SELECT id, title_heb, title_eng, title_rus FROM "countries_TBL" ');
-        const medals = await db.any('SELECT id, title FROM "medals_TBL" ORDER BY title');
-        const corps = await db.any('SELECT id, title_heb, title_eng, title_rus FROM "corps_TBL" ');
-        const category = await db.any('SELECT id, title_heb, title_eng, title_rus FROM "category_TBL" ');
-        const army = await db.any('SELECT id, title_heb, title_eng, title_rus FROM "army_TBL" ');
-        const resistance = await db.any('SELECT id, title_heb, title_eng, title_rus FROM "resistance_TBL" ');
-        const partizan = await db.any('SELECT id, title_heb, title_eng, title_rus FROM "partizan_TBL" ');
-        const participation = await db.any('SELECT id, title_heb, title_eng, title_rus FROM "participation_TBL" ');
-        
-        // 3. Format dates (if your EJS template needs them formatted)
-        const formattedSoldiers = soldiers.map(soldier => ({
-            ...soldier,
-            dob: soldier.dob ? format(new Date(soldier.dob), 'MM/dd/yyyy') : 'N/A',
-            dod: soldier.dod ? format(new Date(soldier.dod), 'MM/dd/yyyy') : 'N/A',
-            aliyadate: soldier.aliyadate ? format(new Date(soldier.aliyadate), 'MM/dd/yyyy') : 'N/A'
-        }));
+    const countries = await db.any('SELECT id, title FROM "countries_TBL" ORDER BY title');
+    const medals = await db.any('SELECT id, title FROM "medals_TBL" ORDER BY title');
+    
+   
+    const corps = await db.any('SELECT id, title_heb, title_eng, title_rus FROM "corps_TBL" ');
+    const category = await db.any('SELECT id, title_heb, title_eng, title_rus FROM "category_TBL" ');
+    const army = await db.any('SELECT id, title_heb, title_eng, title_rus FROM "army_TBL" ');
+    const resistance = await db.any('SELECT id, title_heb, title_eng, title_rus FROM "resistance_TBL" ');
+    const partizan = await db.any('SELECT id, title_heb, title_eng, title_rus FROM "partizan_TBL" ');
+    const participation = await db.any('SELECT id, title_heb, title_eng, title_rus FROM "participation_TBL" ');
+   
+    // ✅ Fetch related battle history
+    const battleHistory = await db.any(
+      `SELECT * FROM "soldier_battle_history" WHERE soldier_id = $1 ORDER BY id`,
+      [id]
+    );
 
-
-        // 4. Render the template
-        res.render('completedRecords', { // Assuming your template is named 'completedRecords'
-            soldiers: formattedSoldiers,
-            countries,
-            medals,
-            corps,
-            category,
-            army,
-            resistance,
-            partizan,
-            participation,
-            adminemail: adminemail, // ⬅️ **FIX: Passing adminemail is critical here**
-            saved: saved
-        });
-    } catch (err) {
-        console.error('Error rendering completed records list:', err);
-        res.status(500).send('Server error');
-    }
+    // Render the template passing soldier, countries, battleHistory
+    res.render('adminUpdate', {
+      soldier,
+      countries,
+      medals,
+      corps,
+      category,
+      army,
+      resistance,
+      partizan,
+      participation,
+      battleHistory: battleHistory || [],  
+      adminemail
+    });
+  } catch (err) {
+    console.error('Error rendering update form:', err);
+    res.status(500).send('Server error');
+  }
 });
+
 app.post('/adminUpdateSoldier/:id', upload.array('files'), async (req, res) => {
-    console.log('Update Admin Update route hit:', req.params.id);
-    const { id } = req.params;
-    const adminemail = req.body.adminemail || req.query.adminemail;
+  console.log('Update Admin Update route hit:', req.params.id);
+  const { id } = req.params;
+  const adminemail = req.body.adminemail || req.query.adminemail;
 
-    try {
-        // 1. Fetch existing soldier data
-        const existingSoldier = await db.oneOrNone(`SELECT * FROM ${SOLDIER_TABLE} WHERE id = $1`, [id]);
-        if (!existingSoldier) {
-            return res.status(404).send('Soldier not found');
-        }
-
-        // 2. Extract array fields (Same as original)
+  try {
+    const existingSoldier = await db.oneOrNone(`SELECT * FROM ${SOLDIER_TABLE} WHERE id = $1`, [id]);
+    if (!existingSoldier) {
+      return res.status(404).send('Soldier not found');
+    }
+     // Extract all battle-related arrays and IDs for update logic
         const {
-            battleId = [], battleyear = [], front = [], fronten = [], frontru = [],
-            battle = [], battleen = [], battleru = [], battle_medal = [], 
-            battle_medalen = [], battle_medalru = [], battle_details = [], 
-            battle_detailsen = [], battle_detailsru = [], degreerank = [], 
-            degreeranken = [], degreerankru = [], job = [], joben = [], jobru = []
+            battleId = [],
+            battleyear = [] || [],
+            front = [], fronten = [], frontru = [],
+            battle = [], battleen = [], battleru = [],
+            battle_medal = [], battle_medalen = [], battle_medalru = [],
+            battle_details = [], battle_detailsen = [], battle_detailsru = [],
+            degreerank = [], degreeranken = [], degreerankru = [],
+            job = [], joben = [], jobru = []
         } = req.body;
 
-        // 3. Calculate/Determine Soldier Date/Status Fields (FIXED LOGIC)
-        
-        // --- ADMIN READY FOR DOWNLOAD ---
-        // Determines boolean status: true if submitted (checked), false otherwise.
-        const admin_ready_for_download = Array.isArray(req.body.admin_ready_for_download)
-            ? req.body.admin_ready_for_download.includes('true') || req.body.admin_ready_for_download.includes('on')
-            : req.body.admin_ready_for_download === 'true' || req.body.admin_ready_for_download === 'on';
+    const admin_ready_for_download = Array.isArray(req.body.admin_ready_for_download)
+      ? req.body.admin_ready_for_download.includes('true') || req.body.admin_ready_for_download.includes('on')
+      : req.body.admin_ready_for_download === 'true' || req.body.admin_ready_for_download === 'on';
 
-        let admin_approved_date = existingSoldier.admin_approved_date;
-        if (admin_ready_for_download && !existingSoldier.admin_ready_for_download) {
-            admin_approved_date = new Date(); // Set date on activation
-        } else if (!admin_ready_for_download && existingSoldier.admin_ready_for_download) {
-            admin_approved_date = null; // Clear date on deactivation
-        }
+    let admin_approved_date = existingSoldier.admin_approved_date;
+    let record_complete_date = existingSoldier.record_complete_date;
+    let downloaded_date = existingSoldier.downloaded_date;
 
-        // --- RECORD COMPLETE (THE CORE FIX) ---
-        // A checkbox is ONLY present in req.body if checked.
-        const recordCompleteSubmitted = req.body.recordcomplete === 'true' || req.body.recordcomplete === 'on';
-        
-        // This is the variable that will go to the DB
-        let recordcomplete = recordCompleteSubmitted; 
-        let record_complete_date = existingSoldier.record_complete_date;
-        
-        if (recordcomplete) {
-            // Set date only if it's the first time completing
-            if (!existingSoldier.record_complete_date) {
-                record_complete_date = new Date();
-            }
-        } else {
-            // If the admin explicitly unchecked it (i.e., it wasn't submitted), clear the date
-            record_complete_date = null;
-        }
-        
-        // --- DOWNLOADED DATE ---
-        let downloaded_date = existingSoldier.downloaded_date;
-        if (req.body.downloaded_date) {
-            downloaded_date = new Date(req.body.downloaded_date);
-        }      // 4. Create main input data object for soldier table update
-        const inputData = {
-            fname: req.body.fname, fnameen: req.body.fnameen, fnameru: req.body.fnameru,
-            lname: req.body.lname, lnameen: req.body.lnameen, lnameru: req.body.lnameru,
-            previouslname: req.body.previouslname, previouslnameen: req.body.previouslnameen, previouslnameru: req.body.previouslnameru,
-            fathername: req.body.fathername, fathernameen: req.body.fathernameen, fathernameru: req.body.fathernameru,
-            mothername: req.body.mothername, mothernameen: req.body.mothernameen, mothernameru: req.body.mothernameru,
-            calledby: req.body.calledby, calledbyen: req.body.calledbyen, calledbyru: req.body.calledbyru,
-            birthcountry: req.body.birthcountry, otherbirthcountry: req.body.otherbirthcountry,
-            birthcity: req.body.birthcity, birthcityen: req.body.birthcityen, birthcityru: req.body.birthcityru,
-            gender: req.body.gender,
-            placeofdeath: req.body.placeofdeath, placeofdeathen: req.body.placeofdeathen, placeofdeathru: req.body.placeofdeathru,
-            deathdetails: req.body.deathdetails, deathdetailsen: req.body.deathdetailsen, deathdetailsru: req.body.deathdetailsru,
-            biography: req.body.biography, biographyen: req.body.biographyen, biographyru: req.body.biographyru,
-            otherparticipation: req.body.otherparticipation,
-            otherdecoration: req.body.otherdecoration, otherdecorationen: req.body.otherdecorationen, otherdecorationru: req.body.otherdecorationru,
-            fightingdesc: req.body.fightingdesc, fightingdescen: req.body.fightingdescen, fightingdescru: req.body.fightingdescru,
-            dob: req.body.dob, dod: req.body.dod,
-            shortdesc: req.body.shortdesc,
-            armyrole: req.body.armyrole, armyroleen: req.body.armyroleen, armyroleru: req.body.armyroleru,
-            releasereason: req.body.releasereason, releasereasonen: req.body.releasereasonen, releasereasonru: req.body.releasereasonru,
-            enlistreason: req.body.enlistreason,
-            platoonname: req.body.platoonname, platoonnameen: req.body.platoonnameen, platoonnameru: req.body.platoonnameru,
-            wounddetails: req.body.wounddetails, wounddetailsen: req.body.wounddetailsen, wounddetailsru: req.body.wounddetailsru,
-            gettodesc: req.body.gettodesc, gettodescen: req.body.gettodescen, gettodescru: req.body.gettodescru,
-            otherfightingcontext: req.body.otherfightingcontext,
-            armyid: req.body.armyid,
-            title: req.body.title, titleen: req.body.titleen, titleru: req.body.titleru,
-            remarks2: req.body.remarks2, remarksen2: req.body.remarksen2, remarksru2: req.body.remarksru2,
-            linkurl: req.body.linkurl,
-            remarks: req.body.remarks, remarksen: req.body.remarksen, remarksru: req.body.remarksru,
-            recordcomplete: existingSoldier.recordcomplete,
-            
-            other_medal: req.body.other_medal,
-            other_medalen: req.body.other_medalen,
-            other_medalru: req.body.other_medalru,
-            uprising_participant: req.body.uprising_participant,
-            metals: req.body.medal,
-            corps: req.body.corps,
-            category: req.body.category,
-            army: req.body.army,
-            resistance: req.body.resistance,
-            partizan: req.body.partizan,
-            participation: req.body.participation,
-            aliyadate: req.body.aliyadate,
-            idf_enlistdate: req.body.idf_enlistdate,
-            idf_releasedate: req.body.idf_releasedate,
-            admin_ready_for_download, // Add the calculated boolean field
-            // Use the calculated date fields from step 3
-            admin_approved_date,
-           record_complete_date: existingSoldier.record_complete_date,
-            downloaded_date
-        };
+    //if (admin_ready_for_download && !existingSoldier.admin_ready_for_download) {
+     // admin_approved_date = new Date();
+    //} else if (!admin_ready_for_download) {
+    //  admin_approved_date = null;
+    //}
+if ('admin_ready_for_download' in req.body) {
+  if (admin_ready_for_download && !existingSoldier.admin_ready_for_download) {
+    admin_approved_date = new Date();
+  } else if (!admin_ready_for_download && existingSoldier.admin_ready_for_download) {
+    admin_approved_date = null;
+  }
+}
 
-        // 5. Prepare SQL updates for soldier table
-        const updates = [];
-        const values = [];
-        let i = 1;
+    if (!existingSoldier.record_complete_date && req.body.recordcomplete) {
+      record_complete_date = new Date();
+    }
 
-        // Normalize DATE fields to string for accurate comparison
-        const normalizeDate = val =>
-            val instanceof Date
-                ? val.toISOString().slice(0, 10)
-                : typeof val === 'string' && /^\d{4}-\d{2}-\d{2}$/.test(val)
-                    ? val
-                    : null;
+    if (req.body.downloaded_date) {
+      downloaded_date = new Date(req.body.downloaded_date);
+    }
 
-        const dateFields = [
-            'dob', 'dod', 'aliyadate', 'idf_enlistdate', 'idf_releasedate',
-            'record_complete_date', 'admin_approved_date', 'downloaded_date'
-        ];
-        
-        // This is to correctly handle the boolean field from the calculation above
-        existingSoldier.admin_ready_for_download = !!existingSoldier.admin_ready_for_download; 
 
-        for (const key in inputData) {
-            let newValue = inputData[key] === '' ? null : inputData[key];
-            let oldValue = existingSoldier[key] === '' ? null : existingSoldier[key];
+    const inputData = {
+      fname: req.body.fname, fnameen: req.body.fnameen, fnameru: req.body.fnameru,
+      lname: req.body.lname, lnameen: req.body.lnameen, lnameru: req.body.lnameru,
+      previouslname: req.body.previouslname, previouslnameen: req.body.previouslnameen, previouslnameru: req.body.previouslnameru,
+      fathername: req.body.fathername, fathernameen: req.body.fathernameen, fathernameru: req.body.fathernameru,
+      mothername: req.body.mothername, mothernameen: req.body.mothernameen, mothernameru: req.body.mothernameru,
+      calledby: req.body.calledby, calledbyen: req.body.calledbyen, calledbyru: req.body.calledbyru,
+      birthcountry: req.body.birthcountry, otherbirthcountry: req.body.otherbirthcountry,
+      birthcity: req.body.birthcity, birthcityen: req.body.birthcityen, birthcityru: req.body.birthcityru,
+      gender: req.body.gender,
+      placeofdeath: req.body.placeofdeath, placeofdeathen: req.body.placeofdeathen, placeofdeathru: req.body.placeofdeathru,
+      deathdetails: req.body.deathdetails, deathdetailsen: req.body.deathdetailsen, deathdetailsru: req.body.deathdetailsru,
+      biography: req.body.biography, biographyen: req.body.biographyen, biographyru: req.body.biographyru,
+      otherparticipation: req.body.otherparticipation,
+      otherdecoration: req.body.otherdecoration, otherdecorationen: req.body.otherdecorationen, otherdecorationru: req.body.otherdecorationru,
+      fightingdesc: req.body.fightingdesc, fightingdescen: req.body.fightingdescen, fightingdescru: req.body.fightingdescru,
+      //idf_otherforce: req.body.idf_otherforce, idf_otherrank: req.body.idf_otherrank,
+      //idf_desc: req.body.idf_desc, idf_descen: req.body.idf_descen, idf_descru: req.body.idf_descru,
+      //idf_serviceplace: req.body.idf_serviceplace, idf_platoonname: req.body.idf_platoonname,
+      shortdesc: req.body.shortdesc,
+      armyrole: req.body.armyrole, armyroleen: req.body.armyroleen, armyroleru: req.body.armyroleru,
+      releasereason: req.body.releasereason, releasereasonen: req.body.releasereasonen, releasereasonru: req.body.releasereasonru,
+      enlistreason: req.body.enlistreason,
+      platoonname: req.body.platoonname, platoonnameen: req.body.platoonnameen, platoonnameru: req.body.platoonnameru,
+      wounddetails: req.body.wounddetails, wounddetailsen: req.body.wounddetailsen, wounddetailsru: req.body.wounddetailsru,
+      gettodesc: req.body.gettodesc, gettodescen: req.body.gettodescen, gettodescru: req.body.gettodescru,
+      otherfightingcontext: req.body.otherfightingcontext,
+      armyid: req.body.armyid,
+      //datebreaker: req.body.datebreaker,
+      dob:req.body.dob, 
+      dod:req.body.dod, 
+      aliyadate: req.body.aliyadate,
+      //aliyadate: req.body.aliyadate,
+      //idf_enlistdate: req.body.idf_enlistdate,
+      //idf_releasedate: req.body.idf_releasedate,
+      //idf_enlistdate, idf_releasedate,
+      //tablebreaker: req.body.tablebreaker,
+      //medal: req.body.medal, medalen: req.body.medalen, medalru: req.body.medalru,
+      //degree: req.body.degree, degreeen: req.body.degreeen, degreeru: req.body.degreeru,
+      //front: req.body.front, fronten: req.body.fronten, frontru: req.body.frontru,
+      //battle: req.body.battle, battleen: req.body.battleen, battleru: req.body.battleru,
+      //battleyear: req.body.battleyear,
+      //tablebreaker2: req.body.tablebreaker2,
+      //battleyear2: req.body.battleyear2,
+      //front2: req.body.front2, fronten2: req.body.fronten2, frontru2: req.body.frontru2,
+      //battle2: req.body.battle2, battleen2: req.body.battleen2, battleru2: req.body.battleru2,
+      //medal2: req.body.medal2, medalen2: req.body.medalen2, medalru2: req.body.medalru2,
+      //remarks: req.body.remarks, remarksen: req.body.remarksen, remarksru: req.body.remarksru,
+      //tablebreaker3: req.body.tablebreaker3,
+      title: req.body.title, titleen: req.body.titleen, titleru: req.body.titleru,
+      remarks2: req.body.remarks2, remarksen2: req.body.remarksen2, remarksru2: req.body.remarksru2,
+      linkurl: req.body.linkurl,
+      recordcomplete: existingSoldier.recordcomplete,
+      record_complete_date: existingSoldier.record_complete_date,
+      admin_ready_for_download: ('admin_ready_for_download' in req.body)
+      ? admin_ready_for_download
+      :   existingSoldier.admin_ready_for_download,
+      admin_approved_date: admin_approved_date,
+      downloaded_date: downloaded_date,
+      other_medal: req.body.other_medal,
+      other_medalen: req.body.other_medalen,
+      other_medalru: req.body.other_medalru,
+      uprising_participant: req.body.uprising_participant
+     
+    };
 
-            let same;
-            if (dateFields.includes(key)) {
-                same = normalizeDate(newValue) === normalizeDate(oldValue);
-            } else if (typeof newValue === 'boolean') {
-                // Special check for boolean fields
-                same = newValue === oldValue; 
-            } else {
-                // Coerce to string for comparison to handle potential differences in data types (e.g., number vs string)
-                same = String(newValue) === String(oldValue);
-            }
+  const updates = [];
+  const values = [];
+  let i = 1;
 
-            if (!same) {
-                console.log(`Field changed: ${key}, old: ${oldValue}, new: ${newValue}`);
-                updates.push(`"${key}" = $${i}`);
-                values.push(newValue);
-                i++;
-            }
-        }
+  // Normalize DATE fields to string for accurate comparison
+  const normalizeDate = val =>
+  val instanceof Date
+    ? val.toISOString().slice(0, 10)
+    : typeof val === 'string' && /^\d{4}-\d{2}-\d{2}$/.test(val)
+      ? val
+      : null;
 
-        // 6. Execute updates in a transaction (Soldier details, Battle History, Files)
-        await db.tx(async t => {
+const dateFields = [
+  'dob', 'dod', 'aliyadate', 'idf_enlistdate', 'idf_releasedate', 
+  'record_complete_date', 'admin_approved_date', 'downloaded_date'
+];
+
+for (const key in inputData) {
+  let newValue = inputData[key] === '' ? null : inputData[key];
+  let oldValue = existingSoldier[key] === '' ? null : existingSoldier[key];
+
+  let same;
+  if (dateFields.includes(key)) {
+    same = normalizeDate(newValue) === normalizeDate(oldValue);
+  } else {
+    same = newValue == oldValue;
+  }
+
+  if (!same) {
+    console.log(`Field changed: ${key}, old: ${oldValue}, new: ${newValue}`);
+    updates.push(`"${key}" = $${i}`);
+    values.push(newValue);
+    i++;
+  }
+}
+await db.tx(async t => {
             // ✅ Update soldier details only if needed
             if (updates.length > 0) {
                 const updateSQL = `UPDATE ${SOLDIER_TABLE} SET ${updates.join(', ')} WHERE id = $${i}`;
                 values.push(id);
                 await t.none(updateSQL, values);
-                console.log(`Updated soldier ID ${id} details.`);
-         // This logic ensures `admin_ready_for_download` is a proper boolean
-        const admin_ready_for_download = Array.isArray(req.body.admin_ready_for_download)
-            ? req.body.admin_ready_for_download.includes('true') || req.body.admin_ready_for_download.includes('on')
-            : req.body.admin_ready_for_download === 'true' || req.body.admin_ready_for_download === 'on';
-        //const recordCompleteSubmitted = req.body.recordcomplete === 'true' || req.body.recordcomplete === 'on';
-        let admin_approved_date = existingSoldier.admin_approved_date;
-          } else {
-                console.log(`No changes in soldier details for ID ${id}.`);
+                console.log(`Updated soldier ID ${id}`);
+            } else {
+                console.log(`No changes in soldier details for ID ${id}`);
             }
 
-            // --- BATTLE HISTORY UPDATE/INSERT LOGIC ---
-            for (let j = 0; j < battleyear.length; j++) {
+            // ✅ Update or Insert battle history without deleting existing ones
+            /*for (let j = 0; j < battleyear.length; j++) {
                 const hasContent =
                     (battleyear[j] && battleyear[j].trim() !== '') ||
                     (front[j] && front[j].trim() !== '') ||
@@ -1328,10 +1289,10 @@ app.post('/adminUpdateSoldier/:id', upload.array('files'), async (req, res) => {
                 if (hasContent) {
                     if (battleId[j]) {
                         // ✅ Update existing battle record
-                        console.log("Updating existing battle record:", battleId[j]);
+                        console.log ("update existing battle record")
                         await t.none(
                             `UPDATE soldier_battle_history
-                             SET battleyear=$1,
+                             SET battleyear=$1, 
                                  front=$2, fronten=$3, frontru=$4,
                                  battle=$5, battleen=$6, battleru=$7,
                                  medal=$8, medalen=$9, medalru=$10,
@@ -1341,7 +1302,7 @@ app.post('/adminUpdateSoldier/:id', upload.array('files'), async (req, res) => {
                                  updated_at=NOW()
                              WHERE id=$20 AND soldier_id=$21`,
                             [
-                                battleyear[j] || null,
+                                battleyear[j] || null, 
                                 front[j] || null, fronten[j] || null, frontru[j] || null,
                                 battle[j] || null, battleen[j] || null, battleru[j] || null,
                                 battle_medal[j] || null, battle_medalen[j] || null, battle_medalru[j] || null,
@@ -1353,20 +1314,20 @@ app.post('/adminUpdateSoldier/:id', upload.array('files'), async (req, res) => {
                         );
                     } else {
                         // ✅ Insert new battle record
-                        console.log("Inserting new battle history record.");
+                        console.log ("inster new battle history")
                         await t.none(
                             `INSERT INTO soldier_battle_history (
-                                 soldier_id, battleyear,
-                                 front, fronten, frontru,
-                                 battle, battleen, battleru,
-                                 medal, medalen, medalru,
-                                 details, detailsen, detailsru,
-                                 degreerank, degreeranken, degreerankru,
-                                 job, joben, jobru
-                               ) VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11,$12,$13,$14,$15,$16,$17,$18,$19,$20)`,
+                                soldier_id, battleyear,
+                                front, fronten, frontru,
+                                battle, battleen, battleru,
+                                medal, medalen, medalru,
+                                details, detailsen, detailsru,
+                                degreerank, degreeranken, degreerankru,
+                                job, joben, jobru
+                             ) VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11,$12,$13,$14,$15,$16,$17,$18,$19,$20)`,
                             [
                                 id,
-                                battleyear[j] || null,
+                                battleyear[j] || null, 
                                 front[j] || null, fronten[j] || null, frontru[j] || null,
                                 battle[j] || null, battleen[j] || null, battleru[j] || null,
                                 battle_medal[j] || null, battle_medalen[j] || null, battle_medalru[j] || null,
@@ -1377,96 +1338,53 @@ app.post('/adminUpdateSoldier/:id', upload.array('files'), async (req, res) => {
                         );
                     }
                 }
-            }
+            }*/
+                
+    
+    if (updates.length === 0) {
+      console.log("No changes detected, skipping update.");
+      return res.redirect(`/admin/completedRecords?adminemail=${encodeURIComponent(adminemail)}`);
 
-            // --- FILE UPLOAD LOGIC ---
-            if (req.files && req.files.length > 0) {
-                const fileInserts = req.files.map(file =>
-                    t.none( // Use 't' (transaction object) for file inserts
-                        `INSERT INTO uploaded_files (soldier_id, original_name, file_path)
-                         VALUES ($1, $2, $3)`,
-                        [id, file.originalname, file.path]
-                    )
-                );
-                await Promise.all(fileInserts);
-                console.log(`Stored ${req.files.length} uploaded files for soldier ID ${id}`);
-            }
+    }
 
-            console.log(`Transaction complete for soldier ID ${id}`);
-        }); // End of db.tx
+    //const updateSQL = `UPDATE ${SOLDIER_TABLE} SET ${updates.join(', ')} WHERE id = $${i}`;
+    //values.push(id);
 
-        // 7. Final redirect after ALL database operations and file uploads are complete
-        res.redirect(`/admin/completedRecords?adminemail=${encodeURIComponent(adminemail)}&saved=true`);
-
-    } catch (error) {
-        console.error('Error updating soldier:', error);
-        res.status(500).send(`
-            <h1>Error Updating Soldier</h1>
-            <p>Message: ${error.message}</p>
-            <pre>${error.stack || 'No stack trace available'}</pre>
-            ${error.query ? `<p>Query: ${error.query}</p>` : ''}
-            <a href="/adminUpdateSoldier/${id}?adminemail=${encodeURIComponent(adminemail)}">Go back to form</a>
-        `);
+    //await db.none(updateSQL, values);
+    console.log(`Successfully updated soldier with ID ${id}`);
+    if (req.files && req.files.length > 0) {
+      const fileInserts = req.files.map(file =>
+        db.none(
+          `INSERT INTO uploaded_files (soldier_id, original_name, file_path)
+           VALUES ($1, $2, $3)`,
+          [id, file.originalname, file.path]
+        )
+      );
+      await Promise.all(fileInserts);
+      console.log(`Stored ${req.files.length} uploaded files for soldier ID ${id}`);
     }
 });
+    res.redirect(`/admin/completedRecords?adminemail=${encodeURIComponent(adminemail)}&saved=true`);
+    
+     //res.redirect('/?saved=true');
+
+  } catch (error) {
+    console.error('Error updating soldier:', error);
+    res.status(500).send(`
+      <h1>Error Updating Soldier</h1>
+      <p>Message: ${error.message}</p>
+      <pre>${error.stack || 'No stack trace available'}</pre>
+      ${error.query ? `<p>Query: ${error.query}</p>` : ''}
+      <a href="/adminUpdateSoldier/${id}?adminemail=${encodeURIComponent('admin@ww2jewishsoldiers.com')}">Go back to form</a>
+    `);
+  }
+});
+
+
+ 
+
 // FIXED: Route to handle form submission for updating a soldier
-// ⭐ FIX: Missing GET Route to DISPLAY the admin update form ⭐
-app.get('/adminUpdateSoldier/:id', async (req, res) => {
-    const { id } = req.params;
-    const adminemail = req.query.adminemail;
-    const locale = req.getLocale(); // Assuming you have locale/i18n setup
 
-    console.log('Get /adminUpdateSoldier/:id hit for ID:', id, 'by:', adminemail);
-
-    if (!adminemail) {
-        // If admin email is missing, redirect back to the completed records list
-        return res.redirect(`/admin/completedRecords?adminemail=admin@ww2jewishsoldiers.com`);
-    }
-
-    try {
-        // 1. Fetch the main soldier record
-        const soldier = await db.oneOrNone(`SELECT * FROM ${SOLDIER_TABLE} WHERE id = $1`, [id]);
-        
-        if (!soldier) {
-            return res.status(404).send('Soldier not found');
-        }
-
-        // 2. Fetch all lookup tables (Needed for dropdowns/select fields)
-        const countries = await db.any('SELECT id, title_heb, title_eng, title_rus FROM "countries_TBL" ');
-        const medals = await db.any('SELECT id, title FROM "medals_TBL" ORDER BY title');
-        const corps = await db.any('SELECT id, title_heb, title_eng, title_rus FROM "corps_TBL" ');
-        const category = await db.any('SELECT id, title_heb, title_eng, title_rus FROM "category_TBL" ');
-        const army = await db.any('SELECT id, title_heb, title_eng, title_rus FROM "army_TBL" ');
-        const resistance = await db.any('SELECT id, title_heb, title_eng, title_rus FROM "resistance_TBL" ');
-        const partizan = await db.any('SELECT id, title_heb, title_eng, title_rus FROM "partizan_TBL" ');
-        const participation = await db.any('SELECT id, title_heb, title_eng, title_rus FROM "participation_TBL" ');
-        
-        // 3. Fetch existing battles for this soldier
-        const battleHistory = await db.any(
-            'SELECT * FROM "soldier_battle_history" WHERE soldier_id = $1 ORDER BY id', 
-            [id]
-        );
-
-        // 4. Render the admin-specific template
-        res.render('adminUpdate', { 
-            soldier,
-            countries,
-            medals,
-            corps,
-            category,
-            army,
-            resistance,
-            partizan,
-            participation,
-            battleHistory: battleHistory || [],
-            adminemail: adminemail, // Passed to ensure form actions work correctly
-            locale: locale, // Pass locale for i18n
-        });
-    } catch (err) {
-        console.error('Error rendering admin update form for ID:', id, err);
-        res.status(500).send('Server error');
-    }
-});
 // Route: Show completed records for a given admin
 app.get('/admin/completedRecords', async (req, res) => {
   let { adminemail, saved } = req.query;
@@ -1649,163 +1567,66 @@ app.post('/updateSoldier/:id', upload.array('files'), async (req, res) => {
 });
 // Route: Download selected completed records as Excel
 app.post('/admin/downloadExcel', async (req, res) => {
-    let ids = req.body.selectedIds;
-    // Assuming table constants are defined
-    const BATTLE_HISTORY_TABLE = 'soldier_battle_history'; 
-    const UPLOADED_FILES_TABLE = 'uploaded_files'; 
+  let ids = req.body.selectedIds;
 
-    if (!ids) {
-        return res.status(400).send('No records selected');
-    }
-    if (!Array.isArray(ids)) {
-        ids = [ids]; 
-    }
+  // If only one checkbox was selected, it'll be a string; convert it to an array
+  if (!ids) {
+    return res.status(400).send('No records selected');
+  }
 
-    console.log('📥 Final ID array:', ids);
+  if (!Array.isArray(ids)) {
+    ids = [ids]; // convert single value to array
+  }
 
-    try {
-        // --- 1. PREPARE DOWNLOAD METADATA ---
-        const now = new Date();
-        const downloadDateString = now.toISOString(); // Use ISO string for precision and sorting
-        
-        // 2. Fetch main soldier data (including names)
-        const selectedSoldiers = await db.any(`
-            SELECT id, fname, fnameen, fnameru, lname, lnameen, lnameru, * FROM ${SOLDIER_TABLE}
-            WHERE id IN ($1:csv)
-        `, [ids]);
-        
-        // Create a fast lookup map for soldier names
-        const soldierMap = new Map();
-        selectedSoldiers.forEach(s => {
-            soldierMap.set(s.id, {
-                fname: s.fname || '', fnameen: s.fnameen || '', fnameru: s.fnameru || '',
-                lname: s.lname || '', lnameen: s.lnameen || '', lnameru: s.lnameru || '',
-            });
-        });
+  console.log('📥 Final ID array:', ids);
 
-        // 3. Fetch associated data
-        const battleHistory = await db.any(`
-            SELECT * FROM ${BATTLE_HISTORY_TABLE}
-            WHERE soldier_id IN ($1:csv)
-        `, [ids]);
-        const uploadedFiles = await db.any(`
-            SELECT * FROM ${UPLOADED_FILES_TABLE}
-            WHERE soldier_id IN ($1:csv)
-        `, [ids]);
-        
-        // --- 4. MAP DATA STRUCTURES & INJECT DOWNLOAD DATE ---
-        
-        // Map names and download date onto Battle History
-        const mappedBattleHistory = battleHistory.map(battle => {
-            const names = soldierMap.get(battle.soldier_id) || {};
-            return {
-                download_date: downloadDateString, // New field injected
-                soldier_id: battle.soldier_id,
-                ...names,
-                ...battle
-            };
-        });
+  try {
+    const selectedSoldiers = await db.any(`
+      SELECT * FROM ${SOLDIER_TABLE}
+      WHERE id IN ($1:csv)
+    `, [ids]);
 
-        // Map names and download date onto Uploaded Files
-        const mappedUploadedFiles = uploadedFiles.map(file => {
-            const names = soldierMap.get(file.soldier_id) || {};
-            return {
-                download_date: downloadDateString, // New field injected
-                soldier_id: file.soldier_id,
-                ...names,
-                ...file
-            };
-        });
+    const workbook = new ExcelJS.Workbook();
+    const worksheet = workbook.addWorksheet('Completed Soldiers');
 
-        const workbook = new ExcelJS.Workbook();
-        
-        // --- Worksheet 1: Completed Soldiers (Main Data) ---
-        const soldierWorksheet = workbook.addWorksheet('Soldiers_Main');
-        
-        // Add download_date column definition at the start
-        const mainColumns = [
-            { header: 'DOWNLOAD_DATE', key: 'download_date' },
-            ...Object.keys(selectedSoldiers[0] || {}).map(key => ({
-                header: key.toUpperCase(), 
-                key: key,
-            }))
-        ];
-        soldierWorksheet.columns = mainColumns;
+    worksheet.columns = Object.keys(selectedSoldiers[0] || {}).map(key => ({
+      header: key,
+      key: key,
+    }));
 
-        // Inject download_date into each row
-        selectedSoldiers.forEach(soldier => {
-            const modifiedSoldier = { 
-                ...soldier, 
-                id: `A${soldier.id}`,
-                download_date: downloadDateString // Inject date here
-            };
-            soldierWorksheet.addRow(modifiedSoldier);
-        });
-        
-        // --- Worksheet 2: Battle History (Including Names and Date) ---
-        if (mappedBattleHistory.length > 0) {
-            const battleWorksheet = workbook.addWorksheet('Soldiers_BattleHistory');
-            
-            // Define the desired order for better readability
-            const desiredOrder = ['download_date', 'soldier_id', 'fname', 'fnameen', 'fnameru', 'lname', 'lnameen', 'lnameru'];
-            const allBattleKeys = Object.keys(mappedBattleHistory[0]);
-            const sortedBattleKeys = [...desiredOrder, ...allBattleKeys.filter(k => !desiredOrder.includes(k))];
+  //selectedSoldiers.forEach(soldier => {
+  //worksheet.addRow(soldier);
+  //});
+  selectedSoldiers.forEach(soldier => {
+  const modifiedSoldier = { ...soldier, id: `A${soldier.id}` };
+  worksheet.addRow(modifiedSoldier);
+});
 
-            battleWorksheet.columns = sortedBattleKeys.map(key => ({
-                header: key.toUpperCase(),
-                key: key,
-            }));
+    // ✅ Update downloaded_date for each selected record
+const now = new Date();
+  await db.none(`
+    UPDATE ${SOLDIER_TABLE}
+    SET downloaded_date = $1
+    WHERE id IN ($2:csv)
+  `, [now, ids]);
 
-            mappedBattleHistory.forEach(battle => {
-                battleWorksheet.addRow(battle);
-            });
-        }
-        
-        // --- Worksheet 3: Uploaded Files (Including Names and Date) ---
-        if (mappedUploadedFiles.length > 0) {
-            const filesWorksheet = workbook.addWorksheet('Soldiers_UploadedFiles');
-            
-            // Define the desired order for better readability
-            const desiredOrder = ['download_date', 'soldier_id', 'fname', 'fnameen', 'fnameru', 'lname', 'lnameen', 'lnameru'];
-            const allFileKeys = Object.keys(mappedUploadedFiles[0]);
-            const sortedFileKeys = [...desiredOrder, ...allFileKeys.filter(k => !desiredOrder.includes(k))];
+console.log(`✅ Updated downloaded_date for ${ids.length} records`);
 
-            filesWorksheet.columns = sortedFileKeys.map(key => ({
-                header: key.toUpperCase(),
-                key: key,
-            }));
+    res.setHeader(
+      'Content-Disposition',
+      'attachment; filename="completed_records.xlsx"'
+    );
+    res.setHeader(
+      'Content-Type',
+      'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'
+    );
 
-            mappedUploadedFiles.forEach(file => {
-                filesWorksheet.addRow(file);
-            });
-        }
-
-        // 5. Update downloaded_date in the database
-        await db.none(`
-            UPDATE ${SOLDIER_TABLE}
-            SET downloaded_date = $1
-            WHERE id IN ($2:csv)
-        `, [now, ids]);
-
-        console.log(`✅ Updated downloaded_date for ${ids.length} records`);
-
-        // 6. Send the workbook as a response
-        res.setHeader(
-            'Content-Disposition',
-            'attachment; filename="completed_records_data.xlsx"'
-        );
-        res.setHeader(
-            'Content-Type',
-            'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'
-        );
-
-        await workbook.xlsx.write(res);
-        res.end();
-        
-    } catch (err) {
-        console.error('Excel export error:', err);
-        res.status(500).send('Error exporting Excel');
-    }
+    await workbook.xlsx.write(res);
+    res.end();
+  } catch (err) {
+    console.error('Excel export error:', err);
+    res.status(500).send('Error exporting Excel');
+  }
 });
 
 // Start the server

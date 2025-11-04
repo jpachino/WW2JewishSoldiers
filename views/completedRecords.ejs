@@ -241,7 +241,12 @@
                  <td <% if (s.downloaded_date) { %> style="background-color: #fff3cd;" <% } %>>
                     <%= s.downloaded_date ? new Date(s.downloaded_date).toLocaleDateString('en-GB', { day: '2-digit', month: '2-digit', year: 'numeric' }) : '' %>
                 </td>
-                <td><a href="/adminupdateSoldier/<%= s.id %>"><%= __('actions.edit') %></a></td>
+                <!--<td><a href="/adminupdateSoldier/<%= s.id %>"><%= __('actions.edit') %></a></td>-->
+                <td>
+                <a href="/adminUpdateSoldier/<%= s.id %>?adminemail=<%= adminemail %>">
+                <%= __('actions.edit') %>
+  </a>
+</td>
               </tr>
             <% }) %>
           </tbody>

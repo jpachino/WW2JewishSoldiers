@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+etto<!DOCTYPE html>
 <html lang="<%= locale %>">
 <head>
   <meta charset="UTF-8" />
@@ -44,9 +44,9 @@
   <div class="container">
     <form action="/updateSoldier/<%= soldier.id %>" method="post" enctype="multipart/form-data" id="soldierForm">
           <br> <br> <br> <br> <br> <br> <br>
-      <fieldset>
-        <legend><%= __('sections.basic') %></legend>
-        <div class="trio-row">
+     <fieldset>
+      <legend><%= __('sections.basic') %></legend>
+  <div class="trio-row">
           <div class="input-group">
             <label for="fname"><%= __('fields.fname') %></label>
             <input type="text" name="fname" id="fname" value="<%= soldier.fname || '' %>" />
@@ -90,9 +90,10 @@
         </div>
       </fieldset>
 
-      <fieldset>
-        <legend><%= __('sections.family') %></legend>
-        <div class="trio-row">
+
+<fieldset>
+  <legend><%= __('sections.family') %></legend>
+  <div class="trio-row">
           <div class="input-group">
             <label for="fathername"><%= __('fields.fathername') %></label>
             <input type="text" name="fathername" id="fathername" value="<%= soldier.fathername || '' %>" />
@@ -143,20 +144,71 @@
         </div>
       </fieldset>
 
-      <fieldset>
-        <legend><%= __('sections.birthdeath') %></legend>
-        <label for="birthcountry"><%= __('fields.birthcountry') %></label>
-        <select name="birthcountry" id="birthcountry">
-          <option value=""><%= __('fields.birthcountry') %></option>
-          <% countries.forEach(c => { %>
-            <option value="<%= c.title %>" <%= c.title === soldier.birthcountry ? 'selected' : '' %>><%= c.title %></option>
-          <% }) %>
-        </select>
-        <div class="single-row">
-          <label for="otherbirthcountry"><%= __('fields.otherbirthcountry') %></label>
-          <input type="text" name="otherbirthcountry" id="otherbirthcountry" value="<%= soldier.otherbirthcountry || '' %>" />
-        </div>
-        <div class="trio-row">
+   <fieldset>
+  <legend><%= __('sections.birthdeath') %></legend>
+
+  <!--<div class="single-row">
+    <label for="birthcountry"><%= __('fields.birthcountry') %></label>
+    <input type="text" name="birthcountry" id="birthcountry" />
+  </div>-->
+
+
+  
+  <!--<label for="birthcountry"><%= __('fields.birthcountry') %></label>
+  <select name="birthcountry" id="birthcountry">
+  <option value=""><%= __('fields.birthcountry') %></option>
+
+    <% countries.forEach(c => { %>
+      <option value="<%= c.title%>" <%= soldier.birthcountry === c.title ? 'selected' : '' %>>
+        <%= c.title %>
+      </option>
+    <% }) %>
+ 
+</select>-->
+
+<div>
+  <label for="birthcountry"><%= __('fields.birthcountry') %></label>
+  <select name="birthcountry" id="birthcountry">
+    <option value=""><%= __('fields.birthcountry') %></option>
+    <%
+  // Make a copy and sort based on the current locale
+  let sortedCountries = [...countries].sort((a, b) => {
+    if (locale === 'he') {
+      return a.title_heb.localeCompare(b.title_heb, 'he');
+    } else if (locale === 'en') {
+      return a.title_eng.localeCompare(b.title_eng, 'en');
+    } else if (locale === 'ru') {
+      return a.title_rus.localeCompare(b.title_rus, 'ru');
+    }
+    return 0;
+  });
+%>
+    <% sortedCountries.forEach(c => { %>
+      <% if (locale === 'he') { %>
+        <option value="<%= c.title_heb %>" <%= soldier.birthcountry === c.title_heb ? 'selected' : '' %>>
+          <%= c.title_heb %>
+        </option>
+      <% } else if (locale === 'en') { %>
+        <option value="<%= c.title_eng %>" <%= soldier.birthcountry === c.title_eng ? 'selected' : '' %>>
+          <%= c.title_eng %>
+        </option>
+      <% } else if (locale === 'ru') { %>
+        <option value="<%= c.title_rus %>" <%= soldier.birthcountry === c.title_rus ? 'selected' : '' %>>
+          <%= c.title_rus %>
+        </option>
+      <% } %>
+    <% }) %>
+
+  </select>
+</div>
+
+
+  <div class="single-row">
+    <label for="otherbirthcountry"><%= __('fields.otherbirthcountry') %></label>
+    <input type="text" name="otherbirthcountry" id="otherbirthcountry" value="<%= soldier.otherbirthcountry || '' %>" />
+  </div>
+
+  <div class="trio-row">
           <div class="input-group">
             <label for="birthcity"><%= __('fields.birthcity') %></label>
             <input type="text" name="birthcity" id="birthcity" value="<%= soldier.birthcity || '' %>" />
@@ -202,55 +254,60 @@
         <input type="date" name="dod" id="dod" value="<%= formattedDod %>" />
         <label for="aliyadate"><%= __('fields.aliyadate') %>:</label>
         <input type="date" name="aliyadate" id="aliyadate" value="<%= formattedAliya %>" />
-        <div class="trio-row">
-          <div class="input-group">
-            <label for="placeofdeath"><%= __('fields.placeofdeath') %></label>
-            <input type="text" name="placeofdeath" id="placeofdeath" value="<%= soldier.placeofdeath || '' %>" />
-          </div>
-          <div class="input-group">
-            <label for="placeofdeathen"><%= __('fields.placeofdeathen') %></label>
-            <input type="text" name="placeofdeathen" id="placeofdeathen" value="<%= soldier.placeofdeathen || '' %>" />
-          </div>
-          <div class="input-group">
-            <label for="placeofdeathru"><%= __('fields.placeofdeathru') %></label>
-            <input type="text" name="placeofdeathru" id="placeofdeathru" value="<%= soldier.placeofdeathru || '' %>" />
-          </div>
-        </div>
-        <div class="trio-row">
-          <div class="input-group">
-            <label for="deathdetails"><%= __('fields.deathdetails') %></label>
-            <select name="deathdetails" id="deathdetails">
-              <option value="">-- בחר --</option>
-              <option value="נפטר" <%= soldier.deathdetails === 'נפטר' ? 'selected' : '' %>>נפטר</option>
-              <option value="נפל בקרב" <%= soldier.deathdetails === 'נפל בקרב' ? 'selected' : '' %>>נפל בקרב</option>
-              <option value="נפל במילוי תפקידו" <%= soldier.deathdetails === 'נפל במילוי תפקידו' ? 'selected' : '' %>>נפל במילוי תפקידו</option>
-              <option value="נרצח" <%= soldier.deathdetails === 'נרצח' ? 'selected' : '' %>>נרצח</option>
-            </select>
-          </div>
-          <div class="input-group">
-            <label for="deathdetailsen"><%= __('fields.deathdetailsen') %></label>
-            <select name="deathdetailsen" id="deathdetailsen">
-              <option value="">-- Select --</option>
-              <option value="Deceased" <%= soldier.deathdetailsen === 'Deceased' ? 'selected' : '' %>>Deceased</option>
-              <option value="Fallen in battle" <%= soldier.deathdetailsen === 'Fallen in battle' ? 'selected' : '' %>>Fallen in battle</option>
-              <option value="Fallen in the line of duty" <%= soldier.deathdetailsen === 'Fallen in the line of duty' ? 'selected' : '' %>>Fallen in the line of duty</option>
-              <option value="Murdered" <%= soldier.deathdetailsen === 'Murdered' ? 'selected' : '' %>>Murdered</option>
-            </select>
-          </div>
-          <div class="input-group">
-            <label for="deathdetailsru"><%= __('fields.deathdetailsru') %></label>
-            <select name="deathdetailsru" id="deathdetailsru">
-              <option value="">-- Выбрать --</option>
-              <option value="Умер" <%= soldier.deathdetailsru === 'Умер' ? 'selected' : '' %>>Умер</option>
-              <option value="Пал в бою" <%= soldier.deathdetailsru === 'Пал в бою' ? 'selected' : '' %>>Пал в бою</option>
-              <option value="Погиб при исполнении служебных обязанностей" <%= soldier.deathdetailsru === 'Погиб при исполнении служебных обязанностей' ? 'selected' : '' %>>Погиб при исполнении служебных обязанностей</option>
-              <option value="Убит" <%= soldier.deathdetailsru === 'Убит' ? 'selected' : '' %>>Убит</option>
-            </select>
-          </div>
-        </div>
-      </fieldset>
+      
+<div class="trio-row">
+    <div class="input-group">
+      <label for="placeofdeath"><%= __('fields.placeofdeath') %></label>
+      <input type="text" name="placeofdeath" id="placeofdeath" value="<%= soldier.placeofdeath || '' %>"/>
+    </div>
+    <div class="input-group">
+      <label for="placeofdeathen"><%= __('fields.placeofdeathen') %></label>
+      <input type="text" name="placeofdeathen" id="placeofdeathen" value="<%= soldier.placeofdeathen || '' %>"/>
+    </div>
+    <div class="input-group">
+      <label for="placeofdeathru"><%= __('fields.placeofdeathru') %></label>
+      <input type="text" name="placeofdeathru" id="placeofdeathru" value="<%= soldier.placeofdeathru || '' %>"/>
+    </div>
+  </div>
 
-      <fieldset>
+<div class="trio-row">
+  <% if (locale === 'he') { %>
+    <div class="input-group">
+      <label for="deathdetails"><%= __('fields.deathdetails') %></label>
+      <select name="deathdetails" id="deathdetails">
+        <option value="נפטר" <%= soldier.deathdetails === 'נפטר' ? 'selected' : '' %>>נפטר</option>
+        <option value="נפל בקרב" <%= soldier.deathdetails === 'נפל בקרב' ? 'selected' : '' %>>נפל בקרב</option>
+        <option value="נפל במילוי תפקידו" <%= soldier.deathdetails === 'נפל במילוי תפקידו' ? 'selected' : '' %>>נפל במילוי תפקידו</option>
+        <option value="נרצח" <%= soldier.deathdetails === 'נרצח' ? 'selected' : '' %>>נרצח</option>
+      </select>
+    </div>
+  <% } else if (locale === 'en') { %>
+    <div class="input-group">
+      <label for="deathdetailsen"><%= __('fields.deathdetailsen') %></label>
+      <select name="deathdetailsen" id="deathdetailsen">
+        <option value="">-- Select --</option>
+        <option value="Deceased" <%= soldier.deathdetailsen === 'Deceased' ? 'selected' : '' %>>Deceased</option>
+        <option value="Fallen in battle" <%= soldier.deathdetailsen === 'Fallen in battle' ? 'selected' : '' %>>Fallen in battle</option>
+        <option value="Fallen in the line of duty" <%= soldier.deathdetailsen === 'Fallen in the line of duty' ? 'selected' : '' %>>Fallen in the line of duty</option>
+        <option value="Murdered" <%= soldier.deathdetailsen === 'Murdered' ? 'selected' : '' %>>Murdered</option>
+      </select>
+    </div>
+  <% } else if (locale === 'ru') { %>
+    <div class="input-group">
+      <label for="deathdetailsru"><%= __('fields.deathdetailsru') %></label>
+      <select name="deathdetailsru" id="deathdetailsru">
+        <option value="">-- Выбрать --</option>
+        <option value="Умер" <%= soldier.deathdetailsru === 'Умер' ? 'selected' : '' %>>Умер</option>
+        <option value="Пал в бою" <%= soldier.deathdetailsru === 'Пал в бою' ? 'selected' : '' %>>Пал в бою</option>
+        <option value="Погиб при исполнении служебных обязанностей" <%= soldier.deathdetailsru === 'Погиб при исполнении служебных обязанностей' ? 'selected' : '' %>>Погиб при исполнении служебных обязанностей</option>
+        <option value="Убит" <%= soldier.deathdetailsru === 'Убит' ? 'selected' : '' %>>Убит</option>
+      </select>
+    </div>
+  <% } %>
+</div>
+
+
+ <fieldset>
         <legend><%= __('sections.bio') %></legend>
         <div class="input-group">
           <label for="biography"><%= __('fields.biography') %></label>
@@ -266,53 +323,104 @@
         </div>
       </fieldset>
 
-      <fieldset>
-        <legend><%= __('sections.military') %></legend>
-        <!--<div class="input-group">
-          <label for="shortdesc"><%= __('fields.shortdesc') %></label>
-          <input type="text" name="shortdesc" id="shortdesc" value="<%= soldier.shortdesc || '' %>" />
-        </div>-->
-        <div>
-          <label for="category"><%= __('fields.category') %></label>
-          <select name="category" id="category">
-            <option value=""><%= __('fields.category') %></option>
-            <% category.forEach(c => { %>
-              <option value="<%= c.title %>" <%= soldier.category === c.title ? 'selected' : '' %>>
-                <%= c.title %>
-              </option>
-            <% }) %>
-          </select>
-        </div>
-        <div class="trio-row">
-          <div class="input-group">
-            <label for="armyrole"><%= __('fields.armyrole') %></label>
-            <input type="text" name="armyrole" id="armyrole" value="<%= soldier.armyrole || '' %>" />
-          </div>
-          <div class="input-group">
-            <label for="armyroleen"><%= __('fields.armyroleen') %></label>
-            <input type="text" name="armyroleen" id="armyroleen" value="<%= soldier.armyroleen || '' %>" />
-          </div>
-          <div class="input-group">
-            <label for="armyroleru"><%= __('fields.armyroleru') %></label>
-            <input type="text" name="armyroleru" id="armyroleru" value="<%= soldier.armyroleru || '' %>" />
-          </div>
-        </div>
-        <div>
-          <label for="army"><%= __('fields.army') %></label>
-          <select name="army" id="army">
-            <option value=""><%= __('fields.army') %></option>
-            <% army.forEach(c => { %>
-              <option value="<%= c.title %>" <%= soldier.army === c.title ? 'selected' : '' %>>
-                <%= c.title %>
-              </option>
-            <% }) %>
-          </select>
-        </div> <br>
-        <div class="input-group">
-          <label for="armyid"><%= __('fields.armyid') %></label>
-          <input type="number" name="armyid" id="armyid" value="<%= soldier.armyid || '' %>" />
-        </div>
-         <div class="trio-row">
+ <fieldset>
+  <!--<div class="input-group">
+      <label for="shortdesc"><%= __('fields.shortdesc') %></label>
+      <input type="text" name="shortdesc" id="shortdesc" />
+  </div>-->
+  
+   
+  <div>
+  <label for="category"><%= __('fields.category') %></label>
+  <select name="category" id="category">
+    <option value=""><%= __('fields.category') %></option>
+
+    <% category.forEach(c => { %>
+      <% if (locale === 'he') { %>
+        <option value="<%= c.title_heb %>" <%= soldier.category === c.title_heb ? 'selected' : '' %>>
+          <%= c.title_heb %>
+        </option>
+      <% } else if (locale === 'en') { %>
+        <option value="<%= c.title_eng %>" <%= soldier.category === c.title_eng ? 'selected' : '' %>>
+          <%= c.title_eng %>
+        </option>
+      <% } else if (locale === 'ru') { %>
+        <option value="<%= c.title_rus %>" <%= soldier.category === c.title_rus ? 'selected' : '' %>>
+          <%= c.title_rus %>
+        </option>
+      <% } %>
+    <% }) %>
+
+  </select>
+</div>
+
+
+  <div class="trio-row">
+  <div class="input-group">
+    <label for="armyrole"><%= __('fields.armyrole') %></label>
+    <input type="text" name="armyrole" id="armyrole" value="<%= soldier.armyrole || '' %>" />
+  </div>
+  <div class="input-group">
+    <label for="armyroleen"><%= __('fields.armyroleen') %></label>
+    <input type="text" name="armyroleen" id="armyroleen" value="<%= soldier.armyroleen || '' %>" />
+  </div>
+  <div class="input-group">
+    <label for="armyroleru"><%= __('fields.armyroleru') %></label>
+    <input type="text" name="armyroleru" id="armyroleru" value="<%= soldier.armyroleru || '' %>" />
+  </div>
+</div>
+
+
+
+  
+
+  <div>
+    <label for="army"><%= __('fields.army') %></label>
+    <select name="army" id="army">
+    <option value=""><%= __('fields.army') %></option>
+
+     <% army.forEach(c => { %>
+      <% if (locale === 'he') { %>
+        <option value="<%= c.title_heb %>" <%= soldier.army === c.title_heb ? 'selected' : '' %>><%= c.title_heb %></option>
+      <% } else if (locale === 'en') { %>
+        <option value="<%= c.title_eng %>" <%= soldier.army === c.title_eng ? 'selected' : '' %>><%= c.title_eng %></option>
+      <% } else if (locale === 'ru') { %>
+        <option value="<%= c.title_rus %>" <%= soldier.army === c.title_rus ? 'selected' : '' %>><%= c.title_rus %></option>
+      <% } %>
+    <% }) %> 
+  </select>
+  </div>
+ 
+ 
+<br>
+
+<div class="input-group">
+  <label for="armyid"><%= __('fields.armyid') %></label>
+  <input type="text" name="armyid" id="armyid" value="<%= soldier.armyid || '' %>" />
+</div>
+
+  
+
+  <div>
+    <label for="corps"><%= __('fields.corps') %></label>
+    <select name="corps" id="corps">
+    <option value=""><%= __('fields.corps') %></option>
+
+     <% corps.forEach(c => { %>
+      <% if (locale === 'he') { %>
+        <option value="<%= c.title_heb %>" <%= soldier.corps === c.title_heb ? 'selected' : '' %>><%= c.title_heb %></option>
+      <% } else if (locale === 'en') { %>
+        <option value="<%= c.title_eng %>" <%= soldier.corps === c.title_eng ? 'selected' : '' %>><%= c.title_eng %></option>
+      <% } else if (locale === 'ru') { %>
+        <option value="<%= c.title_rus %>" <%= soldier.corps === c.title_rus ? 'selected' : '' %>><%= c.title_rus %></option>
+      <% } %>
+    <% }) %> 
+  </select>
+  </div>
+ 
+ 
+
+    <div class="trio-row">
           <div class="input-group">
             <label for="platoonname"><%= __('fields.platoonname') %></label>
             <input type="text" name="platoonname" id="platoonname" value="<%= soldier.platoonname || '' %>" />
@@ -325,268 +433,314 @@
             <label for="platoonnameru"><%= __('fields.platoonnameru') %></label>
             <input type="text" name="platoonnameru" id="platoonnameru" value="<%= soldier.platoonnameru || '' %>" />
           </div>
-        </div>
-        <div class="input-group">
-          <label for="enlistreason"><%= __('fields.enlistreason') %></label>
-          <select name="enlistreason" id="enlistreason">
-            <option value="">-- בחר --</option>
-            <option value=" התנדבות" <%= soldier.enlistreason === ' התנדבות' ? 'selected' : '' %>> התנדבות</option>
-            <option value="גיוס חובה" <%= soldier.enlistreason === 'גיוס חובה' ? 'selected' : '' %>>גיוס חובה</option>
-          </select>
-        </div>
-        <div class="trio-row">
-          <div class="input-group">
-            <label for="releasereason"><%= __('fields.releasereason') %></label>
-            <input type="text" name="releasereason" id="releasereason" value="<%= soldier.releasereason || '' %>" />
-          </div>
-          <div class="input-group">
-            <label for="releasereasonen"><%= __('fields.releasereasonen') %></label>
-            <input type="text" name="releasereasonen" id="releasereasonen" value="<%= soldier.releasereasonen || '' %>" />
-          </div>
-          <div class="input-group">
-            <label for="releasereasonru"><%= __('fields.releasereasonru') %></label>
-            <input type="text" name="releasereasonru" id="releasereasonru" value="<%= soldier.releasereasonru || '' %>" />
-          </div>
-        </div>
-        <div>
-          <label for="resistance"><%= __('fields.resistance') %></label>
-          <select name="resistance" id="resistance">
-            <option value=""><%= __('fields.resistance') %></option>
-            <% resistance.forEach(c => { %>
-              <option value="<%= c.title %>" <%= soldier.resistance === c.title ? 'selected' : '' %>>
-                <%= c.title %>
-              </option>
-            <% }) %>
-          </select>
-        </div>
-        <div>
-          <label for="partizan"><%= __('fields.partizan') %></label>
-          <select name="partizan" id="partizan">
-            <option value=""><%= __('fields.partizan') %></option>
-            <% partizan.forEach(c => { %>
-              <option value="<%= c.title %>" <%= soldier.partizan === c.title ? 'selected' : '' %>>
-                <%= c.title %>
-              </option>
-            <% }) %>
-          </select>
-        </div>
-        <div class="trio-row">
-          <div class="input-group">
-            <label for="gettodesc"><%= __('fields.gettodesc') %></label>
-            <input type="text" name="gettodesc" id="gettodesc" value="<%= soldier.gettodesc || '' %>" />
-          </div>
-          <div class="input-group">
-            <label for="gettodescen"><%= __('fields.gettodescen') %></label>
-            <input type="text" name="gettodescen" id="gettodescen" value="<%= soldier.gettodescen || '' %>" />
-          </div>
-          <div class="input-group">
-            <label for="gettodescru"><%= __('fields.gettodescru') %></label>
-            <input type="text" name="gettodescru" id="gettodescru" value="<%= soldier.gettodescru || '' %>" />
-          </div>
-        </div>
-        <div class="input-group">
-          <label for="otherfightingcontext"><%= __('fields.otherfightingcontext') %></label>
-          <input type="text" name="otherfightingcontext" id="otherfightingcontext" value="<%= soldier.otherfightingcontext || '' %>" />
-        </div>
-        <div>
-          <label for="participation"><%= __('fields.participation') %></label>
-          <select name="participation" id="participation">
-            <option value=""><%= __('fields.participation') %></option>
-            <% participation.forEach(c => { %>
-              <option value="<%= c.title %>" <%= soldier.participation === c.title ? 'selected' : '' %>>
-                <%= c.title %>
-              </option>
-            <% }) %>
-          </select>
-        </div>
-        <div class="input-group">
-          <label for="otherparticipation"><%= __('fields.otherparticipation') %></label>
-          <input type="text" name="otherparticipation" id="otherparticipation" value="<%= soldier.otherparticipation || '' %>" />
-        </div>
-        
-        <div>
-          <label for="corps"><%= __('fields.corps') %></label>
-          <select name="corps" id="corps">
-            <option value=""><%= __('fields.corps') %></option>
-            <% corps.forEach(c => { %>
-              <option value="<%= c.title %>" <%= soldier.corps === c.title ? 'selected' : '' %>>
-                <%= c.title %>
-              </option>
-            <% }) %>
-          </select>
-        </div>
-        <div class="trio-row">
-          <div class="input-group">
-            <label for="wounddetails"><%= __('fields.wounddetails') %></label>
-            <input type="text" name="wounddetails" id="wounddetails" value="<%= soldier.wounddetails || '' %>" />
-          </div>
-          <div class="input-group">
-            <label for="wounddetailsen"><%= __('fields.wounddetailsen') %></label>
-            <input type="text" name="wounddetailsen" id="wounddetailsen" value="<%= soldier.wounddetailsen || '' %>" />
-          </div>
-          <div class="input-group">
-            <label for="wounddetailsru"><%= __('fields.wounddetailsru') %></label>
-            <input type="text" name="wounddetailsru" id="wounddetailsru" value="<%= soldier.wounddetailsru || '' %>" />
-          </div>
-        </div>
-        <div class="trio-row">
-          <div class="input-group">
-            <label for="otherdecoration"><%= __('fields.otherdecoration') %></label>
-            <input type="text" name="otherdecoration" id="otherdecoration" value="<%= soldier.otherdecoration || '' %>" />
-          </div>
-          <div class="input-group">
-            <label for="otherdecorationen"><%= __('fields.otherdecorationen') %></label>
-            <input type="text" name="otherdecorationen" id="otherdecorationen" value="<%= soldier.otherdecorationen || '' %>" />
-          </div>
-          <div class="input-group">
-            <label for="otherdecorationru"><%= __('fields.otherdecorationru') %></label>
-            <input type="text" name="otherdecorationru" id="otherdecorationru" value="<%= soldier.otherdecorationru || '' %>" />
-          </div>
-        </div>
-        <div class="input-group">
-          <label for="fightingdesc"><%= __('fields.fightingdesc') %></label>
-          <textarea name="fightingdesc" id="fightingdesc"><%= soldier.fightingdesc || '' %></textarea>
-        </div>
-        <div class="input-group">
-          <label for="fightingdescen"><%= __('fields.fightingdescen') %></label>
-          <textarea name="fightingdescen" id="fightingdescen"><%= soldier.fightingdescen || '' %></textarea>
-        </div>
-        <div class="input-group">
-          <label for="fightingdescru"><%= __('fields.fightingdescru') %></label>
-          <textarea name="fightingdescru" id="fightingdescru"><%= soldier.fightingdescru || '' %></textarea>
-        </div>
-      </fieldset>
-
-      
-
-      <fieldset>
-        <legend><%= __('sections.urlnotes') %></legend>
-        <div class="trio-row">
-          <div class="input-group">
-            <label for="title"><%= __('fields.title') %></label>
-            <input type="text" name="title" id="title" value="<%= soldier.title || '' %>" />
-          </div>
-          <div class="input-group">
-            <label for="titleen"><%= __('fields.titleen') %></label>
-            <input type="text" name="titleen" id="titleen" value="<%= soldier.titleen || '' %>" />
-          </div>
-          <div class="input-group">
-            <label for="titleru"><%= __('fields.titleru') %></label>
-            <input type="text" name="titleru" id="titleru" value="<%= soldier.titleru || '' %>" />
-          </div>
-        </div>
-        <!--<label for="remarks"><%= __('fields.remarks') %>:</label>
-        <textarea name="remarks" id="remarks"><%= soldier.remarks || '' %></textarea>
-        <label for="remarksen"><%= __('fields.remarksen') %>:</label>
-        <textarea name="remarksen" id="remarksen"><%= soldier.remarksen || '' %></textarea>
-        <label for="remarksru"><%= __('fields.remarksru') %>:</label>
-        <textarea name="remarksru" id="remarksru"><%= soldier.remarksru || '' %></textarea>-->
-        <label for="linkurl"><%= __('fields.linkurl') %>:</label>
-        <input type="url" name="linkurl" id="linkurl" value="<%= soldier.linkurl || '' %>" />
-      </fieldset>
-
-      <fieldset>
-        <legend><%= __('sections.uploads') %></legend>
-        <label class="file-upload-label">
-          <%= __('form.upload_files') %>
-        </label>
-        <div class="custom-file-input">
-          <input type="file" id="files" name="files" multiple onchange="updateFileName()" hidden />
-          <button type="button" onclick="document.getElementById('files').click()">
-            <%= __('form.select_files') %>
-          </button>
-          <span id="file-label"><%= __('form.no_file_chosen') %></span>
-        </div>
-      </fieldset>
-      
-
-<!-- =================== Battle History =================== -->
-<fieldset>
-    <legend><%= __('sections.battleHistory') %></legend>
-    <div id="battle-container">
-        <% if (battleHistory && battleHistory.length > 0) { %>
-            <% battleHistory.forEach((battle, index) => { %>
-                <div class="battle-row mb-3">
-                    <input type="hidden" name="battleId[]" value="<%= battle.id %>">
-                    <input type="hidden" name="delete_battle_id[]" value="">
-                   <!-- <button type="button" class="btn btn-sm btn-outline-danger remove-entry mb-2">✕ Remove</button>-->
-                    
-                    <div class="trio-row">
-                        <label><%= __('fields.year') %></label>
-                        <input type="number" name="battleyear[]" class="form-control" value="<%= battle.battleyear || '' %>">
-                        
-                    </div>
-                    
-                    <div class="trio-row">
-                        <label><%= __('fields.front') %></label>
-                        <input type="text" name="front[]" class="form-control" value="<%= battle.front || '' %>">
-                        <label><%= __('fields.fronten') %></label>
-                        <input type="text" name="fronten[]" class="form-control" value="<%= battle.fronten || '' %>">
-                        <label><%= __('fields.frontru') %></label>
-                        <input type="text" name="frontru[]" class="form-control" value="<%= battle.frontru || '' %>">
-                    </div>
-                    
-                    <div class="trio-row">
-                        <label><%= __('fields.battle') %></label>
-                        <input type="text" name="battle[]" class="form-control" value="<%= battle.battle || '' %>">
-                        <label><%= __('fields.battleen') %></label>
-                        <input type="text" name="battleen[]" class="form-control" value="<%= battle.battleen || '' %>">
-                        <label><%= __('fields.battleru') %></label>
-                        <input type="text" name="battleru[]" class="form-control" value="<%= battle.battleru || '' %>">
-                    </div>
-                    
-                    <div class="trio-row">
-                        <label><%= __('fields.medal') %></label>
-                        <input type="text" name="battle_medal[]" class="form-control" value="<%= battle.medal || '' %>">
-                        <label><%= __('fields.medalen') %></label>
-                        <input type="text" name="battle_medalen[]" class="form-control" value="<%= battle.medalen || '' %>">
-                        <label><%= __('fields.medalru') %></label>
-                        <input type="text" name="battle_medalru[]" class="form-control" value="<%= battle.medalru || '' %>">
-                    </div>
-                    
-                                        
-                    <div class="trio-row">
-                        <label><%= __('fields.degreerank') %></label>
-                        <input type="text" name="degreerank[]" class="form-control" value="<%= battle.degreerank || '' %>">
-                        <label><%= __('fields.degreeranken') %></label>
-                        <input type="text" name="degreeranken[]" class="form-control" value="<%= battle.degreeranken || '' %>">
-                        <label><%= __('fields.degreerankru') %></label>
-                        <input type="text" name="degreerankru[]" class="form-control" value="<%= battle.degreerankru || '' %>">
-                    </div>
-                    
-                    <div class="trio-row">
-                        <label><%= __('fields.job') %></label>
-                        <input type="text" name="job[]" class="form-control" value="<%= battle.job || '' %>">
-                        <label><%= __('fields.joben') %></label>
-                        <input type="text" name="joben[]" class="form-control" value="<%= battle.joben || '' %>">
-                        <label><%= __('fields.jobru') %></label>
-                        <input type="text" name="jobru[]" class="form-control" value="<%= battle.jobru || '' %>">
-                    </div>
-
-                    <div class="trio-row">
-                        <label><%= __('fields.details') %></label>
-                        <textarea name="battle_details[]" class="form-control" rows="2"><%= battle.details || '' %></textarea>
-                        <label><%= __('fields.detailsen') %></label>
-                        <textarea name="battle_detailsen[]" class="form-control" rows="2"><%= battle.detailsen || '' %></textarea>
-                        <label><%= __('fields.detailsru') %></label>
-                        <textarea name="battle_detailsru[]" class="form-control" rows="2"><%= battle.detailsru || '' %></textarea>
-                    </div>
-                </div>
-            <% }) %>
-        <% } %>
     </div>
-    <button type="button" id="add-battle-entry" class="btn btn-sm btn-outline-secondary mt-2">
-        <%= __('sections.addAnotherBattle') %>
-    </button>
+  <div class="trio-row">
+    <% if (locale === 'he') { %>
+        <div class="input-group">
+            <label for="enlistreason"><%= __('fields.enlistreason') %></label>
+            <select name="enlistreason" id="enlistreason">
+                <option value="">-- בחר --</option>
+                <option value=" התנדבות"> התנדבות</option>
+                <option value="גיוס חובה">גיוס חובה </option>
+            </select>
+        </div>
+    <% } else if (locale === 'en') { %>
+        <div class="input-group">
+            <label for="enlistreasonen"><%= __('fields.enlistreason') %></label>
+            <select name="enlistreasonen" id="enlistreasonen"> 
+                
+                <option value="volunteer" 
+                    <%= soldier.enlistreasonen === 'volunteer' ? 'selected' : '' %>
+                >
+                    volunteer
+                </option>
+                
+                <option value="conscription" 
+                    <%= soldier.enlistreasonen === 'conscription' ? 'selected' : '' %>
+                >
+                    conscription
+                </option>
+                
+            </select>
+        </div>
+    
+    <% } else if (locale === 'ru') { %>  <-- FIX: This is now correctly chained to the 'if/else if'
+        <div class="input-group">
+            <label for="enlistreasonru"><%= __('fields.enlistreason') %></label>
+            <select name="enlistreasonru" id="enlistreasonru">
+                <option value="">-- Выберите --</option>
+                <option value="volunteer" 
+                    <%= soldier.enlistreasonru === 'volunteer' ? 'selected' : '' %>
+                > 
+                    доброволец 
+                </option>
+                <option value="conscription"
+                    <%= soldier.enlistreasonru === 'conscription' ? 'selected' : '' %>
+                >
+                    призыв 
+                </option>
+            </select>
+        </div>
+    <% } %>
+</div>
+<div class="trio-row">
+    <div class="input-group">
+        <label for="releasereason"><%= __('fields.releasereason') %></label>
+        <input type="text" name="releasereason" id="releasereason" value="<%= soldier.releasereason || '' %>" />
+    </div>
+    <div class="input-group">
+        <label for="releasereasonen"><%= __('fields.releasereasonen') %></label>
+        <input type="text" name="releasereasonen" id="releasereasonen" value="<%= soldier.releasereasonen || '' %>"/>
+    </div>
+    <div class="input-group">
+        <label for="releasereasonru"><%= __('fields.releasereasonru') %></label>
+        <input type="text" name="releasereasonru" id="releasereasonru" value="<%= soldier.releasereasonru || '' %>"/>
+    </div>
+</div>
+   <div>
+  <label for="resistance"><%= __('fields.resistance') %></label>
+  <select name="resistance" id="resistance">
+  <option value=""><%= __('fields.resistance') %></option>
+
+     <% resistance.forEach(c => { %>
+      <% if (locale === 'he') { %>
+        <option value="<%= c.title_heb %>" <%= soldier.resistance === c.title_heb ? 'selected' : '' %>><%= c.title_heb %></option>
+      <% } else if (locale === 'en') { %>
+        <option value="<%= c.title_eng %>" <%= soldier.resistance === c.title_eng ? 'selected' : '' %>><%= c.title_eng %></option>
+      <% } else if (locale === 'ru') { %>
+        <option value="<%= c.title_rus %>" <%= soldier.resistance === c.title_rus ? 'selected' : '' %>><%= c.title_rus %></option>
+      <% } %>
+    <% }) %> 
+  </select>
+  </div>  
+  <div>
+    <label for="partizan"><%= __('fields.partizan') %></label>
+    <select name="partizan" id="partizan">
+    <option value=""><%= __('fields.partizan') %></option>
+
+     <% partizan.forEach(c => { %>
+      <% if (locale === 'he') { %>
+        <option value="<%= c.title_heb %>" <%= soldier.partizan === c.title_heb ? 'selected' : '' %>><%= c.title_heb %></option>
+      <% } else if (locale === 'en') { %>
+        <option value="<%= c.title_eng %>" <%= soldier.partizan === c.title_eng ? 'selected' : '' %>><%= c.title_eng %></option>
+      <% } else if (locale === 'ru') { %>
+        <option value="<%= c.title_rus %>" <%= soldier.partizan === c.title_rus ? 'selected' : '' %>><%= c.title_rus %></option>
+      <% } %>
+    <% }) %> 
+  </select>
+  </div> 
+  <br>
+  <label>
+  <input 
+    type="checkbox" 
+    name="uprising_participant" 
+    id="uprising_participant" 
+    value="true" 
+    <%= soldier.uprising_participant ? 'checked' : '' %> 
+  />
+  <%= __('fields.uprising_participant') %>
+</label>
+  <div class="trio-row">
+  <div class="input-group">
+    <label for="gettodesc"><%= __('fields.gettodesc') %></label>
+    <input 
+      type="text" 
+      name="gettodesc" 
+      id="gettodesc" 
+      value="<%= soldier.gettodesc || '' %>" 
+    />
+  </div>
+  <div class="input-group">
+    <label for="gettodescen"><%= __('fields.gettodescen') %></label>
+    <input 
+      type="text" 
+      name="gettodescen" 
+      id="gettodescen" 
+      value="<%= soldier.gettodescen || '' %>" 
+    />
+  </div>
+  <div class="input-group">
+    <label for="gettodescru"><%= __('fields.gettodescru') %></label>
+    <input 
+      type="text" 
+      name="gettodescru" 
+      id="gettodescru" 
+      value="<%= soldier.gettodescru || '' %>" 
+    />
+  </div>
+</div>
+   <div class="input-group">
+      <label for="otherfightingcontext"><%= __('fields.otherfightingcontext') %></label>
+      <input type="text" name="otherfightingcontext" id="otherfightingcontext" value="<%= soldier.otherfightingcontext || '' %>" />
+    </div>
+   
+   
+<div>
+    <label for="participation"><%= __('fields.participation') %></label>
+    <select name="participation" id="participation">
+    <option value=""><%= __('fields.participation') %></option>
+
+     <% participation.forEach(c => { %>
+      <% if (locale === 'he') { %>
+        <option value="<%= c.title_heb %>" <%= soldier.participation === c.title_heb ? 'selected' : '' %>><%= c.title_heb %></option>
+      <% } else if (locale === 'en') { %>
+        <option value="<%= c.title_eng %>" <%= soldier.participation === c.title_eng ? 'selected' : '' %>><%= c.title_eng %></option>
+      <% } else if (locale === 'ru') { %>
+        <option value="<%= c.title_rus %>" <%= soldier.participation === c.title_rus ? 'selected' : '' %>><%= c.title_rus %></option>
+      <% } %>
+    <% }) %> 
+  </select>
+  </div>
+
+<div class="input-group">
+  <label for="otherparticipation"><%= __('fields.otherparticipation') %></label>
+  <input type="text" name="otherparticipation" id="otherparticipation" value="<%= soldier.otherparticipation || '' %>"/>
+</div>
+
+<div class="trio-row">
+  <div class="input-group">
+    <label for="wounddetails"><%= __('fields.wounddetails') %></label>
+    <input type="text" name="wounddetails" id="wounddetails" value="<%= soldier.wounddetails || '' %>"/>
+  </div>
+  <div class="input-group">
+    <label for="wounddetailsen"><%= __('fields.wounddetailsen') %></label>
+    <input type="text" name="wounddetailsen" id="wounddetailsen" value="<%= soldier.wounddetailsen || '' %>"/>
+  </div>
+  <div class="input-group">
+    <label for="wounddetailsru"><%= __('fields.wounddetailsru') %></label>
+    <input type="text" name="wounddetailsru" id="wounddetailsru" value="<%= soldier.wounddetailsru || '' %>"/>
+  </div>
+</div>
+
+<div class="trio-row">
+  <div class="input-group">
+    <label for="otherdecoration"><%= __('fields.otherdecoration') %></label>
+    <input type="text" name="otherdecoration" id="otherdecoration" value="<%= soldier.otherdecoration || '' %>"/>
+  </div>
+  <div class="input-group">
+    <label for="otherdecorationen"><%= __('fields.otherdecorationen') %></label>
+    <input type="text" name="otherdecorationen" id="otherdecorationen" value="<%= soldier.otherdecorationen || '' %>"/>
+  </div>
+  <div class="input-group">
+    <label for="otherdecorationru"><%= __('fields.otherdecorationru') %></label>
+    <input type="text" name="otherdecorationru" id="otherdecorationru" value="<%= soldier.otherdecorationru || '' %>"/>
+  </div>
+</div>
+
+ 
+   <!-- =================== Battle History =================== -->
+<fieldset>
+  <legend><%= __('sections.battleHistory') %></legend>
+
+  <div id="battle-container">
+    <% if (battleHistory && battleHistory.length > 0) { %>
+      <% battleHistory.forEach((battle, index) => { %>
+        <div class="battle-row mb-3">
+          <input type="hidden" name="battleId[]" value="<%= battle.id %>">
+          <input type="hidden" name="delete_battle_id[]" value="">
+
+          <!-- Year -->
+          <div class="input-group">
+            <label><%= __('fields.year') %></label>
+            <input 
+              type="number" 
+              name="battleyear[]" 
+              class="form-control" 
+              value="<%= battle.battleyear || '' %>"
+            >
+          </div>
+
+          <!-- Front -->
+          <div class="trio-row">
+            <label><%= __('fields.front') %></label>
+            <input type="text" name="front[]" class="form-control" value="<%= battle.front || '' %>">
+
+            <label><%= __('fields.fronten') %></label>
+            <input type="text" name="fronten[]" class="form-control" value="<%= battle.fronten || '' %>">
+
+            <label><%= __('fields.frontru') %></label>
+            <input type="text" name="frontru[]" class="form-control" value="<%= battle.frontru || '' %>">
+          </div>
+
+          <!-- Battle -->
+          <div class="trio-row">
+            <label><%= __('fields.battle') %></label>
+            <input type="text" name="battle[]" class="form-control" value="<%= battle.battle || '' %>">
+
+            <label><%= __('fields.battleen') %></label>
+            <input type="text" name="battleen[]" class="form-control" value="<%= battle.battleen || '' %>">
+
+            <label><%= __('fields.battleru') %></label>
+            <input type="text" name="battleru[]" class="form-control" value="<%= battle.battleru || '' %>">
+          </div>
+
+          <!-- Medal -->
+          <div class="trio-row">
+            <label><%= __('fields.medal') %></label>
+            <input type="text" name="battle_medal[]" class="form-control" value="<%= battle.medal || '' %>">
+
+            <label><%= __('fields.medalen') %></label>
+            <input type="text" name="battle_medalen[]" class="form-control" value="<%= battle.medalen || '' %>">
+
+            <label><%= __('fields.medalru') %></label>
+            <input type="text" name="battle_medalru[]" class="form-control" value="<%= battle.medalru || '' %>">
+          </div>
+
+          <!-- Degree/Rank -->
+          <div class="trio-row">
+            <label><%= __('fields.degreerank') %></label>
+            <input type="text" name="degreerank[]" class="form-control" value="<%= battle.degreerank || '' %>">
+
+            <label><%= __('fields.degreeranken') %></label>
+            <input type="text" name="degreeranken[]" class="form-control" value="<%= battle.degreeranken || '' %>">
+
+            <label><%= __('fields.degreerankru') %></label>
+            <input type="text" name="degreerankru[]" class="form-control" value="<%= battle.degreerankru || '' %>">
+          </div>
+
+          <!-- Job -->
+          <div class="trio-row">
+            <label><%= __('fields.job') %></label>
+            <input type="text" name="job[]" class="form-control" value="<%= battle.job || '' %>">
+
+            <label><%= __('fields.joben') %></label>
+            <input type="text" name="joben[]" class="form-control" value="<%= battle.joben || '' %>">
+
+            <label><%= __('fields.jobru') %></label>
+            <input type="text" name="jobru[]" class="form-control" value="<%= battle.jobru || '' %>">
+          </div>
+
+          <!-- Details -->
+          <div class="trio-row">
+            <label><%= __('fields.details') %></label>
+            <textarea name="battle_details[]" class="form-control" rows="2"><%= battle.details || '' %></textarea>
+
+            <label><%= __('fields.detailsen') %></label>
+            <textarea name="battle_detailsen[]" class="form-control" rows="2"><%= battle.detailsen || '' %></textarea>
+
+            <label><%= __('fields.detailsru') %></label>
+            <textarea name="battle_detailsru[]" class="form-control" rows="2"><%= battle.detailsru || '' %></textarea>
+          </div>
+        </div> <!-- /.battle-row -->
+      <% }) %>
+    <% } %>
+  </div> <!-- /#battle-container -->
+
+  <button 
+    type="button" 
+    id="add-battle-entry" 
+    class="btn btn-sm btn-outline-secondary mt-2"
+  >
+    <%= __('sections.addAnotherBattle') %>
+  </button>
 </fieldset>
+
 
 <template id="battle-template">
     <div class="battle-row mb-3">
         <input type="hidden" name="battleId[]" value="">
         <input type="hidden" name="delete_battle_id[]" value="">
-        <!-- commenting out delete/remove portion
-        <button type="button" class="btn btn-sm btn-outline-danger remove-entry mb-2">✕ Remove</button>
-    -->
+        
         <div class="trio-row">
             <label><%= __('fields.year') %></label>
             <input type="number" name="battleyear[]" class="form-control">
@@ -647,9 +801,61 @@
             <label><%= __('fields.detailsru') %></label>
             <textarea name="battle_detailsru[]" class="form-control" rows="2"></textarea>
         </div>
+        
     </div>
-</template>
+  </template>
+      <div class="input-group">
+  <label for="fightingdesc"><%= __('fields.fightingdesc') %></label>
+  <textarea name="fightingdesc" id="fightingdesc">
+    <%= soldier.fightingdesc || '' %>
+  </textarea>
+</div>
+<div class="input-group">
+  <label for="fightingdescen"><%= __('fields.fightingdescen') %></label>
+  <textarea name="fightingdescen" id="fightingdescen">
+    <%= soldier.fightingdescen || '' %>
+  </textarea>
+</div>
+<div class="input-group">
+  <label for="fightingdescru"><%= __('fields.fightingdescru') %></label>
+  <textarea name="fightingdescru" id="fightingdescru">
+    <%= soldier.fightingdescru || '' %>
+  </textarea>
+</div>
 
+
+      <fieldset>
+        <legend><%= __('sections.urlnotes') %></legend>
+        <!--<div class="trio-row">-->
+          <div class="input-group">
+            <label for="title"><%= __('fields.title') %></label>
+            <input type="text" name="title" id="title" value="<%= soldier.title || '' %>" />
+          </div>
+          
+       
+        <!--<label for="remarks"><%= __('fields.remarks') %>:</label>
+        <textarea name="remarks" id="remarks"><%= soldier.remarks || '' %></textarea>
+        <label for="remarksen"><%= __('fields.remarksen') %>:</label>
+        <textarea name="remarksen" id="remarksen"><%= soldier.remarksen || '' %></textarea>
+        <label for="remarksru"><%= __('fields.remarksru') %>:</label>
+        <textarea name="remarksru" id="remarksru"><%= soldier.remarksru || '' %></textarea>-->
+        <label for="linkurl"><%= __('fields.linkurl') %>:</label>
+        <input type="url" name="linkurl" id="linkurl" value="<%= soldier.linkurl || '' %>" />
+      </fieldset>
+
+      <fieldset>
+        <legend><%= __('sections.uploads') %></legend>
+        <label class="file-upload-label">
+          <%= __('form.upload_files') %>
+        </label>
+        <div class="custom-file-input">
+          <input type="file" id="files" name="files" multiple onchange="updateFileName()" hidden />
+          <button type="button" onclick="document.getElementById('files').click()">
+            <%= __('form.select_files') %>
+          </button>
+          <span id="file-label"><%= __('form.no_file_chosen') %></span>
+        </div>
+      
  <div>
   <label>
     <input type="checkbox" name="recordcomplete" value="true" <%= soldier && soldier.recordcomplete ? 'checked disabled' : '' %> />

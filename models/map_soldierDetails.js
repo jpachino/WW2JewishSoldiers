@@ -130,7 +130,8 @@ const SoldierDetails = db.define('map_soldierdetails', {
 
   // Additional fields
   tablebreaker4: { type: Sequelize.TEXT },
-  corps: { type: Sequelize.TEXT }
+  corps: { type: Sequelize.TEXT },
+  uprising_participation: { type: Sequelize.BOOLEAN, defaultValue: false }
 
 }, {
   timestamps: false

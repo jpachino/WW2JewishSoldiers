@@ -10,7 +10,7 @@
 
   "home": {
     "title": "WW2 Soldier Entry System",
-    "description": "1.5 million Jewish Soldiers served in WW2 for the Allied countries.\n\n550,000 from the United States\n\n500,000 from Russia\n\n500,000 from the rest of the Allied countries.\n\nOver 250,000 Jewish soldiers failed to come home.\n\nWe honor the memory of all our soldiers.\n\nThis website is a portal to load information about our honored soldiers.\n\nThey fought for the freedom of our world and we are ever in their debt.",
+    "description": "1.5 million Jewish Soldiers served in WW2 for the Allied countries.\n\n550,000 from the United States\n\n500,000 from the Soviet Union\n\n500,000 from the rest of the Allied countries.\n\nOver 250,000 Jewish soldiers failed to come home.\n\nWe honor the memory of all our soldiers.\n\nThis website is a portal to load information about our honored soldiers.\n\nThey fought for the freedom of our world and we are ever in their debt.",
     
     "emailPlaceholder": "e.g. john@example.com",
     "continueButton": "Press here to continue enter a soldier's information",
@@ -171,7 +171,7 @@
     "wounddetails": "Injury details (IL)",
     "wounddetailsen": "Injury details (EN)",
     "wounddetailsru": "Injury details (RU)",
-
+    "uprising_participant": "Participated in Revolt Camp/Ghetto",
     "gettodesc": "Ghetto/Camp  (IL)",
     "gettodescen": "Ghetto/Camp  (EN)",
     "gettodescru": "Ghetto/Camp  (RU)",
