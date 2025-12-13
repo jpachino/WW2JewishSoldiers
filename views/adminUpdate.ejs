@@ -227,10 +227,7 @@
 </div>
 
 
-  <div class="single-row">
-    <label for="otherbirthcountry"><%= __('fields.otherbirthcountry') %></label>
-    <input type="text" name="otherbirthcountry" id="otherbirthcountry" value="<%= soldier.otherbirthcountry || '' %>" />
-  </div>
+  
 
   <div class="trio-row">
           <div class="input-group">
@@ -246,38 +243,64 @@
             <input type="text" name="birthcityru" id="birthcityru" value="<%= soldier.birthcityru || '' %>" />
           </div>
         </div>
+      
+ 
         <%
-          const dob = soldier.dob;
-          let formattedDob = '';
-          if (dob) {
-            const year = dob.getFullYear();
-            const month = String(dob.getMonth() + 1).padStart(2, '0');
-            const day = String(dob.getDate()).padStart(2, '0');
-            formattedDob = `${year}-${month}-${day}`;
-          }
-          const dod = soldier.dod;
-          let formattedDod = '';
-          if (dod) {
-            const year = dod.getFullYear();
-            const month = String(dod.getMonth() + 1).padStart(2, '0');
-            const day = String(dod.getDate()).padStart(2, '0');
-            formattedDod = `${year}-${month}-${day}`;
-          }
-          const aliyadate = soldier.aliyadate;
-          let formattedAliya = '';
-          if (aliyadate) {
-            const year = aliyadate.getFullYear();
-            const month = String(aliyadate.getMonth() + 1).padStart(2, '0');
-            const day = String(aliyadate.getDate()).padStart(2, '0');
-            formattedAliya = `${year}-${month}-${day}`;
-          }
+        function formatDDMMYYYY(raw) {
+  if (!raw) return "";
+
+  const parts = raw.trim().split(/[-/\.]/);
+  if (parts.length !== 3) return "";
+
+  let d, m, y;
+
+  if (parts[0].length === 4) {
+    // YYYY-MM-DD
+    y = parts[0];
+    m = parts[1];
+    d = parts[2];
+  } else {
+    // DD-MM-YYYY
+    d = parts[0];
+    m = parts[1];
+    y = parts[2];
+  }
+
+  const di = parseInt(d, 10);
+  const mi = parseInt(m, 10);
+  const yi = parseInt(y, 10);
+
+  if (yi < 1800 || yi > 2100) return "";
+  if (mi < 1 || mi > 12) return "";
+  if (di < 1 || di > 31) return "";
+
+  const test = new Date(`${yi}-${mi}-${di}`);
+  if (
+    test.getFullYear() !== yi ||
+    test.getMonth() + 1 !== mi ||
+    test.getDate() !== di
+  ) return "";
+
+  return `${String(di).padStart(2, "0")}-${String(mi).padStart(2, "0")}-${yi}`;
+}
+
+const formattedDob = formatDDMMYYYY(soldier.dob || "");
+const formattedDod = formatDDMMYYYY(soldier.dod || "");
+const formattedAliya = formatDDMMYYYY(soldier.aliyadate || "");
+%>
+<label for="dob"><%= __('fields.dob') %>:</label>
+<input type="text" name="dob" id="dob" value="<%= formattedDob %>" placeholder="DD-MM-YYYY" />
+
+<label for="dod"><%= __('fields.dod') %>:</label>
+<input type="text" name="dod" id="dod" value="<%= formattedDod %>" placeholder="DD-MM-YYYY" />
+
+<label for="aliyadate"><%= __('fields.aliyadate') %>:</label>
+<input type="text" name="aliyadate" id="aliyadate" value="<%= formattedAliya %>" placeholder="DD-MM-YYYY" />
+
+
+          
         %>
-        <label for="dob"><%= __('fields.dob') %>:</label>
-        <input type="date" name="dob" id="dob" value="<%= formattedDob %>" />
-        <label for="dod"><%= __('fields.dod') %>:</label>
-        <input type="date" name="dod" id="dod" value="<%= formattedDod %>" />
-        <label for="aliyadate"><%= __('fields.aliyadate') %>:</label>
-        <input type="date" name="aliyadate" id="aliyadate" value="<%= formattedAliya %>" />
+       
       
 <div class="trio-row">
     <div class="input-group">
@@ -459,34 +482,45 @@
           </div>
     </div>
   <div class="trio-row">
-  <% if (locale === 'he') { %>
+<% 
+// --- Start EJS Logic Block --- 
+// This structure keeps the control flow clean and contiguous for EJS parsing
+if (locale === 'he') { 
+%>
     <div class="input-group">
-      <label for="enlistreason"><%= __('fields.enlistreason') %></label>
-    <select name="enlistreason" id="enlistreason">
-     <option value="">-- בחר --</option>
-     <option value=" התנדבות"> התנדבות</option>
-     <option value="גיוס חובה">גיוס חובה </option>
-    </select>
+        <label for="enlistreason"><%= __('fields.enlistreason') %></label>
+        <select name="enlistreason" id="enlistreason">
+            <option value="" <%= (!soldier.enlistreason || soldier.enlistreason === '') ? 'selected' : '' %>>-- בחר --</option>
+            <option value="volunteer" <%= soldier.enlistreason === 'volunteer' ? 'selected' : '' %>>התנדבות</option>
+            <option value="conscription" <%= soldier.enlistreason === 'conscription' ? 'selected' : '' %>>גיוס חובה</option>
+        </select>
     </div>
-  <% } else if (locale === 'en') { %>
+<% 
+} else if (locale === 'en') { 
+%>
     <div class="input-group">
-      <label for="enlistreason"><%= __('fields.enlistreason') %></label>
-    <select name="enlistreason" id="enlistreason">
-     <option value="">--Choose--</option>
-     <option value="volunteer"> volunteer</option>
-     <option value="conscription">conscription</option>
-    </select>
+        <label for="enlistreason"><%= __('fields.enlistreason') %></label>
+        <select name="enlistreason" id="enlistreason">
+            <option value="" <%= (!soldier.enlistreason || soldier.enlistreason === '') ? 'selected' : '' %>>--Choose--</option>
+            <option value="volunteer" <%= soldier.enlistreason === 'volunteer' ? 'selected' : '' %>>Volunteer</option>
+            <option value="conscription" <%= soldier.enlistreason === 'conscription' ? 'selected' : '' %>>Conscription</option>
+        </select>
     </div>
-  <% } else if (locale === 'ru') { %>
+<% 
+} else if (locale === 'ru') { 
+%>
     <div class="input-group">
-     <label for="enlistreason"><%= __('fields.enlistreason') %></label>
-    <select name="enlistreason" id="enlistreason">
-     <option value="">-- בחר --</option>
-     <option value=" volunteer"> התנדבות</option>
-     <option value="conscription">גיוס חובה </option>
-    </select>
+        <label for="enlistreason"><%= __('fields.enlistreason') %></label>
+        <select name="enlistreason" id="enlistreason">
+            <option value="" <%= (!soldier.enlistreason || soldier.enlistreason === '') ? 'selected' : '' %>>-- Выбрать --</option>
+            <option value="volunteer" <%= soldier.enlistreason === 'volunteer' ? 'selected' : '' %>>Доброволец</option>
+            <option value="conscription" <%= soldier.enlistreason === 'conscription' ? 'selected' : '' %>>Призыв</option>
+        </select>
     </div>
-  <% } %>
+<% 
+// --- End EJS Logic Block --- 
+} 
+%>
 </div>
   <!--<div class="input-group">
     <label for="enlistreason"><%= __('fields.enlistreason') %></label>
@@ -606,11 +640,20 @@
   </select>
   </div>
 
-<div class="input-group">
-  <label for="otherparticipation"><%= __('fields.otherparticipation') %></label>
-  <input type="text" name="otherparticipation" id="otherparticipation" value="<%= soldier.otherparticipation || '' %>"/>
+<div class="trio-row">
+  <div class="input-group">
+    <label for="otherparticipation"><%= __('fields.otherparticipation') %></label>
+    <input type="text" name="otherparticipation" id="otherparticipation" value="<%= soldier.otherparticipation || '' %>"/>
+  </div>
+  <div class="input-group">
+    <label for="otherparticipationen"><%= __('fields.otherparticipationen') %></label>
+    <input type="text" name="otherparticipationen" id="otherparticipationen" value="<%= soldier.otherparticipationen || '' %>"/>
+  </div>
+  <div class="input-group">
+    <label for="otherparticipationru"><%= __('fields.otherparticipationru') %></label>
+    <input type="text" name="otherparticipationru" id="otherparticipationru" value="<%= soldier.otherparticipationru || '' %>"/>
+  </div>
 </div>
-
 <div class="trio-row">
   <div class="input-group">
     <label for="wounddetails"><%= __('fields.wounddetails') %></label>

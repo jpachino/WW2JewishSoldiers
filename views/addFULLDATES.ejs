@@ -290,7 +290,10 @@
 </div>
 
 
-  
+  <div class="single-row">
+    <label for="otherbirthcountry"><%= __('fields.otherbirthcountry') %></label>
+    <input type="text" name="otherbirthcountry" id="otherbirthcountry" />
+  </div>
 
   <div class="trio-row">
     <div class="input-group">
@@ -307,35 +310,14 @@
     </div>
   </div>
   <label for="dob"><%= __('fields.dob') %>:</label>
-<input 
-  type="text" 
-  name="dob" 
-  id="dob" 
-  placeholder="DD-MM-YYYY"
-  pattern="^(0?[1-9]|[12][0-9]|3[01])-(0?[1-9]|1[012])-(18|19|20)?[0-9]{2}$"
-  title="Please enter a valid date in DD-MM-YYYY format"
-/>
+  <input type="date" name="dob" id="dob" />
+  
+    
+  <label for="dod"><%= __('fields.dod') %>:</label>
+  <input type="date" name="dod" id="dod" />
 
-<label for="dod"><%= __('fields.dod') %>:</label>
-<input 
-  type="text" 
-  name="dod" 
-  id="dod" 
-  placeholder="DD-MM-YYYY"
-  pattern="^(0?[1-9]|[12][0-9]|3[01])-(0?[1-9]|1[012])-(18|19|20)?[0-9]{2}$"
-  title="Please enter a valid date in DD-MM-YYYY format"
-/>
-
-<label for="aliyadate"><%= __('fields.aliyadate') %>:</label>
-<input 
-  type="text" 
-  name="aliyadate" 
-  id="aliyadate" 
-  placeholder="DD-MM-YYYY"
-  pattern="^(0?[1-9]|[12][0-9]|3[01])-(0?[1-9]|1[012])-(18|19|20)?[0-9]{2}$"
-  title="Please enter a valid date in DD-MM-YYYY format"
-/>
-
+  <label for="aliyadate"><%= __('fields.aliyadate') %>:</label>
+  <input type="date" name="aliyadate" id="aliyadate" />
    
 
 
@@ -651,18 +633,9 @@
     <% }) %> 
   </select>
   </div>
-   <div class="trio-row">
-    <div class="input-group">
+   <div class="input-group">
       <label for="otherparticipation"><%= __('fields.otherparticipation') %></label>
       <input type="text" name="otherparticipation" id="otherparticipation" />
-    </div>
-    <div class="input-group">
-      <label for="otherparticipationen"><%= __('fields.otherparticipationen') %></label>
-      <input type="text" name="otherparticipationen" id="otherparticipationen" />
-    </div>
-    <div class="input-group">
-      <label for="otherparticipationru"><%= __('fields.otherparticipationru') %></label>
-      <input type="text" name="otherparticipationru" id="otherparticipationru" />
     </div>
   </div>
     
@@ -997,26 +970,10 @@ addBattleBtn.addEventListener('click', () => {
     <span id="file-label"><%= __('form.no_file_chosen') %></span>
   </div>
 </fieldset>
-  
+
    <fieldset>
-  <legend><%= __('sections.submitter_info') %></legend>
   <label for="useremail"><%= __('fields.useremail') %>:</label>
   <input type="email" name="useremail" id="useremail" required />
-  <label for="fname_soldier_submitter"><%= __('fields.fname_soldier_submitter') %>:</label>
-  <input type="text" name="fname_soldier_submitter" id="fname_soldier_submitter" required />
-  <label for="lname_soldier_submitter"><%= __('fields.lname_soldier_submitter') %>:</label>
-  <input type="text" name="lname_soldier_submitter" id="lname_soldier_submitter" required />
-  <label for="phone_soldier_submitter"><%= __('fields.phone_soldier_submitter') %>:</label>
-  <input type="phone" name="phone_soldier_submitter" id="phone_soldier_submitter" required />
-  <label for="relation_of_soldier_submitter"><%= __('fields.relation_of_soldier_submitter') %>:</label>
-  <input type="text" name="relation_of_soldier_submitter" id="relation_of_soldier_submitter" required />
-  <label for="how_found_us_submitter"><%= __('fields.how_found_us_submitter') %>:</label>
-  <input type="text" name="how_found_us_submitter" id="how_found_us_submitter"  />
-  <label>
-    <input type="checkbox" name="soldier_previously_submitted" id="soldier_previously_submitted" value="true" />
-    <%= __('fields.soldier_previously_submitted') %>
-  </label>
-
   <div class="checkbox-group">
   
   <p class="note">
@@ -1056,36 +1013,6 @@ addBattleBtn.addEventListener('click', () => {
     }
   }
 </script>
-<script>
-function isValidDate(d) {
-  if (!d) return true; // allow empty
-  const regex = /^(0?[1-9]|[12][0-9]|3[01])-(0?[1-9]|1[012])-(18|19|20)?[0-9]{2}$/;
-  if (!regex.test(d)) return false;
-
-  const [day, month, year] = d.split('-').map(Number);
-  const jsDate = new Date(year, month - 1, day);
-
-  return (
-    jsDate.getFullYear() === year &&
-    jsDate.getMonth() === month - 1 &&
-    jsDate.getDate() === day
-  );
-}
-
-document.getElementById("soldierForm").addEventListener("submit", function (e) {
-  const fields = ["dob", "dod", "aliyadate"];
-
-  for (let f of fields) {
-    const value = document.getElementById(f).value.trim();
-    if (!isValidDate(value)) {
-      alert(`❌ Invalid date format in ${f.toUpperCase()}.\nPlease use DD-MM-YYYY.`);
-      e.preventDefault();
-      return false;
-    }
-  }
-});
-</script>
-
 
 </body>
  <!-- </div>-->

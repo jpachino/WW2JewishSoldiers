@@ -860,47 +860,21 @@ if (locale === 'he') {
         <label for="linkurl"><%= __('fields.linkurl') %>:</label>
         <input type="url" name="linkurl" id="linkurl" value="<%= soldier.linkurl || '' %>" />
       </fieldset>
-<fieldset>
-    <legend><%= __('sections.uploads') %></legend>
 
-    <label class="file-upload-label">
-        <%= __('form.upload_files') %>
-        <span class="upload-tip">(<%= __('form.multiple_files_tip') %>)</span>
-    </label>
-
-    <div class="custom-file-input">
-        <input type="file" id="files" name="files" multiple onchange="updateFileName()" hidden />
-        <button type="button" onclick="document.getElementById('files').click()">
+      <fieldset>
+        <legend><%= __('sections.uploads') %></legend>
+        <label class="file-upload-label">
+          <%= __('form.upload_files') %>
+        </label>
+        <div class="custom-file-input">
+          <input type="file" id="files" name="files" multiple onchange="updateFileName()" hidden />
+          <button type="button" onclick="document.getElementById('files').click()">
             <%= __('form.select_files') %>
-        </button>
-        <span id="file-label"><%= __('form.no_file_chosen') %></span>
-    </div>
-
-    <% 
-        // Logic uses the 'uploadedFiles' array passed from your server route
-        if (uploadedFiles && uploadedFiles.length > 0) { 
-    %>
-        <div class="existing-files-container">
-            <h3><%= __('form.current_files') %>:</h3>
-            <ul>
-                <% 
-                    // Loop over each file object
-                    uploadedFiles.forEach(function(file) { 
-                %>
-                        <li>
-                            <%= file.original_name %>
-                        </li>
-                <% 
-                    }); 
-                %>
-            </ul>
+          </button>
+          <span id="file-label"><%= __('form.no_file_chosen') %></span>
         </div>
-    <% 
-        } 
-    %>
-
-</fieldset>
-<div>
+      
+ <div>
   <label>
     <input type="checkbox" name="recordcomplete" value="true" <%= soldier && soldier.recordcomplete ? 'checked disabled' : '' %> />
     <%= __('form.mark_complete') %>

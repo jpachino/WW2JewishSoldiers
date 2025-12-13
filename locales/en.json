@@ -49,7 +49,9 @@
     "datesmedals":"dates and medals",
     "files": "files",
     "addAnotherBattle": "Add Another Battle",
-    "battleHistory": "Battle History"
+    "battleHistory": "Battle History",
+    "submitter_info": "Information about the person submitting this information"
+    
    
   
 },
@@ -119,8 +121,6 @@
     "urltitle": "URL Title (IL)",
     "urltitleen": "URL Title (EN)",
     "urltitleru": "URL Title (RU)",
-    
-
     "linkurl": "Link",
     "useremail": "Your Email",
     "id": "ID",
@@ -164,7 +164,6 @@
     "job": "Job (IL)",
     "joben": "Job (EN)",
     "jobru": "Job (RU)",
-
     "platoonname": "Unit (IL)",
     "platoonnameen": "Unit (EN)",
     "platoonnameru": "Unit (RU)",
@@ -175,12 +174,16 @@
     "gettodesc": "Ghetto/Camp  (IL)",
     "gettodescen": "Ghetto/Camp  (EN)",
     "gettodescru": "Ghetto/Camp  (RU)",
-
     "otherfightingcontext": "Other Fighting context (IL)",
     "title":"Title (IL)",
     "titleen":"Title (EN)",
-    "titleru":"Title (RU)"
-  
+    "titleru":"Title (RU)",
+    "fname_soldier_submitter": "First Name",
+    "lname_soldier_submitter": "Last Name",
+    "phone_soldier_submitter": "Phone Number",
+    "relation_of_soldier_submitter": "Your relationship to soldier",
+    "how_found_us_submitter": "How did you find us?",
+    "soldier_previously_submitted": "Soldier previously submitted?"
 
     
 
@@ -209,7 +212,9 @@
     "no_file_chosen": "No files chosen",
     "select_files": "Select files",
     "admin_ready_for_download": "Ready for Download",
-    "admin_approved_date": "Admin Approval Date"
+    "admin_approved_date": "Admin Approval Date",
+    "multiple_files_tip": "Select multiple files at once by holding Shift or Ctrl (Cmd on Mac) while clicking.",
+    "current_files": "Files previously stored for this soldier"
 
   },
 "admin": {

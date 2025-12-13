@@ -10,7 +10,7 @@ const i18n = require('i18n');
 const app = express();
 const port = 3000;
 const ExcelJS = require('exceljs'); // Add at top
-const cookieParser = require('cookie-parser'); // The key module
+
 
 
 // Use pg-promise and load DATABASE_URL from .env
@@ -110,70 +110,41 @@ db.connect()
     console.error('Check your DATABASE_URL environment variable in .env file');
   });
 
-// ASSUMED: Your required modules (express, body-parser, cookie-parser, i18n, path)
-// are defined at the top of your main file (e.g., server.js).
-
-// -----------------------------------------------------
-// ⚙️ Core Application & Static Middleware
-// -----------------------------------------------------
-
+// Middleware
+//app.use(express.static(path.join(__dirname, 'views')));
 app.use(bodyParser.urlencoded({ extended: true }));
 app.use(express.static('public'));
+;
 
-// -----------------------------------------------------
-// 🍪 Cookie Parser - MUST BE FIRST (Reads existing cookies)
-// -----------------------------------------------------
-// This line is essential for i18n.init to see req.cookies
-app.use(cookieParser());
-
-// -----------------------------------------------------
-// 🌍 i18n Configuration
-// -----------------------------------------------------
-i18n.configure({
-  locales: ['he', 'en', 'ru'],
-  directory: path.join(__dirname, 'locales'),
-  defaultLocale: 'he',
-  cookie: 'lang', 
-  queryParameter: 'lang', // Allows /?lang=en to work
-  autoReload: true,
-  updateFiles: false,
-  objectNotation: true,
-});
-
-// -----------------------------------------------------
-// 🚀 i18n Initialization - MUST BE AFTER cookieParser()
-// -----------------------------------------------------
-// This middleware reads the cookie/query parameter and sets req.setLocale()
-app.use(i18n.init);
-
-
-// -----------------------------------------------------
-// 🔧 Custom Language Persistence Middleware (Optional but clean)
-// -----------------------------------------------------
-// This block ensures the language choice is persisted back to the user's browser
-// *even if* i18n.init didn't explicitly use the query/cookie this time.
-app.use((req, res, next) => {
-  // i18n.init has already set the locale using the best available data (query, cookie, or default).
-  // We use i18n's determined locale to ensure the cookie is always set correctly on the response.
-  const lang = req.getLocale();
-  
-  // Re-set the cookie on the response to maintain the maxAge/httpOnly properties and persist the language.
-  // NOTE: I'm adding the maxAge/httpOnly options back here for consistency.
-  res.cookie('lang', lang, { maxAge: 900000, httpOnly: true });
-
-  // Expose the translation function to templates (res.locals)
-  res.locals.__ = res.__;
-  next();
-});
-
-
-// -----------------------------------------------------
-// 🔄 Language Switch Route (Simplified/Corrected)
-// -----------------------------------------------------
 app.get('/change-lang', (req, res) => {
-  // The custom middleware above handles setting the cookie for the response.
-  // We only need to check for the 'lang' query and redirect.
-  res.redirect('back');
+  const lang = req.query.lang;
+  res.cookie('lang', lang, { maxAge: 900000, httpOnly: true });
+  res.redirect('back');
+});
+
+// i18n configuration
+i18n.configure({
+  locales: ['he', 'en', 'ru'],
+  directory: path.join(__dirname, 'locales'),
+  defaultLocale: 'he',
+  cookie: 'lang',
+  queryParameter: 'lang', // optional: allow ?lang=en to switch
+  autoReload: true,
+  updateFiles: false,
+  objectNotation: true,
+});
+
+
+app.use(i18n.init);
+const cookieParser = require('cookie-parser');
+app.use(cookieParser()); 
+ //Middleware to switch language using query or cookie
+app.use((req, res, next) => {
+  const lang = req.query.lang || req.cookies.lang || 'he';
+  res.cookie('lang', lang); // persist language in cookie
+  req.setLocale(lang);
+  res.locals.__ = res.__;
+  next();
 });
 
 
@@ -234,7 +205,8 @@ app.get('/addFull', async (req, res) => {
         dob: '',
         dod: '',
         aliyadate: '',
-        
+        idf_enlistdate: '',
+        idf_releasedate: '',
         record_complete_date: '',
         admin_approved_date: '',
         downloaded_date: ''
@@ -295,13 +267,13 @@ app.post('/addFULL', upload.array('files'), async (req, res) => {
           fathername, fathernameen, fathernameru,
           mothername, mothernameen, mothernameru,
           calledby, calledbyen, calledbyru,
-          birthcountry, 
+          birthcountry, otherbirthcountry,
           birthcity, birthcityen, birthcityru,
           gender,
           placeofdeath, placeofdeathen, placeofdeathru,
           deathdetails, deathdetailsen, deathdetailsru,
           biography, biographyen, biographyru,
-          otherparticipation, otherparticipationen, otherparticipationru,
+          otherparticipation,
           otherdecoration, otherdecorationen, otherdecorationru,
           fightingdesc, fightingdescen, fightingdescru,
           shortdesc,
@@ -313,9 +285,9 @@ app.post('/addFULL', upload.array('files'), async (req, res) => {
           gettodesc, gettodescen, gettodescru,
           otherfightingcontext,
           armyid,
-       
+          datebreaker,
           dob, dod, aliyadate,
-          
+          degree, degreeen, degreeru,
           title, titleen, titleru,
           linkurl,
           category, army, resistance,
@@ -323,9 +295,8 @@ app.post('/addFULL', upload.array('files'), async (req, res) => {
           useremail,
           recordcomplete, record_complete_date,
           admin_ready_for_download, admin_approved_date, downloaded_date,
-          
-          uprising_participant, fname_soldier_submitter, lname_soldier_submitter, 
-          relation_of_soldier_submitter, phone_soldier_submitter, soldier_previously_submitted,how_found_us_submitter
+          other_medal, other_medalen, other_medalru,
+          uprising_participant
         ) VALUES (
           $1,$2,$3,$4,$5,$6,$7,$8,$9,
           $10,$11,$12,$13,$14,$15,$16,$17,$18,
@@ -345,13 +316,13 @@ app.post('/addFULL', upload.array('files'), async (req, res) => {
         cleaned.fathername, cleaned.fathernameen, cleaned.fathernameru,
         cleaned.mothername, cleaned.mothernameen, cleaned.mothernameru,
         cleaned.calledby, cleaned.calledbyen, cleaned.calledbyru,
-        cleaned.birthcountry, 
+        cleaned.birthcountry, cleaned.otherbirthcountry,
         cleaned.birthcity, cleaned.birthcityen, cleaned.birthcityru,
         cleaned.gender,
         cleaned.placeofdeath, cleaned.placeofdeathen, cleaned.placeofdeathru,
         cleaned.deathdetails, cleaned.deathdetailsen, cleaned.deathdetailsru,
         cleaned.biography, cleaned.biographyen, cleaned.biographyru,
-        cleaned.otherparticipation, cleaned.otherparticipationen, cleaned.otherparticipationru,
+        cleaned.otherparticipation,
         cleaned.otherdecoration, cleaned.otherdecorationen, cleaned.otherdecorationru,
         cleaned.fightingdesc, cleaned.fightingdescen, cleaned.fightingdescru,
         cleaned.shortdesc,
@@ -363,9 +334,9 @@ app.post('/addFULL', upload.array('files'), async (req, res) => {
         cleaned.gettodesc, cleaned.gettodescen, cleaned.gettodescru,
         cleaned.otherfightingcontext,
         cleaned.armyid,
-    
+        cleaned.datebreaker,
         cleaned.dob, cleaned.dod, cleaned.aliyadate,   // TEXT
-       
+        cleaned.degree, cleaned.degreeen, cleaned.degreeru,
         cleaned.title, cleaned.titleen, cleaned.titleru,
         cleaned.linkurl,
         cleaned.category, cleaned.army, cleaned.resistance,
@@ -375,14 +346,8 @@ app.post('/addFULL', upload.array('files'), async (req, res) => {
         cleaned.admin_ready_for_download,
         cleaned.admin_approved_date,                   // TEXT
         cleaned.downloaded_date,                       // TEXT
-       
-        cleaned.uprising_participant,
-        cleaned.fname_soldier_submitter,
-        cleaned.lname_soldier_submitter,
-        cleaned.phone_soldier_submitter,
-        cleaned.relation_of_soldier_submitter,
-        cleaned.soldier_previously_submitted,
-        cleaned.how_found_us_submitter
+        cleaned.other_medal, cleaned.other_medalen, cleaned.other_medalru,
+        cleaned.uprising_participant
       ]);
 
       const soldierId = insertedSoldier.id;
@@ -906,7 +871,7 @@ app.post('/updateSoldier/:id', upload.array('files'), async (req, res) => {
       calledbyen: req.body.calledbyen || existingSoldier.calledbyen,
       calledbyru: req.body.calledbyru || existingSoldier.calledbyru,
       birthcountry: req.body.birthcountry || existingSoldier.birthcountry,
-     
+      otherbirthcountry: req.body.otherbirthcountry || existingSoldier.otherbirthcountry,
       birthcity: req.body.birthcity || existingSoldier.birthcity,
       birthcityen: req.body.birthcityen || existingSoldier.birthcityen,
       birthcityru: req.body.birthcityru || existingSoldier.birthcityru,
@@ -921,8 +886,6 @@ app.post('/updateSoldier/:id', upload.array('files'), async (req, res) => {
       biographyen: req.body.biographyen || existingSoldier.biographyen,
       biographyru: req.body.biographyru || existingSoldier.biographyru,
       otherparticipation: req.body.otherparticipation || existingSoldier.otherparticipation,
-      otherparticipationen: req.body.otherparticipationen || existingSoldier.otherparticipationen,
-      otherparticipationru: req.body.otherparticipationru || existingSoldier.otherparticipationru,
       otherdecoration: req.body.otherdecoration || existingSoldier.otherdecoration,
       otherdecorationen: req.body.otherdecorationen || existingSoldier.otherdecorationen,
       otherdecorationru: req.body.otherdecorationru || existingSoldier.otherdecorationru,
@@ -948,13 +911,18 @@ app.post('/updateSoldier/:id', upload.array('files'), async (req, res) => {
       gettodescru: req.body.gettodescru || existingSoldier.gettodescru,
       otherfightingcontext: req.body.otherfightingcontext || existingSoldier.otherfightingcontext,
       armyid: req.body.armyid || existingSoldier.armyid,
-     
+      datebreaker: req.body.datebreaker || existingSoldier.datebreaker,
       dob: req.body.dob || existingSoldier.dob,
       dod: req.body.dod || existingSoldier.dod,
       aliyadate: req.body.aliyadate || existingSoldier.aliyadate,
-      
-      
-      
+      idf_enlistdate: req.body.idf_enlistdate || existingSoldier.idf_enlistdate,
+      idf_releasedate: req.body.idf_releasedate || existingSoldier.idf_releasedate,
+      medal: req.body.medal || existingSoldier.medal,
+      medalen: req.body.medalen || existingSoldier.medalen,
+      medalru: req.body.medalru || existingSoldier.medalru,
+      degree: req.body.degree || existingSoldier.degree,
+      degreeen: req.body.degreeen || existingSoldier.degreeen,
+      degreeru: req.body.degreeru || existingSoldier.degreeru,
       title: req.body.title || existingSoldier.title,
       titleen: req.body.titleen || existingSoldier.titleen,
       titleru: req.body.titleru || existingSoldier.titleru,
@@ -971,7 +939,9 @@ app.post('/updateSoldier/:id', upload.array('files'), async (req, res) => {
       admin_ready_for_download: req.body.admin_ready_for_download === 'on' || existingSoldier.admin_ready_for_download,
       admin_approved_date: req.body.admin_approved_date || existingSoldier.admin_approved_date,
       downloaded_date: req.body.downloaded_date || existingSoldier.downloaded_date,
-      
+      other_medal: req.body.other_medal || existingSoldier.other_medal,
+      other_medalen: req.body.other_medalen || existingSoldier.other_medalen,
+      other_medalru: req.body.other_medalru || existingSoldier.other_medalru,
       uprising_participant
     };
 
@@ -1100,7 +1070,8 @@ app.get('/admin/completedRecords', async (req, res) => {
             dob: s.dob || 'N/A',
             dod: s.dod || 'N/A',
             aliyadate: s.aliyadate || 'N/A',
-            
+            idf_enlistdate: s.idf_enlistdate || 'N/A',
+            idf_releasedate: s.idf_releasedate || 'N/A',
             admin_approved_date: s.admin_approved_date || 'N/A',
             downloaded_date: s.downloaded_date || 'N/A',
             record_complete_date: s.record_complete_date || 'N/A'
@@ -1145,9 +1116,8 @@ app.post('/adminUpdateSoldier/:id', upload.array('files'), async (req, res) => {
             degreeranken = [], degreerankru = [], job = [], joben = [], jobru = []
         } = req.body;
 
-// --- ADMIN READY FOR DOWNLOAD (boolean) ---
-const admin_ready_for_download = 
-  Array.isArray(req.body.admin_ready_for_download)
+      // Boolean fields
+    const admin_ready_for_download = Array.isArray(req.body.admin_ready_for_download)
     ? req.body.admin_ready_for_download.includes('true') || req.body.admin_ready_for_download.includes('on')
     : req.body.admin_ready_for_download === 'true' || req.body.admin_ready_for_download === 'on';
 
@@ -1155,12 +1125,22 @@ const admin_ready_for_download =
 let admin_approved_date = existingSoldier.admin_approved_date || null;
 
 if (admin_ready_for_download && !existingSoldier.admin_ready_for_download) {
-  admin_approved_date = formatDateToDDMMYYYY(new Date());
-} 
+    admin_approved_date = formatDateToDDMMYYYY(new Date());
+} else if (!admin_ready_for_download) {
+    admin_approved_date = null;
+}
 
-// Always retain previous value
-const record_complete_boolean = existingSoldier.recordcomplete;
-const record_complete_date = existingSoldier.record_complete_date;
+// --- RECORD COMPLETE DATE (stored as TEXT “DD/MM/YYYY”) ---
+const recordCompleteSubmitted =
+    req.body.recordcomplete === 'true' || req.body.recordcomplete === 'on';
+
+let record_complete_date = existingSoldier.record_complete_date || null;
+
+if (recordCompleteSubmitted && !existingSoldier.record_complete_date) {
+    record_complete_date = formatDateToDDMMYYYY(new Date());
+} else if (!recordCompleteSubmitted) {
+    record_complete_date = null;
+}
 
 // --- DOWNLOADED DATE ---
 let downloaded_date = existingSoldier.downloaded_date;
@@ -1192,7 +1172,7 @@ if (req.body.downloaded_date) {
       calledbyen: req.body.calledbyen || existingSoldier.calledbyen,
       calledbyru: req.body.calledbyru || existingSoldier.calledbyru,
       birthcountry: req.body.birthcountry || existingSoldier.birthcountry,
-    
+      otherbirthcountry: req.body.otherbirthcountry || existingSoldier.otherbirthcountry,
       birthcity: req.body.birthcity || existingSoldier.birthcity,
       birthcityen: req.body.birthcityen || existingSoldier.birthcityen,
       birthcityru: req.body.birthcityru || existingSoldier.birthcityru,
@@ -1207,8 +1187,6 @@ if (req.body.downloaded_date) {
       biographyen: req.body.biographyen || existingSoldier.biographyen,
       biographyru: req.body.biographyru || existingSoldier.biographyru,
       otherparticipation: req.body.otherparticipation || existingSoldier.otherparticipation,
-      otherparticipationen: req.body.otherparticipationen || existingSoldier.otherparticipationen,
-      otherparticipationru: req.body.otherparticipationru || existingSoldier.otherparticipationru,
       otherdecoration: req.body.otherdecoration || existingSoldier.otherdecoration,
       otherdecorationen: req.body.otherdecorationen || existingSoldier.otherdecorationen,
       otherdecorationru: req.body.otherdecorationru || existingSoldier.otherdecorationru,
@@ -1234,13 +1212,18 @@ if (req.body.downloaded_date) {
       gettodescru: req.body.gettodescru || existingSoldier.gettodescru,
       otherfightingcontext: req.body.otherfightingcontext || existingSoldier.otherfightingcontext,
       armyid: req.body.armyid || existingSoldier.armyid,
-     
+      datebreaker: req.body.datebreaker || existingSoldier.datebreaker,
       dob: req.body.dob || existingSoldier.dob,
       dod: req.body.dod || existingSoldier.dod,
       aliyadate: req.body.aliyadate || existingSoldier.aliyadate,
-      
-      
-      
+      idf_enlistdate: req.body.idf_enlistdate || existingSoldier.idf_enlistdate,
+      idf_releasedate: req.body.idf_releasedate || existingSoldier.idf_releasedate,
+      medal: req.body.medal || existingSoldier.medal,
+      medalen: req.body.medalen || existingSoldier.medalen,
+      medalru: req.body.medalru || existingSoldier.medalru,
+      degree: req.body.degree || existingSoldier.degree,
+      degreeen: req.body.degreeen || existingSoldier.degreeen,
+      degreeru: req.body.degreeru || existingSoldier.degreeru,
       title: req.body.title || existingSoldier.title,
       titleen: req.body.titleen || existingSoldier.titleen,
       titleru: req.body.titleru || existingSoldier.titleru,
@@ -1252,14 +1235,15 @@ if (req.body.downloaded_date) {
       partizan: req.body.partizan || existingSoldier.partizan,
       participation: req.body.participation || existingSoldier.participation,
       corps: req.body.corps || existingSoldier.corps,
-      recordcomplete: record_complete_boolean,
+      recordcomplete,
       record_complete_date,
-      admin_ready_for_download,
-      admin_approved_date,
+      admin_ready_for_download: req.body.admin_ready_for_download === 'on' || existingSoldier.admin_ready_for_download,
+      admin_approved_date: req.body.admin_approved_date || existingSoldier.admin_approved_date,
       downloaded_date: req.body.downloaded_date || existingSoldier.downloaded_date,
-      
-      uprising_participant: req.body.uprising_participant === 'on' || existingSoldier.uprising_participant
-
+      other_medal: req.body.other_medal || existingSoldier.other_medal,
+      other_medalen: req.body.other_medalen || existingSoldier.other_medalen,
+      other_medalru: req.body.other_medalru || existingSoldier.other_medalru,
+      uprising_participant
     };
 
         const updates = [];
@@ -1267,7 +1251,7 @@ if (req.body.downloaded_date) {
         let i = 1;
 
         const dateFields = [
-            'dob', 'dod', 'aliyadate', 
+            'dob', 'dod', 'aliyadate', 'idf_enlistdate', 'idf_releasedate',
             'record_complete_date', 'admin_approved_date', 'downloaded_date'
         ];
 
@@ -1452,7 +1436,7 @@ app.get('/admin/completedRecords', async (req, res) => {
         }
 
         // Convert all relevant date fields to DD-MM-YYYY
-        const dateFields = ['dob','dod','aliyadate','record_complete_date','admin_approved_date','downloaded_date'];
+        const dateFields = ['dob','dod','aliyadate','idf_enlistdate','idf_releasedate','record_complete_date','admin_approved_date','downloaded_date'];
         completedSoldiers = completedSoldiers.map(soldier => {
             dateFields.forEach(field => {
                 soldier[field] = formatDateToDDMMYYYY(soldier[field]);
@@ -1472,122 +1456,183 @@ app.get('/admin/completedRecords', async (req, res) => {
     }
 });
 
+// POST: Update Soldier
+// POST: Update Soldier
+app.post('/updateSoldier/:id', upload.array('files'), async (req, res) => {
+    const { id } = req.params;
 
+    try {
+        // Fetch existing soldier
+        const existingSoldier = await db.oneOrNone(`SELECT * FROM map_soldierdetails WHERE id = $1`, [id]);
+        if (!existingSoldier) return res.status(404).send('Soldier not found');
+
+        // Handle recordcomplete logic
+        const recordcomplete = req.body.recordcomplete === 'true' || req.body.recordcomplete === 'on';
+        let record_complete_date = existingSoldier.record_complete_date;
+        if (recordcomplete && !existingSoldier.recordcomplete) {
+            record_complete_date = formatDateToDDMMYYYY(new Date());
+        } else if (!recordcomplete) {
+            record_complete_date = null;
+        }
+
+        // Helper to clean input
+        const cleanData = (data) => {
+            if (Array.isArray(data)) return data.length === 0 ? null : data;
+            return data === '' ? null : data;
+        };
+
+        // List of soldierdetails fields
+        const soldierFields = [
+            "fname","fnameen","fnameru",
+            "lname","lnameen","lnameru",
+            "previouslname","previouslnameen","previouslnameru",
+            "fathername","fathernameen","fathernameru",
+            "mothername","mothernameen","mothernameru",
+            "calledby","calledbyen","calledbyru",
+            "birthcountry","otherbirthcountry",
+            "birthcity","birthcityen","birthcityru",
+            "gender",
+            "placeofdeath","placeofdeathen","placeofdeathru",
+            "deathdetails","deathdetailsen","deathdetailsru",
+            "biography","biographyen","biographyru",
+            "otherparticipation",
+            "otherdecoration","otherdecorationen","otherdecorationru",
+            "fightingdesc","fightingdescen","fightingdescru",
+            "idf_otherforce","idf_otherrank",
+            "idf_desc","idf_descen","idf_descru",
+            "idf_serviceplace",
+            "idf_platoonname",
+            "shortdesc",
+            "armyrole","armyroleen","armyroleru",
+            "releasereason","releasereasonen","releasereasonru",
+            "enlistreason",
+            "platoonname","platoonnameen","platoonnameru",
+            "wounddetails","wounddetailsen","wounddetailsru",
+            "gettodesc","gettodescen","gettodescru",
+            "otherfightingcontext",
+            "armyid",
+            "datebreaker",
+            "dob","dod","aliyadate",
+            "idf_enlistdate","idf_releasedate",
+            "medal","medalen","medalru",
+            "degree","degreeen","degreeru",
+            "remarks","remarksen","remarksru",
+            "tablebreaker3",
+            "title","titleen","titleru",
+            "remarks2","remarksen2","remarksru2",
+            "linkurl","useremail",
+            "recordcomplete","record_complete_date",
+            "admin_ready_for_download","admin_approved_date","downloaded_date",
+            "other_medal","other_medalen","other_medalru",
+            "tablebreaker4","corps","uprising_participation"
+        ];
+
+        // Build update data
+        const inputData = {};
+        soldierFields.forEach(field => {
+            if (field === 'recordcomplete') {
+                inputData[field] = recordcomplete;
+            } else if (field === 'record_complete_date') {
+                inputData[field] = record_complete_date;
+            } else {
+                inputData[field] = cleanData(req.body[field]);
+            }
+        });
+
+        // Run transaction
+        await db.tx(async t => {
+            // Update soldierdetails
+            const updateSQL = pgp.helpers.update(inputData, null, 'map_soldierdetails') + ` WHERE id = ${id}`;
+            await t.none(updateSQL);
+
+            // Update soldier_battle_history
+            const submittedBattles = Array.isArray(req.body.battleyear) ? req.body.battleyear : [req.body.battleyear];
+            const battleIds = Array.isArray(req.body.battleId) ? req.body.battleId : [req.body.battleId];
+            const existingBattleIds = await t.map(
+                `SELECT id FROM soldier_battle_history WHERE soldier_id = $1`, 
+                [id], 
+                r => r.id
+            );
+            const battlesToKeep = new Set();
+
+            for (let idx = 0; idx < submittedBattles.length; idx++) {
+                const hasContent = (submittedBattles[idx] && submittedBattles[idx].trim() !== '') ||
+                                   (req.body.front[idx] && req.body.front[idx].trim() !== '') ||
+                                   (req.body.battle[idx] && req.body.battle[idx].trim() !== '');
+                if (!hasContent) continue;
+
+                const battleData = {
+                    soldier_id: id,
+                    battleyear: cleanData(submittedBattles[idx]),
+                    front: cleanData(req.body.front[idx]),
+                    fronten: cleanData(req.body.fronten[idx]),
+                    frontru: cleanData(req.body.frontru[idx]),
+                    battle: cleanData(req.body.battle[idx]),
+                    battleen: cleanData(req.body.battleen[idx]),
+                    battleru: cleanData(req.body.battleru[idx]),
+                    medal: cleanData(req.body.battle_medal[idx]),
+                    medalen: cleanData(req.body.battle_medalen[idx]),
+                    medalru: cleanData(req.body.battle_medalru[idx]),
+                    details: cleanData(req.body.battle_details[idx]),
+                    detailsen: cleanData(req.body.battle_detailsen[idx]),
+                    detailsru: cleanData(req.body.battle_detailsru[idx]),
+                    degreerank: cleanData(req.body.degreerank[idx]),
+                    degreeranken: cleanData(req.body.degreeranken[idx]),
+                    degreerankru: cleanData(req.body.degreerankru[idx]),
+                    job: cleanData(req.body.job[idx]),
+                    joben: cleanData(req.body.joben[idx]),
+                    jobru: cleanData(req.body.jobru[idx])
+                };
+
+                const currentBattleId = battleIds[idx];
+                if (currentBattleId && currentBattleId !== 'null') {
+                    const updateBattleSQL = pgp.helpers.update(battleData, null, 'soldier_battle_history') + ` WHERE id = ${currentBattleId}`;
+                    await t.none(updateBattleSQL);
+                    battlesToKeep.add(parseInt(currentBattleId, 10));
+                } else {
+                    const insertBattleSQL = pgp.helpers.insert(battleData, null, 'soldier_battle_history');
+                    await t.none(insertBattleSQL);
+                }
+            }
+
+            // Delete old battles
+            const battlesToDelete = existingBattleIds.filter(bid => !battlesToKeep.has(bid));
+            if (battlesToDelete.length > 0) {
+                await t.none(`DELETE FROM soldier_battle_history WHERE id IN ($1:csv)`, [battlesToDelete]);
+            }
+
+            // Files
+            if (req.files && req.files.length > 0) {
+                const fileInserts = req.files.map(file =>
+                    t.none(`INSERT INTO uploaded_files (soldier_id, original_name, file_path) VALUES ($1, $2, $3)`, [id, file.originalname, file.path])
+                );
+                await t.batch(fileInserts);
+            }
+        });
+
+        // Redirect back to form with success
+        res.redirect(`/updateSoldier/${id}?saved=true`);
+    } catch (error) {
+        console.error('[POST] Error updating soldier and battles:', error);
+        res.status(500).send(`
+            <h1>Error updating soldier and battles</h1>
+            <p>${error.message}</p>
+            <pre>${error.stack || 'No stack trace available'}</pre>
+            <a href="/updateSoldier/${id}">Go back to form</a>
+        `);
+    }
+});
+
+// Helper function for DD-MM-YYYY
+function formatDateToDDMMYYYY(date) {
+    const d = date.getDate().toString().padStart(2, '0');
+    const m = (date.getMonth() + 1).toString().padStart(2, '0');
+    const y = date.getFullYear();
+    return `${d}-${m}-${y}`;
+}
 
 
 // Excel Download
-/*app.post('/admin/downloadExcel', async (req, res) => {
-    let ids = req.body.selectedIds;
-    const BATTLE_HISTORY_TABLE = 'soldier_battle_history';
-    const UPLOADED_FILES_TABLE = 'uploaded_files';
-
-    if (!ids) return res.status(400).send('No records selected');
-    if (!Array.isArray(ids)) ids = [ids];
-
-    try {
-        const now = new Date();
-        const downloadDateString = formatDateToDDMMYYYY(now);
-
-        // --- Helper function for DD-MM-YYYY ---
-        function formatDateToDDMMYYYY(date) {
-            if (!date) return '';
-            const d = new Date(date);
-            const day = String(d.getDate()).padStart(2, '0');
-            const month = String(d.getMonth() + 1).padStart(2, '0');
-            const year = d.getFullYear();
-            return `${day}-${month}-${year}`;
-        }
-
-        const dateFields = [
-            'dob', 'dod', 'aliyadate', 
-            'record_complete_date', 'admin_approved_date', 'downloaded_date'
-        ];
-
-        // --- Fetch soldiers ---
-        const selectedSoldiers = await db.any(`SELECT * FROM ${SOLDIER_TABLE} WHERE id IN ($1:csv)`, [ids]);
-        selectedSoldiers.forEach(s => {
-            dateFields.forEach(f => {
-                if (s[f]) s[f] = formatDateToDDMMYYYY(s[f]);
-            });
-            s.download_date = downloadDateString; // Add download_date
-        });
-
-        // --- Fetch battle history ---
-        const battleHistory = await db.any(
-            `SELECT * FROM ${BATTLE_HISTORY_TABLE} WHERE soldier_id IN ($1:csv)`,
-            [ids]
-        );
-        battleHistory.forEach(b => {
-            dateFields.concat(['download_date']).forEach(f => {
-                if (b[f]) b[f] = formatDateToDDMMYYYY(b[f]);
-            });
-            b.download_date = downloadDateString; // Add download_date
-        });
-
-        // --- Fetch uploaded files ---
-        const uploadedFiles = await db.any(
-            `SELECT * FROM ${UPLOADED_FILES_TABLE} WHERE soldier_id IN ($1:csv)`,
-            [ids]
-        );
-        uploadedFiles.forEach(f => {
-            f.download_date = downloadDateString; // Add download_date
-        });
-
-        // --- Create workbook ---
-        const workbook = new ExcelJS.Workbook();
-
-        // --- Soldiers_Main worksheet ---
-        const soldierWorksheet = workbook.addWorksheet('Soldiers_Main');
-        if (selectedSoldiers.length > 0) {
-            soldierWorksheet.columns = Object.keys(selectedSoldiers[0]).map(k => ({
-                header: k.toUpperCase(),
-                key: k,
-                style: { numFmt: '@' } // text
-            }));
-            selectedSoldiers.forEach(s => soldierWorksheet.addRow(s));
-        }
-
-        // --- Soldiers_BattleHistory worksheet ---
-        const battleWorksheet = workbook.addWorksheet('Soldiers_BattleHistory');
-        if (battleHistory.length > 0) {
-            battleWorksheet.columns = Object.keys(battleHistory[0]).map(k => ({
-                header: k.toUpperCase(),
-                key: k,
-                style: { numFmt: '@' }
-            }));
-            battleHistory.forEach(b => battleWorksheet.addRow(b));
-        }
-
-        // --- Soldiers_UploadedFiles worksheet ---
-        const filesWorksheet = workbook.addWorksheet('Soldiers_UploadedFiles');
-        if (uploadedFiles.length > 0) {
-            filesWorksheet.columns = Object.keys(uploadedFiles[0]).map(k => ({
-                header: k.toUpperCase(),
-                key: k,
-                style: { numFmt: '@' }
-            }));
-            uploadedFiles.forEach(f => filesWorksheet.addRow(f));
-        }
-
-        // --- Update downloaded_date in DB as text ---
-        const nowText = downloadDateString;
-        await db.none(
-            `UPDATE ${SOLDIER_TABLE} SET downloaded_date = $1 WHERE id IN ($2:csv)`,
-            [nowText, ids]
-        );
-
-        // --- Send workbook ---
-        res.setHeader('Content-Disposition', 'attachment; filename="completed_records_data.xlsx"');
-        res.setHeader('Content-Type', 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet');
-        await workbook.xlsx.write(res);
-        res.end();
-
-    } catch (err) {
-        console.error('Excel export error:', err);
-        res.status(500).send('Error exporting Excel');
-    }
-});*/
-// Excel Download - Flattened Single Row per Soldier
 app.post('/admin/downloadExcel', async (req, res) => {
     let ids = req.body.selectedIds;
     const BATTLE_HISTORY_TABLE = 'soldier_battle_history';
@@ -1598,176 +1643,67 @@ app.post('/admin/downloadExcel', async (req, res) => {
 
     try {
         const now = new Date();
-
-        function formatDateToDDMMYYYY(value) {
-    if (!value) return '';
-
-    // If the date is already DD-MM-YYYY (text in DB), return as-is
-    if (typeof value === 'string' && /^\d{2}-\d{2}-\d{4}$/.test(value)) {
-        return value;
-    }
-
-    // Try to parse as JS date
-    const d = new Date(value);
-    if (isNaN(d)) {
-        // JS could not parse it → return original text instead of Na-Na-Na
-        return value;
-    }
-
-    const day = String(d.getDate()).padStart(2, '0');
-    const month = String(d.getMonth() + 1).padStart(2, '0');
-    const year = d.getFullYear();
-
-    return `${day}-${month}-${year}`;
-}
-
         const downloadDateString = formatDateToDDMMYYYY(now);
 
-        const dateFields = [
-            'dob', 'dod', 'aliyadate', 
-            'record_complete_date', 'admin_approved_date', 'downloaded_date'
-        ];
-
-        // ⭐ EXCLUDED FIELDS — REMOVE THESE FROM OUTPUT
-        const excludeFields = [
-            'biography',       // we replace this
-            'fightingdesc', 
-            'biographyen',
-            'fightingdescen',
-            'biographyru',
-            'fightingdescru',
-            'useremail' ,
-            'recordcomplete' ,
-            'admin_ready_for_download' ,
-            'record_complete_date' ,
-            'admin_approved_date' ,
-            'downloaded_date' ,
-            'uprising_participant' ,
-            'fname_soldier_submitter' ,
-            'lname_soldier_submitter' ,
-            'phone_soldier_submitter' ,
-            'relation_of_soldier_submitter',
-            'soldier_previously_submitted',
-            'how_found_us_submitter'
-            
-        ];
-
-        // --- 1. Fetch soldiers ---
-        const soldiers = await db.any(
-            `SELECT * FROM ${SOLDIER_TABLE} WHERE id IN ($1:csv)`,
-            [ids]
-        );
-
-        soldiers.forEach(s => {
-            dateFields.forEach(f => {
-                if (s[f]) s[f] = formatDateToDDMMYYYY(s[f]);
-            });
+        // Soldiers
+        const selectedSoldiers = await db.any(`SELECT * FROM ${SOLDIER_TABLE} WHERE id IN ($1:csv)`, [ids]);
+        const dateFields = ['dob','dod','aliyadate','idf_enlistdate','idf_releasedate','record_complete_date','admin_approved_date','downloaded_date'];
+        selectedSoldiers.forEach(s => {
+            dateFields.forEach(f => s[f] = formatDateToDDMMYYYY(s[f]));
         });
 
-        // --- 2. Fetch battle history ---
-        const battleHistory = await db.any(
-            `SELECT * FROM ${BATTLE_HISTORY_TABLE} WHERE soldier_id IN ($1:csv) ORDER BY id`,
-            [ids]
-        );
+        // Battle & files
+        const battleHistory = await db.any(`SELECT * FROM ${BATTLE_HISTORY_TABLE} WHERE soldier_id IN ($1:csv)`, [ids]);
+        const uploadedFiles = await db.any(`SELECT * FROM ${UPLOADED_FILES_TABLE} WHERE soldier_id IN ($1:csv)`, [ids]);
 
-        const battleMap = {};
-        battleHistory.forEach(b => {
-            if (!battleMap[b.soldier_id]) battleMap[b.soldier_id] = [];
-            battleMap[b.soldier_id].push(b);
-        });
+        const soldierMap = new Map();
+        selectedSoldiers.forEach(s => soldierMap.set(s.id, s));
 
-        // --- 3. Fetch uploaded files ---
-        const uploadedFiles = await db.any(
-            `SELECT * FROM ${UPLOADED_FILES_TABLE} WHERE soldier_id IN ($1:csv) ORDER BY id`,
-            [ids]
-        );
-
-        const fileMap = {};
-        uploadedFiles.forEach(f => {
-            if (!fileMap[f.soldier_id]) fileMap[f.soldier_id] = [];
-            fileMap[f.soldier_id].push(f);
-        });
-
-        // --- 4. Flatten ---
-        const flattenedRows = soldiers.map(s => {
-            // Remove excluded fields
-            const row = {};
-            for (const key in s) {
-                if (!excludeFields.includes(key)) {
-                    row[key] = s[key];
-                }
-            }
-
-            row.download_date = downloadDateString;
-
-            // ⭐ NEW → Combined Biography Field
-            row.biography =
-                `Bio: ${s.biography || ''} Personal Story: ${s.fightingdesc || ''}`;
-            row.biographyen =
-                `Bio: ${s.biographyen || ''} Personal Story: ${s.fightingdescen || ''}`;
-            row.biographyru =
-                `Bio: ${s.biographyru || ''} Personal Story: ${s.fightingdescru || ''}`;
-            const sBattles = battleMap[s.id] || [];
-            const sFiles = fileMap[s.id] || [];
-
-            // Add battles
-            sBattles.forEach((b, index) => {
-                const n = index + 1;
-                row[`battle_${n}_year`] = b.battleyear || '';
-                row[`battle_${n}_front`] = b.front || '';
-                row[`battle_${n}_fronten`] = b.fronten || '';
-                row[`battle_${n}_frontru`] = b.frontru || '';
-                row[`battle_${n}_battle`] = b.battle || '';
-                row[`battle_${n}_battleen`] = b.battleen || '';
-                row[`battle_${n}_battleru`] = b.battleru || '';
-                row[`battle_${n}_medal`] = b.medal || '';
-                row[`battle_${n}_medalen`] = b.medal || '';
-                row[`battle_${n}_medalru`] = b.medal || '';
-                row[`battle_${n}_details`] = b.details || '';
-                row[`battle_${n}_detailsen`] = b.details || '';
-                row[`battle_${n}_detailsru`] = b.details || '';
-                row[`battle_${n}_degreerank`] = b.details || '';
-                row[`battle_${n}_degreeranken`] = b.details || '';
-                row[`battle_${n}_degreerankru`] = b.details || '';
-                row[`battle_${n}_job`] = b.details || '';
-                row[`battle_${n}_joben`] = b.details || '';
-                row[`battle_${n}_jobru`] = b.details || '';
-                
-    
-            });
-
-            // Add uploaded files
-            sFiles.forEach((f, index) => {
-                const n = index + 1;
-                row[`file_${n}_name`] = f.original_name;
-                row[`file_${n}_path`] = f.file_path;
-            });
-
-            return row;
-        });
-
-        // --- 5. Excel Build ---
-        const workbook = new ExcelJS.Workbook();
-        const sheet = workbook.addWorksheet('Flattened_Soldiers');
-
-        const allKeys = [...new Set(flattenedRows.flatMap(r => Object.keys(r)))];
-
-        sheet.columns = allKeys.map(k => ({
-            header: k.toUpperCase(),
-            key: k,
-            style: { numFmt: '@' }
+        const mappedBattleHistory = battleHistory.map(b => ({
+            download_date: downloadDateString,
+            ...soldierMap.get(b.soldier_id),
+            ...b
+        }));
+        const mappedUploadedFiles = uploadedFiles.map(f => ({
+            download_date: downloadDateString,
+            ...soldierMap.get(f.soldier_id),
+            ...f
         }));
 
-        flattenedRows.forEach(row => sheet.addRow(row));
+        const workbook = new ExcelJS.Workbook();
 
-        // --- 6. Update DB ---
-        await db.none(
-            `UPDATE ${SOLDIER_TABLE} SET downloaded_date = $1 WHERE id IN ($2:csv)`,
-            [downloadDateString, ids]
-        );
+        // Soldiers worksheet
+        const soldierWorksheet = workbook.addWorksheet('Soldiers_Main');
+        const mainColumns = [
+            { header: 'DOWNLOAD_DATE', key: 'download_date' },
+            ...Object.keys(selectedSoldiers[0] || {}).map(k => ({ header: k.toUpperCase(), key: k }))
+        ];
+        soldierWorksheet.columns = mainColumns;
+        selectedSoldiers.forEach(s => soldierWorksheet.addRow({ ...s, download_date: downloadDateString }));
 
-        // --- 7. Send Excel ---
-        res.setHeader('Content-Disposition', 'attachment; filename="combined_soldiers_flat.xlsx"');
+        // Battle worksheet
+        if (mappedBattleHistory.length > 0) {
+            const battleWorksheet = workbook.addWorksheet('Soldiers_BattleHistory');
+            const desiredOrder = ['download_date','soldier_id','fname','fnameen','fnameru','lname','lnameen','lnameru'];
+            const allKeys = Object.keys(mappedBattleHistory[0]);
+            battleWorksheet.columns = [...desiredOrder, ...allKeys.filter(k => !desiredOrder.includes(k))].map(k => ({ header: k.toUpperCase(), key: k }));
+            mappedBattleHistory.forEach(b => battleWorksheet.addRow(b));
+        }
+
+        // Files worksheet
+        if (mappedUploadedFiles.length > 0) {
+            const filesWorksheet = workbook.addWorksheet('Soldiers_UploadedFiles');
+            const desiredOrder = ['download_date','soldier_id','fname','fnameen','fnameru','lname','lnameen','lnameru'];
+            const allKeys = Object.keys(mappedUploadedFiles[0]);
+            filesWorksheet.columns = [...desiredOrder, ...allKeys.filter(k => !desiredOrder.includes(k))].map(k => ({ header: k.toUpperCase(), key: k }));
+            mappedUploadedFiles.forEach(f => filesWorksheet.addRow(f));
+        }
+
+        // Update downloaded_date
+        await db.none(`UPDATE ${SOLDIER_TABLE} SET downloaded_date = $1 WHERE id IN ($2:csv)`, [now, ids]);
+
+        // Send workbook
+        res.setHeader('Content-Disposition', 'attachment; filename="completed_records_data.xlsx"');
         res.setHeader('Content-Type', 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet');
         await workbook.xlsx.write(res);
         res.end();
@@ -1777,9 +1713,6 @@ app.post('/admin/downloadExcel', async (req, res) => {
         res.status(500).send('Error exporting Excel');
     }
 });
-
-
-
 app.listen(port, () => {
   console.log(`Server running at http://localhost:${port}`);
 });

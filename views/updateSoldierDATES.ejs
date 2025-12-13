@@ -203,7 +203,10 @@
 </div>
 
 
-  
+  <div class="single-row">
+    <label for="otherbirthcountry"><%= __('fields.otherbirthcountry') %></label>
+    <input type="text" name="otherbirthcountry" id="otherbirthcountry" value="<%= soldier.otherbirthcountry || '' %>" />
+  </div>
 
   <div class="trio-row">
           <div class="input-group">
@@ -219,59 +222,39 @@
             <input type="text" name="birthcityru" id="birthcityru" value="<%= soldier.birthcityru || '' %>" />
           </div>
         </div>
-<%
-function formatDDMMYYYY(raw) {
-  if (!raw) return "";
-
-  const parts = raw.trim().split(/[-/\.]/);
-  if (parts.length !== 3) return "";
-
-  let d, m, y;
-
-  if (parts[0].length === 4) {
-    // YYYY-MM-DD
-    y = parts[0];
-    m = parts[1];
-    d = parts[2];
-  } else {
-    // DD-MM-YYYY
-    d = parts[0];
-    m = parts[1];
-    y = parts[2];
-  }
-
-  const di = parseInt(d, 10);
-  const mi = parseInt(m, 10);
-  const yi = parseInt(y, 10);
-
-  if (yi < 1800 || yi > 2100) return "";
-  if (mi < 1 || mi > 12) return "";
-  if (di < 1 || di > 31) return "";
-
-  const test = new Date(`${yi}-${mi}-${di}`);
-  if (
-    test.getFullYear() !== yi ||
-    test.getMonth() + 1 !== mi ||
-    test.getDate() !== di
-  ) return "";
-
-  return `${String(di).padStart(2, "0")}-${String(mi).padStart(2, "0")}-${yi}`;
-}
-
-const formattedDob = formatDDMMYYYY(soldier.dob || "");
-const formattedDod = formatDDMMYYYY(soldier.dod || "");
-const formattedAliya = formatDDMMYYYY(soldier.aliyadate || "");
-%>
-<label for="dob"><%= __('fields.dob') %>:</label>
-<input type="text" name="dob" id="dob" value="<%= formattedDob %>" placeholder="DD-MM-YYYY" />
-
-<label for="dod"><%= __('fields.dod') %>:</label>
-<input type="text" name="dod" id="dod" value="<%= formattedDod %>" placeholder="DD-MM-YYYY" />
-
-<label for="aliyadate"><%= __('fields.aliyadate') %>:</label>
-<input type="text" name="aliyadate" id="aliyadate" value="<%= formattedAliya %>" placeholder="DD-MM-YYYY" />
-
-
+        <%
+          const dob = soldier.dob;
+          let formattedDob = '';
+          if (dob) {
+            const year = dob.getFullYear();
+            const month = String(dob.getMonth() + 1).padStart(2, '0');
+            const day = String(dob.getDate()).padStart(2, '0');
+            formattedDob = `${year}-${month}-${day}`;
+          }
+          const dod = soldier.dod;
+          let formattedDod = '';
+          if (dod) {
+            const year = dod.getFullYear();
+            const month = String(dod.getMonth() + 1).padStart(2, '0');
+            const day = String(dod.getDate()).padStart(2, '0');
+            formattedDod = `${year}-${month}-${day}`;
+          }
+          const aliyadate = soldier.aliyadate;
+          let formattedAliya = '';
+          if (aliyadate) {
+            const year = aliyadate.getFullYear();
+            const month = String(aliyadate.getMonth() + 1).padStart(2, '0');
+            const day = String(aliyadate.getDate()).padStart(2, '0');
+            formattedAliya = `${year}-${month}-${day}`;
+          }
+        %>
+        <label for="dob"><%= __('fields.dob') %>:</label>
+        <input type="date" name="dob" id="dob" value="<%= formattedDob %>" />
+        <label for="dod"><%= __('fields.dod') %>:</label>
+        <input type="date" name="dod" id="dod" value="<%= formattedDod %>" />
+        <label for="aliyadate"><%= __('fields.aliyadate') %>:</label>
+        <input type="date" name="aliyadate" id="aliyadate" value="<%= formattedAliya %>" />
+      
 <div class="trio-row">
     <div class="input-group">
       <label for="placeofdeath"><%= __('fields.placeofdeath') %></label>
@@ -452,45 +435,53 @@ const formattedAliya = formatDDMMYYYY(soldier.aliyadate || "");
           </div>
     </div>
   <div class="trio-row">
-<% 
-// --- Start EJS Logic Block --- 
-// This structure keeps the control flow clean and contiguous for EJS parsing
-if (locale === 'he') { 
-%>
-    <div class="input-group">
-        <label for="enlistreason"><%= __('fields.enlistreason') %></label>
-        <select name="enlistreason" id="enlistreason">
-            <option value="" <%= (!soldier.enlistreason || soldier.enlistreason === '') ? 'selected' : '' %>>-- בחר --</option>
-            <option value="volunteer" <%= soldier.enlistreason === 'volunteer' ? 'selected' : '' %>>התנדבות</option>
-            <option value="conscription" <%= soldier.enlistreason === 'conscription' ? 'selected' : '' %>>גיוס חובה</option>
-        </select>
-    </div>
-<% 
-} else if (locale === 'en') { 
-%>
-    <div class="input-group">
-        <label for="enlistreason"><%= __('fields.enlistreason') %></label>
-        <select name="enlistreason" id="enlistreason">
-            <option value="" <%= (!soldier.enlistreason || soldier.enlistreason === '') ? 'selected' : '' %>>--Choose--</option>
-            <option value="volunteer" <%= soldier.enlistreason === 'volunteer' ? 'selected' : '' %>>Volunteer</option>
-            <option value="conscription" <%= soldier.enlistreason === 'conscription' ? 'selected' : '' %>>Conscription</option>
-        </select>
-    </div>
-<% 
-} else if (locale === 'ru') { 
-%>
-    <div class="input-group">
-        <label for="enlistreason"><%= __('fields.enlistreason') %></label>
-        <select name="enlistreason" id="enlistreason">
-            <option value="" <%= (!soldier.enlistreason || soldier.enlistreason === '') ? 'selected' : '' %>>-- Выбрать --</option>
-            <option value="volunteer" <%= soldier.enlistreason === 'volunteer' ? 'selected' : '' %>>Доброволец</option>
-            <option value="conscription" <%= soldier.enlistreason === 'conscription' ? 'selected' : '' %>>Призыв</option>
-        </select>
-    </div>
-<% 
-// --- End EJS Logic Block --- 
-} 
-%>
+    <% if (locale === 'he') { %>
+        <div class="input-group">
+            <label for="enlistreason"><%= __('fields.enlistreason') %></label>
+            <select name="enlistreason" id="enlistreason">
+                <option value="">-- בחר --</option>
+                <option value=" התנדבות"> התנדבות</option>
+                <option value="גיוס חובה">גיוס חובה </option>
+            </select>
+        </div>
+    <% } else if (locale === 'en') { %>
+        <div class="input-group">
+            <label for="enlistreasonen"><%= __('fields.enlistreason') %></label>
+            <select name="enlistreasonen" id="enlistreasonen"> 
+                
+                <option value="volunteer" 
+                    <%= soldier.enlistreasonen === 'volunteer' ? 'selected' : '' %>
+                >
+                    volunteer
+                </option>
+                
+                <option value="conscription" 
+                    <%= soldier.enlistreasonen === 'conscription' ? 'selected' : '' %>
+                >
+                    conscription
+                </option>
+                
+            </select>
+        </div>
+    
+    <% } else if (locale === 'ru') { %>  <-- FIX: This is now correctly chained to the 'if/else if'
+        <div class="input-group">
+            <label for="enlistreasonru"><%= __('fields.enlistreason') %></label>
+            <select name="enlistreasonru" id="enlistreasonru">
+                <option value="">-- Выберите --</option>
+                <option value="volunteer" 
+                    <%= soldier.enlistreasonru === 'volunteer' ? 'selected' : '' %>
+                > 
+                    доброволец 
+                </option>
+                <option value="conscription"
+                    <%= soldier.enlistreasonru === 'conscription' ? 'selected' : '' %>
+                >
+                    призыв 
+                </option>
+            </select>
+        </div>
+    <% } %>
 </div>
 <div class="trio-row">
     <div class="input-group">
@@ -601,20 +592,11 @@ if (locale === 'he') {
   </select>
   </div>
 
-<div class="trio-row">
-  <div class="input-group">
-    <label for="otherparticipation"><%= __('fields.otherparticipation') %></label>
-    <input type="text" name="otherparticipation" id="otherparticipation" value="<%= soldier.otherparticipation || '' %>"/>
-  </div>
-  <div class="input-group">
-    <label for="otherparticipationen"><%= __('fields.otherparticipationen') %></label>
-    <input type="text" name="otherparticipationen" id="otherparticipationen" value="<%= soldier.otherparticipationen || '' %>"/>
-  </div>
-  <div class="input-group">
-    <label for="otherparticipationru"><%= __('fields.otherparticipationru') %></label>
-    <input type="text" name="otherparticipationru" id="otherparticipationru" value="<%= soldier.otherparticipationru || '' %>"/>
-  </div>
+<div class="input-group">
+  <label for="otherparticipation"><%= __('fields.otherparticipation') %></label>
+  <input type="text" name="otherparticipation" id="otherparticipation" value="<%= soldier.otherparticipation || '' %>"/>
 </div>
+
 <div class="trio-row">
   <div class="input-group">
     <label for="wounddetails"><%= __('fields.wounddetails') %></label>
@@ -860,47 +842,21 @@ if (locale === 'he') {
         <label for="linkurl"><%= __('fields.linkurl') %>:</label>
         <input type="url" name="linkurl" id="linkurl" value="<%= soldier.linkurl || '' %>" />
       </fieldset>
-<fieldset>
-    <legend><%= __('sections.uploads') %></legend>
 
-    <label class="file-upload-label">
-        <%= __('form.upload_files') %>
-        <span class="upload-tip">(<%= __('form.multiple_files_tip') %>)</span>
-    </label>
-
-    <div class="custom-file-input">
-        <input type="file" id="files" name="files" multiple onchange="updateFileName()" hidden />
-        <button type="button" onclick="document.getElementById('files').click()">
+      <fieldset>
+        <legend><%= __('sections.uploads') %></legend>
+        <label class="file-upload-label">
+          <%= __('form.upload_files') %>
+        </label>
+        <div class="custom-file-input">
+          <input type="file" id="files" name="files" multiple onchange="updateFileName()" hidden />
+          <button type="button" onclick="document.getElementById('files').click()">
             <%= __('form.select_files') %>
-        </button>
-        <span id="file-label"><%= __('form.no_file_chosen') %></span>
-    </div>
-
-    <% 
-        // Logic uses the 'uploadedFiles' array passed from your server route
-        if (uploadedFiles && uploadedFiles.length > 0) { 
-    %>
-        <div class="existing-files-container">
-            <h3><%= __('form.current_files') %>:</h3>
-            <ul>
-                <% 
-                    // Loop over each file object
-                    uploadedFiles.forEach(function(file) { 
-                %>
-                        <li>
-                            <%= file.original_name %>
-                        </li>
-                <% 
-                    }); 
-                %>
-            </ul>
+          </button>
+          <span id="file-label"><%= __('form.no_file_chosen') %></span>
         </div>
-    <% 
-        } 
-    %>
-
-</fieldset>
-<div>
+      
+ <div>
   <label>
     <input type="checkbox" name="recordcomplete" value="true" <%= soldier && soldier.recordcomplete ? 'checked disabled' : '' %> />
     <%= __('form.mark_complete') %>
@@ -919,52 +875,6 @@ if (locale === 'he') {
     </form>
 
 <!-- =================== Scripts =================== -->
- <script>
-function toValidDDMMYYYY(dateString) {
-  if (!dateString) return "";
-
-  // Normalize separators
-  const parts = dateString.trim().split(/[-/\.]/);
-  if (parts.length !== 3) return "";
-
-  let day, month, year;
-
-  // Detect format
-  if (parts[0].length === 4) {
-    // YYYY-MM-DD
-    year = parts[0];
-    month = parts[1];
-    day = parts[2];
-  } else if (parts[2].length === 4) {
-    // DD-MM-YYYY (expected)
-    day = parts[0];
-    month = parts[1];
-    year = parts[2];
-  } else {
-    return "";
-  }
-
-  const d = parseInt(day, 10);
-  const m = parseInt(month, 10);
-  const y = parseInt(year, 10);
-
-  // Basic validation
-  if (y < 1800 || y > 2100) return "";
-  if (m < 1 || m > 12) return "";
-  if (d < 1 || d > 31) return "";
-
-  // Real calendar validation
-  const test = new Date(`${y}-${m}-${d}`);
-  if (
-    test.getFullYear() !== y ||
-    test.getMonth() + 1 !== m ||
-    test.getDate() !== d
-  ) return "";
-
-  return `${String(d).padStart(2, "0")}-${String(m).padStart(2, "0")}-${y}`;
-}
-</script>
-
 <script>
     document.addEventListener('DOMContentLoaded', () => {
         const container = document.getElementById('battle-container');
