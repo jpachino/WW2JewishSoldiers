@@ -1061,28 +1061,31 @@ if (req.body.enlistreason) {
             degreeranken = [], degreerankru = [], job = [], joben = [], jobru = []
         } = req.body;
 
-    // Record complete date
+     //Record complete date
     // Boolean fields
-    const recordcomplete = req.body.recordcomplete === 'true' || req.body.recordcomplete === 'on';
-    const uprising_participant = req.body.uprising_participant === 'true' || req.body.uprising_participant === 'on';
-    const record_complete_boolean = existingSoldier.recordcomplete;
+    // 1. Capture the form input
+const isCheckingComplete = req.body.recordcomplete === 'true' || req.body.recordcomplete === 'on';
+const uprising_participant = req.body.uprising_participant === 'true' || req.body.uprising_participant === 'on';
 
+// 2. Use LET so these variables can be updated
+let record_complete_boolean = existingSoldier.recordcomplete; 
+let record_complete_date = existingSoldier.record_complete_date;
 
-
-    // Record complete date
+// 3. Update if the user checked the box
+if (isCheckingComplete) {
+    const today = new Date();
+    const dd = String(today.getDate()).padStart(2, '0');
+    const mm = String(today.getMonth() + 1).padStart(2, '0');
+    const yyyy = today.getFullYear();
     
-    let record_complete_date = existingSoldier.record_complete_date;
-    if (recordcomplete && !existingSoldier.recordcomplete) {
-      const today = new Date();
-      const dd = String(today.getDate()).padStart(2, '0');
-      const mm = String(today.getMonth() + 1).padStart(2, '0');
-      const yyyy = today.getFullYear();
-      record_complete_date = `${dd}/${mm}/${yyyy}`;
-    } else if (!recordcomplete) {
-      record_complete_date = null;
-    }
+    // Set format to dd-mm-yyyy
+    record_complete_date = `${dd}-${mm}-${yyyy}`;
+    
+    // Use actual boolean true, not the string 'true'
+    record_complete_boolean = true; 
+}
+    
 
-    // Build update object
        // Main input object
          const inputData = {
       fname: req.body.fname || existingSoldier.fname,
@@ -1169,6 +1172,7 @@ if (req.body.enlistreason) {
       resistance, resistanceen, resistanceru,
       participation, participationen, participationru,  
       recordcomplete: record_complete_boolean,
+      
       record_complete_date,
       uprising_participant: req.body.uprising_participant === 'on' || existingSoldier.uprising_participant
 
