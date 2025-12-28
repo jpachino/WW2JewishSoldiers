@@ -10,8 +10,9 @@
 
   "home": {
     "title": "WW2 Soldier Entry System",
-    "description": "1.5 million Jewish Soldiers served in WW2 for the Allied countries.\n\n550,000 from the United States\n\n500,000 from the Soviet Union\n\n500,000 from the rest of the Allied countries.\n\nOver 250,000 Jewish soldiers failed to come home.\n\nWe honor the memory of all our soldiers.\n\nThis website is a portal to load information about our honored soldiers.\n\nThey fought for the freedom of our world and we are ever in their debt.",
     
+    "description": "The form is intended to commemorate Jewish fighters who contributed their military ability, skills and determination to the fight against the Nazi enemy and its partners, in World War II (1939-1945), in all combat systems - regular armies, underground and partisans.\n\nThe form will serve as input into the computerized information system of the Jewish Fighter Museum in World War II website (jwmww2.org) and as a basis for the museum's data.\n\nIt is possible and desirable to attach photos and photocopies of documents and other exhibits (in JPG format - up to 400KB per image), links to videos, testimonies, etc., related to the war period.\n\nThe information you provide will be processed in the computerized system of \"The Jewish Fighter in World War II\" and will be integrated into the museum's information system and publications.\n\nAdditional materials (PDF, etc.) of a \"heavier weight\" - please send them to us separately (veteran@jwmww2.com) and they will be added to the archive.\n\nBy filling out the form, you agree to the publication of the details - as above.\n\nThank you for your cooperation."
+    ,
     "emailPlaceholder": "e.g. john@example.com",
     "continueButton": "Press here to continue enter a soldier's information",
     "chooseAction": "Please choose an action:",
@@ -50,7 +51,8 @@
     "files": "files",
     "addAnotherBattle": "Add Another Battle",
     "battleHistory": "Battle History",
-    "submitter_info": "Information about the person submitting this information"
+    "submitter_info": "information about the person submitting this information",
+    "recordcomplete": "record complete"
     
    
   
@@ -81,6 +83,9 @@
     "birthcity": "City of Birth (IL)",
     "birthcityen": "City of Birth (EN)",
     "birthcityru": "City of Birth (RU)",
+    "state": "State/Province (IL)",
+    "stateen": "State/Province (EN)",
+    "stateru": "State/Province (RU)",
     "gender": "Gender",
     "male": "Male",
     "female": "Female",
@@ -90,16 +95,14 @@
     "deathdetails": "Death Details (IL)",
     "deathdetailsen": "Death Details (EN)",
     "deathdetailsru": "Death Details (RU)",
-    "biography": "Biography (IL)",
-    "biographyen": "Biography (EN)",
-    "biographyru": "Biography (RU)",
-    "otherparticipation": "Other Participation",
+    "biography": "Biography",
+    "otherparticipation": "Other Participation (IL)",
+    "otherparticipationen": "Other Participation (EN)",
+    "otherparticipationru": "Other Participation (RU)",
     "otherdecoration": "Medals/Decorations (IL)",
     "otherdecorationen": "Medals/Decorations (EN)",
     "otherdecorationru": "Medals/Decorations (RU)",
-    "fightingdesc": "Personal Story (IL)",
-    "fightingdescen": "Personal Story (EN)",
-    "fightingdescru": "Personal Story (RU)",
+    "fightingdesc": "Personal Story ",
     "idf_otherforce": "Other IDF Force",
     "idf_otherrank": "Other IDF Rank",
     "idf_desc": "IDF Service Description (IL)",
@@ -140,7 +143,9 @@
     "armyrole": "Army Role (IL)",
     "armyroleen": "Army Role (EN)",
     "armyroleru": "Army Role (RU)",
-    "enlistreason": "Enlist Reason",
+    "enlistreason": "Enlist Reason (IL)",
+    "enlistreasonen": "Enlist Reason (EN)",
+    "enlistreasonru": "Enlist Reason (RU)",
     "releasereason": "Release Reason (IL)",
     "releasereasonen": "Release Reason (EN)",
     "releasereasonru": "Release Reason (RU)",
@@ -175,6 +180,8 @@
     "gettodescen": "Ghetto/Camp  (EN)",
     "gettodescru": "Ghetto/Camp  (RU)",
     "otherfightingcontext": "Other Fighting context (IL)",
+    "otherfightingcontexten": "Other Fighting context (EN)",
+    "otherfightingcontextru": "Other Fighting context (RU)",
     "title":"Title (IL)",
     "titleen":"Title (EN)",
     "titleru":"Title (RU)",
@@ -183,13 +190,18 @@
     "phone_soldier_submitter": "Phone Number",
     "relation_of_soldier_submitter": "Your relationship to soldier",
     "how_found_us_submitter": "How did you find us?",
-    "soldier_previously_submitted": "Soldier previously submitted?"
-
-    
-
+    "soldier_previously_submitted": "Soldier previously submitted?",
+    "description": "Description",
+    "multimedia_type": "Multimedia Type",
+    "file_upload": "Upload File"
     
   },
-  
+ 
+  "multimedia_options": {
+    "photo": "Photo",
+    "video": "Video",
+    "document": "Document"
+  },
   
 
   "form": {

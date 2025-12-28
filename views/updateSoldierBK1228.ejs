@@ -1,5 +1,9 @@
 <!DOCTYPE html>
 <html lang="<%= locale %>">
+  <% 
+  const sfx = locale === 'en' ? 'en' : (locale === 'ru' ? 'ru' : '');
+  const tblSfx = locale === 'en' ? 'eng' : (locale === 'ru' ? 'rus' : 'heb');
+%>
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
@@ -135,74 +139,50 @@
             <input type="text" name="calledbyru" id="calledbyru" value="<%= soldier.calledbyru || '' %>" />
           </div>
         </div>
-        <div class="single-row">
-          <label for="gender"><%= __('fields.gender') %></label>
-          <select name="gender" id="gender">
-            <option value="male" <%= (!soldier.gender || soldier.gender === 'male') ? 'selected' : '' %>><%= __('fields.male') %></option>
-            <option value="female" <%= soldier.gender === 'female' ? 'selected' : '' %>><%= __('fields.female') %></option>
-          </select>
-        </div>
-      </fieldset>
-
-   <fieldset>
-  <legend><%= __('sections.birthdeath') %></legend>
-
-  <!--<div class="single-row">
-    <label for="birthcountry"><%= __('fields.birthcountry') %></label>
-    <input type="text" name="birthcountry" id="birthcountry" />
-  </div>-->
-
-
-  
-  <!--<label for="birthcountry"><%= __('fields.birthcountry') %></label>
-  <select name="birthcountry" id="birthcountry">
-  <option value=""><%= __('fields.birthcountry') %></option>
-
-    <% countries.forEach(c => { %>
-      <option value="<%= c.title%>" <%= soldier.birthcountry === c.title ? 'selected' : '' %>>
-        <%= c.title %>
-      </option>
+       <div class="form-group">
+  <div class="form-group">
+  <label for="gender"><%= __('fields.gender') %></label>
+  <select name="gender" id="gender" class="form-control">
+    <option value="">--</option>
+    <% gender.forEach(item => { 
+        let displayTitle;
+        if (locale === 'en') { displayTitle = item.title_eng; } 
+        else if (locale === 'ru') { displayTitle = item.title_rus; } 
+        else { displayTitle = item.title_heb; }
+        const isSelected = (soldier.gender === item.title_heb) ? 'selected' : ''; 
+    %>
+      <option value="<%= item.id %>" <%= isSelected %>><%= displayTitle %></option>
     <% }) %>
- 
-</select>-->
-
-<div>
-  <label for="birthcountry"><%= __('fields.birthcountry') %></label>
-  <select name="birthcountry" id="birthcountry">
-    <option value=""><%= __('fields.birthcountry') %></option>
-    <%
-  // Make a copy and sort based on the current locale
-  let sortedCountries = [...countries].sort((a, b) => {
-    if (locale === 'he') {
-      return a.title_heb.localeCompare(b.title_heb, 'he');
-    } else if (locale === 'en') {
-      return a.title_eng.localeCompare(b.title_eng, 'en');
-    } else if (locale === 'ru') {
-      return a.title_rus.localeCompare(b.title_rus, 'ru');
-    }
-    return 0;
-  });
-%>
-    <% sortedCountries.forEach(c => { %>
-      <% if (locale === 'he') { %>
-        <option value="<%= c.title_heb %>" <%= soldier.birthcountry === c.title_heb ? 'selected' : '' %>>
-          <%= c.title_heb %>
-        </option>
-      <% } else if (locale === 'en') { %>
-        <option value="<%= c.title_eng %>" <%= soldier.birthcountry === c.title_eng ? 'selected' : '' %>>
-          <%= c.title_eng %>
-        </option>
-      <% } else if (locale === 'ru') { %>
-        <option value="<%= c.title_rus %>" <%= soldier.birthcountry === c.title_rus ? 'selected' : '' %>>
-          <%= c.title_rus %>
-        </option>
-      <% } %>
-    <% }) %>
-
   </select>
 </div>
 
 
+   <fieldset>
+  <legend><%= __('sections.birthdeath') %></legend>
+
+  
+<label>Birth Country:</label>
+<select name="birthcountry" class="form-control">
+    <option value="">--</option>
+    <% countries.forEach(country => { 
+        // 1. Map the locale to your DB column naming convention
+        let displayTitle;
+        if (locale === 'en') {
+          displayTitle = country.title_eng;
+        } else if (locale === 'ru') {
+          displayTitle = country.title_rus;
+        } else {
+          displayTitle = country.title_heb;
+        }
+
+        // 2. Compare against the stored Hebrew value to maintain selection
+        const isSelected = (soldier.birthcountry === country.title_heb) ? 'selected' : ''; 
+    %>
+      <option value="<%= country.id %>" <%= isSelected %>>
+        <%= displayTitle %>
+      </option>
+    <% }) %>
+  </select>
   
 
   <div class="trio-row">
@@ -219,6 +199,22 @@
             <input type="text" name="birthcityru" id="birthcityru" value="<%= soldier.birthcityru || '' %>" />
           </div>
         </div>
+
+         <div class="trio-row">
+          <div class="input-group">
+            <label for="state"><%= __('fields.state') %></label>
+            <input type="text" name="state" id="state" value="<%= soldier.state || '' %>" />
+          </div>
+          <div class="input-group">
+            <label for="stateen"><%= __('fields.stateen') %></label>
+            <input type="text" name="stateen" id="stateen" value="<%= soldier.stateen || '' %>" />
+          </div>
+          <div class="input-group">
+            <label for="stateru"><%= __('fields.stateru') %></label>
+            <input type="text" name="stateru" id="stateru" value="<%= soldier.stateru || '' %>" />
+          </div>
+        </div>
+
 <%
 function formatDDMMYYYY(raw) {
   if (!raw) return "";
@@ -330,14 +326,7 @@ const formattedAliya = formatDDMMYYYY(soldier.aliyadate || "");
           <label for="biography"><%= __('fields.biography') %></label>
           <textarea id="biography" name="biography" rows="10" cols="60"><%= soldier.biography || '' %></textarea>
         </div>
-        <div class="input-group">
-          <label for="biographyen"><%= __('fields.biographyen') %></label>
-          <textarea id="biographyen" name="biographyen" rows="10" cols="60"><%= soldier.biographyen || '' %></textarea>
-        </div>
-        <div class="input-group">
-          <label for="biographyru"><%= __('fields.biographyru') %></label>
-          <textarea id="biographyru" name="biographyru" rows="10" cols="60"><%= soldier.biographyru || '' %></textarea>
-        </div>
+        
       </fieldset>
 
  <fieldset>
@@ -347,27 +336,19 @@ const formattedAliya = formatDDMMYYYY(soldier.aliyadate || "");
   </div>-->
   
    
-  <div>
+  <div class="form-group">
   <label for="category"><%= __('fields.category') %></label>
-  <select name="category" id="category">
-    <option value=""><%= __('fields.category') %></option>
-
-    <% category.forEach(c => { %>
-      <% if (locale === 'he') { %>
-        <option value="<%= c.title_heb %>" <%= soldier.category === c.title_heb ? 'selected' : '' %>>
-          <%= c.title_heb %>
-        </option>
-      <% } else if (locale === 'en') { %>
-        <option value="<%= c.title_eng %>" <%= soldier.category === c.title_eng ? 'selected' : '' %>>
-          <%= c.title_eng %>
-        </option>
-      <% } else if (locale === 'ru') { %>
-        <option value="<%= c.title_rus %>" <%= soldier.category === c.title_rus ? 'selected' : '' %>>
-          <%= c.title_rus %>
-        </option>
-      <% } %>
+  <select name="category" id="category" class="form-control">
+    <option value="">--</option>
+    <% category.forEach(item => { 
+        let displayTitle;
+        if (locale === 'en') { displayTitle = item.title_eng; } 
+        else if (locale === 'ru') { displayTitle = item.title_rus; } 
+        else { displayTitle = item.title_heb; }
+        const isSelected = (soldier.category === item.title_heb) ? 'selected' : ''; 
+    %>
+      <option value="<%= item.id %>" <%= isSelected %>><%= displayTitle %></option>
     <% }) %>
-
   </select>
 </div>
 
@@ -391,23 +372,21 @@ const formattedAliya = formatDDMMYYYY(soldier.aliyadate || "");
 
   
 
-  <div>
-    <label for="army"><%= __('fields.army') %></label>
-    <select name="army" id="army">
-    <option value=""><%= __('fields.army') %></option>
-
-     <% army.forEach(c => { %>
-      <% if (locale === 'he') { %>
-        <option value="<%= c.title_heb %>" <%= soldier.army === c.title_heb ? 'selected' : '' %>><%= c.title_heb %></option>
-      <% } else if (locale === 'en') { %>
-        <option value="<%= c.title_eng %>" <%= soldier.army === c.title_eng ? 'selected' : '' %>><%= c.title_eng %></option>
-      <% } else if (locale === 'ru') { %>
-        <option value="<%= c.title_rus %>" <%= soldier.army === c.title_rus ? 'selected' : '' %>><%= c.title_rus %></option>
-      <% } %>
-    <% }) %> 
+ <div class="form-group">
+  <label for="army"><%= __('fields.army') %></label>
+  <select name="army" id="army" class="form-control">
+    <option value="">--</option>
+    <% army.forEach(item => { 
+        let displayTitle;
+        if (locale === 'en') { displayTitle = item.title_eng; } 
+        else if (locale === 'ru') { displayTitle = item.title_rus; } 
+        else { displayTitle = item.title_heb; }
+        const isSelected = (soldier.army === item.title_heb) ? 'selected' : ''; 
+    %>
+      <option value="<%= item.id %>" <%= isSelected %>><%= displayTitle %></option>
+    <% }) %>
   </select>
-  </div>
- 
+</div>
  
 <br>
 
@@ -418,22 +397,21 @@ const formattedAliya = formatDDMMYYYY(soldier.aliyadate || "");
 
   
 
-  <div>
-    <label for="corps"><%= __('fields.corps') %></label>
-    <select name="corps" id="corps">
-    <option value=""><%= __('fields.corps') %></option>
-
-     <% corps.forEach(c => { %>
-      <% if (locale === 'he') { %>
-        <option value="<%= c.title_heb %>" <%= soldier.corps === c.title_heb ? 'selected' : '' %>><%= c.title_heb %></option>
-      <% } else if (locale === 'en') { %>
-        <option value="<%= c.title_eng %>" <%= soldier.corps === c.title_eng ? 'selected' : '' %>><%= c.title_eng %></option>
-      <% } else if (locale === 'ru') { %>
-        <option value="<%= c.title_rus %>" <%= soldier.corps === c.title_rus ? 'selected' : '' %>><%= c.title_rus %></option>
-      <% } %>
-    <% }) %> 
+  <div class="form-group">
+  <label for="corps"><%= __('fields.corps') %></label>
+  <select name="corps" id="corps" class="form-control">
+    <option value="">--</option>
+    <% corps.forEach(item => { 
+        let displayTitle;
+        if (locale === 'en') { displayTitle = item.title_eng; } 
+        else if (locale === 'ru') { displayTitle = item.title_rus; } 
+        else { displayTitle = item.title_heb; }
+        const isSelected = (soldier.corps === item.title_heb) ? 'selected' : ''; 
+    %>
+      <option value="<%= item.id %>" <%= isSelected %>><%= displayTitle %></option>
+    <% }) %>
   </select>
-  </div>
+</div>
  
  
 
@@ -452,45 +430,22 @@ const formattedAliya = formatDDMMYYYY(soldier.aliyadate || "");
           </div>
     </div>
   <div class="trio-row">
-<% 
-// --- Start EJS Logic Block --- 
-// This structure keeps the control flow clean and contiguous for EJS parsing
-if (locale === 'he') { 
-%>
-    <div class="input-group">
-        <label for="enlistreason"><%= __('fields.enlistreason') %></label>
-        <select name="enlistreason" id="enlistreason">
-            <option value="" <%= (!soldier.enlistreason || soldier.enlistreason === '') ? 'selected' : '' %>>-- בחר --</option>
-            <option value="volunteer" <%= soldier.enlistreason === 'volunteer' ? 'selected' : '' %>>התנדבות</option>
-            <option value="conscription" <%= soldier.enlistreason === 'conscription' ? 'selected' : '' %>>גיוס חובה</option>
-        </select>
-    </div>
-<% 
-} else if (locale === 'en') { 
-%>
-    <div class="input-group">
-        <label for="enlistreason"><%= __('fields.enlistreason') %></label>
-        <select name="enlistreason" id="enlistreason">
-            <option value="" <%= (!soldier.enlistreason || soldier.enlistreason === '') ? 'selected' : '' %>>--Choose--</option>
-            <option value="volunteer" <%= soldier.enlistreason === 'volunteer' ? 'selected' : '' %>>Volunteer</option>
-            <option value="conscription" <%= soldier.enlistreason === 'conscription' ? 'selected' : '' %>>Conscription</option>
-        </select>
-    </div>
-<% 
-} else if (locale === 'ru') { 
-%>
-    <div class="input-group">
-        <label for="enlistreason"><%= __('fields.enlistreason') %></label>
-        <select name="enlistreason" id="enlistreason">
-            <option value="" <%= (!soldier.enlistreason || soldier.enlistreason === '') ? 'selected' : '' %>>-- Выбрать --</option>
-            <option value="volunteer" <%= soldier.enlistreason === 'volunteer' ? 'selected' : '' %>>Доброволец</option>
-            <option value="conscription" <%= soldier.enlistreason === 'conscription' ? 'selected' : '' %>>Призыв</option>
-        </select>
-    </div>
-<% 
-// --- End EJS Logic Block --- 
-} 
-%>
+<div class="form-group">
+  <label for="enlistreason"><%= __('fields.enlistreason') %></label>
+  <select name="enlistreason" id="enlistreason" class="form-control">
+    <option value="">--</option>
+    <% enlistreason.forEach(item => { 
+        let displayTitle;
+        if (locale === 'en') { displayTitle = item.title_eng; } 
+        else if (locale === 'ru') { displayTitle = item.title_rus; } 
+        else { displayTitle = item.title_heb; }
+        const isSelected = (soldier.enlistreason === item.title_heb) ? 'selected' : ''; 
+    %>
+      <option value="<%= item.id %>" <%= isSelected %>><%= displayTitle %></option>
+    <% }) %>
+  </select>
+</div>
+
 </div>
 <div class="trio-row">
     <div class="input-group">
@@ -506,38 +461,36 @@ if (locale === 'he') {
         <input type="text" name="releasereasonru" id="releasereasonru" value="<%= soldier.releasereasonru || '' %>"/>
     </div>
 </div>
-   <div>
+  <div class="form-group">
   <label for="resistance"><%= __('fields.resistance') %></label>
-  <select name="resistance" id="resistance">
-  <option value=""><%= __('fields.resistance') %></option>
-
-     <% resistance.forEach(c => { %>
-      <% if (locale === 'he') { %>
-        <option value="<%= c.title_heb %>" <%= soldier.resistance === c.title_heb ? 'selected' : '' %>><%= c.title_heb %></option>
-      <% } else if (locale === 'en') { %>
-        <option value="<%= c.title_eng %>" <%= soldier.resistance === c.title_eng ? 'selected' : '' %>><%= c.title_eng %></option>
-      <% } else if (locale === 'ru') { %>
-        <option value="<%= c.title_rus %>" <%= soldier.resistance === c.title_rus ? 'selected' : '' %>><%= c.title_rus %></option>
-      <% } %>
-    <% }) %> 
+  <select name="resistance" id="resistance" class="form-control">
+    <option value="">--</option>
+    <% resistance.forEach(item => { 
+        let displayTitle;
+        if (locale === 'en') { displayTitle = item.title_eng; } 
+        else if (locale === 'ru') { displayTitle = item.title_rus; } 
+        else { displayTitle = item.title_heb; }
+        const isSelected = (soldier.resistance === item.title_heb) ? 'selected' : ''; 
+    %>
+      <option value="<%= item.id %>" <%= isSelected %>><%= displayTitle %></option>
+    <% }) %>
   </select>
-  </div>  
-  <div>
-    <label for="partizan"><%= __('fields.partizan') %></label>
-    <select name="partizan" id="partizan">
-    <option value=""><%= __('fields.partizan') %></option>
-
-     <% partizan.forEach(c => { %>
-      <% if (locale === 'he') { %>
-        <option value="<%= c.title_heb %>" <%= soldier.partizan === c.title_heb ? 'selected' : '' %>><%= c.title_heb %></option>
-      <% } else if (locale === 'en') { %>
-        <option value="<%= c.title_eng %>" <%= soldier.partizan === c.title_eng ? 'selected' : '' %>><%= c.title_eng %></option>
-      <% } else if (locale === 'ru') { %>
-        <option value="<%= c.title_rus %>" <%= soldier.partizan === c.title_rus ? 'selected' : '' %>><%= c.title_rus %></option>
-      <% } %>
-    <% }) %> 
+</div>
+  <div class="form-group">
+  <label for="partizan"><%= __('fields.partizan') %></label>
+  <select name="partizan" id="partizan" class="form-control">
+    <option value="">--</option>
+    <% partizan.forEach(item => { 
+        let displayTitle;
+        if (locale === 'en') { displayTitle = item.title_eng; } 
+        else if (locale === 'ru') { displayTitle = item.title_rus; } 
+        else { displayTitle = item.title_heb; }
+        const isSelected = (soldier.partizan === item.title_heb) ? 'selected' : ''; 
+    %>
+      <option value="<%= item.id %>" <%= isSelected %>><%= displayTitle %></option>
+    <% }) %>
   </select>
-  </div> 
+</div>
   <br>
   <label>
   <input 
@@ -578,28 +531,40 @@ if (locale === 'he') {
     />
   </div>
 </div>
-   <div class="input-group">
+   <!--<div class="input-group">
       <label for="otherfightingcontext"><%= __('fields.otherfightingcontext') %></label>
       <input type="text" name="otherfightingcontext" id="otherfightingcontext" value="<%= soldier.otherfightingcontext || '' %>" />
+    </div>-->
+  <div class="trio-row">
+    <div class="input-group">
+        <label for="otherfightingcontext"><%= __('fields.otherfightingcontext') %></label>
+        <input type="text" name="otherfightingcontext" id="otherfightingcontext" value="<%= soldier.otherfightingcontext || '' %>" />
     </div>
+    <div class="input-group">
+        <label for="otherfightingcontexten"><%= __('fields.otherfightingcontexten') %></label>
+        <input type="text" name="otherfightingcontexten" id="otherfightingcontexten" value="<%= soldier.otherfightingcontexten || '' %>"/>
+    </div>
+    <div class="input-group">
+        <label for="otherfightingcontextru"><%= __('fields.otherfightingcontextru') %></label>
+        <input type="text" name="otherfightingcontextru" id="otherfightingcontextru" value="<%= soldier.otherfightingcontextru || '' %>"/>
+    </div>
+</div> 
    
-   
-<div>
-    <label for="participation"><%= __('fields.participation') %></label>
-    <select name="participation" id="participation">
-    <option value=""><%= __('fields.participation') %></option>
-
-     <% participation.forEach(c => { %>
-      <% if (locale === 'he') { %>
-        <option value="<%= c.title_heb %>" <%= soldier.participation === c.title_heb ? 'selected' : '' %>><%= c.title_heb %></option>
-      <% } else if (locale === 'en') { %>
-        <option value="<%= c.title_eng %>" <%= soldier.participation === c.title_eng ? 'selected' : '' %>><%= c.title_eng %></option>
-      <% } else if (locale === 'ru') { %>
-        <option value="<%= c.title_rus %>" <%= soldier.participation === c.title_rus ? 'selected' : '' %>><%= c.title_rus %></option>
-      <% } %>
-    <% }) %> 
+<div class="form-group">
+  <label for="participation"><%= __('fields.participation') %></label>
+  <select name="participation" id="participation" class="form-control">
+    <option value="">--</option>
+    <% participation.forEach(item => { 
+        let displayTitle;
+        if (locale === 'en') { displayTitle = item.title_eng; } 
+        else if (locale === 'ru') { displayTitle = item.title_rus; } 
+        else { displayTitle = item.title_heb; }
+        const isSelected = (soldier.participation === item.title_heb) ? 'selected' : ''; 
+    %>
+      <option value="<%= item.id %>" <%= isSelected %>><%= displayTitle %></option>
+    <% }) %>
   </select>
-  </div>
+</div>
 
 <div class="trio-row">
   <div class="input-group">
@@ -828,53 +793,68 @@ if (locale === 'he') {
     <%= soldier.fightingdesc || '' %>
   </textarea>
 </div>
-<div class="input-group">
-  <label for="fightingdescen"><%= __('fields.fightingdescen') %></label>
-  <textarea name="fightingdescen" id="fightingdescen">
-    <%= soldier.fightingdescen || '' %>
-  </textarea>
-</div>
-<div class="input-group">
-  <label for="fightingdescru"><%= __('fields.fightingdescru') %></label>
-  <textarea name="fightingdescru" id="fightingdescru">
-    <%= soldier.fightingdescru || '' %>
-  </textarea>
-</div>
 
+ </fieldset>
 
-      <fieldset>
-        <legend><%= __('sections.urlnotes') %></legend>
-        <!--<div class="trio-row">-->
-          <div class="input-group">
-            <label for="title"><%= __('fields.title') %></label>
-            <input type="text" name="title" id="title" value="<%= soldier.title || '' %>" />
-          </div>
-          
-       
-        <!--<label for="remarks"><%= __('fields.remarks') %>:</label>
-        <textarea name="remarks" id="remarks"><%= soldier.remarks || '' %></textarea>
-        <label for="remarksen"><%= __('fields.remarksen') %>:</label>
-        <textarea name="remarksen" id="remarksen"><%= soldier.remarksen || '' %></textarea>
-        <label for="remarksru"><%= __('fields.remarksru') %>:</label>
-        <textarea name="remarksru" id="remarksru"><%= soldier.remarksru || '' %></textarea>-->
-        <label for="linkurl"><%= __('fields.linkurl') %>:</label>
-        <input type="url" name="linkurl" id="linkurl" value="<%= soldier.linkurl || '' %>" />
-      </fieldset>
-
-      <fieldset>
-        <legend><%= __('sections.uploads') %></legend>
-        <label class="file-upload-label">
-          <%= __('form.upload_files') %>
-        </label>
-        <div class="custom-file-input">
-          <input type="file" id="files" name="files" multiple onchange="updateFileName()" hidden />
-          <button type="button" onclick="document.getElementById('files').click()">
-            <%= __('form.select_files') %>
-          </button>
-          <span id="file-label"><%= __('form.no_file_chosen') %></span>
-        </div>
       
- <div>
+<fieldset>
+    <legend><%= __('sections.uploads') %></legend>
+
+   
+        <div class="existing-multimedia">
+    <h4><%= __('form.current_files') %></h4>
+    <table class="table">
+        <thead>
+            <tr>
+                <th>Description</th>
+                <th>Type</th>
+                <th>Preview/Link</th>
+            </tr>
+        </thead>
+        <!--<tbody>
+            <% multimedia.forEach(item => { %>
+                <tr>
+                    <td><%= item.file_description %></td>
+                    <td><%= item.multimedia_type %></td>
+                    <td>
+                        <% if (item.file_path && item.file_path.startsWith('http')) { %>
+                            <a href="<%= item.file_path %>" target="_blank">View Link</a>
+                        <% } else { %>
+                            <a href="<%= item.file_path %>" target="_blank">View File</a>
+                        <% } %>
+                    </td>
+                </tr>
+            <% }) %>
+        </tbody>-->
+        <tbody>
+    <% if (locals.multimedia && multimedia.length > 0) { %>
+        <% multimedia.forEach(item => { %>
+            <tr>
+                <td><%= item.file_description %></td>
+                <td><%= item.multimedia_type %></td>
+                <td>
+                    <a href="<%= item.file_path %>" target="_blank" class="btn-view">View</a>
+                </td>
+            </tr>
+        <% }) %>
+    <% } else { %>
+        <tr>
+            <td colspan="3">No files or multimedia links found for this record.</td>
+        </tr>
+    <% } %>
+</tbody>
+    </table>
+</div>
+<hr>
+
+    <div class="new-uploads">
+        <h4>Add New Files</h4>
+        <div id="multimedia-rows">
+            </div>
+        <button type="button" onclick="addUploadRow()" class="btn-add">＋ Add File</button>
+    </div>
+</fieldset>
+<div>
   <label>
     <input type="checkbox" name="recordcomplete" value="true" <%= soldier && soldier.recordcomplete ? 'checked disabled' : '' %> />
     <%= __('form.mark_complete') %>
@@ -975,19 +955,53 @@ function toValidDDMMYYYY(dateString) {
     });
 </script>
 
+
 <script>
+function addUploadRow() {
+    const container = document.getElementById('multimedia-rows');
+    const newRow = document.createElement('div');
+    newRow.className = 'multimedia-row';
+    newRow.style = "border: 1px dashed #ccc; padding: 15px; margin-bottom: 15px; background: #f9f9f9; border-radius: 8px;";
+    
+    // We use a template string. 
+    // We can use EJS syntax here to pre-generate the dropdown options
+    newRow.innerHTML = `
+        <div style="display: flex; flex-wrap: wrap; gap: 15px;">
+            <div class="input-group">
+                <label>Description</label>
+                <input type="text" name="m_description[]" placeholder="Description of new file">
+            </div>
 
+            <div class="input-group">
+                <label>Type</label>
+                <select name="m_type[]">
+                    <% multimedia_type_TBL.forEach(type => { %>
+                        <option value="<%= type.title_heb %>">
+                            <%= locale === 'he' ? type.title_heb : type.title_eng %>
+                        </option>
+                    <% }) %>
+                </select>
+            </div>
 
-  // Update uploaded file names
-  function updateFileName() {
-    const input = document.getElementById('files');
-    const label = document.getElementById('file-label');
-    if (input.files.length > 0) {
-      label.textContent = Array.from(input.files).map(f => f.name).join(', ');
-    } else {
-      label.textContent = '<%= __("fields.noFilesChosen") %>';
-    }
-  }
+            <div class="input-group">
+                <label>Location</label>
+                <input type="text" name="physical_logical_location[]" placeholder="Physical location">
+            </div>
+
+            <div class="input-group">
+                <label>Select File</label>
+                <input type="file" name="m_files[]" accept="image/*,.pdf">
+            </div>
+            
+            <div class="input-group" style="align-self: flex-end;">
+                <button type="button" class="btn-remove" onclick="this.closest('.multimedia-row').remove()" style="background:#ff4d4d; color:white; border:none; padding:5px 10px; cursor:pointer; border-radius:4px;">Remove</button>
+            </div>
+        </div>
+    `;
+    container.appendChild(newRow);
+}
 </script>
+
+
 </body>
 </html>

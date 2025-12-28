@@ -6,73 +6,84 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title><%= __('home.title') %></title>
   <link rel="stylesheet" href="/styles/styles.css" />
+  <style>
+    /* Dynamic Alignment and Styling for the Description */
+    .description-text {
+      /* Makes text smaller to prevent excessive scrolling */
+      font-size: 0.95rem; 
+      line-height: 1.45;
+      margin-bottom: 1.5rem;
+      white-space: pre-line;
+      color: #333;
+    }
+
+    /* Directional logic based on locale */
+    .lang-he {
+      direction: rtl;
+      text-align: justify;
+      text-justify: inter-word;
+    }
+
+    .lang-en, .lang-ru {
+      direction: ltr;
+      text-align: left; /* Justifying LTR text often creates awkward gaps, left is cleaner */
+    }
+
+    /* Adjust success box spacing */
+    .success-box {
+      margin-bottom: 1rem;
+      padding: 10px;
+    }
+    
+    .choice-form {
+      margin-top: 1rem;
+    }
+  </style>
 </head>
 
 <body>
- 
 
   <header>
     <div class="container">
       <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap;">
         <h1><%= __('home.title') %></h1>
-
-        <!-- 🌐 Language Selector 
-        <form action="/change-lang" method="get">
-          <select name="lang" class="lang-select" onchange="this.form.submit()">
-            <option value="he" <%= locale === 'he' ? 'selected' : '' %>>🇮🇱 עברית</option>
-            <option value="en" <%= locale === 'en' ? 'selected' : '' %>>🇺🇸 English</option>
-            <option value="ru" <%= locale === 'ru' ? 'selected' : '' %>>🇷🇺 Русский</option>
-          </select>
-        </form>-->
       </div>
-
       <nav>
         <a href="/"><%= __('nav.home') %></a>
-        <!-- Hidden nav links for future use -->
-        <!--<a href="/soldierlistFULL"><%= __('nav.soldierList') %></a>
-        <a href="/addFull"><%= __('nav.addSoldier') %></a>
-        <a href="/search"><%= __('nav.searchUpdate') %></a>-->
       </nav>
     </div>
   </header>
 
-     <!-- 🌐 Language Selector -->
-       <form action="/change-lang" method="get" style="margin-top: 2rem;">
-          <select name="lang" class="lang-select" onchange="this.form.submit()">
-            <option value="he" <%= locale === 'he' ? 'selected' : '' %>>🇮🇱 עברית</option>
-            <option value="en" <%= locale === 'en' ? 'selected' : '' %>>🇺🇸 English</option>
-            <option value="ru" <%= locale === 'ru' ? 'selected' : '' %>>🇷🇺 Русский</option>
-          </select>
-        </form>
-
-    <!--<main class="container" style="margin-top: 3rem;">-->
-      <main class="container">
-
-     <% if (saved) { %>
-  <div class="success-box">
-   
-    ✅ <%= __('form.saved_success') || 'Record and files saved successfully!' %>
+  <div class="container" style="margin-top: 1rem;">
+    <form action="/change-lang" method="get">
+      <select name="lang" class="lang-select" onchange="this.form.submit()">
+        <option value="he" <%= locale === 'he' ? 'selected' : '' %>>🇮🇱 עברית</option>
+        <option value="en" <%= locale === 'en' ? 'selected' : '' %>>🇺🇸 English</option>
+        <option value="ru" <%= locale === 'ru' ? 'selected' : '' %>>🇷🇺 Русский</option>
+      </select>
+    </form>
   </div>
-  <% } %>
 
-    <h3 style="white-space: pre-line;">
+  <main class="container">
+
+    <% if (typeof saved !== 'undefined' && saved) { %>
+    <div class="success-box">
+      ✅ <%= __('form.saved_success') || 'Record and files saved successfully!' %>
+    </div>
+    <% } %>
+
+    <div class="description-text lang-<%= locale %>">
       <%= __('home.description') %>
-    </h3>
+    </div>
 
-    <!-- Choice Form -->
     <form class="choice-form" id="choiceForm">
-      <p><%= __('home.chooseAction') %></p>
+      <p><strong><%= __('home.chooseAction') %></strong></p>
       <button type="button" onclick="redirectToAdd()"><%= __('home.addNewSoldier') %></button>
       <button type="button" onclick="redirectToChange()"><%= __('home.changeSoldierInfo') %></button>
     </form>
 
-    <!-- Hidden Admin Link (invisible unless hovered) -->
     <div style="text-align: right; font-size: 0.8rem; margin-top: 20px;">
-      <a href="#" 
-         style="color: transparent; text-decoration: none;" 
-         onmouseover="this.style.color='#ccc'" 
-         onmouseout="this.style.color='transparent'" 
-         onclick="promptAdminAccess(event)">
+      <a href="#" style="color: transparent; text-decoration: none;" onmouseover="this.style.color='#ccc'" onmouseout="this.style.color='transparent'" onclick="promptAdminAccess(event)">
         •
       </a>
     </div>
@@ -83,13 +94,11 @@
       window.location.href = '/addFull';
     }
 
- 
     function redirectToChange() {
       const lang = '<%= locale %>';
       window.location.href = `/search?lang=${lang}`;
     }
 
-    // Password-protected admin access
     function promptAdminAccess(e) {
       e.preventDefault();
       const password = prompt("Enter admin password:");
@@ -100,32 +109,21 @@
       }
     }
 
-    // Optional: Keyboard shortcut Ctrl+Shift+A
     document.addEventListener('keydown', function(e) {
       if (e.ctrlKey && e.shiftKey && e.key === 'A') {
         promptAdminAccess(e);
       }
-     
-
-
-
-
     });
+
+    const successBox = document.querySelector('.success-box');
+    if (successBox) {
+      setTimeout(() => {
+        successBox.style.transition = 'opacity 0.5s ease';
+        successBox.style.opacity = '0';
+        setTimeout(() => successBox.remove(), 500);
+      }, 5000);
+    }
   </script>
-  <script>
-  // Auto-hide success message after 5 seconds
-  const successBox = document.querySelector('.success-box');
-  if (successBox) {
-    setTimeout(() => {
-      successBox.style.transition = 'opacity 0.5s ease';
-      successBox.style.opacity = '0';
-      setTimeout(() => successBox.remove(), 500); // fully remove after fade-out
-    }, 5000); // hide after 5 seconds
-  }
-</script>
-
 </body>
+
 </html>
-
-
-

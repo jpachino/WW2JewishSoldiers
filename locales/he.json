@@ -9,8 +9,9 @@
 
   "home": {
     "title": "מערכת רישום חיילים במלחה\"ע השנייה",
-    "description": "מיליון וחצי חיילים יהודים שירתו במלחמת העולם השנייה במדינות בעלות הברית.\n\n550,000 מארצות הברית\n\n500,000 מברית המועצות\n\n500,000 משאר מדינות בעלות הברית.\n\nיותר מ-250,000 חיילים יהודים לא חזרו הביתה.\n\nאנו מכבדים את זכר כל החיילים שלנו.\n\nאתר זה הוא פורטל לטעינת מידע על החיילים המכובדים שלנו.\n\nהם נלחמו למען חירות עולמנו ואנו חבים להם את חיינו.",
-    "enterEmail": "הכנס את האימייל שלך כדי להמשיך:",
+   
+  "description": "הטופס נועד להנצחת לוחמות ולוחמים יהודים אשר תרמו מיכולתם הצבאית, כישוריהם ונחישותם למאבק באויב הנאצי ושותפיו, במלחמת העולם השנייה (1939-1945), בכל מערכות הלחימה - צבאות סדירים, מחתרות ופרטיזנים.\n\nהטופס ישמש קלט במערכת המידע הממוחשבת של אתר מוזיאון הלוחם היהודי במלחמת העולם השנייה (jwmww2.org) ובסיס לנתוני המוזיאון.\n\nניתן ורצוי לצרף תמונות וצילום מסמכים ומוצגים אחרים (בפורמט JPG - עד 400KB לתמונה), קישורים לסרטונים, עדויות וכו', הקשורים לתקופת המלחמה.\n\nהמידע שיועבר על ידך, יעובד במערכת הממוחשבת של 'הלוחם היהודי במלחמת העולם השנייה' וישולב במערכת המידע של המוזיאון ופרסומיו.\n\nחומרים נוספים (PDF וכו') 'במשקל כבד' יותר - נא שלחו אלינו בנפרד (veteran@jwmww2.com) ויצורפו לארכיון.\n\nבמילוי הטופס, הנכם מאשרים את פרסום הפרטים - כנ\"ל.\n\nתודה על שיתוף הפעולה."
+    ,
     "emailPlaceholder": "לדוגמה: yosi@example.com",
     "continueButton": "לחץ כאן כדי להמשיך להזין מידע על חייל",
     "chooseAction": "אנא בחר פעולה:",
@@ -44,13 +45,14 @@
     "military": "שירות צבאי",
     "family": "משפחה",
     "birthdeath": "מידע על לידה ופטירה",
-    "urlnotes": "פרטי כתובת האתר",
+    "urlnotes": "פרטי קישור ",
     "uploads": "העלאות קבצים",
     "datesmedals": "תאריכים ועיטורים",
     "files": "קבצים",
     "addAnotherBattle": "הוסף קרב נוסף",
     "battleHistory": "היסטוריית קרבות",
-    "submitter_info": "מידע על האדם שמגיש את המידע"
+    "submitter_info": "מידע על האדם שמגיש את המידע",
+    "recordcomplete": "התיק הושלם"
 
   
 },
@@ -81,6 +83,9 @@
      "birthcity": "עיר לידה (IL)",
     "birthcityen": "עיר לידה (EN)",
     "birthcityru": "עיר לידה (RU)",
+    "state": "מדינה/מחוז (IL)",
+    "stateen": "מדינה/מחוז (EN)",
+    "stateru": "מדינה/מחוז (RU)",
     "gender": "מין",
     "male": "זכר",
     "female": "נקבה",
@@ -90,19 +95,14 @@
     "deathdetails": "פרטי פטירה (IL)",
     "deathdetailsen": "פרטי פטירה (EN)",
     "deathdetailsru": "פרטי פטירה (RU)",
-    
-    "biography": "קורות חיים (IL)",
+    "biography": "קורות חיים ",
     "biographyen": "קורות חיים (EN)",
     "biographyru": "קורות חיים (RU)",
-    
-    "otherparticipation": "השתתפויות נוספות",
-    
+    "otherparticipation": "השתתפות אחרת",
     "otherdecoration": "מדליות/עיטורים (IL)",
     "otherdecorationen": "מדליות/עיטורים (EN)",
     "otherdecorationru": "מדליות/עיטורים (RU)",
-    "fightingdesc": "סיפור אישי (IL)",
-    "fightingdescen": "סיפור אישי (EN)",
-    "fightingdescru": "סיפור אישי (RU)",
+    "fightingdesc": "סיפור אישי ",
     "idf_otherforce": "כוח אחר בצה\"ל",
     "idf_otherrank": "דרגה אחרת בצה\"ל",
     "idf_desc": "תיאור שירות בצה\"ל (IL)",
@@ -121,9 +121,9 @@
      "remarks": "הערות (IL)",
     "remarksen": "הערות (EN)",
     "remarksru": "הערות (RU)",
-    "urltitle": "כתובת קישור (IL)",
-    "urltitleen": "כתובת קישור (EN)",
-    "urltitleru": "כתובת קישור (RU)",
+    "urltitle": "כותרת קישור (IL)",
+    "urltitleen": "כותרת קישור (EN)",
+    "urltitleru": "כותרת קישור (RU)",
     "linkurl": "קישור",
     "useremail":"האימייל שלך",
     "basic": "פרטים בסיסיים",
@@ -193,22 +193,29 @@
     "gettodescru": "גטו/מחנה (RU)",
 
     "otherfightingcontext": "הקשר לחימה אחר",
+     "otherfightingcontexten": "הקשר לחימה אחר (EN)",
+     "otherfightingcontextru": "הקשר לחימה אחר (RU)",
+
     "title":"כותרת (IL)",
     "titleen":"כותרת (EN)",
     "titleru":"כותרת (RU)",
     "fname_soldier_submitter": "שם פרטי",
     "lname_soldier_submitter": "שם משפחה",
     "phone_soldier_submitter": "מספר טלפון",
-    "relation_of_soldier_submitter": "הקשר שלך לחייל",
+    "relation_of_soldier_submitter": "הקשר שלך ללוחם",
     "how_found_us_submitter": "איך הגעת אלינו?",
-    "soldier_previously_submitted": "האם החייל הוגש בעבר?"
+    "soldier_previously_submitted": "האם החייל הוגש בעבר?",
+    "description": "תיאור",
+    "multimedia_type": "סוג מדיה",
+    "file_upload": "העלאת קובץ"
    
-
-
-  
-
   },
-
+ 
+  "multimedia_options": {
+    "photo": "תמונה",
+    "video": "וידאו",
+    "document": "מסמך"
+  },
   "form": {
     "infoHeader": "טופס רישום לוחם",
     "infoText": "הטופס ישמש להזנת מידע במערכת המידע הממוחשבת של האתר...",
