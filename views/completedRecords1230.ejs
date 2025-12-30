@@ -66,8 +66,6 @@
               <th><%= __('form.admin_approved_date') %></th>
               <th><%= __('fields.downloaded_date') %></th> 
               <th><%= __('actions.edit') %></th>
-              <!--<input type="checkbox" id="selectAll" onclick="toggleSelectAll(this)"> 
-            <%= __('form.select') %>-->
             </tr>
           </thead>
           <tbody>
@@ -97,8 +95,8 @@
       <form id="excelForm" method="POST" action="/admin/downloadExcel">
         <input type="hidden" name="adminemail" value="<%= adminemail %>" />
         <button type="button" onclick="submitForm('excelForm')">
-          <%= __('admin.downloadPackage') || 'Download ZIP Package' %>
-      </button>
+          <%= __('admin.downloadExcel') %>
+        </button>
         <button type="button" onclick="previewSelected()">
           <%= __('admin.previewSelected') || 'Preview Selected' %>
         </button>
@@ -114,10 +112,7 @@
   </main>
 
   <script>
-    function toggleSelectAll(source) {
-    const checkboxes = document.querySelectorAll('input[name="selectedIds"]');
-    checkboxes.forEach(cb => cb.checked = source.checked);
-  }
+    /* 2. Pure JavaScript - No EJS tags here = No Syntax Problems */
 
     function submitForm(targetFormId) {
       const config = document.getElementById('ejs-config');

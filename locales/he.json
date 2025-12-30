@@ -248,7 +248,8 @@
     "downloadTxt": "הורד כקובץ טקסט",
     "noCompleted": "לא נמצאו רשומות שהושלמו.",
     "previewSelected": "הצג רשומות נבחרות",
-    "previewHeading": "תצוגה מקדימה של הרשומות שנבחרו"
+    "previewHeading": "תצוגה מקדימה של הרשומות שנבחרו",
+    "downloadPackage": "הורדת חבילת ZIP"
 },
   "actions": {
     "edit": "ערוך",

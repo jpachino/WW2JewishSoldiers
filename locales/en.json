@@ -235,7 +235,8 @@
   "downloadTxt": "Download TXT",
   "noCompleted": "No completed records found.",
   "previewSelected": "Preview Selected",
-  "previewHeading": "Preview Selected Records"
+  "previewHeading": "Preview Selected Records",
+  "downloadPackage": "Download ZIP Package"
 
 },
   "actions": {
