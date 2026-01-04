@@ -810,221 +810,331 @@ const formattedAliya = formatDDMMYYYY(soldier.aliyadate || "");
 <fieldset>
     <legend><%= __('sections.uploads') %></legend>
 
-    <div class="existing-multimedia">
-        <h4><%= __('form.current_files') %></h4>
-        <table class="table">
-            <thead>
+   
+        <div class="existing-multimedia">
+    <h4><%= __('form.current_files') %></h4>
+    <table class="table">
+        <thead>
+            <tr>
+                <th>Description</th>
+                <th>Type</th>
+                <th>Preview/Link</th>
+            </tr>
+        </thead>
+        <!--<tbody>
+            <% multimedia.forEach(item => { %>
                 <tr>
-                    <th><%= __('fields.description') %></th>
-                    <th><%= __('fields.multimedia_type') %></th>
-                    <th><%= __('fields.preview_link') || 'Preview/Link' %></th>
+                    <td><%= item.file_description %></td>
+                    <td><%= item.multimedia_type %></td>
+                    <td>
+                        <% if (item.file_path && item.file_path.startsWith('http')) { %>
+                            <a href="<%= item.file_path %>" target="_blank">View Link</a>
+                        <% } else { %>
+                            <a href="<%= item.file_path %>" target="_blank">View File</a>
+                        <% } %>
+                    </td>
                 </tr>
-            </thead>
-            <tbody>
-                <% if (locals.multimedia && multimedia.length > 0) { %>
-                    <% multimedia.forEach(item => { %>
-                        <tr>
-                            <td><%= item.file_description %></td>
-                            <td><%= item.multimedia_type %></td>
-                            <td>
-                                <a href="<%= item.file_path %>" target="_blank" class="btn btn-sm btn-outline-info">
-                                    <%= __('buttons.view') || 'View' %>
-                                </a>
-                            </td>
-                        </tr>
-                    <% }) %>
-                <% } else { %>
-                    <tr>
-                        <td colspan="3" class="text-center">
-                            <%= __('form.no_files_found') || 'No files or multimedia links found for this record.' %>
-                        </td>
-                    </tr>
-                <% } %>
-            </tbody>
-        </table>
-    </div>
-
-    <hr>
+            <% }) %>
+        </tbody>-->
+        <tbody>
+    <% if (locals.multimedia && multimedia.length > 0) { %>
+        <% multimedia.forEach(item => { %>
+            <tr>
+                <td><%= item.file_description %></td>
+                <td><%= item.multimedia_type %></td>
+                <td>
+                    <a href="<%= item.file_path %>" target="_blank" class="btn-view">View</a>
+                </td>
+            </tr>
+        <% }) %>
+    <% } else { %>
+        <tr>
+            <td colspan="3">No files or multimedia links found for this record.</td>
+        </tr>
+    <% } %>
+</tbody>
+    </table>
+</div>
+<hr>
 
     <div class="new-uploads">
-        <h4><%= __('fields.add_new_files') || 'Add New Files' %></h4>
+        <h4>Add New Files</h4>
         <div id="multimedia-rows">
             </div>
-        <button type="button" onclick="addUploadRow()" class="btn-add">
-            <%= __('fields.add_another') %>
-        </button>
+        <button type="button" onclick="addUploadRow()" class="btn-add">＋ Add File</button>
     </div>
 </fieldset>
-
-<div style="margin-top: 20px;">
-    <label>
-        <input type="checkbox" name="recordcomplete" value="true" <%= (locals.soldier && soldier.recordcomplete) ? 'checked disabled' : '' %> />
-        <strong><%= __('form.mark_complete') %></strong>
-    </label>
-    <p class="note">
-        <%= __('form.mark_complete_note') %>
-    </p>
+<div>
+  <label>
+    <input type="checkbox" name="recordcomplete" value="true" <%= soldier && soldier.recordcomplete ? 'checked disabled' : '' %> />
+    <%= __('form.mark_complete') %>
+  </label>
+  <p class="note">
+    <%= __('form.mark_complete_note') %>
+  </p>
 </div>
+  
 
-<div class="form-actions" style="margin-top: 30px; margin-bottom: 50px;">
-    <button type="submit" class="btn btn-primary btn-lg"><%= __('buttons.update') %></button>
-</div>
-</form>
+  <div class="form-actions">
+    <button type="submit"><%= __('buttons.update') %></button>
+    <!--<a href="/index"><%= __('buttons.backToList') %></a>-->
+
+      </div>
+    </form>
+
+<!-- =================== Scripts =================== -->
+ <script>
+function toValidDDMMYYYY(dateString) {
+  if (!dateString) return "";
+
+  // Normalize separators
+  const parts = dateString.trim().split(/[-/\.]/);
+  if (parts.length !== 3) return "";
+
+  let day, month, year;
+
+  // Detect format
+  if (parts[0].length === 4) {
+    // YYYY-MM-DD
+    year = parts[0];
+    month = parts[1];
+    day = parts[2];
+  } else if (parts[2].length === 4) {
+    // DD-MM-YYYY (expected)
+    day = parts[0];
+    month = parts[1];
+    year = parts[2];
+  } else {
+    return "";
+  }
+
+  const d = parseInt(day, 10);
+  const m = parseInt(month, 10);
+  const y = parseInt(year, 10);
+
+  // Basic validation
+  if (y < 1800 || y > 2100) return "";
+  if (m < 1 || m > 12) return "";
+  if (d < 1 || d > 31) return "";
+
+  // Real calendar validation
+  const test = new Date(`${y}-${m}-${d}`);
+  if (
+    test.getFullYear() !== y ||
+    test.getMonth() + 1 !== m ||
+    test.getDate() !== d
+  ) return "";
+
+  return `${String(d).padStart(2, "0")}-${String(m).padStart(2, "0")}-${y}`;
+}
+</script>
+<script>
+  // Select all inputs with the date-input class
+  document.querySelectorAll('.date-input').forEach(input => {
+    input.addEventListener('input', function(e) {
+      // Remove any character that isn't a digit
+      let val = e.target.value.replace(/\D/g, '');
+      let finalVal = '';
+
+      if (val.length > 0) {
+        // Add DD
+        finalVal += val.substring(0, 2);
+        if (val.length > 2) {
+          // Add -MM
+          finalVal += '-' + val.substring(2, 4);
+        }
+        if (val.length > 4) {
+          // Add -YYYY
+          finalVal += '-' + val.substring(4, 8);
+        }
+      }
+      e.target.value = finalVal;
+    });
+
+    // Helpful behavior: if they hit backspace on a hyphen, delete the number before it too
+    input.addEventListener('keydown', function(e) {
+      if (e.key === 'Backspace') {
+        const value = e.target.value;
+        if (value.endsWith('-')) {
+          e.target.value = value.substring(0, value.length - 1);
+        }
+      }
+    });
+  });
+</script>
+<script>
+    document.addEventListener('DOMContentLoaded', () => {
+        const container = document.getElementById('battle-container');
+        const addBtn = document.getElementById('add-battle-entry');
+        const template = document.getElementById('battle-template').content;
+
+        // Add new battle row
+        addBtn.addEventListener('click', () => {
+            const newRow = document.importNode(template, true);
+            container.appendChild(newRow);
+        });
+
+        // ✅ Updated: Handle removal by marking for deletion and hiding the row
+        container.addEventListener('click', (e) => {
+            if (e.target.classList.contains('remove-entry')) {
+                const row = e.target.closest('.battle-row');
+                if (row) {
+                    const battleIdInput = row.querySelector('input[name="battleId[]"]');
+                    const deleteInput = row.querySelector('input[name="delete_battle_id[]"]');
+
+                    // If it's an existing record with an ID
+                    if (battleIdInput && battleIdInput.value) {
+                        deleteInput.value = battleIdInput.value;
+                    }
+                    
+                    // Hide the row from view
+                    row.style.display = 'none';
+
+                    // Optional: Disable all inputs in the row to prevent accidental submission
+                    //row.querySelectorAll('input, textarea, select').forEach(input => input.disabled = true);
+                }
+            }
+        });
+    });
+</script>
 
 <script>
-    /**
-     * 1. MULTIMEDIA LOGIC
-     */
-    let rowCount = 0;
+// 1. We create the options string once using EJS OUTSIDE of the function
+// This bakes the HTML options into a standard JavaScript string variable
+const typeOptionsHtml = `
+    <option value="">-- Select --</option>
+    <% if (locals.multimedia_type_TBL) { %>
+        <% multimedia_type_TBL.forEach(type => { %>
+            <option value="<%= type.title_heb %>"><%= type.title_heb %></option>
+        <% }) %>
+    <% } %>
+`;
 
-    // Pre-bake the options string for the dynamic rows
-    const typeOptionsHtml = `
-        <option value="">-- <%= __('fields.select_option') %> --</option>
-        <% if (locals.multimedia_type_TBL) { %>
-            <% multimedia_type_TBL.forEach(type => { %>
-                <option value="<%= type.title_heb %>">
-                    <%= locale === 'he' ? type.title_heb : (locale === 'ru' ? type.title_rus : type.title_eng) %>
-                </option>
-            <% }) %>
-        <% } %>
-    `;
-
-    function addUploadRow() {
+function addUploadRow() {
         const container = document.getElementById('multimedia-rows');
         if (!container) return;
 
         const row = document.createElement('div');
-        const currentId = rowCount++;
         row.className = 'multimedia-row border p-3 mb-3';
-        row.style = "border: 1px solid #ccc; border-radius: 8px; margin-bottom: 15px; padding: 15px;";
 
         row.innerHTML = `
             <div class="row">
                 <div class="col-md-3">
-                    <label><%= __('fields.description') %></label>
-                    <input type="text" name="m_description[]" class="form-control" placeholder="<%= __('fields.description') %>...">
+                    <label>Description</label>
+                    <input type="text" name="m_description[]" class="form-control" placeholder="e.g. Profile Photo">
                 </div>
                 <div class="col-md-3">
-                    <label><%= __('fields.multimedia_type') %></label>
+                    <label>Type</label>
                     <select name="m_type[]" class="form-control type-select">
                         ${typeOptionsHtml}
                     </select>
                 </div>
                 <div class="col-md-4">
                     <div class="file-wrapper">
-                        <label><%= __('fields.file_upload') %></label>
-                        <input type="file" name="m_files[]" class="file-input" style="display: none;" 
-                               id="file_input_${currentId}" onchange="handleFileSelect(this, 'file_name_${currentId}')">
-                        <div class="d-flex align-items-center" style="gap: 10px;">
-                            <button type="button" class="btn btn-outline-secondary btn-sm" onclick="document.getElementById('file_input_${currentId}').click()">
-                                <%= __('fields.choose_file') %>
-                            </button>
-                            <small id="file_name_${currentId}" class="text-muted"><%= __('fields.no_file_chosen') %></small>
-                        </div>
+                        <label>Upload File</label>
+                        <input type="file" name="m_files[]" class="form-control">
                     </div>
                     <div class="location-wrapper" style="display: none;">
-                        <label><%= __('fields.url_link') %></label>
+                        <label>URL / Link</label>
                         <input type="text" name="physical_logical_location[]" class="form-control" placeholder="https://...">
                     </div>
                 </div>
                 <div class="col-md-2 text-right">
                     <label>&nbsp;</label><br>
-                    <button type="button" class="btn btn-danger" onclick="this.closest('.multimedia-row').remove()">
-                        <%= __('fields.remove') %>
-                    </button>
+                    <button type="button" class="btn btn-danger" onclick="this.closest('.multimedia-row').remove()">Remove</button>
                 </div>
             </div>
         `;
         container.appendChild(row);
     }
 
-    function handleFileSelect(input, spanId) {
-        const label = document.getElementById(spanId);
-        if (input.files && input.files[0]) {
-            label.textContent = input.files[0].name;
+// 3. Logic to toggle the visibility
+document.addEventListener('change', function (event) {
+    if (event.target && event.target.classList.contains('type-select')) {
+        const select = event.target;
+        const row = select.closest('.multimedia-row');
+        const fileWrapper = row.querySelector('.file-wrapper');
+        const locationWrapper = row.querySelector('.location-wrapper');
+        
+        const selectedText = select.options[select.selectedIndex].text;
+
+        // Check if it's a URL/Link type
+        if (selectedText.includes('URL') || selectedText.includes('קישור')) {
+            fileWrapper.style.display = 'none';
+            locationWrapper.style.display = 'block';
         } else {
-            // Using backticks to prevent syntax errors from apostrophes in translations
-            label.textContent = `<%= __('fields.no_file_chosen') %>`;
-        } // <--- Added closing brace for 'else'
-    } // <--- Added closing brace for function 'handleFileSelect'
-
-    // Single event listener for type toggles
-    document.addEventListener('change', function (event) {
-        if (event.target && event.target.classList.contains('type-select')) {
-            const select = event.target;
-            const row = select.closest('.multimedia-row');
-            const fileWrapper = row.querySelector('.file-wrapper');
-            const locationWrapper = row.querySelector('.location-wrapper');
-            const selectedText = select.options[select.selectedIndex].text;
-
-            if (selectedText.includes('URL') || selectedText.includes('קישור') || selectedText.includes('Link')) {
-                fileWrapper.style.display = 'none';
-                locationWrapper.style.display = 'block';
-                fileWrapper.querySelector('input').value = '';
-            } else {
-                fileWrapper.style.display = 'block';
-                locationWrapper.style.display = 'none';
-                locationWrapper.querySelector('input').value = '';
-            }
+            fileWrapper.style.display = 'block';
+            locationWrapper.style.display = 'none';
         }
-    });
-    /**
-     * 2. DATE & BATTLE LOGIC
-     */
-    function toValidDDMMYYYY(dateString) {
-        if (!dateString) return "";
-        const parts = dateString.trim().split(/[-/\.]/);
-        if (parts.length !== 3) return "";
-        let day, month, year;
-        if (parts[0].length === 4) { year = parts[0]; month = parts[1]; day = parts[2]; }
-        else if (parts[2].length === 4) { day = parts[0]; month = parts[1]; year = parts[2]; }
-        else { return ""; }
-        const test = new Date(`${year}-${month}-${day}`);
-        return (test.getFullYear() == year) ? `${String(day).padStart(2, "0")}-${String(month).padStart(2, "0")}-${year}` : "";
     }
+});
 
-    document.addEventListener('DOMContentLoaded', () => {
-        // Handle Battle entries
-        const container = document.getElementById('battle-container');
-        const addBtn = document.getElementById('add-battle-entry');
-        if (addBtn && container) {
-            const template = document.getElementById('battle-template').content;
-            addBtn.addEventListener('click', () => {
-                const newRow = document.importNode(template, true);
-                container.appendChild(newRow);
-            });
-            container.addEventListener('click', (e) => {
-                if (e.target.classList.contains('remove-entry')) {
-                    const row = e.target.closest('.battle-row');
-                    if (row) {
-                        const idInp = row.querySelector('input[name="battleId[]"]');
-                        const delInp = row.querySelector('input[name="delete_battle_id[]"]');
-                        if (idInp && idInp.value) delInp.value = idInp.value;
-                        row.style.display = 'none';
-                    }
-                }
-            });
+// Start with one row automatically
+document.addEventListener('DOMContentLoaded', function() {
+    if (document.getElementById('multimedia-rows').children.length === 0) {
+        addUploadRow();
+    }
+});
+</script>
+<script>
+/*document.addEventListener('change', function (event) {
+    // Check if the element changed was one of our type dropdowns
+    if (event.target && event.target.classList.contains('type-select')) {
+        const select = event.target;
+        const row = select.closest('.multimedia-row'); // Find the container for this specific file
+        const locationWrapper = row.querySelector('.location-wrapper');
+        
+        // Get the text of the selected option
+        const selectedText = select.options[select.selectedIndex].text;
+
+        // Show if it's a URL, hide otherwise
+        if (selectedText.includes('URL')) {
+            locationWrapper.style.display = 'block';
+        } else {
+            locationWrapper.style.display = 'none';
+            // Optional: Clear the value if hidden so it doesn't submit accidental data
+            locationWrapper.querySelector('input').value = '';
         }
+    }
+});
 
-        // Initialize Date Masks
-        document.querySelectorAll('.date-input').forEach(input => {
-            input.addEventListener('input', function(e) {
-                let val = e.target.value.replace(/\D/g, '');
-                let finalVal = '';
-                if (val.length > 0) {
-                    finalVal += val.substring(0, 2);
-                    if (val.length > 2) finalVal += '-' + val.substring(2, 4);
-                    if (val.length > 4) finalVal += '-' + val.substring(4, 8);
-                }
-                e.target.value = finalVal;
-            });
-        });
+// Run on page load to handle existing records
+document.querySelectorAll('.type-select').forEach(select => {
+    select.dispatchEvent(new Event('change', { bubbles: true }));
+});*/
+</script>
+<script>
+document.addEventListener('change', function (event) {
+    if (event.target && event.target.classList.contains('type-select')) {
+        const select = event.target;
+        const row = select.closest('.multimedia-row');
+        const fileWrapper = row.querySelector('.file-wrapper');
+        const locationWrapper = row.querySelector('.location-wrapper');
+        
+        // Get the text of the selected option
+        const selectedText = select.options[select.selectedIndex].text;
 
-        // Initialize first multimedia row if none exist
-        if (document.getElementById('multimedia-rows') && document.getElementById('multimedia-rows').children.length === 0) {
-            addUploadRow();
+        // Check if the Hebrew or English word for URL/Link is present
+        if (selectedText.includes('URL') || selectedText.includes('קישור')) {
+            fileWrapper.style.display = 'none';
+            locationWrapper.style.display = 'block';
+            // Clear file input if switching to URL
+            fileWrapper.querySelector('input').value = ''; 
+        } else {
+            fileWrapper.style.display = 'block';
+            locationWrapper.style.display = 'none';
+            // Clear URL input if switching to File
+            locationWrapper.querySelector('input').value = '';
         }
-    });
+    }
+});
+
+// Add one empty row automatically when the page loads
+document.addEventListener('DOMContentLoaded', function() {
+    if (document.getElementById('multimedia-rows').children.length === 0) {
+        addUploadRow();
+    }
+});
 </script>
 </body>
 </html>

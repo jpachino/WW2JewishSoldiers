@@ -809,147 +809,170 @@ addBattleBtn.addEventListener('click', () => {
 
 
   <fieldset>
-        <legend><%= __('sections.uploads') %></legend>
+    <legend><%= __('sections.uploads') %></legend>
 
-        <div class="upload-container">
-            <p class="instruction-text">
-                <strong><%= __('fields.note') %></strong> <%= __('fields.profile_pic_instruction') %>
-            </p>
+    <div class="upload-container">
+        <p class="instruction-text">
+            <strong><%= __('fields.note') %></strong> <%= __('fields.profile_pic_instruction') %>
+        </p>
 
-            <div id="multimedia-rows">
-                <div class="multimedia-row border p-3 mb-3" style="border: 1px solid #ccc; border-radius: 8px; margin-bottom: 15px; padding: 15px;">
-                    <div class="row">
-                        <div class="col-md-3">
-                            <label><%= __('fields.description') %></label>
-                            <input type="text" name="m_description[]" class="form-control" placeholder="<%= __('fields.description') %>..." required>
+        <div id="multimedia-rows">
+            <div class="multimedia-row border p-3 mb-3" style="border: 1px solid #ccc; border-radius: 8px; margin-bottom: 15px;">
+                <div class="row">
+                    <div class="col-md-3">
+                        <label><%= __('fields.description') %></label>
+                        <input type="text" name="m_description[]" class="form-control" placeholder="Enter description..." required>
+                    </div>
+                    
+                    <div class="col-md-3">
+                        <label><%= __('fields.multimedia_type') %></label>
+                        <select name="m_type[]" class="form-control type-select">
+                            <option value="">-- Select --</option>
+                            <% multimedia_type_TBL.forEach(type => { %>
+                                <option value="<%= type.title_heb %>">
+                                    <%= locale === 'he' ? type.title_heb : type.title_eng %>
+                                </option>
+                            <% }) %>
+                        </select>
+                    </div>
+
+                    <div class="col-md-4">
+                        <div class="file-wrapper">
+                            <label><%= __('fields.file_upload') %></label>
+                            <input type="file" name="m_files[]" class="form-control file-input" accept="image/*,.pdf" onchange="previewProfilePic(this)">
                         </div>
                         
-                        <div class="col-md-3">
-                            <label><%= __('fields.multimedia_type') %></label>
-                            <select name="m_type[]" class="form-control type-select">
-                                <option value="">-- <%= __('fields.select_option') %> --</option>
-                                <% if (locals.multimedia_type_TBL) { %>
-                                    <% multimedia_type_TBL.forEach(type => { %>
-                                        <option value="<%= type.title_heb %>">
-                                            <%= locale === 'he' ? type.title_heb : (locale === 'ru' ? type.title_rus : type.title_eng) %>
-                                        </option>
-                                    <% }) %>
-                                <% } %>
-                            </select>
+                        <div class="location-wrapper" style="display: none;">
+                            <label>URL / Link</label>
+                            <input type="text" name="physical_logical_location[]" class="form-control" placeholder="https://...">
                         </div>
+                    </div>
 
-                        <div class="col-md-4">
-                            <div class="file-wrapper">
-                                <label><%= __('fields.file_upload') %></label>
-                                <input type="file" name="m_files[]" class="file-input" accept="image/*,.pdf" 
-                                       style="display: none;" id="file_input_0" 
-                                       onchange="handleFileSelect(this, 'file_name_0')">
-                                
-                                <div class="d-flex align-items-center" style="gap: 10px;">
-                                    <button type="button" class="btn btn-outline-secondary btn-sm" onclick="document.getElementById('file_input_0').click()">
-                                        <%= __('fields.choose_file') %>
-                                    </button>
-                                    <small id="file_name_0" class="text-muted">
-                                        <%= __('fields.no_file_chosen') %>
-                                    </small>
-                                </div>
-                            </div>
-                            
-                            <div class="location-wrapper" style="display: none;">
-                                <label><%= __('fields.url_link') %></label>
-                                <input type="text" name="physical_logical_location[]" class="form-control" placeholder="https://...">
-                            </div>
-                        </div>
-
-                        <div class="col-md-2 text-right">
-                            <label>&nbsp;</label><br>
-                            <button type="button" class="btn btn-danger" onclick="this.closest('.multimedia-row').remove()">
-                                <%= __('fields.remove') %>
-                            </button>
-                        </div>
+                    <div class="col-md-2 text-right">
+                        <label>&nbsp;</label><br>
+                        <button type="button" class="btn btn-danger" onclick="this.closest('.multimedia-row').remove()">Remove</button>
                     </div>
                 </div>
             </div>
-
-            <button type="button" onclick="addUploadRow()" class="btn-add">
-                <%= __('fields.add_another') %>
-            </button>
         </div>
 
-        <div id="profile-preview-container" style="display:none; margin-top: 20px;">
-            <h4><%= __('fields.profile_preview_title') %></h4>
-            <img id="profile-preview-img" src="#" alt="Preview" style="max-width: 150px; border: 2px solid #ddd; border-radius: 8px;">
-        </div>
-    </fieldset>
-
-    <fieldset>
-        <legend><%= __('sections.submitter_info') %></legend>
-        <label for="useremail"><%= __('fields.useremail') %>:</label>
-        <input type="email" name="useremail" id="useremail" required />
-
-        <label for="fname_soldier_submitter"><%= __('fields.fname_soldier_submitter') %>:</label>
-        <input type="text" name="fname_soldier_submitter" id="fname_soldier_submitter" required />
-
-        <label for="lname_soldier_submitter"><%= __('fields.lname_soldier_submitter') %>:</label>
-        <input type="text" name="lname_soldier_submitter" id="lname_soldier_submitter" required />
-
-        <label for="phone_soldier_submitter"><%= __('fields.phone_soldier_submitter') %>:</label>
-        <input type="tel" name="phone_soldier_submitter" id="phone_soldier_submitter" required />
-
-        <label for="relation_of_soldier_submitter"><%= __('fields.relation_of_soldier_submitter') %>:</label>
-        <input type="text" name="relation_of_soldier_submitter" id="relation_of_soldier_submitter" required />
-
-        <label for="how_found_us_submitter"><%= __('fields.how_found_us_submitter') %>:</label>
-        <input type="text" name="how_found_us_submitter" id="how_found_us_submitter" />
-
-        <div class="checkbox-group" style="margin-top: 15px;">
-            <label>
-                <input type="checkbox" name="soldier_previously_submitted" id="soldier_previously_submitted" value="true" />
-                <%= __('fields.soldier_previously_submitted') %>
-            </label>
-        </div>
-    </fieldset>
-
-    <fieldset>
-        <legend><%= __('sections.recordcomplete') %></legend>
-        <p class="note"><%= __('form.mark_complete_note') %></p>
-        <p class="note"><%= __('form.mark_complete_note2') %></p>
-        <p class="note"><%= __('form.mark_complete_note3') %></p>
-        
-        <div class="checkbox-group">
-            <label>
-                <input type="checkbox" name="recordcomplete" id="recordcomplete" value="true" />
-                <strong><%= __('form.mark_complete') %></strong>
-            </label>
-        </div>
-    </fieldset>
-
-    <div style="margin-top: 30px; margin-bottom: 50px;">
-        <button type="submit" class="btn btn-primary btn-lg"><%= __('submit') %></button>
+        <button type="button" onclick="addUploadRow()" class="btn-add">＋ Add Another File</button>
     </div>
+
+    <div id="profile-preview-container" style="display:none; margin-top: 20px;">
+        <h4>Profile Picture Preview:</h4>
+        <img id="profile-preview-img" src="#" alt="Preview" style="max-width: 150px; border: 2px solid #ddd; border-radius: 8px;">
+    </div>
+</fieldset>
+  
+   <fieldset>
+  <legend><%= __('sections.submitter_info') %></legend>
+  <label for="useremail"><%= __('fields.useremail') %>:</label>
+  <input type="email" name="useremail" id="useremail" required />
+  <label for="fname_soldier_submitter"><%= __('fields.fname_soldier_submitter') %>:</label>
+  <input type="text" name="fname_soldier_submitter" id="fname_soldier_submitter" required />
+  <label for="lname_soldier_submitter"><%= __('fields.lname_soldier_submitter') %>:</label>
+  <input type="text" name="lname_soldier_submitter" id="lname_soldier_submitter" required />
+  <label for="phone_soldier_submitter"><%= __('fields.phone_soldier_submitter') %>:</label>
+  <input type="phone" name="phone_soldier_submitter" id="phone_soldier_submitter" required />
+  <label for="relation_of_soldier_submitter"><%= __('fields.relation_of_soldier_submitter') %>:</label>
+  <input type="text" name="relation_of_soldier_submitter" id="relation_of_soldier_submitter" required />
+  <label for="how_found_us_submitter"><%= __('fields.how_found_us_submitter') %>:</label>
+  <input type="text" name="how_found_us_submitter" id="how_found_us_submitter"  />
+  <label>
+    <input type="checkbox" name="soldier_previously_submitted" id="soldier_previously_submitted" value="true" />
+    <%= __('fields.soldier_previously_submitted') %>
+  </label>
+
+  <div class="checkbox-group">
+  </fieldset>
+  <fieldset>
+  <legend><%= __('sections.recordcomplete') %></legend>
+  <p class="note">
+    <%= __('form.mark_complete_note') %>
+  </p>
+  <p class="note">
+    <%= __('form.mark_complete_note2') %>
+  </p>
+  <p class="note">
+    <%= __('form.mark_complete_note3') %>
+  </p>
+  <label>
+    <input type="checkbox" name="recordcomplete" id="recordcomplete" value="true" />
+    <%= __('form.mark_complete') %>
+  </label>
+</div>
+  
+</fieldset>
+
+
+<button type="submit"><%= __('submit') %></button>
+
+
+</fieldset>
 </form>
-
 <script>
-    let rowCount = 1; // Used for unique IDs on dynamic rows
+  function updateFileName() {
+    const input = document.getElementById('files');
+    const label = document.getElementById('file-label');
+    if (input.files.length > 0) {
+      const names = Array.from(input.files).map(f => f.name).join(', ');
+      label.textContent = names;
+      console.log('Selected files:', names);  // for debugging
+    } else {
+      //label.textContent = '<%= __('form.no_file_chosen') %>';
+      console.log('No files chosen');
+    }
+  }
+</script>
+<script>
+function isValidDate(d) {
+  if (!d) return true; // allow empty
+  const regex = /^(0?[1-9]|[12][0-9]|3[01])-(0?[1-9]|1[012])-(18|19|20)?[0-9]{2}$/;
+  if (!regex.test(d)) return false;
 
+  const [day, month, year] = d.split('-').map(Number);
+  const jsDate = new Date(year, month - 1, day);
+
+  return (
+    jsDate.getFullYear() === year &&
+    jsDate.getMonth() === month - 1 &&
+    jsDate.getDate() === day
+  );
+}
+
+document.getElementById("soldierForm").addEventListener("submit", function (e) {
+  const fields = ["dob", "dod", "aliyadate"];
+
+  for (let f of fields) {
+    const value = document.getElementById(f).value.trim();
+    if (!isValidDate(value)) {
+      alert(`❌ Invalid date format in ${f.toUpperCase()}.\nPlease use DD-MM-YYYY.`);
+      e.preventDefault();
+      return false;
+    }
+  }
+});
+</script>
+
+
+</body>
+ <!-- </div>-->
+<script>
     // 1. Pre-build the options string from the server-side data
     const typeOptionsHtml = `
-        <option value="">-- <%= __('fields.select_option') %> --</option>
+        <option value="">-- Select --</option>
         <% if (locals.multimedia_type_TBL) { %>
             <% multimedia_type_TBL.forEach(type => { %>
-                <option value="<%= type.title_heb %>">
-                    <%= locale === 'he' ? type.title_heb : (locale === 'ru' ? type.title_rus : type.title_eng) %>
-                </option>
+                <option value="<%= type.title_heb %>"><%= locale === 'he' ? type.title_heb : type.title_eng %></option>
             <% }) %>
         <% } %>
     `;
 
-    // 2. Function to add a new multimedia row
+    // 2. Function to add a new row
     function addUploadRow() {
         const container = document.getElementById('multimedia-rows');
         const row = document.createElement('div');
-        const currentId = rowCount++;
-        
         row.className = 'multimedia-row border p-3 mb-3';
         row.style = "border: 1px solid #ccc; border-radius: 8px; margin-bottom: 15px; padding: 15px;";
 
@@ -968,71 +991,52 @@ addBattleBtn.addEventListener('click', () => {
                 <div class="col-md-4">
                     <div class="file-wrapper">
                         <label><%= __('fields.file_upload') %></label>
-                        <input type="file" name="m_files[]" class="file-input" accept="image/*,.pdf" 
-                               style="display: none;" id="file_input_${currentId}" 
-                               onchange="handleFileSelect(this, 'file_name_${currentId}')">
-                        
-                        <div class="d-flex align-items-center" style="gap: 10px;">
-                            <button type="button" class="btn btn-outline-secondary btn-sm" onclick="document.getElementById('file_input_${currentId}').click()">
-                                <%= __('fields.choose_file') %>
-                            </button>
-                            <small id="file_name_${currentId}" class="text-muted">
-                                <%= __('fields.no_file_chosen') %>
-                            </small>
-                        </div>
+                        <input type="file" name="m_files[]" class="form-control file-input" accept="image/*,.pdf" onchange="previewProfilePic(this)">
                     </div>
                     <div class="location-wrapper" style="display: none;">
-                        <label><%= __('fields.url_link') %></label>
+                        <label>URL / Link</label>
                         <input type="text" name="physical_logical_location[]" class="form-control" placeholder="https://...">
                     </div>
                 </div>
                 <div class="col-md-2 text-right">
                     <label>&nbsp;</label><br>
-                    <button type="button" class="btn btn-danger" onclick="this.closest('.multimedia-row').remove()">
-                         <%= __('fields.remove') %>
-                    </button>
+                    <button type="button" class="btn btn-danger" onclick="this.closest('.multimedia-row').remove()">Remove</button>
                 </div>
             </div>
         `;
         container.appendChild(row);
     }
 
-    // 3. Handle File Selection (Update Label + Trigger Preview)
-    function handleFileSelect(input, spanId) {
-        const label = document.getElementById(spanId);
-        if (input.files && input.files[0]) {
-            label.textContent = input.files[0].name;
-            previewProfilePic(input);
-        } else {
-            label.textContent = '<%= __('fields.no_file_chosen') %>';
-        }
-    }
-
-    // 4. Toggle Logic for File vs URL (Event Delegation)
+    // 3. Toggle Logic (Event Delegation)
     document.addEventListener('change', function (event) {
         if (event.target && event.target.classList.contains('type-select')) {
             const select = event.target;
             const row = select.closest('.multimedia-row');
             const fileWrapper = row.querySelector('.file-wrapper');
             const locationWrapper = row.querySelector('.location-wrapper');
+            
+            // Get the Hebrew text value from the option
             const selectedValue = select.value; 
 
+            // Logic: If it includes URL or קישור, show link field, else show file field
             if (selectedValue.includes('URL') || selectedValue.includes('קישור')) {
                 fileWrapper.style.display = 'none';
                 locationWrapper.style.display = 'block';
+                // Clear file input so it doesn't upload a hidden file
                 fileWrapper.querySelector('input').value = ''; 
             } else {
                 fileWrapper.style.display = 'block';
                 locationWrapper.style.display = 'none';
+                // Clear URL input
                 locationWrapper.querySelector('input').value = '';
             }
         }
     });
 
-    // 5. Profile Pic Preview logic
+    // 4. Profile Pic Preview logic
     function previewProfilePic(input) {
         const allInputs = document.querySelectorAll('.file-input');
-        // Only preview if it's the first file input on the page
+        // Only preview if it's the first file input
         if (input === allInputs[0] && input.files && input.files[0]) {
             const reader = new FileReader();
             reader.onload = function(e) {
@@ -1044,38 +1048,23 @@ addBattleBtn.addEventListener('click', () => {
             reader.readAsDataURL(input.files[0]);
         }
     }
-
-    // 6. Date Validation Helper
-    function isValidDate(d) {
-        if (!d) return true; // Allow empty
-        const regex = /^(0?[1-9]|[12][0-9]|3[01])-(0?[1-9]|1[012])-(18|19|20)?[0-9]{2}$/;
-        if (!regex.test(d)) return false;
-
-        const [day, month, year] = d.split('-').map(Number);
-        const jsDate = new Date(year, month - 1, day);
-
-        return (
-            jsDate.getFullYear() === year &&
-            jsDate.getMonth() === month - 1 &&
-            jsDate.getDate() === day
-        );
-    }
-
-    // 7. Form Submit Listener
-    document.getElementById("soldierForm").addEventListener("submit", function (e) {
-        const dateFields = ["dob", "dod", "aliyadate"];
-        for (let f of dateFields) {
-            const el = document.getElementById(f);
-            if(el) {
-                const value = el.value.trim();
-                if (!isValidDate(value)) {
-                    alert(`❌ Invalid date format in ${f.toUpperCase()}.\nPlease use DD-MM-YYYY.`);
-                    e.preventDefault();
-                    return false;
-                }
-            }
-        }
-    });
 </script>
-</body>
+<script>
+  function toggleCustomInput(fieldId) {
+    const select = document.getElementById(fieldId);
+    const custom = document.getElementById(fieldId + '_custom');
+
+    if (select.value === 'other') {
+      custom.classList.remove('hidden');
+      custom.required = true;
+    } else {
+      custom.classList.add('hidden');
+      custom.required = false;
+      custom.value = '';
+    }
+  }
+</script>
+
+
 </html>
+ 

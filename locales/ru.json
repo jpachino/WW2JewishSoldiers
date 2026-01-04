@@ -168,7 +168,17 @@
     "soldier_previously_submitted": "Солдат уже был подан ранее?",
     "description": "Описание",
     "multimedia_type": "Тип мультимедиа",
-    "file_upload": "Загрузить файл"
+    "file_upload": "Загрузить файл",
+    "profile_preview_title": "Предпросмотр фото профиля:",
+    "add_another": "＋ Добавить еще один файл",
+    "remove": "Удалить",
+    "note": "Примечание:",
+    "profile_pic_instruction": "Первое изображение, выбранное в первом ряду, будет использовано в качестве фото профиля.",
+    "url_link": "URL / Ссылка",
+    "select_option": "Выберите опцию",
+    "no_file_chosen": "Файл не выбран",
+    "choose_file": "Выберите файл",
+    "add_new_files": "Добавить новые файлы"
   },
   "multimedia_options": {
     "photo": "Фото",
@@ -220,7 +230,8 @@
     "admin_ready_for_download": "Готово к скачиванию",
     "admin_approved_date": "Дата утверждения администратора",
     "multiple_files_tip": "Выберите несколько файлов сразу, удерживая Shift или Ctrl (Cmd для Mac) при нажатии.",
-    "current_files": "Файлы, ранее сохраненные для этого солдата"
+    "current_files": "Файлы, ранее сохраненные для этого солдата",
+    "preview_link": "Просмотр / Ссылка"
 
   },
   "admin": {
@@ -247,7 +258,8 @@
 
   "buttons": {
     "update": "Обновить",
-    "backToList": "Назад к списку"
+    "backToList": "Назад к списку",
+    "view": "Просмотр"
   }
 }
 

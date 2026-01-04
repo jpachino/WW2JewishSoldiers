@@ -207,7 +207,19 @@
     "soldier_previously_submitted": "האם החייל הוגש בעבר?",
     "description": "תיאור",
     "multimedia_type": "סוג מדיה",
-    "file_upload": "העלאת קובץ"
+    "file_upload": "העלאת קובץ",
+    "profile_preview_title": "תצוגה מקדימה של תמונת פרופיל:",
+    "add_another": "＋ הוסף קובץ נוסף",
+    "remove": "הסר",
+    "note": "הערה:",
+    "profile_pic_instruction": "התמונה הראשונה שתיבחר בשורה הראשונה תשמש כתמונת הפרופיל.",
+    "url_link": "כתובת אתר / קישור",
+    
+    "select_option": "בחר אפשרות",
+    "no_file_chosen": "לא נבחר קובץ",
+    "choose_file": "בחר קובץ",
+    "add_new_files": "הוספת קבצים חדשים",
+    "preview_link": "תצוגה מקדימה / קישור"
    
   },
  
@@ -267,7 +279,8 @@
 
   "buttons": {
     "update": "עדכן",
-    "backToList": "חזרה לרשימה"
+    "backToList": "חזרה לרשימה",
+    "view": "צפה"
   }
 }
 

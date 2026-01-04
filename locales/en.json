@@ -193,7 +193,19 @@
     "soldier_previously_submitted": "Soldier previously submitted?",
     "description": "Description",
     "multimedia_type": "Multimedia Type",
-    "file_upload": "Upload File"
+    "file_upload": "Upload File",
+    "profile_preview_title": "Profile Picture Preview:",
+    "add_another": "＋ Add Another File",
+    "remove": "Remove",
+    "note": "Note:",
+    "profile_pic_instruction": "The first image selected in the first row will be used as the Profile Picture.",
+    "url_link": "URL / Link",
+    "select_option": "Select Option",
+    "no_file_chosen": "No file chosen",
+    "choose_file": "Choose File",
+    "add_new_files": "Add New Files",
+    "preview_link": "Preview / Link"
+    
     
   },
  
@@ -257,7 +269,8 @@
 
   "buttons": {
     "update": "Update",
-    "backToList": "Back to list"
+    "backToList": "Back to list",
+    "view": "View"
   }
 
 
