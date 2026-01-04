@@ -2168,7 +2168,7 @@ app.post('/admin/downloadExcel', async (req, res) => {
         'biography': 'קורות חיים_סיפור אישי _HEB',
         'download_date': 'תאריך הורדה',
 
-        // Dynamic Battles
+        /* Dynamic Battles
         ...Array.from({ length: MAX_BATTLES }, (_, n) => ({
             [`battle_${n + 1}_year`]: `שנת לחימה ${n + 1}`,
             [`battle_${n + 1}_front`]: `חזית_HEB ${n + 1}`, [`battle_${n + 1}_fronten`]: `חזית_ENG ${n + 1}`, [`battle_${n + 1}_frontru`]: `חזית_RUS ${n + 1}`,
@@ -2177,7 +2177,42 @@ app.post('/admin/downloadExcel', async (req, res) => {
             [`battle_${n + 1}_degreerank`]: `דרגה_HEB ${n + 1}`, [`battle_${n + 1}_degreeranken`]: `דרגה_ENG ${n + 1}`, [`battle_${n + 1}_degreerankru`]: `דרגה_RUS ${n + 1}`,
             [`battle_${n + 1}_battle`]: `קרב_HEB ${n + 1}`, [`battle_${n + 1}_battleen`]: `קרב_ENG ${n + 1}`, [`battle_${n + 1}_battleru`]: `קרב_RUS ${n + 1}`,
             [`battle_${n + 1}_details`]: `הערות_HEB ${n + 1}`, [`battle_${n + 1}_detailsen`]: `הערות_ENG ${n + 1}`, [`battle_${n + 1}_detailsru`]: `הערות_RUS ${n + 1}`,
-        })).reduce((acc, curr) => ({ ...acc, ...curr }), {}),
+        })).reduce((acc, curr) => ({ ...acc, ...curr }), {}), */
+
+         // Dynamic Battles Mapping
+...Array.from({ length: MAX_BATTLES }, (_, n) => ({
+    [`battle_${n + 1}_year`]: `שנת לחימה ${n + 1}`,
+    
+    // Fronts
+    [`battle_${n + 1}_front`]: `HEB ${n + 1}_חזית`, 
+    [`battle_${n + 1}_fronten`]: `ENG ${n + 1}_חזית`, 
+    [`battle_${n + 1}_frontru`]: `RUS ${n + 1}_חזית`,
+
+    // Medals
+    [`battle_${n + 1}_medal`]: `HEB ${n + 1}_עיטורים`, 
+    [`battle_${n + 1}_medalen`]: `ENG ${n + 1}_עיטורים`, 
+    [`battle_${n + 1}_medalru`]: `RUS ${n + 1}_עיטורים`,
+
+    // Jobs
+    [`battle_${n + 1}_job`]: `HEB ${n + 1}_תפקיד`, 
+    [`battle_${n + 1}_joben`]: `ENG ${n + 1}_תפקיד`, 
+    [`battle_${n + 1}_jobru`]: `RUS ${n + 1}_תפקיד`,
+
+    // Ranks
+    [`battle_${n + 1}_degreerank`]: `HEB ${n + 1}_דרגה`, 
+    [`battle_${n + 1}_degreeranken`]: `ENG ${n + 1}_דרגה`, 
+    [`battle_${n + 1}_degreerankru`]: `RUS ${n + 1}_דרגה`,
+
+    // Battles
+    [`battle_${n + 1}_battle`]: `HEB ${n + 1}_קרב`, 
+    [`battle_${n + 1}_battleen`]: `ENG ${n + 1}_קרב`, 
+    [`battle_${n + 1}_battleru`]: `RUS ${n + 1}_קרב`,
+
+    // Details
+    [`battle_${n + 1}_details`]: `HEB ${n + 1}_הערות`, 
+    [`battle_${n + 1}_detailsen`]: `ENG ${n + 1}_הערות`, 
+    [`battle_${n + 1}_detailsru`]: `RUS ${n + 1}_הערות`,
+})).reduce((acc, curr) => ({ ...acc, ...curr }), {}),
 
         // Dynamic Multimedia
         ...Array.from({ length: MAX_FILES }, (_, n) => ({
@@ -2204,6 +2239,9 @@ app.post('/admin/downloadExcel', async (req, res) => {
         };
 
         const downloadDateString = formatDateToDDMMYYYY(now);
+        // Create a safe date for filenames (e.g., 03-01-2026)
+        const safeDate = downloadDateString.replace(/\//g, '-');
+
         const dateFields = ['dob', 'dod', 'aliyadate'];
         const excludeFields = [
             'biography', 'fightingdesc', 'useremail', 'recordcomplete',
@@ -2243,7 +2281,9 @@ app.post('/admin/downloadExcel', async (req, res) => {
             const cleanId = String(s.id).trim();
             row.id = `A${cleanId}`;
             row.download_date = downloadDateString;
-            row.biography = `Bio: ${s.biography || ''} Story: ${s.fightingdesc || ''}`;
+            
+            // Stacking Bio and Story with carriage returns
+            row.biography = `Bio: ${s.biography || ''}\n\nStory: ${s.fightingdesc || ''}`;
 
             const sBattles = battleMap[s.id] || [];
             sBattles.forEach((b, i) => {
@@ -2279,8 +2319,7 @@ app.post('/admin/downloadExcel', async (req, res) => {
                     row[`file_${n}_type`] = m.multimedia_type || '';
                     if (m.file_path) {
                         const cleanFileName = m.file_path.includes('-') ? m.file_path.substring(m.file_path.indexOf('-') + 1) : m.file_path;
-                        // Matches structure inside the ZIP
-                        row[`file_${n}_path`] = `Soldier_Files\\A${cleanId}\\${cleanFileName}`;
+                        row[`file_${n}_path`] = `Images\\Warrior Pages\\multimediaFiles\\A${cleanId}\\${cleanFileName}`;
                     }
                     row[`file_${n}_loc`] = m.physical_logical_location || '';
                 }
@@ -2298,14 +2337,23 @@ app.post('/admin/downloadExcel', async (req, res) => {
             .map(k => ({
                 header: EXCEL_HEADER_MAP[k],
                 key: k,
-                style: { numFmt: '@', alignment: { horizontal: 'right' } }
+                // Alignment: vertical top + wrapText makes the stacked bio look correct
+                style: { 
+                    numFmt: '@', 
+                    alignment: { horizontal: 'right', vertical: 'top', wrapText: true } 
+                }
             }));
+
+        // Set width for Biography column so it doesn't look like a thin vertical line
+        const bioCol = sheet.getColumn('biography');
+        if (bioCol) bioCol.width = 60;
 
         flattenedRows.forEach(row => sheet.addRow(row));
 
         // 5. ZIP Stream Setup
         res.setHeader('Content-Type', 'application/zip');
-        res.setHeader('Content-Disposition', `attachment; filename="Full_Export_${downloadDateString}.zip"`);
+        // Uses safeDate and quotes to ensure the filename works in all browsers
+        res.setHeader('Content-Disposition', `attachment; filename=\"Full_Export_${safeDate}.zip\"`);
 
         const archive = archiver('zip', { zlib: { level: 9 } });
         archive.pipe(res);
@@ -2319,15 +2367,15 @@ app.post('/admin/downloadExcel', async (req, res) => {
 
         // B. Add Excel Workbook
         const excelBuffer = await workbook.xlsx.writeBuffer();
-        archive.append(excelBuffer, { name: 'soldiers_data.xlsx' });
+        // Updated filename inside the zip to include safeDate
+        archive.append(excelBuffer, { name: `soldiers_data_${safeDate}.xlsx` });
 
-        // C. Add Folders from path: public/pages/soldierUploads/A123
+        // C. Add Folders
         ids.forEach(id => {
             const cleanId = String(id).trim();
             const folderPath = path.join(__dirname, 'public', 'pages', 'soldierUploads', `A${cleanId}`);
             
             if (fs.existsSync(folderPath)) {
-                // Adds content into "Soldier_Files/A123/..." inside zip
                 archive.directory(folderPath, `Soldier_Files/A${cleanId}`);
             }
         });

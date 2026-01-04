@@ -1,4 +1,4 @@
-require('dotenv').config(); // Make sure this is at the top
+require('dotenv').config(); // Make surerequire this is at the top
 
 const express = require('express');
 const bodyParser = require('body-parser');
@@ -11,6 +11,7 @@ const app = express();
 const port = 3000;
 const ExcelJS = require('exceljs'); // Add at top
 const cookieParser = require('cookie-parser'); // The key module
+const archiver = require('archiver');
 
 // ... db initialization ...
 
@@ -23,13 +24,14 @@ const columns = [
     'calledby', 'calledbyen', 'calledbyru',
     'birthcountry', 'birthcountryen', 'birthcountryru',
     'birthcity', 'birthcityen', 'birthcityru',
+    'state', 'stateen', 'stateru',
     'gender', 'genderen', 'genderru',
     'placeofdeath', 'placeofdeathen', 'placeofdeathru',
     'deathdetails', 'deathdetailsen', 'deathdetailsru',
-    'biography', 'biographyen', 'biographyru',
+    'biography', 
     'otherparticipation', 'otherparticipationen', 'otherparticipationru',
     'otherdecoration', 'otherdecorationen', 'otherdecorationru',
-    'fightingdesc', 'fightingdescen', 'fightingdescru',
+    'fightingdesc', 
     'shortdesc', 'armyrole', 'armyroleen', 'armyroleru',
     'releasereason', 'releasereasonen', 'releasereasonru',
     'enlistreason', 'enlistreasonen', 'enlistreasonru',
@@ -434,10 +436,13 @@ for (let i = 0; i < maxRows; i++) {
         currentType.includes('תמונה') || 
         currentType.includes('מסמך')
     ) {
-        finalLocation = 'מחיצת קבצים לקישור';
-    } else {
-        finalLocation = userLocation;
-    }
+       finalLocation = 'מחיצת קבצים לקישור';
+                } else if (currentType === 'קישור') {
+                    // ⭐ SPECIFIC CONDITION FOR "קישור"
+                    finalLocation = 'URL';
+                } else {
+                    finalLocation = userLocation || 'URL'; 
+                }
 
     // 3. Handle File Upload if it exists for this row
     if (mFiles[i]) {
@@ -801,6 +806,8 @@ app.get('/searchResults', async (req, res) => {
     }
 
     query += ` AND (recordcomplete IS NULL OR recordcomplete = FALSE)`;
+    
+    query += ` ORDER BY id ASC`;
 
     const soldiers = await db.any(query, values);
 
@@ -897,17 +904,21 @@ app.post('/updateSoldier/:id', multiUpload, async (req, res) => {
     let birthcountryen = existingSoldier.birthcountryen;
     let birthcountryru = existingSoldier.birthcountryru;
 
-  if (req.body.birthcountry) {
-  const birthcountryRow = await db.oneOrNone(
-    'SELECT title_heb, title_eng, title_rus FROM "birthcountry_TBL" WHERE id = $1', 
-    [req.body.birthcountry]
-  );
-  if (birthcountryRow) {
-    birthcountry = birthcountryRow.title_heb;
-    birthcountryen = birthcountryRow.title_eng;
-    birthcountryru = birthcountryRow.title_rus;
-  }
-}
+    const selectedCountryId = req.body.birthcountry; // This comes from the <select> value
+
+    if (selectedCountryId) {
+      // Fetch the full row from the countries table
+      const countryRow = await db.oneOrNone(
+        'SELECT title_heb, title_eng, title_rus FROM "countries_TBL" WHERE id = $1', 
+        [selectedCountryId]
+      );
+
+      if (countryRow) {
+        birthcountry = countryRow.title_heb;
+        birthcountryen = countryRow.title_eng;
+        birthcountryru = countryRow.title_rus;
+      }
+    }
     // ------------------------------------
     // --- CORPS LOOKUP ---
 let corps = existingSoldier.corps;
@@ -1051,28 +1062,31 @@ if (req.body.enlistreason) {
             degreeranken = [], degreerankru = [], job = [], joben = [], jobru = []
         } = req.body;
 
-    // Record complete date
+     //Record complete date
     // Boolean fields
-    const recordcomplete = req.body.recordcomplete === 'true' || req.body.recordcomplete === 'on';
-    const uprising_participant = req.body.uprising_participant === 'true' || req.body.uprising_participant === 'on';
-    const record_complete_boolean = existingSoldier.recordcomplete;
+    // 1. Capture the form input
+const isCheckingComplete = req.body.recordcomplete === 'true' || req.body.recordcomplete === 'on';
+const uprising_participant = req.body.uprising_participant === 'true' || req.body.uprising_participant === 'on';
 
+// 2. Use LET so these variables can be updated
+let record_complete_boolean = existingSoldier.recordcomplete; 
+let record_complete_date = existingSoldier.record_complete_date;
 
-
-    // Record complete date
+// 3. Update if the user checked the box
+if (isCheckingComplete) {
+    const today = new Date();
+    const dd = String(today.getDate()).padStart(2, '0');
+    const mm = String(today.getMonth() + 1).padStart(2, '0');
+    const yyyy = today.getFullYear();
     
-    let record_complete_date = existingSoldier.record_complete_date;
-    if (recordcomplete && !existingSoldier.recordcomplete) {
-      const today = new Date();
-      const dd = String(today.getDate()).padStart(2, '0');
-      const mm = String(today.getMonth() + 1).padStart(2, '0');
-      const yyyy = today.getFullYear();
-      record_complete_date = `${dd}/${mm}/${yyyy}`;
-    } else if (!recordcomplete) {
-      record_complete_date = null;
-    }
+    // Set format to dd-mm-yyyy
+    record_complete_date = `${dd}-${mm}-${yyyy}`;
+    
+    // Use actual boolean true, not the string 'true'
+    record_complete_boolean = true; 
+}
+    
 
-    // Build update object
        // Main input object
          const inputData = {
       fname: req.body.fname || existingSoldier.fname,
@@ -1093,14 +1107,17 @@ if (req.body.enlistreason) {
       calledby: req.body.calledby || existingSoldier.calledby,
       calledbyen: req.body.calledbyen || existingSoldier.calledbyen,
       calledbyru: req.body.calledbyru || existingSoldier.calledbyru,
-      birthcountry: req.body.birthcountry || existingSoldier.birthcountry,
-      birthcountryen: req.body.birthcountryen || existingSoldier.birthcountryen,
-      birthcountryru: req.body.birthcountryru || existingSoldier.birthcountryru,
-    
+      //birthcountry: req.body.birthcountry || existingSoldier.birthcountry,
+      birthcountry,
+      birthcountryen,
+      birthcountryru,
+        
       birthcity: req.body.birthcity || existingSoldier.birthcity,
       birthcityen: req.body.birthcityen || existingSoldier.birthcityen,
       birthcityru: req.body.birthcityru || existingSoldier.birthcityru,
-      
+      state: req.body.state || existingSoldier.state,
+      stateen: req.body.stateen || existingSoldier.stateen,
+      stateru: req.body.stateru || existingSoldier.stateru,
       gender, genderen, genderru,
       placeofdeath: req.body.placeofdeath || existingSoldier.placeofdeath,
       placeofdeathen: req.body.placeofdeathen || existingSoldier.placeofdeathen,
@@ -1109,8 +1126,7 @@ if (req.body.enlistreason) {
       deathdetailsen: req.body.deathdetailsen || existingSoldier.deathdetailsen,
       deathdetailsru: req.body.deathdetailsru || existingSoldier.deathdetailsru,
       biography: req.body.biography || existingSoldier.biography,
-      biographyen: req.body.biographyen || existingSoldier.biographyen,
-      biographyru: req.body.biographyru || existingSoldier.biographyru,
+      
       otherparticipation: req.body.otherparticipation || existingSoldier.otherparticipation,
       otherparticipationen: req.body.otherparticipationen || existingSoldier.otherparticipationen,
       otherparticipationru: req.body.otherparticipationru || existingSoldier.otherparticipationru,
@@ -1118,8 +1134,6 @@ if (req.body.enlistreason) {
       otherdecorationen: req.body.otherdecorationen || existingSoldier.otherdecorationen,
       otherdecorationru: req.body.otherdecorationru || existingSoldier.otherdecorationru,
       fightingdesc: req.body.fightingdesc || existingSoldier.fightingdesc,
-      fightingdescen: req.body.fightingdescen || existingSoldier.fightingdescen,
-      fightingdescru: req.body.fightingdescru || existingSoldier.fightingdescru,
       shortdesc: req.body.shortdesc || existingSoldier.shortdesc,
       armyrole: req.body.armyrole || existingSoldier.armyrole,
       armyroleen: req.body.armyroleen || existingSoldier.armyroleen,
@@ -1159,6 +1173,7 @@ if (req.body.enlistreason) {
       resistance, resistanceen, resistanceru,
       participation, participationen, participationru,  
       recordcomplete: record_complete_boolean,
+      
       record_complete_date,
       uprising_participant: req.body.uprising_participant === 'on' || existingSoldier.uprising_participant
 
@@ -1347,7 +1362,7 @@ app.get('/admin/completedRecords', async (req, res) => {
         const soldiers = await db.any(
             `SELECT * FROM ${SOLDIER_TABLE} 
              WHERE recordcomplete = TRUE 
-             ORDER BY lname, fname`
+             ORDER BY id ASC`
         );
 
         const countries = await db.any('SELECT id, title_heb, title_eng, title_rus FROM "countries_TBL"');
@@ -1615,12 +1630,17 @@ if (req.body.downloaded_date) {
       calledby: req.body.calledby || existingSoldier.calledby,
       calledbyen: req.body.calledbyen || existingSoldier.calledbyen,
       calledbyru: req.body.calledbyru || existingSoldier.calledbyru,
-      birthcountry: req.body.birthcountry || existingSoldier.birthcountry,
+      //birthcountry: req.body.birthcountry || existingSoldier.birthcountry,
+      birthcountry,
+      birthcountryen,
+      birthcountryru,
     
       birthcity: req.body.birthcity || existingSoldier.birthcity,
       birthcityen: req.body.birthcityen || existingSoldier.birthcityen,
       birthcityru: req.body.birthcityru || existingSoldier.birthcityru,
-      
+      state: req.body.state || existingSoldier.state,
+      stateen: req.body.stateen || existingSoldier.stateen,
+      stateru: req.body.stateru || existingSoldier.stateru,
       gender, genderen, genderru,
       placeofdeath: req.body.placeofdeath || existingSoldier.placeofdeath,
       placeofdeathen: req.body.placeofdeathen || existingSoldier.placeofdeathen,
@@ -1629,8 +1649,7 @@ if (req.body.downloaded_date) {
       deathdetailsen: req.body.deathdetailsen || existingSoldier.deathdetailsen,
       deathdetailsru: req.body.deathdetailsru || existingSoldier.deathdetailsru,
       biography: req.body.biography || existingSoldier.biography,
-      biographyen: req.body.biographyen || existingSoldier.biographyen,
-      biographyru: req.body.biographyru || existingSoldier.biographyru,
+      
       otherparticipation: req.body.otherparticipation || existingSoldier.otherparticipation,
       otherparticipationen: req.body.otherparticipationen || existingSoldier.otherparticipationen,
       otherparticipationru: req.body.otherparticipationru || existingSoldier.otherparticipationru,
@@ -1638,8 +1657,7 @@ if (req.body.downloaded_date) {
       otherdecorationen: req.body.otherdecorationen || existingSoldier.otherdecorationen,
       otherdecorationru: req.body.otherdecorationru || existingSoldier.otherdecorationru,
       fightingdesc: req.body.fightingdesc || existingSoldier.fightingdesc,
-      fightingdescen: req.body.fightingdescen || existingSoldier.fightingdescen,
-      fightingdescru: req.body.fightingdescru || existingSoldier.fightingdescru,
+      
       shortdesc: req.body.shortdesc || existingSoldier.shortdesc,
       armyrole: req.body.armyrole || existingSoldier.armyrole,
       armyroleen: req.body.armyroleen || existingSoldier.armyroleen,
@@ -1823,11 +1841,13 @@ for (let i = 0; i < maxRows; i++) {
         currentType === '1' || currentType === '2' || currentType === '3'
     ) {
         finalLocation = 'מחיצת קבצים לקישור';
-    } else {
-        // Use the user's URL or manual entry for other types (like "URL")
-        finalLocation = userLocation;
-    }
-
+                } else if (currentType === 'קישור') {
+                    // ⭐ SPECIFIC CONDITION FOR "קישור"
+                    finalLocation = 'URL';
+                } else {
+                    finalLocation = userLocation || 'URL'; 
+                }
+                console.log ('final location ',finalLocation)
     // 3. Handle File Upload
     
     if (mFiles[i]) {
@@ -2087,6 +2107,8 @@ app.get('/admin/completedRecords', async (req, res) => {
         );
 
         // --- Send workbook ---
+        res.setHeader('Content-Type', 'application/zip');
+      res.setHeader('Content-Disposition', `attachment; filename="Soldier_Package_${downloadDateString}.zip"`);
         res.setHeader('Content-Disposition', 'attachment; filename="completed_records_data.xlsx"');
         res.setHeader('Content-Type', 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet');
         await workbook.xlsx.write(res);
@@ -2100,146 +2122,64 @@ app.get('/admin/completedRecords', async (req, res) => {
 // Ensure you have defined 'db' (your database connection) and 'SOLDIER_TABLE' before this route.
 // If you use ExcelJS, make sure it is imported: const ExcelJS = require('exceljs');
 
+
 app.post('/admin/downloadExcel', async (req, res) => {
     // --- Configuration Constants ---
     const BATTLE_HISTORY_TABLE = 'soldier_battle_history';
-    const UPLOADED_FILES_TABLE = 'uploaded_files';
-    const MAX_BATTLES = 5; // Set the maximum number of battle records to export
-    const MAX_FILES = 3;   // Set the maximum number of file records to export
+    const MULTIMEDIA_TABLE = 'multimedia_TBL';
+    const MAX_BATTLES = 5;
+    const MAX_FILES = 12;
 
-    // --- Multilingual Header Mapping (Corrected to match soldierdetails table) ---
+    // --- Multilingual Header Mapping ---
     const EXCEL_HEADER_MAP = {
-        // Basic Soldier Info Fields (from SOLDIER_TABLE)
-        'id': 'Form ID', 
-        'fname': 'שם פרטי_HEB', 
-        'fnameen': 'שם פרטי_ENG', 
-        'fnameru': 'שם פרטי_RUS', 
-        'lname': 'שם משפחה_HEB', 
-        'lnameen': 'שם משפחה_ENG', 
-        'lnameru': 'שם משפחה_RUS', 
-        'previouslname': 'שם משפחה קודם_HEB', 
-        'previouslnameen': 'שם משפחה קודם_ENG',
-        'previouslnameru': 'שם משפחה קודם_RUS',
-        'calledby': 'שם כינוי_HEB',
-        'calledbyen': 'שם כינוי_ENG',
-        'calledbyru': 'שם כינוי_RUS',
-        'fathername': 'שם האב_HEB',
-        'fathernameen': 'שם האב_ENG',
-        'fathernameru': 'שם האב_RUS',
-        'mothername': 'שם האם_HEB',
-        'mothernameen': 'שם האם_ENG',
-        'mothernameru': 'שם האם_RUS',
-        'gender': 'מין_HEB',
-        'genderen': 'מין_ENG', 
-        'genderru': 'מין_RUS', 
-        'birthcountry': 'ארץ לידה_HEB', 
-        'birthcountryen': 'ארץ לידה_ENG', 
-        'birthcountryru': 'ארץ לידה_RUS', 
-        'birthcity': 'עיר לידה_HEB',
-        'birthcityen': 'עיר לידה_ENG',
-        'birthcityru': 'עיר לידה_RUS',
-        'state': 'מדינה/מחוז_HEB',
-        'stateen': 'מדינה/מחוז_ENG',
-        'stateru': 'מדינה/מחוז_RUS',
+        'id': 'Form ID',
+        'fname': 'שם פרטי_HEB', 'fnameen': 'שם פרטי_ENG', 'fnameru': 'שם פרטי_RUS',
+        'lname': 'שם משפחה_HEB', 'lnameen': 'שם משפחה_ENG', 'lnameru': 'שם משפחה_RUS',
+        'previouslname': 'שם משפחה קודם_HEB', 'previouslnameen': 'שם משפחה קודם_ENG', 'previouslnameru': 'שם משפחה קודם_RUS',
+        'calledby': 'שם כינוי_HEB', 'calledbyen': 'שם כינוי_ENG', 'calledbyru': 'שם כינוי_RUS',
+        'fathername': 'שם האב_HEB', 'fathernameen': 'שם האב_ENG', 'fathernameru': 'שם האב_RUS',
+        'mothername': 'שם האם_HEB', 'mothernameen': 'שם האם_ENG', 'mothernameru': 'שם האם_RUS',
+        'gender': 'מין_HEB', 'genderen': 'מין_ENG', 'genderru': 'מין_RUS',
+        'birthcountry': 'ארץ לידה_HEB', 'birthcountryen': 'ארץ לידה_ENG', 'birthcountryru': 'ארץ לידה_RUS',
+        'birthcity': 'עיר לידה_HEB', 'birthcityen': 'עיר לידה_ENG', 'birthcityru': 'עיר לידה_RUS',
+        'state': 'מדינה/מחוז_HEB', 'stateen': 'מדינה/מחוז_ENG', 'stateru': 'מדינה/מחוז_RUS',
         'dob': 'תאריך לידה',
-        'armyid': 'מ.א. מספר אישי', 
-        'category': 'קטגוריה_HEB', 
-        'categoryen': 'קטגוריה_ENG', 
-        'categoryru': 'קטגוריה_RUS', 
-        
-        // Combat & Role Info
-        'platoonname': 'יחידה_HEB', 
-        'platoonnameen': 'יחידה_ENG', 
-        'platoonnameru': 'יחידה_RUS', 
-        'armyrole': 'תפקיד_HEB', 
-        'armyroleen': 'תפקיד_ENG', 
-        'armyroleru': 'תפקיד_RUS', 
-        'wounddetails': 'פציעה_HEB', 
-        'wounddetailsen': 'פציעה_ENG', 
-        'wounddetailsru': 'פציעה_RUS', 
-        
-        // Death Info
-        'deathdetails': 'פרטי הפטירה_HEB',
-        'deathdetailsen': 'פרטי הפטירה_ENG',
-        'deathdetailsru': 'פרטי הפטירה_RUS',
+        'armyid': 'מ.א. מספר אישי',
+        'category': 'קטגוריה_HEB', 'categoryen': 'קטגוריה_ENG', 'categoryru': 'קטגוריה_RUS',
+        'platoonname': 'יחידה_HEB', 'platoonnameen': 'יחידה_ENG', 'platoonnameru': 'יחידה_RUS',
+        'armyrole': 'תפקיד_HEB', 'armyroleen': 'תפקיד_ENG', 'armyroleru': 'תפקיד_RUS',
+        'wounddetails': 'פציעה_HEB', 'wounddetailsen': 'פציעה_ENG', 'wounddetailsru': 'פציעה_RUS',
+        'deathdetails': 'פרטי הפטירה_HEB', 'deathdetailsen': 'פרטי הפטירה_ENG', 'deathdetailsru': 'פרטי הפטירה_RUS',
         'dod': 'תאריך פטירה',
-        'placeofdeath': 'מקום הפטירה_HEB', 
-        'placeofdeathen': 'מקום הפטירה_ENG', 
-        'placeofdeathru': 'מקום הפטירה_RUS', 
-
-        // Affiliation/Cause/Service Info
-        'enlistreason': 'סיבת גיוס_HEB', 
-        'enlistreasonen': 'סיבת גיוס_ENG',
-        'enlistreasonru': 'סיבת גיוס_RUS',
-        'releasereason': 'סיבת שחרור_HEB',
-        'releasereasonen': 'סיבת שחרור_ENG',
-        'releasereasonru': 'סיבת שחרור_RUS',
-        'army': 'שיוך לצבא_HEB', 
-        'armyen': 'שיוך לצבא_ENG', 
-        'armyru': 'שיוך לצבא_RUS', 
-        'resistance': 'שיוך למחתרת_HEB',
-        'resistanceen': 'שיוך למחתרת_ENG', 
-        'resistanceru': 'שיוך למחתרת_RUS',  
-        'partizan': 'שיוך לפרטיזנים_HEB', 
-        'partizanen': 'שיוך לפרטיזנים_ENG', 
-        'partizanru': 'שיוך לפרטיזנים_RUS', 
-        'participation': 'שיוך להשתתפות_HEB', 
-        'participationen': 'שיוך להשתתפות_ENG', 
-        'participationru': 'שיוך להשתתפות_RUS', 
-        'corps': 'שיוך לחיל_HEB', 
-        'corpsen': 'שיוך לחיל_ENG', 
-        'corpsru': 'שיוך לחיל_RUS', 
-        'other_medal': 'שיוך לעיטורים_HEB', 
-        'other_medalen': 'שיוך לעיטורים_ENG', 
-        'other_medalru': 'שיוך לעיטורים_RUS', 
-
-        // Extended Affiliation
-        'gettodesc': 'מאבק בגטו / מחנה_HEB', 
-        'gettodescen': 'מאבק בגטו / מחנה_ENG', 
-        'gettodescru': 'מאבק בגטו / מחנה_RUS', 
-        'otherparticipation': 'השתתפות במלחמה - אחר_HEB',
-        'otherparticipationen': 'השתתפות במלחמה - אחר_ENG',
-        'otherparticipationru': 'השתתפות במלחמה - אחר_RUS',
-        'otherfightingcontext': 'מסגרת לחימה - אחר_HEB', 
-        'otherfightingcontexten': 'מסגרת לחימה - אחר_ENG', 
-        'otherfightingcontextru': 'מסגרת לחימה - אחר_RUS', 
-        'otherdecoration': 'עיטורים - אחר_HEB', 
-        'otherdecorationen': 'עיטורים - אחר_ENG', 
-        'otherdecorationru': 'עיטורים - אחר_RUS', 
-        
-        // Aliyah and IDF (IDF fields not in soldierdetails table, need separate mapping if required)
+        'placeofdeath': 'מקום הפטירה_HEB', 'placeofdeathen': 'מקום הפטירה_ENG', 'placeofdeathru': 'מקום הפטירה_RUS',
+        'enlistreason': 'סיבת גיוס_HEB', 'enlistreasonen': 'סיבת גיוס_ENG', 'enlistreasonru': 'סיבת גיוס_RUS',
+        'releasereason': 'סיבת שחרור_HEB', 'releasereasonen': 'סיבת שחרור_ENG', 'releasereasonru': 'סיבת שחרור_RUS',
+        'army': 'שיוך לצבא_HEB', 'armyen': 'שיוך לצבא_ENG', 'armyru': 'שיוך לצבא_RUS',
+        'resistance': 'שיוך למחתרת_HEB', 'resistanceen': 'שיוך למחתרת_ENG', 'resistanceru': 'שיוך למחתרת_RUS',
+        'partizan': 'שיוך לפרטיזנים_HEB', 'partizanen': 'שיוך לפרטיזנים_ENG', 'partizanru': 'שיוך לפרטיזנים_RUS',
+        'participation': 'שיוך להשתתפות_HEB', 'participationen': 'שיוך להשתתפות_ENG', 'participationru': 'שיוך להשתתפות_RUS',
+        'corps': 'שיוך לחיל_HEB', 'corpsen': 'שיוך לחיל_ENG', 'corpsru': 'שיוך לחיל_RUS',
+        'other_medal': 'שיוך לעיטורים_HEB', 'other_medalen': 'שיוך לעיטורים_ENG', 'other_medalru': 'שיוך לעיטורים_RUS',
+        'gettodesc': 'מאבק בגטו / מחנה_HEB', 'gettodescen': 'מאבק בגטו / מחנה_ENG', 'gettodescru': 'מאבק בגטו / מחנה_RUS',
+        'otherparticipation': 'השתתפות במלחמה - אחר_HEB', 'otherparticipationen': 'השתתפות במלחמה - אחר_ENG', 'otherparticipationru': 'השתתפות במלחמה - אחר_RUS',
+        'otherfightingcontext': 'מסגרת לחימה - אחר_HEB', 'otherfightingcontexten': 'מסגרת לחימה - אחר_ENG', 'otherfightingcontextru': 'מסגרת לחימה - אחר_RUS',
+        'otherdecoration': 'עיטורים - אחר_HEB', 'otherdecorationen': 'עיטורים - אחר_ENG', 'otherdecorationru': 'עיטורים - אחר_RUS',
         'aliyadate': 'תאריך עליה',
+        'biography': 'קורות חיים_סיפור אישי _HEB',
+        'download_date': 'תאריך הורדה',
 
-        // Combined/Special Fields
-        'biography': 'קורות חיים_סיפור אישי _HEB', // This is the combined field you created
-        'biographyen': 'קורות חיים_סיפור אישי _ENG',
-        'biographyru': 'קורות חיים_סיפור אישי _RUS',
-        'download_date': 'תאריך הורדה', 
-        
-        // Dynamic Fields (BATTLE_HISTORY_TABLE)
+        // Dynamic Battles
         ...Array.from({ length: MAX_BATTLES }, (_, n) => ({
             [`battle_${n + 1}_year`]: `שנת לחימה ${n + 1}`,
-            [`battle_${n + 1}_front`]: `חזית_HEB ${n + 1}`,
-            [`battle_${n + 1}_fronten`]: `חזית_ENG ${n + 1}`,
-            [`battle_${n + 1}_frontru`]: `חזית_RUS ${n + 1}`,
-            [`battle_${n + 1}_medal`]: `עיטורים_HEB ${n + 1}`,
-            [`battle_${n + 1}_medalen`]: `עיטורים_ENG ${n + 1}`,
-            [`battle_${n + 1}_medalru`]: `עיטורים_RUS ${n + 1}`,
-            [`battle_${n + 1}_job`]: `תפקיד_HEB ${n + 1}`,
-            [`battle_${n + 1}_joben`]: `תפקיד_ENG ${n + 1}`,
-            [`battle_${n + 1}_jobru`]: `תפקיד_RUS ${n + 1}`,
-            [`battle_${n + 1}_degreerank`]: `דרגה_HEB ${n + 1}`,
-            [`battle_${n + 1}_degreeranken`]: `דרגה_ENG ${n + 1}`,
-            [`battle_${n + 1}_degreerankru`]: `דרגה_RUS ${n + 1}`,
-            [`battle_${n + 1}_battle`]: `קרב_HEB ${n + 1}`,
-            [`battle_${n + 1}_battleen`]: `קרב_ENG ${n + 1}`,
-            [`battle_${n + 1}_battleru`]: `קרב_RUS ${n + 1}`,
-            [`battle_${n + 1}_details`]: `הערות_HEB ${n + 1}`,
-            [`battle_${n + 1}_detailsen`]: `הערות_ENG ${n + 1}`,
-            [`battle_${n + 1}_detailsru`]: `הערות_RUS ${n + 1}`,
-        })).reduce((acc, curr) => ({ ...acc, ...curr }), {}), // Flatten the array of objects
+            [`battle_${n + 1}_front`]: `חזית_HEB ${n + 1}`, [`battle_${n + 1}_fronten`]: `חזית_ENG ${n + 1}`, [`battle_${n + 1}_frontru`]: `חזית_RUS ${n + 1}`,
+            [`battle_${n + 1}_medal`]: `עיטורים_HEB ${n + 1}`, [`battle_${n + 1}_medalen`]: `עיטורים_ENG ${n + 1}`, [`battle_${n + 1}_medalru`]: `עיטורים_RUS ${n + 1}`,
+            [`battle_${n + 1}_job`]: `תפקיד_HEB ${n + 1}`, [`battle_${n + 1}_joben`]: `תפקיד_ENG ${n + 1}`, [`battle_${n + 1}_jobru`]: `תפקיד_RUS ${n + 1}`,
+            [`battle_${n + 1}_degreerank`]: `דרגה_HEB ${n + 1}`, [`battle_${n + 1}_degreeranken`]: `דרגה_ENG ${n + 1}`, [`battle_${n + 1}_degreerankru`]: `דרגה_RUS ${n + 1}`,
+            [`battle_${n + 1}_battle`]: `קרב_HEB ${n + 1}`, [`battle_${n + 1}_battleen`]: `קרב_ENG ${n + 1}`, [`battle_${n + 1}_battleru`]: `קרב_RUS ${n + 1}`,
+            [`battle_${n + 1}_details`]: `הערות_HEB ${n + 1}`, [`battle_${n + 1}_detailsen`]: `הערות_ENG ${n + 1}`, [`battle_${n + 1}_detailsru`]: `הערות_RUS ${n + 1}`,
+        })).reduce((acc, curr) => ({ ...acc, ...curr }), {}),
 
-        // Dynamic Fields (multimedia_TBL)
+        // Dynamic Multimedia
         ...Array.from({ length: MAX_FILES }, (_, n) => ({
             [`file_${n + 1}_desc`]: `מולטימדיה - תיאור ${n + 1}`,
             [`file_${n + 1}_type`]: `סוג מולטימדיה ${n + 1}`,
@@ -2247,127 +2187,67 @@ app.post('/admin/downloadExcel', async (req, res) => {
             [`file_${n + 1}_loc`]: `מיקום לוגי פיזי ${n + 1}`,
         })).reduce((acc, curr) => ({ ...acc, ...curr }), {}),
     };
-    
-    // --- Initial validation and setup (Rest of your existing code) ---
+
     let ids = req.body.selectedIds;
     if (!ids) return res.status(400).send('No records selected');
     if (!Array.isArray(ids)) ids = [ids];
 
     try {
         const now = new Date();
-
-        function formatDateToDDMMYYYY(value) {
-            // ... (Your existing formatDateToDDMMYYYY function remains here)
+        const formatDateToDDMMYYYY = (value) => {
             if (!value) return '';
-
-            if (typeof value === 'string' && /^\d{2}-\d{2}-\d{4}$/.test(value)) {
-                return value;
-            }
-
             const d = new Date(value);
-            if (isNaN(d)) {
-                return value;
-            }
-
+            if (isNaN(d)) return value; 
             const day = String(d.getDate()).padStart(2, '0');
             const month = String(d.getMonth() + 1).padStart(2, '0');
-            const year = d.getFullYear();
-
-            return `${day}-${month}-${year}`;
-        }
+            return `${day}-${month}-${d.getFullYear()}`;
+        };
 
         const downloadDateString = formatDateToDDMMYYYY(now);
-
-        const dateFields = [
-            'dob', 'dod', 'aliyadate', 
-            'record_complete_date', 'admin_approved_date', 'downloaded_date'
-        ];
-
-        // ⭐ EXCLUDED FIELDS — ONLY INCLUDE KEYS THAT ARE NOT IN THE EXCEL_HEADER_MAP IF YOU WANT THEM IN THE FINAL OUTPUT
-        // These fields are excluded from the initial 'row' object but are used to create the combined 'biography' field.
+        const dateFields = ['dob', 'dod', 'aliyadate'];
         const excludeFields = [
-            'biography', // We replace this
-            'fightingdesc', 
-            'biographyen',
-            'fightingdescen',
-            'biographyru',
-            'fightingdescru',
-            'useremail',
-            'recordcomplete',
-            'admin_ready_for_download',
-            'record_complete_date',
-            'admin_approved_date',
-            'downloaded_date',
-            'uprising_participant',
-            'fname_soldier_submitter', 
-            'lname_soldier_submitter', 
-            'phone_soldier_submitter', 
-            'relation_of_soldier_submitter',
-            'soldier_previously_submitted',
-            'how_found_us_submitter'
+            'biography', 'fightingdesc', 'useremail', 'recordcomplete',
+            'admin_ready_for_download', 'record_complete_date', 'admin_approved_date',
+            'downloaded_date', 'uprising_participant', 'fname_soldier_submitter',
+            'lname_soldier_submitter', 'phone_soldier_submitter', 'relation_of_soldier_submitter',
+            'soldier_previously_submitted', 'how_found_us_submitter'
         ];
 
-        // --- 1. Fetch soldiers --- (Unchanged)
-        const soldiers = await db.any(
-            `SELECT * FROM ${SOLDIER_TABLE} WHERE id IN ($1:csv)`,
-            [ids]
-        );
+        // 1. Fetch Data
+        const soldiers = await db.any(`SELECT * FROM soldierdetails WHERE id IN ($1:csv)`, [ids]);
+        const battleHistory = await db.any(`SELECT * FROM ${BATTLE_HISTORY_TABLE} WHERE soldier_id IN ($1:csv) ORDER BY id`, [ids]);
+        const multimediaRecords = await db.any(`SELECT * FROM "${MULTIMEDIA_TABLE}" WHERE soldier_id IN ($1:csv) ORDER BY id`, [ids]);
 
-        soldiers.forEach(s => {
-            dateFields.forEach(f => {
-                if (s[f]) s[f] = formatDateToDDMMYYYY(s[f]);
-            });
-        });
-
-        // --- 2. Fetch battle history ---
-        const battleHistory = await db.any(
-            `SELECT * FROM ${BATTLE_HISTORY_TABLE} WHERE soldier_id IN ($1:csv) ORDER BY id`,
-            [ids]
-        );
-
+        // 2. Build Mapping
         const battleMap = {};
         battleHistory.forEach(b => {
             if (!battleMap[b.soldier_id]) battleMap[b.soldier_id] = [];
             battleMap[b.soldier_id].push(b);
         });
 
-        // --- 3. Fetch Multimedia Records ---
-        const multimediaRecords = await db.any(
-            `SELECT * FROM "multimedia_TBL" WHERE soldier_id IN ($1:csv) ORDER BY id`,
-            [ids]
-        );
-
         const multiMap = {};
         multimediaRecords.forEach(m => {
-            if (!multiMap[m.soldier_id]) multiMap[m.soldier_id] = [];
-            multiMap[m.soldier_id].push(m);
+            const sId = String(m.soldier_id).trim();
+            if (!multiMap[sId]) multiMap[sId] = [];
+            multiMap[sId].push(m);
         });
 
-        // --- 4. Flatten ---
+        // 3. Flatten Rows for Excel
         const flattenedRows = soldiers.map(s => {
-            // Create the row object and filter out excluded fields
             const row = {};
             for (const key in s) {
                 if (!excludeFields.includes(key)) {
-                    row[key] = s[key];
+                    row[key] = dateFields.includes(key) ? formatDateToDDMMYYYY(s[key]) : s[key];
                 }
             }
-            // ⭐ ADD THIS LINE HERE:
-            // This prepends "A" to the ID for the Excel display
-          if (s.id) {
-          row.id = `A${s.id}`;
-          }
+            const cleanId = String(s.id).trim();
+            row.id = `A${cleanId}`;
             row.download_date = downloadDateString;
+            row.biography = `Bio: ${s.biography || ''} Story: ${s.fightingdesc || ''}`;
 
-            // Combined Biography Fields
-            row.biography = `Bio: ${s.biography || ''} Personal Story: ${s.fightingdesc || ''}`;
-            row.biographyen = `Bio: ${s.biographyen || ''} Personal Story: ${s.fightingdescen || ''}`;
-            row.biographyru = `Bio: ${s.biographyru || ''} Personal Story: ${s.fightingdescru || ''}`;
-            
-            // Map Battles for this specific soldier
             const sBattles = battleMap[s.id] || [];
-            sBattles.forEach((b, index) => {
-                const n = index + 1;
+            sBattles.forEach((b, i) => {
+                const n = i + 1;
                 if (n <= MAX_BATTLES) {
                     row[`battle_${n}_year`] = b.battleyear || '';
                     row[`battle_${n}_front`] = b.front || '';
@@ -2377,11 +2257,11 @@ app.post('/admin/downloadExcel', async (req, res) => {
                     row[`battle_${n}_battleen`] = b.battleen || '';
                     row[`battle_${n}_battleru`] = b.battleru || '';
                     row[`battle_${n}_medal`] = b.medal || '';
-                    row[`battle_${n}_medalen`] = b.medal || '';
-                    row[`battle_${n}_medalru`] = b.medal || '';
+                    row[`battle_${n}_medalen`] = b.medalen || '';
+                    row[`battle_${n}_medalru`] = b.medalru || '';
                     row[`battle_${n}_details`] = b.details || '';
-                    row[`battle_${n}_detailsen`] = b.details || '';
-                    row[`battle_${n}_detailsru`] = b.details || '';
+                    row[`battle_${n}_detailsen`] = b.detailsen || '';
+                    row[`battle_${n}_detailsru`] = b.detailsru || '';
                     row[`battle_${n}_degreerank`] = b.degreerank || '';
                     row[`battle_${n}_degreeranken`] = b.degreeranken || '';
                     row[`battle_${n}_degreerankru`] = b.degreerankru || '';
@@ -2391,62 +2271,77 @@ app.post('/admin/downloadExcel', async (req, res) => {
                 }
             });
 
-            // Map Multimedia for this specific soldier
-            const sMedia = multiMap[s.id] || []; 
-            sMedia.forEach((m, index) => {
-                const n = index + 1;
+            const sMedia = multiMap[cleanId] || [];
+            sMedia.forEach((m, i) => {
+                const n = i + 1;
                 if (n <= MAX_FILES) {
                     row[`file_${n}_desc`] = m.file_description || '';
                     row[`file_${n}_type`] = m.multimedia_type || '';
-                    row[`file_${n}_path`] = m.file_path || '';
-                    row[`file_${n}_loc`]  = m.physical_logical_location || '';
+                    if (m.file_path) {
+                        const cleanFileName = m.file_path.includes('-') ? m.file_path.substring(m.file_path.indexOf('-') + 1) : m.file_path;
+                        // Matches structure inside the ZIP
+                        row[`file_${n}_path`] = `Soldier_Files\\A${cleanId}\\${cleanFileName}`;
+                    }
+                    row[`file_${n}_loc`] = m.physical_logical_location || '';
                 }
             });
-
             return row;
         });
 
-        // --- 5. Excel Build (CRITICAL CHANGE: Uses EXCEL_HEADER_MAP) ---
+        // 4. Excel Build
         const workbook = new ExcelJS.Workbook();
-        const sheet = workbook.addWorksheet('Flattened_Soldiers');
-
+        const sheet = workbook.addWorksheet('Soldiers');
         const allKeys = [...new Set(flattenedRows.flatMap(r => Object.keys(r)))];
 
         sheet.columns = allKeys
-            // Filter keys to only include those defined in the mapping object
-            .filter(k => EXCEL_HEADER_MAP.hasOwnProperty(k)) 
+            .filter(k => EXCEL_HEADER_MAP.hasOwnProperty(k))
             .map(k => ({
-                // Use the mapped, multilingual header
-                header: EXCEL_HEADER_MAP[k], 
+                header: EXCEL_HEADER_MAP[k],
                 key: k,
-                style: { 
-                    numFmt: '@', 
-                    // Set horizontal alignment to right for better RTL compatibility
-                    alignment: { horizontal: 'right' } 
-                }
+                style: { numFmt: '@', alignment: { horizontal: 'right' } }
             }));
 
         flattenedRows.forEach(row => sheet.addRow(row));
 
-        // --- 6. Update DB --- (Unchanged)
-        await db.none(
-            `UPDATE ${SOLDIER_TABLE} SET downloaded_date = $1 WHERE id IN ($2:csv)`,
-            [downloadDateString, ids]
-        );
+        // 5. ZIP Stream Setup
+        res.setHeader('Content-Type', 'application/zip');
+        res.setHeader('Content-Disposition', `attachment; filename="Full_Export_${downloadDateString}.zip"`);
 
-        // --- 7. Send Excel --- (Unchanged)
-        res.setHeader('Content-Disposition', 'attachment; filename="combined_soldiers_flat.xlsx"');
-        res.setHeader('Content-Type', 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet');
-        await workbook.xlsx.write(res);
-        res.end();
+        const archive = archiver('zip', { zlib: { level: 9 } });
+        archive.pipe(res);
+
+        // A. Add Manifest.txt
+        let manifest = `Export Summary - ${downloadDateString}\n` + "=".repeat(40) + "\n";
+        soldiers.forEach(s => {
+            manifest += `[ID: A${s.id}] Name: ${s.fname} ${s.lname} / ${s.fnameen} ${s.lnameen}\n`;
+        });
+        archive.append(manifest, { name: 'manifest.txt' });
+
+        // B. Add Excel Workbook
+        const excelBuffer = await workbook.xlsx.writeBuffer();
+        archive.append(excelBuffer, { name: 'soldiers_data.xlsx' });
+
+        // C. Add Folders from path: public/pages/soldierUploads/A123
+        ids.forEach(id => {
+            const cleanId = String(id).trim();
+            const folderPath = path.join(__dirname, 'public', 'pages', 'soldierUploads', `A${cleanId}`);
+            
+            if (fs.existsSync(folderPath)) {
+                // Adds content into "Soldier_Files/A123/..." inside zip
+                archive.directory(folderPath, `Soldier_Files/A${cleanId}`);
+            }
+        });
+
+        // 6. DB Update and Finish
+        await db.none(`UPDATE soldierdetails SET downloaded_date = $1 WHERE id IN ($2:csv)`, [downloadDateString, ids]);
+        
+        await archive.finalize();
 
     } catch (err) {
-        console.error('Excel export error:', err);
-        res.status(500).send('Error exporting Excel');
+        console.error('ZIP Export Error:', err);
+        if (!res.headersSent) res.status(500).send('Package generation failed');
     }
 });
-
-
 
 app.listen(port, () => {
   console.log(`Server running at http://localhost:${port}`);
