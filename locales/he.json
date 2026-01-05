@@ -98,7 +98,9 @@
     "biography": "קורות חיים ",
     "biographyen": "קורות חיים (EN)",
     "biographyru": "קורות חיים (RU)",
-    "otherparticipation": "השתתפות אחרת",
+    "otherparticipation": "השתתפות אחרת (IL)",
+    "otherparticipationen": "השתתפות אחרת (EN)",
+    "otherparticipationru": "השתתפות אחרת (RU)",
     "otherdecoration": "מדליות/עיטורים (IL)",
     "otherdecorationen": "מדליות/עיטורים (EN)",
     "otherdecorationru": "מדליות/עיטורים (RU)",
@@ -151,7 +153,7 @@
     "armyroleen": "תפקיד בצבא (EN)",
     "armyroleru":"תפקיד בצבא (RU)",
     "enlistreason": "סיבת גיוס",
-    "releasereason": "סיבת שחרור",
+    "releasereason": "סיבת שחרור (IL)",
     "releasereasonen": "סיבת שחרור (EN)",
     "releasereasonru":"סיבת שחרור (RU)",
     "armyid": "מ.א.",
@@ -192,7 +194,7 @@
     "gettodescen": "גטו/מחנה (EN)",
     "gettodescru": "גטו/מחנה (RU)",
 
-    "otherfightingcontext": "הקשר לחימה אחר",
+    "otherfightingcontext": "הקשר לחימה אחר (IL)",
      "otherfightingcontexten": "הקשר לחימה אחר (EN)",
      "otherfightingcontextru": "הקשר לחימה אחר (RU)",
 

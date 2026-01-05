@@ -2189,29 +2189,29 @@ app.post('/admin/downloadExcel', async (req, res) => {
     [`battle_${n + 1}_frontru`]: `חזית_${n + 1}_RUS`,
 
     // Medals
-    [`battle_${n + 1}_medal`]: `HEB_${n + 1}_עיטורים`, 
-    [`battle_${n + 1}_medalen`]: `ENG_${n + 1}_עיטורים`, 
-    [`battle_${n + 1}_medalru`]: `RUS_${n + 1}_עיטורים`,
+    [`battle_${n + 1}_medal`]: `עיטורים_${n + 1}_HEB`, 
+    [`battle_${n + 1}_medalen`]: `עיטורים_${n + 1}_ENG`, 
+    [`battle_${n + 1}_medalru`]: `עיטורים_${n + 1}_RUS`,
 
     // Jobs
-    [`battle_${n + 1}_job`]: `HEB_${n + 1}_תפקיד`, 
-    [`battle_${n + 1}_joben`]: `ENG_${n + 1}_תפקיד`, 
-    [`battle_${n + 1}_jobru`]: `RUS_${n + 1}_תפקיד`,
+    [`battle_${n + 1}_job`]: `תפקיד_${n + 1}_HEB`, 
+    [`battle_${n + 1}_joben`]: `תפקיד_${n + 1}_ENG`, 
+    [`battle_${n + 1}_jobru`]: `תפקיד_${n + 1}_RUS`,
 
     // Ranks
-    [`battle_${n + 1}_degreerank`]: `HEB_${n + 1}_דרגה`, 
-    [`battle_${n + 1}_degreeranken`]: `ENG_${n + 1}_דרגה`, 
-    [`battle_${n + 1}_degreerankru`]: `RUS_${n + 1}_דרגה`,
+    [`battle_${n + 1}_degreerank`]: `דרגה_${n + 1}_HEB`, 
+    [`battle_${n + 1}_degreeranken`]: `דרגה_${n + 1}_ENG`, 
+    [`battle_${n + 1}_degreerankru`]: `דרגה_${n + 1}_RUS`,
 
     // Battles
-    [`battle_${n + 1}_battle`]: `HEB_${n + 1}_קרב`, 
-    [`battle_${n + 1}_battleen`]: `ENG_${n + 1}_קרב`, 
-    [`battle_${n + 1}_battleru`]: `RUS_${n + 1}_קרב`,
+    [`battle_${n + 1}_battle`]: `קרב_${n + 1}_HEB`, 
+    [`battle_${n + 1}_battleen`]: `קרב_${n + 1}_ENG`, 
+    [`battle_${n + 1}_battleru`]: `קרב_${n + 1}_RUS`,
 
     // Details
-    [`battle_${n + 1}_details`]: `HEB_${n + 1}_הערות`, 
-    [`battle_${n + 1}_detailsen`]: `ENG_${n + 1}_הערות`, 
-    [`battle_${n + 1}_detailsru`]: `RUS_${n + 1}_הערות`,
+    [`battle_${n + 1}_details`]: `הערות_${n + 1}_HEB`, 
+    [`battle_${n + 1}_detailsen`]:`הערות_${n + 1}_ENG`, 
+    [`battle_${n + 1}_detailsru`]: `הערות_${n + 1}_RUS`,
 })).reduce((acc, curr) => ({ ...acc, ...curr }), {}),
 
         // Dynamic Multimedia
@@ -2317,11 +2317,25 @@ app.post('/admin/downloadExcel', async (req, res) => {
                 if (n <= MAX_FILES) {
                     row[`file_${n}_desc`] = m.file_description || '';
                     row[`file_${n}_type`] = m.multimedia_type || '';
-                    if (m.file_path) {
+                    /*if (m.file_path) {
                         const cleanFileName = m.file_path.includes('-') ? m.file_path.substring(m.file_path.indexOf('-') + 1) : m.file_path;
                         row[`file_${n}_path`] = `Images\\Warrior Pages\\multimediaFiles\\A${cleanId}\\${cleanFileName}`;
                     }
                     row[`file_${n}_loc`] = m.physical_logical_location || '';
+                }*/
+                  if (m.file_path) {
+                  // 1. Get just the filename (removes directory path if it exists)
+                      const baseName = path.basename(m.file_path);
+            
+                  // 2. Remove the date stamp (everything before the first hyphen)
+                  // If the filename is "1736083542247-photo.jpg", this results in "photo.jpg"
+                      const cleanFileName = baseName.includes('-') 
+                      ? baseName.substring(baseName.indexOf('-') + 1) 
+                      : baseName;
+
+                      row[`file_${n}_path`] = `Images\\Warrior Pages\\multimediaFiles\\A${cleanId}\\${cleanFileName}`;
+                    } 
+                      row[`file_${n}_loc`] = m.physical_logical_location || '';
                 }
             });
             return row;
