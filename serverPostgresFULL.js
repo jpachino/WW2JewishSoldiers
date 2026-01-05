@@ -2184,34 +2184,34 @@ app.post('/admin/downloadExcel', async (req, res) => {
     [`battle_${n + 1}_year`]: `שנת לחימה ${n + 1}`,
     
     // Fronts
-    [`battle_${n + 1}_front`]: `HEB ${n + 1}_חזית`, 
-    [`battle_${n + 1}_fronten`]: `ENG ${n + 1}_חזית`, 
-    [`battle_${n + 1}_frontru`]: `RUS ${n + 1}_חזית`,
+    [`battle_${n + 1}_front`]: `HEB_${n + 1}_חזית`, 
+    [`battle_${n + 1}_fronten`]: `ENG_${n + 1}_חזית`, 
+    [`battle_${n + 1}_frontru`]: `RUS_${n + 1}_חזית`,
 
     // Medals
-    [`battle_${n + 1}_medal`]: `HEB ${n + 1}_עיטורים`, 
-    [`battle_${n + 1}_medalen`]: `ENG ${n + 1}_עיטורים`, 
-    [`battle_${n + 1}_medalru`]: `RUS ${n + 1}_עיטורים`,
+    [`battle_${n + 1}_medal`]: `HEB_${n + 1}_עיטורים`, 
+    [`battle_${n + 1}_medalen`]: `ENG_${n + 1}_עיטורים`, 
+    [`battle_${n + 1}_medalru`]: `RUS_${n + 1}_עיטורים`,
 
     // Jobs
-    [`battle_${n + 1}_job`]: `HEB ${n + 1}_תפקיד`, 
-    [`battle_${n + 1}_joben`]: `ENG ${n + 1}_תפקיד`, 
-    [`battle_${n + 1}_jobru`]: `RUS ${n + 1}_תפקיד`,
+    [`battle_${n + 1}_job`]: `HEB_${n + 1}_תפקיד`, 
+    [`battle_${n + 1}_joben`]: `ENG_${n + 1}_תפקיד`, 
+    [`battle_${n + 1}_jobru`]: `RUS_${n + 1}_תפקיד`,
 
     // Ranks
-    [`battle_${n + 1}_degreerank`]: `HEB ${n + 1}_דרגה`, 
-    [`battle_${n + 1}_degreeranken`]: `ENG ${n + 1}_דרגה`, 
-    [`battle_${n + 1}_degreerankru`]: `RUS ${n + 1}_דרגה`,
+    [`battle_${n + 1}_degreerank`]: `HEB_${n + 1}_דרגה`, 
+    [`battle_${n + 1}_degreeranken`]: `ENG_${n + 1}_דרגה`, 
+    [`battle_${n + 1}_degreerankru`]: `RUS_${n + 1}_דרגה`,
 
     // Battles
-    [`battle_${n + 1}_battle`]: `HEB ${n + 1}_קרב`, 
-    [`battle_${n + 1}_battleen`]: `ENG ${n + 1}_קרב`, 
-    [`battle_${n + 1}_battleru`]: `RUS ${n + 1}_קרב`,
+    [`battle_${n + 1}_battle`]: `HEB_${n + 1}_קרב`, 
+    [`battle_${n + 1}_battleen`]: `ENG_${n + 1}_קרב`, 
+    [`battle_${n + 1}_battleru`]: `RUS_${n + 1}_קרב`,
 
     // Details
-    [`battle_${n + 1}_details`]: `HEB ${n + 1}_הערות`, 
-    [`battle_${n + 1}_detailsen`]: `ENG ${n + 1}_הערות`, 
-    [`battle_${n + 1}_detailsru`]: `RUS ${n + 1}_הערות`,
+    [`battle_${n + 1}_details`]: `HEB_${n + 1}_הערות`, 
+    [`battle_${n + 1}_detailsen`]: `ENG_${n + 1}_הערות`, 
+    [`battle_${n + 1}_detailsru`]: `RUS_${n + 1}_הערות`,
 })).reduce((acc, curr) => ({ ...acc, ...curr }), {}),
 
         // Dynamic Multimedia
