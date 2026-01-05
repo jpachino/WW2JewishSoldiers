@@ -2184,9 +2184,9 @@ app.post('/admin/downloadExcel', async (req, res) => {
     [`battle_${n + 1}_year`]: `שנת לחימה ${n + 1}`,
     
     // Fronts
-    [`battle_${n + 1}_front`]: `HEB_${n + 1}_חזית`, 
-    [`battle_${n + 1}_fronten`]: `ENG_${n + 1}_חזית`, 
-    [`battle_${n + 1}_frontru`]: `RUS_${n + 1}_חזית`,
+    [`battle_${n + 1}_front`]: `חזית_${n + 1}_HEB`, 
+    [`battle_${n + 1}_fronten`]: `חזית_${n + 1}_ENG`,
+    [`battle_${n + 1}_frontru`]: `חזית_${n + 1}_RUS`,
 
     // Medals
     [`battle_${n + 1}_medal`]: `HEB_${n + 1}_עיטורים`, 
