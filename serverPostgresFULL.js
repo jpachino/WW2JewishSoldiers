@@ -1441,7 +1441,7 @@ app.get('/admin/completedRecords', async (req, res) => {
         const soldiers = await db.any(
             `SELECT * FROM ${SOLDIER_TABLE} 
              WHERE recordcomplete = TRUE 
-             ORDER BY id ASC`
+             ORDER BY id DESC`
         );
 
         const countries = await db.any('SELECT id, title_heb, title_eng, title_rus FROM "countries_TBL"');

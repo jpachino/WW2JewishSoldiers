@@ -63,7 +63,7 @@
         <table>
           <thead>
             <tr>
-              <th><%= __('form.select') %></th>
+              <th><%= __('actions.edit') %></th>
               <th>ID</th>
               <th><%= __('form.firstName') %></th>
               <th><%= __('form.lastName') %></th>
@@ -71,30 +71,33 @@
               <th><%= __('form.dob') %></th>
               <th><%= __('form.admin_approved_date') %></th>
               <th><%= __('fields.downloaded_date') %></th> 
-              <th><%= __('actions.edit') %></th>
+              <th><%= __('form.select') %></th>
               <!--<input type="checkbox" id="selectAll" onclick="toggleSelectAll(this)"> 
             <%= __('form.select') %>-->
             </tr>
           </thead>
           <tbody>
             <% soldiers.forEach(s => { %>
-              <tr>
-                <td><input type="checkbox" name="selectedIds" value="<%= s.id %>" /></td>
-                <td>A<%= s.id %></td>
-                <td><%= s.fname || '' %></td>
-                <td><%= s.lname || '' %></td>
-                <td><%= s.useremail %></td>
-                <td><%= s.dob || '' %></td>
-                 <td><%= s.admin_approved_date || '' %></td>
-                <td><%= s.downloaded_date || '' %></td>
-                
-                <td>
-                  <a href="/adminUpdateSoldier/<%= s.id %>?adminemail=<%= adminemail %>">
-                    <%= __('actions.edit') %>
-                  </a>
-                </td>
-              </tr>
-            <% }) %>
+  <tr>
+    <td>
+      <a href="/adminUpdateSoldier/<%= s.id %>?adminemail=<%= adminemail %>">
+        <%= __('actions.edit') %>
+      </a>
+    </td>
+    <td>A<%= s.id %></td>
+    <td>
+        <%= s.fname || s.fnameen || s.fnameru || '' %>
+    </td>
+    <td>
+        <%= s.lname || s.lnameen || s.lnameru || '' %>
+    </td>
+    <td><%= s.useremail %></td>
+    <td><%= s.dob || '' %></td>
+    <td><%= s.admin_approved_date || '' %></td>
+    <td><%= s.downloaded_date || '' %></td>
+    <td><input type="checkbox" name="selectedIds" value="<%= s.id %>" /></td>
+  </tr>
+<% }) %>
           </tbody>
         </table>
       </div>

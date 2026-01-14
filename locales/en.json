@@ -240,7 +240,7 @@
     "select": "Select",
     "firstName": "First Name",
     "lastName": "Last Name",
-    "email": "Your Email",
+    "email": "Submitter Email",
     "dob": "Date of Birth",
     "saved_success": "Record and files saved successfully!",
     "upload_files":"Upload Files",
