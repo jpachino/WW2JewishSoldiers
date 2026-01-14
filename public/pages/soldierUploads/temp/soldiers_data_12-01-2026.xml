@@ -1,0 +1,32 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<Soldiers>
+  <Soldier>
+    <id>A87</id>
+    <fname>יונה</fname>
+    <fnameen>Yonah</fnameen>
+    <fnameru>YonahRU</fnameru>
+    <lname>שוורץ</lname>
+    <birthcountry>איטליה</birthcountry>
+    <gender>זכר</gender>
+    <deathdetails>נפטר</deathdetails>
+    <deathdetailsen>Deceased</deathdetailsen>
+    <deathdetailsru>Умер</deathdetailsru>
+    <biography>Bio: 
+
+Story:         
+  
+  </biography>
+    <dob>23-10-1922</dob>
+    <category>פרטיזנים ולוחמי מחתרות</category>
+    <addbattle>false</addbattle>
+    <genderen>Male</genderen>
+    <genderru>Мужчина</genderru>
+    <birthcountryen>Italy</birthcountryen>
+    <birthcountryru>Италия</birthcountryru>
+    <categoryen>Partisans</categoryen>
+    <categoryru>партизаны и подпольщики</categoryru>
+    <download_date>12-01-2026</download_date>
+    <file_1_desc>desc</file_1_desc>
+    <file_1_loc>URL</file_1_loc>
+  </Soldier>
+</Soldiers>

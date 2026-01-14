@@ -43,26 +43,33 @@
 
 <body>
 
-  <header>
-    <div class="container">
-      <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap;">
-        <h1><%= __('home.title') %></h1>
+<header style="height: auto; padding-bottom: 15px;">
+  <div class="container">
+    <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 20px;">
+      <h1><%= __('home.title') %></h1>
+      <div class="logo-area">
+        <img src="/images/Outlook-dieerunr.png" alt="Logo" style="height: 100px; width: auto; display: block; max-width: 100%;">
+        
       </div>
-      <nav>
-        <a href="/"><%= __('nav.home') %></a>
-      </nav>
     </div>
-  </header>
-
-  <div class="container" style="margin-top: 1rem;">
-    <form action="/change-lang" method="get">
-      <select name="lang" class="lang-select" onchange="this.form.submit()">
-        <option value="he" <%= locale === 'he' ? 'selected' : '' %>>🇮🇱 עברית</option>
-        <option value="en" <%= locale === 'en' ? 'selected' : '' %>>🇺🇸 English</option>
-        <option value="ru" <%= locale === 'ru' ? 'selected' : '' %>>🇷🇺 Русский</option>
-      </select>
-    </form>
+    <nav>
+      <a href="/"><%= __('nav.home') %></a>
+    </nav>
   </div>
+</header>
+
+<div style="margin-top: 50px; clear: both; display: block; width: 100%;"></div>
+
+<div class="container" style="margin-top: 1rem; position: relative; z-index: 10;">
+  <form action="/change-lang" method="get">
+    <label style="display:block; font-size: 0.8rem; margin-bottom: 5px;">Select Language / בחר שפה</label>
+    <select name="lang" class="lang-select" onchange="this.form.submit()">
+        <option value="he" <%= locale === 'he' ? 'selected' : '' %>>עברית</option>
+        <option value="en" <%= locale === 'en' ? 'selected' : '' %>>English</option>
+        <option value="ru" <%= locale === 'ru' ? 'selected' : '' %>>Русский</option>
+    </select>
+  </form>
+</div>
 
   <main class="container">
 

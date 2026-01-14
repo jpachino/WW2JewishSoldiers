@@ -340,4 +340,110 @@ textarea {
   border-radius: 6px;
   border: 1px solid #ccc;
 }
+/* This adds the red star to any label with the class 'mandatory' */
+.mandatory::after {
+    content: " *";
+    color: #ff0000;
+    font-weight: bold;
+}
 
+/* Optional: Highlight the box itself if it fails validation */
+.is-invalid {
+    border: 2px solid #ff0000 !important;
+    background-color: #fff8f8;
+}
+/* --- Info Box & Registration Header --- */
+/* Tighten spacing inside the Info Box */
+.info-box h2 {
+    margin-top: 0 !important;
+    margin-bottom: 5px !important; /* Pulls the body up toward the title */
+}
+
+.info-box div {
+    margin-bottom: 0 !important; /* Removes gap before the horizontal rule */
+}
+
+.info-box hr {
+    margin: 8px 0 !important; /* Shrinks the space around the line */
+    border: 0;
+    border-top: 1px solid #eee;
+}
+
+.info-box p {
+    margin: 0 !important; /* Removes the 5-line gap feel at the bottom */
+}
+/* RTL Override for Hebrew */
+html[lang="he"] .info-box {
+  border-left: none;
+  border-right: 6px solid #007bff;
+  text-align: right;
+}
+
+/* --- Sticky Error Summary --- */
+#error-summary {
+  position: sticky;
+  top: 80px; /* Sits just below your 70px fixed header */
+  z-index: 1001;
+  background-color: #fff5f5;
+  border: 2px solid #cc0000;
+  padding: 20px;
+  margin: 20px auto;
+  max-width: 900px;
+  border-radius: 8px;
+  box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+}
+
+#error-list {
+  list-style-type: none;
+  padding-left: 0;
+  margin: 10px 0 0 0;
+}
+
+/* --- Responsive Trio Rows --- */
+.trio-row {
+  display: flex;
+  gap: 15px;
+  margin-bottom: 15px;
+}
+
+.trio-row .input-group {
+  flex: 1;
+}
+.help-text {
+    white-space: pre-line; /* This converts \n into actual line breaks */
+    line-height: 1.6;
+    display: block;
+}
+/* Respects \n in the Warrior Registration Form top section */
+.form-top-body {
+    white-space: pre-line;
+    line-height: 1.6;
+    margin-bottom: 15px;
+    display: block;
+}
+
+/* Styles the Multimedia info as a highlighted alert box */
+
+.help-box-alert {
+    white-space: pre-line;
+    background-color: #e7f3ff;
+    border-inline-start: 5px solid #2196F3; /* Automatically handles RTL/LTR */
+    padding: 15px;
+    margin-bottom: 20px;
+    font-size: 0.95em;
+    color: #333;
+    border-radius: 4px;
+    line-height: 1.5;
+}
+/* For Hebrew (RTL) mode, flip the border to the right */
+html[lang="he"] .help-box-alert {
+    border-left: none;
+    border-right: 5px solid #2196f3;
+}
+/* Adjust for mobile */
+@media (max-width: 768px) {
+  .trio-row {
+    flex-direction: column;
+    gap: 0;
+  }
+}

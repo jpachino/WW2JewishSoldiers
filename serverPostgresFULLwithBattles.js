@@ -34,7 +34,7 @@ const columns = [
     'otherdecoration', 'otherdecorationen', 'otherdecorationru',
     'fightingdesc', 
     'shortdesc', 'armyrole', 'armyroleen', 'armyroleru',
-    'rank', 'ranken', 'rankru',
+    'releasereason', 'releasereasonen', 'releasereasonru',
     'enlistreason', 'enlistreasonen', 'enlistreasonru',
     'platoonname', 'platoonnameen', 'platoonnameru',
     'wounddetails', 'wounddetailsen', 'wounddetailsru',
@@ -366,24 +366,9 @@ app.get('/addFull', async (req, res) => {
 });
 app.post('/addFULL', multiUpload, async (req, res) => {
     try {
-    // 1. Clean the incoming body (removes empty strings/nulls)
-    const cleaned = cleanNulls(req.body);
+        // 1. Clean the incoming body (removes empty strings/nulls)
+        const cleaned = cleanNulls(req.body);
 
-    // --- VALIDATION BLOCK HERE ---
-        const errors = [];
-        
-        if (!cleaned.armyId && !cleaned.resistanceId && !cleaned.partizanId) errors.push("Service Type missing.");
-        if (!cleaned.fname && !cleaned.fnameen && !cleaned.fnameru) errors.push("First Name missing.");
-        if (!cleaned.lname && !cleaned.lnameen && !cleaned.lnameru) errors.push("Last Name missing.");
-        if (!cleaned.genderId) errors.push("Gender missing.");
-        if (!cleaned.birthcountryId) errors.push("Birth Country missing.");
-        if (!cleaned.useremail) errors.push("Submitter Email missing.");
-        if (!cleaned.fname_soldier_submitter) errors.push("Submitter FName missing.");
-
-        if (errors.length > 0) {
-            return res.status(400).send(`<h1>Validation Error</h1><ul>${errors.map(e => `<li>${e}</li>`).join('')}</ul><a href="javascript:history.back()">Go Back</a>`);
-        }
-        // --- END VALIDATION ---
         // 2. DYNAMIC TRANSLATION LOOKUPS
         // Maps form IDs to the corresponding text labels in Hebrew, English, and Russian
         const translations = [
@@ -1207,9 +1192,9 @@ if (isCheckingComplete) {
       armyrole: req.body.armyrole || existingSoldier.armyrole,
       armyroleen: req.body.armyroleen || existingSoldier.armyroleen,
       armyroleru: req.body.armyroleru || existingSoldier.armyroleru,
-      rank: req.body.rank || existingSoldier.rank,
-      ranken: req.body.ranken || existingSoldier.ranken,
-      rankru: req.body.rankru || existingSoldier.ranknru,
+      releasereason: req.body.releasereason || existingSoldier.releasereason,
+      releasereasonen: req.body.releasereasonen || existingSoldier.releasereasonen,
+      releasereasonru: req.body.releasereasonru || existingSoldier.releasereasonru,
       
       enlistreason, enlistreasonen, enlistreasonru,
       platoonname: req.body.platoonname || existingSoldier.platoonname,
@@ -1741,9 +1726,9 @@ if (req.body.downloaded_date) {
       armyrole: req.body.armyrole || existingSoldier.armyrole,
       armyroleen: req.body.armyroleen || existingSoldier.armyroleen,
       armyroleru: req.body.armyroleru || existingSoldier.armyroleru,
-      rank: req.body.rank || existingSoldier.rank,
-      ranken: req.body.ranken || existingSoldier.ranken,
-      rankru: req.body.rankru || existingSoldier.rankru,
+      releasereason: req.body.releasereason || existingSoldier.releasereason,
+      releasereasonen: req.body.releasereasonen || existingSoldier.releasereasonen,
+      releasereasonru: req.body.releasereasonru || existingSoldier.releasereasonru,
       
       enlistreason, enlistreasonen, enlistreasonru,
       platoonname: req.body.platoonname || existingSoldier.platoonname,
@@ -2241,43 +2226,6 @@ app.post('/admin/downloadExcel', async (req, res) => {
     const MAX_BATTLES = 5;
     const MAX_FILES = 12;
 
-    const XML_TAG_MAP = {
-    'id': 'FormID',
-    'fname': 'FirstName_HEB', 'fnameen': 'FirstName_ENG', 'fnameru': 'FirstName_RUS',
-    'lname': 'LastName_HEB', 'lnameen': 'LastName_ENG', 'lnameru': 'LastName_RUS',
-    'previouslname': 'PreviousLastName_HEB', 'previouslnameen': 'PreviousLastName_ENG', 'previouslnameru': 'PreviousLastName_RUS',
-    'calledby': 'Nickname_HEB', 'calledbyen': 'Nickname_ENG', 'calledbyru': 'Nickname_RUS',
-    'fathername': 'FatherName_HEB', 'fathernameen': 'FatherName_ENG', 'fathernameru': 'FatherName_RUS',
-    'mothername': 'MotherName_HEB', 'mothernameen': 'MotherName_ENG', 'mothernameru': 'MotherName_RUS',
-    'gender': 'Gender_HEB', 'genderen': 'Gender_ENG', 'genderru': 'Gender_RUS',
-    'birthcountry': 'BirthCountry_HEB', 'birthcountryen': 'BirthCountry_ENG', 'birthcountryru': 'BirthCountry_RUS',
-    'birthcity': 'BirthCity_HEB', 'birthcityen': 'BirthCity_ENG', 'birthcityru': 'BirthCity_RUS',
-    'state': 'State_HEB', 'stateen': 'State_ENG', 'stateru': 'State_RUS',
-    'dob': 'DateOfBirth',
-    'armyid': 'ArmyID',
-    'category': 'Category_HEB', 'categoryen': 'Category_ENG', 'categoryru': 'Category_RUS',
-    'platoonname': 'Platoon_HEB', 'platoonnameen': 'Platoon_ENG', 'platoonnameru': 'Platoon_RUS',
-    'armyrole': 'Role_HEB', 'armyroleen': 'Role_ENG', 'armyroleru': 'Role_RUS',
-    'wounddetails': 'WoundDetails_HEB', 'wounddetailsen': 'WoundDetails_ENG', 'wounddetailsru': 'WoundDetails_RUS',
-    'deathdetails': 'DeathDetails_HEB', 'deathdetailsen': 'DeathDetails_ENG', 'deathdetailsru': 'DeathDetails_RUS',
-    'dod': 'DateOfDeath',
-    'placeofdeath': 'PlaceOfDeath_HEB', 'placeofdeathen': 'PlaceOfDeath_ENG', 'placeofdeathru': 'PlaceOfDeath_RUS',
-    'enlistreason': 'EnlistReason_HEB', 'enlistreasonen': 'EnlistReason_ENG', 'enlistreasonru': 'EnlistReason_RUS',
-    'rank': 'ReleaseReason_HEB', 'ranken': 'ReleaseReason_ENG', 'rankru': 'ReleaseReason_RUS',
-    'army': 'ArmyAffiliation_HEB', 'armyen': 'ArmyAffiliation_ENG', 'armyru': 'ArmyAffiliation_RUS',
-    'resistance': 'ResistanceAffiliation_HEB', 'resistanceen': 'ResistanceAffiliation_ENG', 'resistanceru': 'ResistanceAffiliation_RUS',
-    'partizan': 'PartisanAffiliation_HEB', 'partizanen': 'PartisanAffiliation_ENG', 'partizanru': 'PartisanAffiliation_RUS',
-    'participation': 'Participation_HEB', 'participationen': 'Participation_ENG', 'participationru': 'Participation_RUS',
-    'corps': 'Corps_HEB', 'corpsen': 'Corps_ENG', 'corpsru': 'Corps_RUS',
-    'other_medal': 'Medals_HEB', 'other_medalen': 'Medals_ENG', 'other_medalru': 'Medals_RUS',
-    'gettodesc': 'GhettoStruggle_HEB', 'gettodescen': 'GhettoStruggle_ENG', 'gettodescru': 'GhettoStruggle_RUS',
-    'otherparticipation': 'OtherWarParticipation_HEB', 'otherparticipationen': 'OtherWarParticipation_ENG', 'otherparticipationru': 'OtherWarParticipation_RUS',
-    'otherfightingcontext': 'OtherFightingContext_HEB', 'otherfightingcontexten': 'OtherFightingContext_ENG', 'otherfightingcontextru': 'OtherFightingContext_RUS',
-    'otherdecoration': 'OtherDecorations_HEB', 'otherdecorationen': 'OtherDecorations_ENG', 'otherdecorationru': 'OtherDecorations_RUS',
-    'aliyadate': 'AliyaDate',
-    'biography': 'FullBiography',
-    'download_date': 'DownloadDate'
-};
     // --- Multilingual Header Mapping ---
     const EXCEL_HEADER_MAP = {
         'id': 'Form ID',
@@ -2301,7 +2249,7 @@ app.post('/admin/downloadExcel', async (req, res) => {
         'dod': 'תאריך פטירה',
         'placeofdeath': 'מקום הפטירה_HEB', 'placeofdeathen': 'מקום הפטירה_ENG', 'placeofdeathru': 'מקום הפטירה_RUS',
         'enlistreason': 'סיבת גיוס_HEB', 'enlistreasonen': 'סיבת גיוס_ENG', 'enlistreasonru': 'סיבת גיוס_RUS',
-        'rank': 'סיבת שחרור_HEB', 'ranken': 'סיבת שחרור_ENG', 'rankru': 'סיבת שחרור_RUS',
+        'releasereason': 'סיבת שחרור_HEB', 'releasereasonen': 'סיבת שחרור_ENG', 'releasereasonru': 'סיבת שחרור_RUS',
         'army': 'שיוך לצבא_HEB', 'armyen': 'שיוך לצבא_ENG', 'armyru': 'שיוך לצבא_RUS',
         'resistance': 'שיוך למחתרת_HEB', 'resistanceen': 'שיוך למחתרת_ENG', 'resistanceru': 'שיוך למחתרת_RUS',
         'partizan': 'שיוך לפרטיזנים_HEB', 'partizanen': 'שיוך לפרטיזנים_ENG', 'partizanru': 'שיוך לפרטיזנים_RUS',
@@ -2455,33 +2403,17 @@ app.post('/admin/downloadExcel', async (req, res) => {
         const excelBuffer = await workbook.xlsx.writeBuffer();
 
         // 5. XML Generation
-const xmlRoot = create({ version: '1.0', encoding: 'UTF-8' }).ele('Soldiers');
-
-flattenedRows.forEach(row => {
-    const soldierNode = xmlRoot.ele('Soldier');
-    
-    for (const key in row) {
-        const value = row[key];
-        
-        // Only add element if value exists
-        if (value !== null && value !== undefined && value !== '') {
-            
-            // 1. Determine the Tag Name
-            // Use XML_TAG_MAP if exists, otherwise sanitize the DB key
-            let tagName = XML_TAG_MAP[key] || key;
-            
-            // 2. Safety Check: Ensure the tag name is XML-compliant 
-            // (Removes spaces and illegal characters just in case)
-            tagName = tagName.replace(/[^a-z0-9_]/gi, '');
-
-            // 3. Append to XML
-            soldierNode.ele(tagName).txt(String(value)).up();
-        }
-    }
-    soldierNode.up();
-  });
-
-
+        const xmlRoot = create({ version: '1.0', encoding: 'UTF-8' }).ele('Soldiers');
+        flattenedRows.forEach(row => {
+            const soldierNode = xmlRoot.ele('Soldier');
+            for (const key in row) {
+                if (row[key] !== null && row[key] !== undefined && row[key] !== '') {
+                    // Using internal keys for XML tags to ensure compatibility
+                    soldierNode.ele(key).txt(String(row[key])).up();
+                }
+            }
+            soldierNode.up();
+        });
         const xmlString = xmlRoot.end({ prettyPrint: true });
 
         // 6. ZIP Stream Setup

@@ -38,7 +38,17 @@
             <option value="ru" <%= locale === 'ru' ? 'selected' : '' %>>Русский</option>
           </select>
         </form>
+        <div id="error-summary" style="display: none; position: sticky; top: 10px; z-index: 1000; background-color: #fff5f5; border: 2px solid #cc0000; padding: 20px; margin: 20px auto; max-width: 900px; border-radius: 8px; box-shadow: 0 4px 12px rgba(0,0,0,0.15);">
+        <h3 style="color: #cc0000; margin-top: 0; display: flex; align-items: center;">
+          <span style="font-size: 24px; margin-right: 10px;">⚠️</span> 
+          <%= __('error.validation_failed') || 'Validation Error' %>
+        </h3>
+        <p style="color: #333; font-weight: bold;"><%= __('error.please_fix_following') || 'Please fix the following fields:' %></p>
+        <ul id="error-list" style="color: #cc0000; font-weight: bold; list-style-type: none; padding-left: 0;"></ul>
+        <button type="button" onclick="this.parentElement.style.display='none'" style="position: absolute; top: 10px; right: 10px; background: none; border: none; font-size: 20px; cursor: pointer;">&times;</button>
       </div>
+      </div>
+      
       <!--<nav>
         <a href="/"><%= __('nav.home') %></a>
       </nav>-->
@@ -53,29 +63,29 @@
       <legend><%= __('sections.basic') %></legend>
   <div class="trio-row">
           <div class="input-group">
-            <label for="fname"><%= __('fields.fname') %></label>
+            <label for="fname"class="mandatory"><%= __('fields.fname') %></label>
             <input type="text" name="fname" id="fname" value="<%= soldier.fname || '' %>" />
           </div>
           <div class="input-group">
-            <label for="fnameen"><%= __('fields.fnameen') %></label>
+            <label for="fnameen" class="mandatory"><%= __('fields.fnameen') %></label>
             <input type="text" name="fnameen" id="fnameen" value="<%= soldier.fnameen || '' %>" />
           </div>
           <div class="input-group">
-            <label for="fnameru"><%= __('fields.fnameru') %></label>
+            <label for="fnameru" class="mandatory"><%= __('fields.fnameru') %></label>
             <input type="text" name="fnameru" id="fnameru" value="<%= soldier.fnameru || '' %>" />
           </div>
         </div>
         <div class="trio-row">
           <div class="input-group">
-            <label for="lname"><%= __('fields.lname') %></label>
+            <label for="lname" class="mandatory"><%= __('fields.lname') %></label>
             <input type="text" name="lname" id="lname" value="<%= soldier.lname || '' %>" />
           </div>
           <div class="input-group">
-            <label for="lnameen"><%= __('fields.lnameen') %></label>
+            <label for="lnameen" class="mandatory"><%= __('fields.lnameen') %></label>
             <input type="text" name="lnameen" id="lnameen" value="<%= soldier.lnameen || '' %>" />
           </div>
           <div class="input-group">
-            <label for="lnameru"><%= __('fields.lnameru') %></label>
+            <label for="lnameru" class="mandatory"><%= __('fields.lnameru') %></label>
             <input type="text" name="lnameru" id="lnameru" value="<%= soldier.lnameru || '' %>" />
           </div>
         </div>
@@ -93,7 +103,37 @@
             <input type="text" name="previouslnameru" id="previouslnameru" value="<%= soldier.previouslnameru || '' %>" />
           </div>
         </div>
-      </fieldset>
+        <div class="trio-row">
+          <div class="input-group">
+            <label for="calledby"><%= __('fields.calledby') %></label>
+            <input type="text" name="calledby" id="calledby" value="<%= soldier.calledby || '' %>" />
+          </div>
+          <div class="input-group">
+            <label for="calledbyen"><%= __('fields.calledbyen') %></label>
+            <input type="text" name="calledbyen" id="calledbyen" value="<%= soldier.calledbyen || '' %>" />
+          </div>
+          <div class="input-group">
+            <label for="calledbyru"><%= __('fields.calledbyru') %></label>
+            <input type="text" name="calledbyru" id="calledbyru" value="<%= soldier.calledbyru || '' %>" />
+          </div>
+        </div>
+       <div class="form-group">
+  <div class="form-group">
+  <label for="gender" class="mandatory"><%= __('fields.gender') %></label>
+  <select name="genderId" id="gender" class="form-control">
+    <option value="">--</option>
+    <% gender.forEach(item => { 
+        let displayTitle; 
+        if (locale === 'en') { displayTitle = item.title_eng; } 
+        else if (locale === 'ru') { displayTitle = item.title_rus; } 
+        else { displayTitle = item.title_heb; }
+        const isSelected = (soldier.gender === item.title_heb) ? 'selected' : ''; 
+    %>
+      <option value="<%= item.id %>" <%= isSelected %>><%= displayTitle %></option>
+    <% }) %>
+  </select>
+  </div>
+</fieldset>
 
 
 <fieldset>
@@ -126,44 +166,14 @@
             <input type="text" name="mothernameru" id="mothernameru" value="<%= soldier.mothernameru || '' %>" />
           </div>
         </div>
-        <div class="trio-row">
-          <div class="input-group">
-            <label for="calledby"><%= __('fields.calledby') %></label>
-            <input type="text" name="calledby" id="calledby" value="<%= soldier.calledby || '' %>" />
-          </div>
-          <div class="input-group">
-            <label for="calledbyen"><%= __('fields.calledbyen') %></label>
-            <input type="text" name="calledbyen" id="calledbyen" value="<%= soldier.calledbyen || '' %>" />
-          </div>
-          <div class="input-group">
-            <label for="calledbyru"><%= __('fields.calledbyru') %></label>
-            <input type="text" name="calledbyru" id="calledbyru" value="<%= soldier.calledbyru || '' %>" />
-          </div>
-        </div>
-       <div class="form-group">
-  <div class="form-group">
-  <label for="gender"><%= __('fields.gender') %></label>
-  <select name="gender" id="gender" class="form-control">
-    <option value="">--</option>
-    <% gender.forEach(item => { 
-        let displayTitle;
-        if (locale === 'en') { displayTitle = item.title_eng; } 
-        else if (locale === 'ru') { displayTitle = item.title_rus; } 
-        else { displayTitle = item.title_heb; }
-        const isSelected = (soldier.gender === item.title_heb) ? 'selected' : ''; 
-    %>
-      <option value="<%= item.id %>" <%= isSelected %>><%= displayTitle %></option>
-    <% }) %>
-  </select>
-</div>
-
-
+        
+</fieldset>
    <fieldset>
   <legend><%= __('sections.birthdeath') %></legend>
 
   
 <label>Birth Country:</label>
-<select name="birthcountry" class="form-control">
+<select name="birthcountry" class="mandatory" class="form-control">
     <option value="">--</option>
     <% countries.forEach(country => { 
         // 1. Map the locale to your DB column naming convention
@@ -215,7 +225,7 @@
           </div>
         </div>
 
-<%
+<!--<%
 function formatDDMMYYYY(raw) {
   if (!raw) return "";
 
@@ -258,25 +268,52 @@ const formattedDob = formatDDMMYYYY(soldier.dob || "");
 const formattedDod = formatDDMMYYYY(soldier.dod || "");
 const formattedAliya = formatDDMMYYYY(soldier.aliyadate || "");
 %>
-<div class="date-fields-container">
+<div class="date-fields-container">-->
   <div class="input-group">
-    <label for="dob"><%= __('fields.dob') %>:</label>
-    <input type="text" name="dob" id="dob" class="date-input" 
-           value="<%= formattedDob %>" placeholder="DD-MM-YYYY" maxlength="10" />
+    <label for="dob"class="mandatory"><%= __('fields.dob') %>:</label>
+    <!--<input type="text" name="dob" id="dob" class="date-input" 
+           value="<%= formattedDob %>" placeholder="DD-MM-YYYY" maxlength="10" />-->
+  <input 
+    type="text" 
+    name="dob" 
+    id="dob" 
+    placeholder="YYYY or MM-YYYY or DD-MM-YYYY"
+    value="<%= soldier.dob || '' %>"
+    pattern="^(\d{4}|(0[1-9]|1[0-2])-\d{4}|(0[1-9]|[12][0-9]|3[01])-(0[1-9]|1[0-2])-\d{4})$"
+    title="Accepted: 1945, 05-1945, or 12-05-1945"
+  />
   </div>
 
   <div class="input-group">
     <label for="dod"><%= __('fields.dod') %>:</label>
-    <input type="text" name="dod" id="dod" class="date-input" 
-           value="<%= formattedDod %>" placeholder="DD-MM-YYYY" maxlength="10" />
+    <!--<input type="text" name="dod" id="dod" class="date-input" 
+           value="<%= formattedDod %>" placeholder="DD-MM-YYYY" maxlength="10" />-->
+  <input 
+    type="text" 
+    name="dod" 
+    id="dod" 
+    placeholder="YYYY or MM-YYYY or DD-MM-YYYY"
+    value="<%= soldier.dod || '' %>"
+    pattern="^(\d{4}|(0[1-9]|1[0-2])-\d{4}|(0[1-9]|[12][0-9]|3[01])-(0[1-9]|1[0-2])-\d{4})$"
+    title="Accepted: 1945, 05-1945, or 12-05-1945"
+  />   
   </div>
 
   <div class="input-group">
     <label for="aliyadate"><%= __('fields.aliyadate') %>:</label>
-    <input type="text" name="aliyadate" id="aliyadate" class="date-input" 
-           value="<%= formattedAliya %>" placeholder="DD-MM-YYYY" maxlength="10" />
+    <!--<input type="text" name="aliyadate" id="aliyadate" class="date-input" 
+           value="<%= formattedAliya %>" placeholder="DD-MM-YYYY" maxlength="10" />-->
+    <input 
+    type="text" 
+    name="aliyadate" 
+    id="aliyadate" 
+    placeholder="YYYY or MM-YYYY or DD-MM-YYYY"
+    value="<%= soldier.aliyadate || '' %>"
+    pattern="^(\d{4}|(0[1-9]|1[0-2])-\d{4}|(0[1-9]|[12][0-9]|3[01])-(0[1-9]|1[0-2])-\d{4})$"
+    title="Accepted: 1945, 05-1945, or 12-05-1945"
+  />
   </div>
-</div>
+
 
 <div class="trio-row">
     <div class="input-group">
@@ -328,61 +365,12 @@ const formattedAliya = formatDDMMYYYY(soldier.aliyadate || "");
     </div>
   <% } %>
 </div>
-
-
- <fieldset>
-        <legend><%= __('sections.bio') %></legend>
-        <div class="input-group">
-          <label for="biography"><%= __('fields.biography') %></label>
-          <textarea id="biography" name="biography" rows="10" cols="60"><%= soldier.biography || '' %></textarea>
-        </div>
-        
-      </fieldset>
+</fieldset>
 
  <fieldset>
-  <!--<div class="input-group">
-      <label for="shortdesc"><%= __('fields.shortdesc') %></label>
-      <input type="text" name="shortdesc" id="shortdesc" />
-  </div>-->
-  
-   
+<legend><%= __('sections.battleHistory') %></legend>
+<div class="trio-row">
   <div class="form-group">
-  <label for="category"><%= __('fields.category') %></label>
-  <select name="category" id="category" class="form-control">
-    <option value="">--</option>
-    <% category.forEach(item => { 
-        let displayTitle;
-        if (locale === 'en') { displayTitle = item.title_eng; } 
-        else if (locale === 'ru') { displayTitle = item.title_rus; } 
-        else { displayTitle = item.title_heb; }
-        const isSelected = (soldier.category === item.title_heb) ? 'selected' : ''; 
-    %>
-      <option value="<%= item.id %>" <%= isSelected %>><%= displayTitle %></option>
-    <% }) %>
-  </select>
-</div>
-
-
-  <div class="trio-row">
-  <div class="input-group">
-    <label for="armyrole"><%= __('fields.armyrole') %></label>
-    <input type="text" name="armyrole" id="armyrole" value="<%= soldier.armyrole || '' %>" />
-  </div>
-  <div class="input-group">
-    <label for="armyroleen"><%= __('fields.armyroleen') %></label>
-    <input type="text" name="armyroleen" id="armyroleen" value="<%= soldier.armyroleen || '' %>" />
-  </div>
-  <div class="input-group">
-    <label for="armyroleru"><%= __('fields.armyroleru') %></label>
-    <input type="text" name="armyroleru" id="armyroleru" value="<%= soldier.armyroleru || '' %>" />
-  </div>
-</div>
-
-
-
-  
-
- <div class="form-group">
   <label for="army"><%= __('fields.army') %></label>
   <select name="army" id="army" class="form-control">
     <option value="">--</option>
@@ -396,81 +384,7 @@ const formattedAliya = formatDDMMYYYY(soldier.aliyadate || "");
       <option value="<%= item.id %>" <%= isSelected %>><%= displayTitle %></option>
     <% }) %>
   </select>
-</div>
- 
-<br>
-
-<div class="input-group">
-  <label for="armyid"><%= __('fields.armyid') %></label>
-  <input type="text" name="armyid" id="armyid" value="<%= soldier.armyid || '' %>" />
-</div>
-
-  
-
-  <div class="form-group">
-  <label for="corps"><%= __('fields.corps') %></label>
-  <select name="corps" id="corps" class="form-control">
-    <option value="">--</option>
-    <% corps.forEach(item => { 
-        let displayTitle;
-        if (locale === 'en') { displayTitle = item.title_eng; } 
-        else if (locale === 'ru') { displayTitle = item.title_rus; } 
-        else { displayTitle = item.title_heb; }
-        const isSelected = (soldier.corps === item.title_heb) ? 'selected' : ''; 
-    %>
-      <option value="<%= item.id %>" <%= isSelected %>><%= displayTitle %></option>
-    <% }) %>
-  </select>
-</div>
- 
- 
-
-    <div class="trio-row">
-          <div class="input-group">
-            <label for="platoonname"><%= __('fields.platoonname') %></label>
-            <input type="text" name="platoonname" id="platoonname" value="<%= soldier.platoonname || '' %>" />
-          </div>
-          <div class="input-group">
-            <label for="platoonnameen"><%= __('fields.platoonnameen') %></label>
-            <input type="text" name="platoonnameen" id="platoonnameen" value="<%= soldier.platoonnameen || '' %>" />
-          </div>
-          <div class="input-group">
-            <label for="platoonnameru"><%= __('fields.platoonnameru') %></label>
-            <input type="text" name="platoonnameru" id="platoonnameru" value="<%= soldier.platoonnameru || '' %>" />
-          </div>
-    </div>
-  <div class="trio-row">
-<div class="form-group">
-  <label for="enlistreason"><%= __('fields.enlistreason') %></label>
-  <select name="enlistreason" id="enlistreason" class="form-control">
-    <option value="">--</option>
-    <% enlistreason.forEach(item => { 
-        let displayTitle;
-        if (locale === 'en') { displayTitle = item.title_eng; } 
-        else if (locale === 'ru') { displayTitle = item.title_rus; } 
-        else { displayTitle = item.title_heb; }
-        const isSelected = (soldier.enlistreason === item.title_heb) ? 'selected' : ''; 
-    %>
-      <option value="<%= item.id %>" <%= isSelected %>><%= displayTitle %></option>
-    <% }) %>
-  </select>
-</div>
-
-</div>
-<div class="trio-row">
-    <div class="input-group">
-        <label for="releasereason"><%= __('fields.releasereason') %></label>
-        <input type="text" name="releasereason" id="releasereason" value="<%= soldier.releasereason || '' %>" />
-    </div>
-    <div class="input-group">
-        <label for="releasereasonen"><%= __('fields.releasereasonen') %></label>
-        <input type="text" name="releasereasonen" id="releasereasonen" value="<%= soldier.releasereasonen || '' %>"/>
-    </div>
-    <div class="input-group">
-        <label for="releasereasonru"><%= __('fields.releasereasonru') %></label>
-        <input type="text" name="releasereasonru" id="releasereasonru" value="<%= soldier.releasereasonru || '' %>"/>
-    </div>
-</div>
+</div>     
   <div class="form-group">
   <label for="resistance"><%= __('fields.resistance') %></label>
   <select name="resistance" id="resistance" class="form-control">
@@ -500,8 +414,90 @@ const formattedAliya = formatDDMMYYYY(soldier.aliyadate || "");
       <option value="<%= item.id %>" <%= isSelected %>><%= displayTitle %></option>
     <% }) %>
   </select>
+</div>    
+</div> 
+
+<div class="form-group">
+  <label for="corps"><%= __('fields.corps') %></label>
+  <select name="corps" id="corps" class="form-control">
+    <option value="">--</option>
+    <% corps.forEach(item => { 
+        let displayTitle;
+        if (locale === 'en') { displayTitle = item.title_eng; } 
+        else if (locale === 'ru') { displayTitle = item.title_rus; } 
+        else { displayTitle = item.title_heb; }
+        const isSelected = (soldier.corps === item.title_heb) ? 'selected' : ''; 
+    %>
+      <option value="<%= item.id %>" <%= isSelected %>><%= displayTitle %></option>
+    <% }) %>
+  </select>
+</div>      
+ <div class="trio-row">
+    <div class="input-group">
+        <label for="rank"><%= __('fields.rank') %></label>
+        <input type="text" name="rank" id="rank" value="<%= soldier.rank || '' %>" />
+    </div>
+    <div class="input-group">
+        <label for="ranken"><%= __('fields.ranken') %></label>
+        <input type="text" name="ranken" id="ranken" value="<%= soldier.ranken || '' %>"/>
+    </div>
+    <div class="input-group">
+        <label for="rankru"><%= __('fields.rankru') %></label>
+        <input type="text" name="rankru" id="rankru" value="<%= soldier.rankru || '' %>"/>
+    </div>
+</div> 
+ <div class="input-group">
+  <label for="armyid"><%= __('fields.armyid') %></label>
+  <input type="text" name="armyid" id="armyid" value="<%= soldier.armyid || '' %>" />
 </div>
-  <br>
+<div class="trio-row">
+          <div class="input-group">
+            <label for="platoonname"><%= __('fields.platoonname') %></label>
+            <input type="text" name="platoonname" id="platoonname" value="<%= soldier.platoonname || '' %>" />
+          </div>
+          <div class="input-group">
+            <label for="platoonnameen"><%= __('fields.platoonnameen') %></label>
+            <input type="text" name="platoonnameen" id="platoonnameen" value="<%= soldier.platoonnameen || '' %>" />
+          </div>
+          <div class="input-group">
+            <label for="platoonnameru"><%= __('fields.platoonnameru') %></label>
+            <input type="text" name="platoonnameru" id="platoonnameru" value="<%= soldier.platoonnameru || '' %>" />
+          </div>
+    </div>
+  <div class="trio-row">
+  <div class="input-group">
+    <label for="armyrole"><%= __('fields.armyrole') %></label>
+    <input type="text" name="armyrole" id="armyrole" value="<%= soldier.armyrole || '' %>" />
+  </div>
+  <div class="input-group">
+    <label for="armyroleen"><%= __('fields.armyroleen') %></label>
+    <input type="text" name="armyroleen" id="armyroleen" value="<%= soldier.armyroleen || '' %>" />
+  </div>
+  <div class="input-group">
+    <label for="armyroleru"><%= __('fields.armyroleru') %></label>
+    <input type="text" name="armyroleru" id="armyroleru" value="<%= soldier.armyroleru || '' %>" />
+  </div>
+</div>
+<div class="trio-row">
+<div class="form-group">
+  <label for="enlistreason"><%= __('fields.enlistreason') %></label>
+  <select name="enlistreason" id="enlistreason" class="form-control">
+    <option value="">--</option>
+    <% enlistreason.forEach(item => { 
+        let displayTitle;
+        if (locale === 'en') { displayTitle = item.title_eng; } 
+        else if (locale === 'ru') { displayTitle = item.title_rus; } 
+        else { displayTitle = item.title_heb; }
+        const isSelected = (soldier.enlistreason === item.title_heb) ? 'selected' : ''; 
+    %>
+      <option value="<%= item.id %>" <%= isSelected %>><%= displayTitle %></option>
+    <% }) %>
+  </select>
+</div>
+
+</div>
+
+ <br>
   <label>
   <input 
     type="checkbox" 
@@ -541,11 +537,29 @@ const formattedAliya = formatDDMMYYYY(soldier.aliyadate || "");
     />
   </div>
 </div>
+
+  <div class="form-group">
+  <label for="category"><%= __('fields.category') %></label>
+  <select name="category" id="category" class="form-control">
+    <option value="">--</option>
+    <% category.forEach(item => { 
+        let displayTitle;
+        if (locale === 'en') { displayTitle = item.title_eng; } 
+        else if (locale === 'ru') { displayTitle = item.title_rus; } 
+        else { displayTitle = item.title_heb; }
+        const isSelected = (soldier.category === item.title_heb) ? 'selected' : ''; 
+    %>
+      <option value="<%= item.id %>" <%= isSelected %>><%= displayTitle %></option>
+    <% }) %>
+  </select>
+</div>
+
+ 
    <!--<div class="input-group">
       <label for="otherfightingcontext"><%= __('fields.otherfightingcontext') %></label>
       <input type="text" name="otherfightingcontext" id="otherfightingcontext" value="<%= soldier.otherfightingcontext || '' %>" />
     </div>-->
-  <div class="trio-row">
+  <!--<div class="trio-row">
     <div class="input-group">
         <label for="otherfightingcontext"><%= __('fields.otherfightingcontext') %></label>
         <input type="text" name="otherfightingcontext" id="otherfightingcontext" value="<%= soldier.otherfightingcontext || '' %>" />
@@ -558,7 +572,7 @@ const formattedAliya = formatDDMMYYYY(soldier.aliyadate || "");
         <label for="otherfightingcontextru"><%= __('fields.otherfightingcontextru') %></label>
         <input type="text" name="otherfightingcontextru" id="otherfightingcontextru" value="<%= soldier.otherfightingcontextru || '' %>"/>
     </div>
-</div> 
+</div> -->
    
 <div class="form-group">
   <label for="participation"><%= __('fields.participation') %></label>
@@ -619,9 +633,14 @@ const formattedAliya = formatDDMMYYYY(soldier.aliyadate || "");
     <input type="text" name="otherdecorationru" id="otherdecorationru" value="<%= soldier.otherdecorationru || '' %>"/>
   </div>
 </div>
-
- 
-   <!-- =================== Battle History =================== -->
+</fieldset>
+<fieldset>
+<legend><%= __('sections.bio') %></legend>
+        <div class="input-group">
+          <label for="biography"><%= __('fields.biography') %></label>
+          <textarea id="biography" name="biography" rows="10" cols="60"><%= soldier.biography || '' %></textarea>
+        </div>
+   <!-- =================== Battle History =================== 
 <fieldset>
   <legend><%= __('sections.battleHistory') %></legend>
 
@@ -632,7 +651,7 @@ const formattedAliya = formatDDMMYYYY(soldier.aliyadate || "");
           <input type="hidden" name="battleId[]" value="<%= battle.id %>">
           <input type="hidden" name="delete_battle_id[]" value="">
 
-          <!-- Year -->
+        
           <div class="input-group">
             <label><%= __('fields.year') %></label>
             <input 
@@ -643,7 +662,7 @@ const formattedAliya = formatDDMMYYYY(soldier.aliyadate || "");
             >
           </div>
 
-          <!-- Front -->
+        
           <div class="trio-row">
             <label><%= __('fields.front') %></label>
             <input type="text" name="front[]" class="form-control" value="<%= battle.front || '' %>">
@@ -655,7 +674,7 @@ const formattedAliya = formatDDMMYYYY(soldier.aliyadate || "");
             <input type="text" name="frontru[]" class="form-control" value="<%= battle.frontru || '' %>">
           </div>
 
-          <!-- Battle -->
+         
           <div class="trio-row">
             <label><%= __('fields.battle') %></label>
             <input type="text" name="battle[]" class="form-control" value="<%= battle.battle || '' %>">
@@ -667,7 +686,7 @@ const formattedAliya = formatDDMMYYYY(soldier.aliyadate || "");
             <input type="text" name="battleru[]" class="form-control" value="<%= battle.battleru || '' %>">
           </div>
 
-          <!-- Medal -->
+        
           <div class="trio-row">
             <label><%= __('fields.medal') %></label>
             <input type="text" name="battle_medal[]" class="form-control" value="<%= battle.medal || '' %>">
@@ -679,7 +698,7 @@ const formattedAliya = formatDDMMYYYY(soldier.aliyadate || "");
             <input type="text" name="battle_medalru[]" class="form-control" value="<%= battle.medalru || '' %>">
           </div>
 
-          <!-- Degree/Rank -->
+          
           <div class="trio-row">
             <label><%= __('fields.degreerank') %></label>
             <input type="text" name="degreerank[]" class="form-control" value="<%= battle.degreerank || '' %>">
@@ -691,7 +710,7 @@ const formattedAliya = formatDDMMYYYY(soldier.aliyadate || "");
             <input type="text" name="degreerankru[]" class="form-control" value="<%= battle.degreerankru || '' %>">
           </div>
 
-          <!-- Job -->
+        
           <div class="trio-row">
             <label><%= __('fields.job') %></label>
             <input type="text" name="job[]" class="form-control" value="<%= battle.job || '' %>">
@@ -703,7 +722,7 @@ const formattedAliya = formatDDMMYYYY(soldier.aliyadate || "");
             <input type="text" name="jobru[]" class="form-control" value="<%= battle.jobru || '' %>">
           </div>
 
-          <!-- Details -->
+          
           <div class="trio-row">
             <label><%= __('fields.details') %></label>
             <textarea name="battle_details[]" class="form-control" rows="2"><%= battle.details || '' %></textarea>
@@ -714,10 +733,10 @@ const formattedAliya = formatDDMMYYYY(soldier.aliyadate || "");
             <label><%= __('fields.detailsru') %></label>
             <textarea name="battle_detailsru[]" class="form-control" rows="2"><%= battle.detailsru || '' %></textarea>
           </div>
-        </div> <!-- /.battle-row -->
+        </div> 
       <% }) %>
     <% } %>
-  </div> <!-- /#battle-container -->
+  </div>
 
   <button 
     type="button" 
@@ -796,7 +815,7 @@ const formattedAliya = formatDDMMYYYY(soldier.aliyadate || "");
         </div>
         
     </div>
-  </template>
+  </template>-->
       <div class="input-group">
   <label for="fightingdesc"><%= __('fields.fightingdesc') %></label>
   <textarea name="fightingdesc" id="fightingdesc">
@@ -807,7 +826,7 @@ const formattedAliya = formatDDMMYYYY(soldier.aliyadate || "");
  </fieldset>
 
       
-<fieldset>
+<!--<fieldset>
     <legend><%= __('sections.uploads') %></legend>
 
     <div class="existing-multimedia">
@@ -854,6 +873,55 @@ const formattedAliya = formatDDMMYYYY(soldier.aliyadate || "");
             <%= __('fields.add_another') %>
         </button>
     </div>
+</fieldset>-->
+<fieldset>
+    <legend><%= __('sections.uploads') %></legend>
+
+    <div class="existing-multimedia" style="margin-bottom: 30px;">
+        <h4 style="border-bottom: 1px solid #eee; padding-bottom: 10px;"><%= __('form.current_files') %></h4>
+        <table class="table" style="width: 100%; margin-top: 10px;">
+            <thead>
+                <tr>
+                    <th><%= __('fields.description') %></th>
+                    <th><%= __('fields.multimedia_type') %></th>
+                    <th><%= __('fields.preview_link') || 'Preview/Link' %></th>
+                </tr>
+            </thead>
+            <tbody>
+                <% if (locals.multimedia && multimedia.length > 0) { %>
+                    <% multimedia.forEach(item => { %>
+                        <tr>
+                            <td><%= item.file_description %></td>
+                            <td><%= item.multimedia_type %></td>
+                            <td>
+                                <a href="<%= item.file_path %>" target="_blank" class="btn btn-sm btn-outline-info">
+                                    <%= __('buttons.view') || 'View' %>
+                                </a>
+                            </td>
+                        </tr>
+                    <% }) %>
+                <% } else { %>
+                    <tr>
+                        <td colspan="3" class="text-center"><%= __('form.no_files_found') %></td>
+                    </tr>
+                <% } %>
+            </tbody>
+        </table>
+    </div>
+
+    <div class="upload-container">
+        <h4 style="border-bottom: 1px solid #eee; padding-bottom: 10px;"><%= __('fields.add_new_files') %></h4>
+        <div class="help-box-alert" style="background: #e7f3fe; border-left: 6px solid #2196F3; padding: 10px; margin-bottom: 15px;">
+            <strong>ℹ️</strong> <%= __('multimedia_info.help_text') %>
+        </div>
+
+        <div id="multimedia-rows">
+            </div>
+
+        <button type="button" onclick="addUploadRow()" class="btn-add" style="margin-top: 10px; padding: 10px 20px; cursor: pointer; background-color: #f8f9fa; border: 1px solid #ddd; border-radius: 4px;">
+            <%= __('fields.add_another') %>
+        </button>
+    </div>
 </fieldset>
 
 <div style="margin-top: 20px;">
@@ -870,14 +938,38 @@ const formattedAliya = formatDDMMYYYY(soldier.aliyadate || "");
     <button type="submit" class="btn btn-primary btn-lg"><%= __('buttons.update') %></button>
 </div>
 </form>
-
 <script>
     /**
-     * 1. MULTIMEDIA LOGIC
+     * 1. DATE MASKING
+     * Supports YYYY, MM-YYYY, and DD-MM-YYYY
      */
-    let rowCount = 0;
+    function maskDate(e) {
+        let digits = e.target.value.replace(/\D/g, '');
+        let formatted = '';
+        const firstTwo = digits.substring(0, 2);
+        const looksLikeYear = (firstTwo === '18' || firstTwo === '19' || firstTwo === '20');
 
-    // Pre-bake the options string for the dynamic rows
+        if (looksLikeYear && digits.length <= 4) {
+            formatted = digits;
+        } else {
+            if (digits.length > 0) formatted += digits.substring(0, 2);
+            if (digits.length > 2) formatted += '-' + digits.substring(2, 4);
+            if (digits.length > 4) {
+                if (digits.length > 6) {
+                    formatted = digits.substring(0, 2) + '-' + digits.substring(2, 4) + '-' + digits.substring(4, 8);
+                } else {
+                    formatted = digits.substring(0, 2) + '-' + digits.substring(2, 6);
+                }
+            }
+        }
+        e.target.value = formatted;
+    }
+
+    /**
+     * 2. MULTIMEDIA LOGIC
+     */
+    let rowCount = document.querySelectorAll('.multimedia-row').length;
+
     const typeOptionsHtml = `
         <option value="">-- <%= __('fields.select_option') %> --</option>
         <% if (locals.multimedia_type_TBL) { %>
@@ -902,7 +994,7 @@ const formattedAliya = formatDDMMYYYY(soldier.aliyadate || "");
             <div class="row">
                 <div class="col-md-3">
                     <label><%= __('fields.description') %></label>
-                    <input type="text" name="m_description[]" class="form-control" placeholder="<%= __('fields.description') %>...">
+                    <input type="text" name="m_description[]" class="form-control" required>
                 </div>
                 <div class="col-md-3">
                     <label><%= __('fields.multimedia_type') %></label>
@@ -943,12 +1035,11 @@ const formattedAliya = formatDDMMYYYY(soldier.aliyadate || "");
         if (input.files && input.files[0]) {
             label.textContent = input.files[0].name;
         } else {
-            // Using backticks to prevent syntax errors from apostrophes in translations
             label.textContent = `<%= __('fields.no_file_chosen') %>`;
-        } // <--- Added closing brace for 'else'
-    } // <--- Added closing brace for function 'handleFileSelect'
+        }
+    }
 
-    // Single event listener for type toggles
+    // Toggle logic for Multimedia Type (URL vs File)
     document.addEventListener('change', function (event) {
         if (event.target && event.target.classList.contains('type-select')) {
             const select = event.target;
@@ -968,23 +1059,11 @@ const formattedAliya = formatDDMMYYYY(soldier.aliyadate || "");
             }
         }
     });
-    /**
-     * 2. DATE & BATTLE LOGIC
-     */
-    function toValidDDMMYYYY(dateString) {
-        if (!dateString) return "";
-        const parts = dateString.trim().split(/[-/\.]/);
-        if (parts.length !== 3) return "";
-        let day, month, year;
-        if (parts[0].length === 4) { year = parts[0]; month = parts[1]; day = parts[2]; }
-        else if (parts[2].length === 4) { day = parts[0]; month = parts[1]; year = parts[2]; }
-        else { return ""; }
-        const test = new Date(`${year}-${month}-${day}`);
-        return (test.getFullYear() == year) ? `${String(day).padStart(2, "0")}-${String(month).padStart(2, "0")}-${year}` : "";
-    }
 
+    /**
+     * 3. BATTLE LOGIC & INIT
+     */
     document.addEventListener('DOMContentLoaded', () => {
-        // Handle Battle entries
         const container = document.getElementById('battle-container');
         const addBtn = document.getElementById('add-battle-entry');
         if (addBtn && container) {
@@ -1006,25 +1085,96 @@ const formattedAliya = formatDDMMYYYY(soldier.aliyadate || "");
             });
         }
 
-        // Initialize Date Masks
+        // Attach mask to existing date inputs
         document.querySelectorAll('.date-input').forEach(input => {
-            input.addEventListener('input', function(e) {
-                let val = e.target.value.replace(/\D/g, '');
-                let finalVal = '';
-                if (val.length > 0) {
-                    finalVal += val.substring(0, 2);
-                    if (val.length > 2) finalVal += '-' + val.substring(2, 4);
-                    if (val.length > 4) finalVal += '-' + val.substring(4, 8);
+            input.addEventListener('input', maskDate);
+        });
+    });
+
+    /**
+     * 4. FORM SUBMISSION & VALIDATION
+     */
+    document.getElementById("soldierForm").addEventListener("submit", function (e) {
+        const errorSummary = document.getElementById('error-summary');
+        const errorList = document.getElementById('error-list');
+        
+        errorSummary.style.display = 'none';
+        errorList.innerHTML = '';
+        document.querySelectorAll('.is-invalid').forEach(el => el.classList.remove('is-invalid'));
+        
+        let errors = [];
+        let firstErrorElement = null;
+
+        const markError = (ids, message) => {
+            errors.push(message);
+            ids.forEach(id => {
+                const el = document.getElementById(id);
+                if (el) {
+                    el.classList.add('is-invalid');
+                    if (!firstErrorElement) firstErrorElement = el;
                 }
-                e.target.value = finalVal;
             });
+        };
+
+        // Service Type Validation
+        if (!document.getElementById('army').value && !document.getElementById('resistance').value && !document.getElementById('partizan').value) {
+            markError(['army', 'resistance', 'partizan'], "Missing Service Type: Please select at least one.");
+        }
+
+        // Name Validations
+        if (!document.getElementById('fname').value.trim() && !document.getElementById('fnameen').value.trim() && !document.getElementById('fnameru').value.trim()) {
+            markError(['fname', 'fnameen', 'fnameru'], "Missing First Name: Provide at least one language.");
+        }
+        if (!document.getElementById('lname').value.trim() && !document.getElementById('lnameen').value.trim() && !document.getElementById('lnameru').value.trim()) {
+            markError(['lname', 'lnameen', 'lnameru'], "Missing Last Name: Provide at least one language.");
+        }
+
+        // Basic Fields
+        if (!document.getElementById('gender').value) markError(['gender'], "Gender is required.");
+        if (!document.getElementById('birthcountryId').value) markError(['birthcountryId'], "Birth Country is required.");
+
+        // Submitter Validation
+        const emailEl = document.getElementById('useremail');
+        if (!emailEl.value.trim()) {
+            markError(['useremail'], "Submitter Email is required.");
+        } else if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(emailEl.value.trim())) {
+            markError(['useremail'], "Submitter Email format is invalid.");
+        }
+
+        if (!document.getElementById('fname_soldier_submitter').value.trim()) markError(['fname_soldier_submitter'], "Submitter First Name is required.");
+        if (!document.getElementById('lname_soldier_submitter').value.trim()) markError(['lname_soldier_submitter'], "Submitter Last Name is required.");
+        if (!document.getElementById('phone_soldier_submitter').value.trim()) markError(['phone_soldier_submitter'], "Submitter Phone Number is required.");
+
+        // Date Validation
+        const dateFields = ["dob", "dod", "aliyadate"];
+        const flexibleDateRegex = /^(\d{4}|(0[1-9]|1[0-2])-\d{4}|(0[1-9]|[12][0-9]|3[01])-(0[1-9]|1[0-2])-\d{4})$/;
+
+        dateFields.forEach(f => {
+            const el = document.getElementById(f);
+            if (el && el.value.trim()) {
+                if (!flexibleDateRegex.test(el.value.trim())) {
+                    markError([f], `❌ <%= __('errors.invalid_date') %>: ${f.toUpperCase()} (YYYY, MM-YYYY, or DD-MM-YYYY)`);
+                } 
+            }
         });
 
-        // Initialize first multimedia row if none exist
-        if (document.getElementById('multimedia-rows') && document.getElementById('multimedia-rows').children.length === 0) {
-            addUploadRow();
+        if (errors.length > 0) {
+            e.preventDefault(); 
+            errors.forEach(err => {
+                const li = document.createElement('li');
+                li.innerHTML = "❌ " + err; 
+                errorList.appendChild(li);
+            });
+
+            errorSummary.style.display = 'block';
+            const yOffset = -100; 
+            const y = errorSummary.getBoundingClientRect().top + window.pageYOffset + yOffset;
+            window.scrollTo({ top: y, behavior: 'smooth' });
+
+            if (firstErrorElement) {
+                setTimeout(() => { firstErrorElement.focus({ preventScroll: true }); }, 800);
+            }
+            return false;
         }
     });
 </script>
-</body>
-</html>

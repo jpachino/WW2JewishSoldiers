@@ -27,7 +27,8 @@
     "pg": "^8.16.0",
     "pg-hstore": "^2.3.4",
     "pg-promise": "^11.9.1",
-    "sequelize": "^6.37.7"
+    "sequelize": "^6.37.7",
+    "xmlbuilder2": "^4.0.3"
   },
   "description": "\"# WWIIJewishSoldiers\" \r \"# WW2JewishSoldiers\""
 }

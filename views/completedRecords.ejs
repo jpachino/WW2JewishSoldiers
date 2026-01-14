@@ -105,15 +105,15 @@
         <button type="button" onclick="submitForm('excelForm')">
           <%= __('admin.downloadPackage') || 'Download ZIP Package' %>
       </button>
-        <button type="button" onclick="previewSelected()">
+        <!--<button type="button" onclick="previewSelected()">
           <%= __('admin.previewSelected') || 'Preview Selected' %>
-        </button>
+        </button>-->
       </form>
 
-      <div id="previewArea" class="preview-box" style="display: none;">
+      <!--<div id="previewArea" class="preview-box" style="display: none;">
         <h2><%= __('admin.previewHeading') || 'Preview Selected Records' %></h2>
         <div id="previewContent"></div>
-      </div>
+      </div>-->
     <% } else { %>
       <p><%= __('admin.noCompleted') || 'No completed records found.' %></p>
     <% } %>

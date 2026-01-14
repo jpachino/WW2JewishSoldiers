@@ -2,7 +2,6 @@ require('dotenv').config(); // Make sure this is at the top
 
 const express = require('express');
 const bodyParser = require('body-parser');
-const { create } = require('xmlbuilder2');
 const path = require('path');
 const pgp = require('pg-promise')();
 
@@ -34,7 +33,7 @@ const columns = [
     'otherdecoration', 'otherdecorationen', 'otherdecorationru',
     'fightingdesc', 
     'shortdesc', 'armyrole', 'armyroleen', 'armyroleru',
-    'rank', 'ranken', 'rankru',
+    'releasereason', 'releasereasonen', 'releasereasonru',
     'enlistreason', 'enlistreasonen', 'enlistreasonru',
     'platoonname', 'platoonnameen', 'platoonnameru',
     'wounddetails', 'wounddetailsen', 'wounddetailsru',
@@ -226,7 +225,7 @@ app.use(i18n.init);
 // -----------------------------------------------------
 // This block ensures the language choice is persisted back to the user's browser
 // *even if* i18n.init didn't explicitly use the query/cookie this time.
-/*app.use((req, res, next) => {
+app.use((req, res, next) => {
   // i18n.init has already set the locale using the best available data (query, cookie, or default).
   // We use i18n's determined locale to ensure the cookie is always set correctly on the response.
   const lang = req.getLocale();
@@ -238,32 +237,18 @@ app.use(i18n.init);
   // Expose the translation function to templates (res.locals)
   res.locals.__ = res.__;
   next();
-});*/
-app.use((req, res, next) => {
-    const lang = req.getLocale();
-    
-    // 1. Keep the cookie alive
-    res.cookie('lang', lang, { maxAge: 900000, httpOnly: true });
-
-    // 2. EXPOSE LOCALE TO ALL EJS FILES
-    // This allows you to use <%= locale %> in any .ejs file 
-    // without passing it manually in res.render
-    res.locals.locale = lang;
-
-    // 3. Expose the translation function
-    res.locals.__ = res.__;
-    
-    next();
 });
+
 
 // -----------------------------------------------------
 // 🔄 Language Switch Route (Simplified/Corrected)
 // -----------------------------------------------------
 app.get('/change-lang', (req, res) => {
-    // Note: The middleware above will pick up the 'lang' from the 
-    // query param automatically because of i18n.configure setting 'queryParameter'
-    res.redirect('back');
+  // The custom middleware above handles setting the cookie for the response.
+  // We only need to check for the 'lang' query and redirect.
+  res.redirect('back');
 });
+
 
 
 // Set EJS as the templating engine
@@ -273,11 +258,14 @@ app.set('views', path.join(__dirname, 'views'));
 
 // Route for the landing page
 app.get('/', (req, res) => {
-    const saved = req.query.saved === 'true';
-    
-    // You no longer need to pass 'locale' or '__' here! 
-    // res.locals (from the middleware above) handles it.
-    res.render('index', { saved });
+  console.log('Rendering index.ejs for route /');
+  const saved = req.query.saved === 'true';
+  res.render('index', {
+    locale: req.getLocale(),
+    __: res.__.bind(res), 
+    saved
+  
+  });
 });
 function cleanNulls(obj) {
   const cleaned = {};
@@ -289,38 +277,21 @@ function cleanNulls(obj) {
 
 app.get('/addFull', async (req, res) => {
   const locale = req.query.lang || req.cookies.lang || 'he'; // fallback to cookie or Hebrew
-  // Map locale to the actual column name in your DB
-  const langMap = {
-    'he': 'title_heb',
-    'en': 'title_eng',
-    'ru': 'title_rus'
-  };
-
-  // Determine which column to sort by (default to title_heb if locale is unknown)
-  const sortCol = langMap[locale] || 'title_heb';
 
   try {
-    // Helper to run query with dynamic ORDER BY
-    const fetchOrdered = (table) => 
-      db.any(`SELECT id, title_heb, title_eng, title_rus FROM "${table}" ORDER BY $(col:name) ASC`, { col: sortCol });
-  // Execute queries
-    const [
-      countries, corps, category, army, resistance, 
-      partizan, participation, enlistreason, gender, deathdetails
-    ] = await Promise.all([
-      fetchOrdered('countries_TBL'),
-      fetchOrdered('corps_TBL'),
-      fetchOrdered('category_TBL'),
-      fetchOrdered('army_TBL'),
-      fetchOrdered('resistance_TBL'),
-      fetchOrdered('partizan_TBL'),
-      fetchOrdered('participation_TBL'),
-      fetchOrdered('enlistreason_TBL'),
-      fetchOrdered('gender_TBL'),
-      fetchOrdered('deathdetails_TBL')
-    ]);
-    const mTypes = await db.any('SELECT * FROM "multimedia_type_TBL" ORDER BY title_heb');
+    // Use db.any from pg-promise
+    const countries = await db.any('SELECT id, title_heb, title_eng, title_rus FROM "countries_TBL"');
+    const corps = await db.any('SELECT id, title_heb, title_eng, title_rus FROM "corps_TBL"');
+    const category = await db.any('SELECT id, title_heb, title_eng, title_rus FROM "category_TBL"');
+    const army = await db.any('SELECT id, title_heb, title_eng, title_rus FROM "army_TBL"');
+    const resistance = await db.any('SELECT id, title_heb, title_eng, title_rus FROM "resistance_TBL"');
+    const partizan = await db.any('SELECT id, title_heb, title_eng, title_rus FROM "partizan_TBL"');
+    const participation = await db.any('SELECT id, title_heb, title_eng, title_rus FROM "participation_TBL"');
     const medals = await db.any('SELECT id, title FROM "medals_TBL" ORDER BY title');
+    const enlistreason = await db.any('SELECT id, title_heb, title_eng, title_rus FROM "enlistreason_TBL" ');
+    const gender = await db.any('SELECT id, title_heb, title_eng, title_rus FROM "gender_TBL" ');
+    const deathdetails = await db.any('SELECT id, title_heb, title_eng, title_rus FROM "deathdetails_TBL" ');
+    const mTypes = await db.any('SELECT * FROM "multimedia_type_TBL" ORDER BY title_heb');
 
     console.log('Rendering addFULL.ejs form');
 
@@ -333,11 +304,12 @@ app.get('/addFull', async (req, res) => {
       partizan,
       participation,
       corps,
-      enlistreason,
+      medals,
       gender,
+      enlistreason,
+     
       deathdetails,
       multimedia_type_TBL: mTypes,
-      medals,
 
       // Empty soldier object for a "new" record
       soldier: {
@@ -366,24 +338,9 @@ app.get('/addFull', async (req, res) => {
 });
 app.post('/addFULL', multiUpload, async (req, res) => {
     try {
-    // 1. Clean the incoming body (removes empty strings/nulls)
-    const cleaned = cleanNulls(req.body);
+        // 1. Clean the incoming body (removes empty strings/nulls)
+        const cleaned = cleanNulls(req.body);
 
-    // --- VALIDATION BLOCK HERE ---
-        const errors = [];
-        
-        if (!cleaned.armyId && !cleaned.resistanceId && !cleaned.partizanId) errors.push("Service Type missing.");
-        if (!cleaned.fname && !cleaned.fnameen && !cleaned.fnameru) errors.push("First Name missing.");
-        if (!cleaned.lname && !cleaned.lnameen && !cleaned.lnameru) errors.push("Last Name missing.");
-        if (!cleaned.genderId) errors.push("Gender missing.");
-        if (!cleaned.birthcountryId) errors.push("Birth Country missing.");
-        if (!cleaned.useremail) errors.push("Submitter Email missing.");
-        if (!cleaned.fname_soldier_submitter) errors.push("Submitter FName missing.");
-
-        if (errors.length > 0) {
-            return res.status(400).send(`<h1>Validation Error</h1><ul>${errors.map(e => `<li>${e}</li>`).join('')}</ul><a href="javascript:history.back()">Go Back</a>`);
-        }
-        // --- END VALIDATION ---
         // 2. DYNAMIC TRANSLATION LOOKUPS
         // Maps form IDs to the corresponding text labels in Hebrew, English, and Russian
         const translations = [
@@ -893,71 +850,59 @@ app.get('/searchResults', async (req, res) => {
 // Route to show the form for updating a soldier
 app.get('/updateSoldier/:id', async (req, res) => {
   const { id } = req.params;
-  // 1. FIX: Define locale first
-  const locale = req.query.lang || req.cookies.lang || 'he'; 
-  
+  const soldierId = req.params.id;
   console.log('Get /updateSoldier/:id hit for ID:', id);
 
-  const langMap = {
-    'he': 'title_heb',
-    'en': 'title_eng',
-    'ru': 'title_rus'
-  };
-  const sortCol = langMap[locale] || 'title_heb';
-
   try {
+    // Fetch soldier with all fields
     const soldier = await db.oneOrNone(`SELECT * FROM ${SOLDIER_TABLE} WHERE id = $1`, [id]);
-    if (!soldier) return res.status(404).send('Soldier not found');
+        if (!soldier) return res.status(404).send('Soldier not found');
 
-    const fetchOrdered = (table) => 
-      db.any(`SELECT id, title_heb, title_eng, title_rus FROM "${table}" ORDER BY $(col:name) ASC`, { col: sortCol });
+        const countries = await db.any('SELECT id, title_heb, title_eng, title_rus FROM "countries_TBL"');
+        const gender = await db.any('SELECT id, title_heb, title_eng, title_rus FROM "gender_TBL" ');
+        const medals = await db.any('SELECT id, title FROM "medals_TBL" ');
+        const corps = await db.any('SELECT id, title_heb, title_eng, title_rus FROM "corps_TBL"');
+        const category = await db.any('SELECT id, title_heb, title_eng, title_rus FROM "category_TBL"');
+        const army = await db.any('SELECT id, title_heb, title_eng, title_rus FROM "army_TBL"');
+        const resistance = await db.any('SELECT id, title_heb, title_eng, title_rus FROM "resistance_TBL"');
+        const partizan = await db.any('SELECT id, title_heb, title_eng, title_rus FROM "partizan_TBL"');
+        const participation = await db.any('SELECT id, title_heb, title_eng, title_rus FROM "participation_TBL"');
+        const enlistreason = await db.any('SELECT id, title_heb, title_eng, title_rus FROM "enlistreason_TBL" ');
+        const multimediaList = await db.any('SELECT * FROM "multimedia_TBL" WHERE soldier_id = $1', [soldierId]);
+       
+        const mTypes = await db.any('SELECT * FROM "multimedia_type_TBL" ORDER BY id');
+       
 
-    // 2. FIX: Include medals and mTypes in the parallel fetch
-    const [
-      countries, gender, corps, category, army, 
-      resistance, partizan, participation, enlistreason,
-      multimediaList, battleHistory,
-      medals, mTypes // Added back here
-    ] = await Promise.all([
-      fetchOrdered('countries_TBL'),
-      fetchOrdered('gender_TBL'),
-      fetchOrdered('corps_TBL'),
-      fetchOrdered('category_TBL'),
-      fetchOrdered('army_TBL'),
-      fetchOrdered('resistance_TBL'),
-      fetchOrdered('partizan_TBL'),
-      fetchOrdered('participation_TBL'),
-      fetchOrdered('enlistreason_TBL'),
-      db.any('SELECT * FROM "multimedia_TBL" WHERE soldier_id = $1', [id]),
-      db.any('SELECT * FROM "soldier_battle_history" WHERE soldier_id = $1 ORDER BY id', [id]),
-      // 3. FIX: Keep these as they were (no dynamic lang sorting)
-      db.any('SELECT id, title FROM "medals_TBL"'),
-      db.any('SELECT * FROM "multimedia_type_TBL" ORDER BY id')
-    ]);
+        const battleHistory = await db.any(
+            'SELECT * FROM "soldier_battle_history" WHERE soldier_id = $1 ORDER BY id',
+            [id]
+        );
 
-    res.render('updateSoldier', {
-      soldier,
-      countries,
-      gender,
-      medals,
-      corps,
-      category,
-      army,
-      resistance,
-      partizan,
-      participation,
-      battleHistory,
-      enlistreason,
-      multimedia_type_TBL: mTypes,
-      multimedia: multimediaList,
-      locale, // Added: your EJS needs this to pick the right column to show
-      req    // Added: usually helpful for path/query checks in EJS
-    });
+        res.render('updateSoldier', {
+            soldier,
+            countries,
+            gender,
+            medals,
+            corps,
+            category,
+            army,
+            resistance,
+            partizan,
+            participation,
+            battleHistory,
+            
+            enlistreason,
+            //uploadedFiles: await db.any('SELECT * FROM uploaded_files WHERE soldier_id = $1', [id]) || [],
+            multimedia_type_TBL: mTypes,
+            multimedia: multimediaList
+            //locale
+        });
   } catch (err) {
     console.error('Error rendering update form:', err);
     res.status(500).send('Server error');
   }
 });
+
 // Route to handle form submission for updating a soldier
 
 app.post('/updateSoldier/:id', multiUpload, async (req, res) => {
@@ -1207,9 +1152,9 @@ if (isCheckingComplete) {
       armyrole: req.body.armyrole || existingSoldier.armyrole,
       armyroleen: req.body.armyroleen || existingSoldier.armyroleen,
       armyroleru: req.body.armyroleru || existingSoldier.armyroleru,
-      rank: req.body.rank || existingSoldier.rank,
-      ranken: req.body.ranken || existingSoldier.ranken,
-      rankru: req.body.rankru || existingSoldier.ranknru,
+      releasereason: req.body.releasereason || existingSoldier.releasereason,
+      releasereasonen: req.body.releasereasonen || existingSoldier.releasereasonen,
+      releasereasonru: req.body.releasereasonru || existingSoldier.releasereasonru,
       
       enlistreason, enlistreasonen, enlistreasonru,
       platoonname: req.body.platoonname || existingSoldier.platoonname,
@@ -1372,28 +1317,18 @@ for (let i = 0; i < maxRows; i++) {
     let finalDbPath = null;
     
     if (mFiles[i]) {
+        // ... (Your existing file move/rename logic stays here) ...
         const file = mFiles[i];
-
-        // 1. FIX ENCODING: Convert filename from latin1 to utf8 for Hebrew/Russian
-        const decodedFileName = Buffer.from(file.originalname, 'latin1').toString('utf8');
-        
-        // 2. REMOVE DATE: We just use the decoded name directly
-        const uniqueFileName = decodedFileName;
-
+        const uniqueFileName = `${file.originalname}`;
         const targetDir = path.join(__dirname, 'public', 'pages', 'soldierUploads', `A${soldierId}`);
         if (!fs.existsSync(targetDir)) fs.mkdirSync(targetDir, { recursive: true });
-
         const finalPath = path.join(targetDir, uniqueFileName);
-        
-        // Move file from temp to final destination
         fs.renameSync(file.path, finalPath);
-        
-        // This clean string is what goes into PostgreSQL
         finalDbPath = `/pages/soldierUploads/A${soldierId}/${uniqueFileName}`;
     }
 
     if (finalDbPath || descArr[i]) {
-        // Only set to true if it's the first row AND the soldier doesn't have one yet
+        // 3. Logic: Only set to true if it's the first row AND the soldier doesn't have one yet
         const setToProfile = (!hasProfilePic && i === 0 && finalDbPath !== null);
 
         await t.none(`
@@ -1405,7 +1340,7 @@ for (let i = 0; i < maxRows; i++) {
             descArr[i] || 'No Description', 
             finalDbPath, 
             typeArr[i] || null,
-            setToProfile
+            setToProfile // This will now be FALSE if they already have a profile pic
         ]);
     }
 }
@@ -1741,9 +1676,9 @@ if (req.body.downloaded_date) {
       armyrole: req.body.armyrole || existingSoldier.armyrole,
       armyroleen: req.body.armyroleen || existingSoldier.armyroleen,
       armyroleru: req.body.armyroleru || existingSoldier.armyroleru,
-      rank: req.body.rank || existingSoldier.rank,
-      ranken: req.body.ranken || existingSoldier.ranken,
-      rankru: req.body.rankru || existingSoldier.rankru,
+      releasereason: req.body.releasereason || existingSoldier.releasereason,
+      releasereasonen: req.body.releasereasonen || existingSoldier.releasereasonen,
+      releasereasonru: req.body.releasereasonru || existingSoldier.releasereasonru,
       
       enlistreason, enlistreasonen, enlistreasonru,
       platoonname: req.body.platoonname || existingSoldier.platoonname,
@@ -1929,16 +1864,9 @@ for (let i = 0; i < maxRows; i++) {
                 console.log ('final location ',finalLocation)
     // 3. Handle File Upload
     
-   if (mFiles[i]) {
+    if (mFiles[i]) {
         const file = mFiles[i];
-
-        // --- FIX: DECODE HEBREW/RUSSIAN CHARACTERS ---
-        // This prevents weird symbols (mojibake) in the filename
-        const decodedFileName = Buffer.from(file.originalname, 'latin1').toString('utf8');
-        
-        // Use the decoded name (Date prefix is already removed from your logic)
-        const uniqueFileName = decodedFileName;
-        
+        const uniqueFileName = `${file.originalname}`;
         const targetDir = path.join(__dirname, 'public', 'pages', 'soldierUploads', `A${soldierId}`);
         
         if (!fs.existsSync(targetDir)) {
@@ -1946,11 +1874,7 @@ for (let i = 0; i < maxRows; i++) {
         }
         
         const finalPath = path.join(targetDir, uniqueFileName);
-        
-        // Move file from temp to final destination
         fs.renameSync(file.path, finalPath);
-        
-        // Save this clean, decoded path for the database
         finalDbPath = `/pages/soldierUploads/A${soldierId}/${uniqueFileName}`;
     }
 
@@ -1994,54 +1918,35 @@ for (let i = 0; i < maxRows; i++) {
 app.get('/adminUpdateSoldier/:id', async (req, res) => {
     const { id } = req.params;
     const adminemail = req.query.adminemail;
+    const locale = req.getLocale();
     const soldierId = req.params.id;
-    
-    // Get locale (using your req.getLocale() or fallback to cookie/query)
-    const locale = req.getLocale() || req.query.lang || req.cookies.lang || 'he';
-
     if (!adminemail) {
         return res.redirect(`/admin/completedRecords?adminemail=admin@ww2jewishsoldiers.com`);
     }
 
-    // Map locale to the specific DB column for sorting
-    const langMap = {
-        'he': 'title_heb',
-        'en': 'title_eng',
-        'ru': 'title_rus'
-    };
-    const sortCol = langMap[locale] || 'title_heb';
-
     try {
-        // 1. Fetch the soldier record first
         const soldier = await db.oneOrNone(`SELECT * FROM ${SOLDIER_TABLE} WHERE id = $1`, [id]);
         if (!soldier) return res.status(404).send('Soldier not found');
 
-        // 2. Helper for tables that need language-based sorting
-        const fetchOrdered = (table) => 
-            db.any(`SELECT id, title_heb, title_eng, title_rus FROM "${table}" ORDER BY $(col:name) ASC`, { col: sortCol });
-
-        // 3. Execute all lookups in parallel
-        const [
-            countries, gender, corps, category, army, 
-            resistance, partizan, participation, enlistreason,
-            multimediaList, battleHistory
-        ] = await Promise.all([
-            fetchOrdered('countries_TBL'),
-            fetchOrdered('gender_TBL'),
-            fetchOrdered('corps_TBL'),
-            fetchOrdered('category_TBL'),
-            fetchOrdered('army_TBL'),
-            fetchOrdered('resistance_TBL'),
-            fetchOrdered('partizan_TBL'),
-            fetchOrdered('participation_TBL'),
-            fetchOrdered('enlistreason_TBL'),
-            db.any('SELECT * FROM "multimedia_TBL" WHERE soldier_id = $1', [soldierId]),
-            db.any('SELECT * FROM "soldier_battle_history" WHERE soldier_id = $1 ORDER BY id', [id])
-        ]);
-
-        // 4. Medals and Multimedia Types kept exactly as requested (no change to order)
-        const medals = await db.any('SELECT id, title FROM "medals_TBL"'); 
+        const countries = await db.any('SELECT id, title_heb, title_eng, title_rus FROM "countries_TBL"');
+        const gender = await db.any('SELECT id, title_heb, title_eng, title_rus FROM "gender_TBL" ');
+        const medals = await db.any('SELECT id, title FROM "medals_TBL" ');
+        const corps = await db.any('SELECT id, title_heb, title_eng, title_rus FROM "corps_TBL"');
+        const category = await db.any('SELECT id, title_heb, title_eng, title_rus FROM "category_TBL"');
+        const army = await db.any('SELECT id, title_heb, title_eng, title_rus FROM "army_TBL"');
+        const resistance = await db.any('SELECT id, title_heb, title_eng, title_rus FROM "resistance_TBL"');
+        const partizan = await db.any('SELECT id, title_heb, title_eng, title_rus FROM "partizan_TBL"');
+        const participation = await db.any('SELECT id, title_heb, title_eng, title_rus FROM "participation_TBL"');
+        const enlistreason = await db.any('SELECT id, title_heb, title_eng, title_rus FROM "enlistreason_TBL" ');
+        const multimediaList = await db.any('SELECT * FROM "multimedia_TBL" WHERE soldier_id = $1', [soldierId]);
+       
         const mTypes = await db.any('SELECT * FROM "multimedia_type_TBL" ORDER BY id');
+       
+
+        const battleHistory = await db.any(
+            'SELECT * FROM "soldier_battle_history" WHERE soldier_id = $1 ORDER BY id',
+            [id]
+        );
 
         res.render('adminUpdate', {
             soldier,
@@ -2057,10 +1962,10 @@ app.get('/adminUpdateSoldier/:id', async (req, res) => {
             battleHistory,
             adminemail,
             enlistreason,
+            //uploadedFiles: await db.any('SELECT * FROM uploaded_files WHERE soldier_id = $1', [id]) || [],
             multimedia_type_TBL: mTypes,
             multimedia: multimediaList, 
-            locale,
-            req
+            locale
         });
 
     } catch (error) {
@@ -2232,8 +2137,6 @@ app.get('/admin/completedRecords', async (req, res) => {
 // If you use ExcelJS, make sure it is imported: const ExcelJS = require('exceljs');
 
 
-
-
 app.post('/admin/downloadExcel', async (req, res) => {
     // --- Configuration Constants ---
     const BATTLE_HISTORY_TABLE = 'soldier_battle_history';
@@ -2241,43 +2144,6 @@ app.post('/admin/downloadExcel', async (req, res) => {
     const MAX_BATTLES = 5;
     const MAX_FILES = 12;
 
-    const XML_TAG_MAP = {
-    'id': 'FormID',
-    'fname': 'FirstName_HEB', 'fnameen': 'FirstName_ENG', 'fnameru': 'FirstName_RUS',
-    'lname': 'LastName_HEB', 'lnameen': 'LastName_ENG', 'lnameru': 'LastName_RUS',
-    'previouslname': 'PreviousLastName_HEB', 'previouslnameen': 'PreviousLastName_ENG', 'previouslnameru': 'PreviousLastName_RUS',
-    'calledby': 'Nickname_HEB', 'calledbyen': 'Nickname_ENG', 'calledbyru': 'Nickname_RUS',
-    'fathername': 'FatherName_HEB', 'fathernameen': 'FatherName_ENG', 'fathernameru': 'FatherName_RUS',
-    'mothername': 'MotherName_HEB', 'mothernameen': 'MotherName_ENG', 'mothernameru': 'MotherName_RUS',
-    'gender': 'Gender_HEB', 'genderen': 'Gender_ENG', 'genderru': 'Gender_RUS',
-    'birthcountry': 'BirthCountry_HEB', 'birthcountryen': 'BirthCountry_ENG', 'birthcountryru': 'BirthCountry_RUS',
-    'birthcity': 'BirthCity_HEB', 'birthcityen': 'BirthCity_ENG', 'birthcityru': 'BirthCity_RUS',
-    'state': 'State_HEB', 'stateen': 'State_ENG', 'stateru': 'State_RUS',
-    'dob': 'DateOfBirth',
-    'armyid': 'ArmyID',
-    'category': 'Category_HEB', 'categoryen': 'Category_ENG', 'categoryru': 'Category_RUS',
-    'platoonname': 'Platoon_HEB', 'platoonnameen': 'Platoon_ENG', 'platoonnameru': 'Platoon_RUS',
-    'armyrole': 'Role_HEB', 'armyroleen': 'Role_ENG', 'armyroleru': 'Role_RUS',
-    'wounddetails': 'WoundDetails_HEB', 'wounddetailsen': 'WoundDetails_ENG', 'wounddetailsru': 'WoundDetails_RUS',
-    'deathdetails': 'DeathDetails_HEB', 'deathdetailsen': 'DeathDetails_ENG', 'deathdetailsru': 'DeathDetails_RUS',
-    'dod': 'DateOfDeath',
-    'placeofdeath': 'PlaceOfDeath_HEB', 'placeofdeathen': 'PlaceOfDeath_ENG', 'placeofdeathru': 'PlaceOfDeath_RUS',
-    'enlistreason': 'EnlistReason_HEB', 'enlistreasonen': 'EnlistReason_ENG', 'enlistreasonru': 'EnlistReason_RUS',
-    'rank': 'ReleaseReason_HEB', 'ranken': 'ReleaseReason_ENG', 'rankru': 'ReleaseReason_RUS',
-    'army': 'ArmyAffiliation_HEB', 'armyen': 'ArmyAffiliation_ENG', 'armyru': 'ArmyAffiliation_RUS',
-    'resistance': 'ResistanceAffiliation_HEB', 'resistanceen': 'ResistanceAffiliation_ENG', 'resistanceru': 'ResistanceAffiliation_RUS',
-    'partizan': 'PartisanAffiliation_HEB', 'partizanen': 'PartisanAffiliation_ENG', 'partizanru': 'PartisanAffiliation_RUS',
-    'participation': 'Participation_HEB', 'participationen': 'Participation_ENG', 'participationru': 'Participation_RUS',
-    'corps': 'Corps_HEB', 'corpsen': 'Corps_ENG', 'corpsru': 'Corps_RUS',
-    'other_medal': 'Medals_HEB', 'other_medalen': 'Medals_ENG', 'other_medalru': 'Medals_RUS',
-    'gettodesc': 'GhettoStruggle_HEB', 'gettodescen': 'GhettoStruggle_ENG', 'gettodescru': 'GhettoStruggle_RUS',
-    'otherparticipation': 'OtherWarParticipation_HEB', 'otherparticipationen': 'OtherWarParticipation_ENG', 'otherparticipationru': 'OtherWarParticipation_RUS',
-    'otherfightingcontext': 'OtherFightingContext_HEB', 'otherfightingcontexten': 'OtherFightingContext_ENG', 'otherfightingcontextru': 'OtherFightingContext_RUS',
-    'otherdecoration': 'OtherDecorations_HEB', 'otherdecorationen': 'OtherDecorations_ENG', 'otherdecorationru': 'OtherDecorations_RUS',
-    'aliyadate': 'AliyaDate',
-    'biography': 'FullBiography',
-    'download_date': 'DownloadDate'
-};
     // --- Multilingual Header Mapping ---
     const EXCEL_HEADER_MAP = {
         'id': 'Form ID',
@@ -2301,7 +2167,7 @@ app.post('/admin/downloadExcel', async (req, res) => {
         'dod': 'תאריך פטירה',
         'placeofdeath': 'מקום הפטירה_HEB', 'placeofdeathen': 'מקום הפטירה_ENG', 'placeofdeathru': 'מקום הפטירה_RUS',
         'enlistreason': 'סיבת גיוס_HEB', 'enlistreasonen': 'סיבת גיוס_ENG', 'enlistreasonru': 'סיבת גיוס_RUS',
-        'rank': 'סיבת שחרור_HEB', 'ranken': 'סיבת שחרור_ENG', 'rankru': 'סיבת שחרור_RUS',
+        'releasereason': 'סיבת שחרור_HEB', 'releasereasonen': 'סיבת שחרור_ENG', 'releasereasonru': 'סיבת שחרור_RUS',
         'army': 'שיוך לצבא_HEB', 'armyen': 'שיוך לצבא_ENG', 'armyru': 'שיוך לצבא_RUS',
         'resistance': 'שיוך למחתרת_HEB', 'resistanceen': 'שיוך למחתרת_ENG', 'resistanceru': 'שיוך למחתרת_RUS',
         'partizan': 'שיוך לפרטיזנים_HEB', 'partizanen': 'שיוך לפרטיזנים_ENG', 'partizanru': 'שיוך לפרטיזנים_RUS',
@@ -2316,16 +2182,53 @@ app.post('/admin/downloadExcel', async (req, res) => {
         'biography': 'קורות חיים_סיפור אישי _HEB',
         'download_date': 'תאריך הורדה',
 
+        /* Dynamic Battles
         ...Array.from({ length: MAX_BATTLES }, (_, n) => ({
             [`battle_${n + 1}_year`]: `שנת לחימה ${n + 1}`,
-            [`battle_${n + 1}_front`]: `חזית_${n + 1}_HEB`, [`battle_${n + 1}_fronten`]: `חזית_${n + 1}_ENG`, [`battle_${n + 1}_frontru`]: `חזית_${n + 1}_RUS`,
-            [`battle_${n + 1}_medal`]: `עיטורים_${n + 1}_HEB`, [`battle_${n + 1}_medalen`]: `עיטורים_${n + 1}_ENG`, [`battle_${n + 1}_medalru`]: `עיטורים_${n + 1}_RUS`,
-            [`battle_${n + 1}_job`]: `תפקיד_${n + 1}_HEB`, [`battle_${n + 1}_joben`]: `תפקיד_${n + 1}_ENG`, [`battle_${n + 1}_jobru`]: `תפקיד_${n + 1}_RUS`,
-            [`battle_${n + 1}_degreerank`]: `דרגה_${n + 1}_HEB`, [`battle_${n + 1}_degreeranken`]: `דרגה_${n + 1}_ENG`, [`battle_${n + 1}_degreerankru`]: `דרגה_${n + 1}_RUS`,
-            [`battle_${n + 1}_battle`]: `קרב_${n + 1}_HEB`, [`battle_${n + 1}_battleen`]: `קרב_${n + 1}_ENG`, [`battle_${n + 1}_battleru`]: `קרב_${n + 1}_RUS`,
-            [`battle_${n + 1}_details`]: `הערות_${n + 1}_HEB`, [`battle_${n + 1}_detailsen`]: `הערות_${n + 1}_ENG`, [`battle_${n + 1}_detailsru`]: `הערות_${n + 1}_RUS`,
-        })).reduce((acc, curr) => ({ ...acc, ...curr }), {}),
+            [`battle_${n + 1}_front`]: `חזית_HEB ${n + 1}`, [`battle_${n + 1}_fronten`]: `חזית_ENG ${n + 1}`, [`battle_${n + 1}_frontru`]: `חזית_RUS ${n + 1}`,
+            [`battle_${n + 1}_medal`]: `עיטורים_HEB ${n + 1}`, [`battle_${n + 1}_medalen`]: `עיטורים_ENG ${n + 1}`, [`battle_${n + 1}_medalru`]: `עיטורים_RUS ${n + 1}`,
+            [`battle_${n + 1}_job`]: `תפקיד_HEB ${n + 1}`, [`battle_${n + 1}_joben`]: `תפקיד_ENG ${n + 1}`, [`battle_${n + 1}_jobru`]: `תפקיד_RUS ${n + 1}`,
+            [`battle_${n + 1}_degreerank`]: `דרגה_HEB ${n + 1}`, [`battle_${n + 1}_degreeranken`]: `דרגה_ENG ${n + 1}`, [`battle_${n + 1}_degreerankru`]: `דרגה_RUS ${n + 1}`,
+            [`battle_${n + 1}_battle`]: `קרב_HEB ${n + 1}`, [`battle_${n + 1}_battleen`]: `קרב_ENG ${n + 1}`, [`battle_${n + 1}_battleru`]: `קרב_RUS ${n + 1}`,
+            [`battle_${n + 1}_details`]: `הערות_HEB ${n + 1}`, [`battle_${n + 1}_detailsen`]: `הערות_ENG ${n + 1}`, [`battle_${n + 1}_detailsru`]: `הערות_RUS ${n + 1}`,
+        })).reduce((acc, curr) => ({ ...acc, ...curr }), {}), */
 
+         // Dynamic Battles Mapping
+...Array.from({ length: MAX_BATTLES }, (_, n) => ({
+    [`battle_${n + 1}_year`]: `שנת לחימה ${n + 1}`,
+    
+    // Fronts
+    [`battle_${n + 1}_front`]: `חזית_${n + 1}_HEB`, 
+    [`battle_${n + 1}_fronten`]: `חזית_${n + 1}_ENG`,
+    [`battle_${n + 1}_frontru`]: `חזית_${n + 1}_RUS`,
+
+    // Medals
+    [`battle_${n + 1}_medal`]: `עיטורים_${n + 1}_HEB`, 
+    [`battle_${n + 1}_medalen`]: `עיטורים_${n + 1}_ENG`, 
+    [`battle_${n + 1}_medalru`]: `עיטורים_${n + 1}_RUS`,
+
+    // Jobs
+    [`battle_${n + 1}_job`]: `תפקיד_${n + 1}_HEB`, 
+    [`battle_${n + 1}_joben`]: `תפקיד_${n + 1}_ENG`, 
+    [`battle_${n + 1}_jobru`]: `תפקיד_${n + 1}_RUS`,
+
+    // Ranks
+    [`battle_${n + 1}_degreerank`]: `דרגה_${n + 1}_HEB`, 
+    [`battle_${n + 1}_degreeranken`]: `דרגה_${n + 1}_ENG`, 
+    [`battle_${n + 1}_degreerankru`]: `דרגה_${n + 1}_RUS`,
+
+    // Battles
+    [`battle_${n + 1}_battle`]: `קרב_${n + 1}_HEB`, 
+    [`battle_${n + 1}_battleen`]: `קרב_${n + 1}_ENG`, 
+    [`battle_${n + 1}_battleru`]: `קרב_${n + 1}_RUS`,
+
+    // Details
+    [`battle_${n + 1}_details`]: `הערות_${n + 1}_HEB`, 
+    [`battle_${n + 1}_detailsen`]:`הערות_${n + 1}_ENG`, 
+    [`battle_${n + 1}_detailsru`]: `הערות_${n + 1}_RUS`,
+})).reduce((acc, curr) => ({ ...acc, ...curr }), {}),
+
+        // Dynamic Multimedia
         ...Array.from({ length: MAX_FILES }, (_, n) => ({
             [`file_${n + 1}_desc`]: `מולטימדיה - תיאור ${n + 1}`,
             [`file_${n + 1}_type`]: `סוג מולטימדיה ${n + 1}`,
@@ -2350,11 +2253,12 @@ app.post('/admin/downloadExcel', async (req, res) => {
         };
 
         const downloadDateString = formatDateToDDMMYYYY(now);
+        // Create a safe date for filenames (e.g., 03-01-2026)
         const safeDate = downloadDateString.replace(/\//g, '-');
 
         const dateFields = ['dob', 'dod', 'aliyadate'];
         const excludeFields = [
-            'fightingdesc', 'useremail', 'recordcomplete',
+            'biography', 'fightingdesc', 'useremail', 'recordcomplete',
             'admin_ready_for_download', 'record_complete_date', 'admin_approved_date',
             'downloaded_date', 'uprising_participant', 'fname_soldier_submitter',
             'lname_soldier_submitter', 'phone_soldier_submitter', 'relation_of_soldier_submitter',
@@ -2380,7 +2284,7 @@ app.post('/admin/downloadExcel', async (req, res) => {
             multiMap[sId].push(m);
         });
 
-        // 3. Flatten Rows (Reused for Excel & XML)
+        // 3. Flatten Rows for Excel
         const flattenedRows = soldiers.map(s => {
             const row = {};
             for (const key in s) {
@@ -2391,6 +2295,8 @@ app.post('/admin/downloadExcel', async (req, res) => {
             const cleanId = String(s.id).trim();
             row.id = `A${cleanId}`;
             row.download_date = downloadDateString;
+            
+            // Stacking Bio and Story with carriage returns
             row.biography = `Bio: ${s.biography || ''}\n\nStory: ${s.fightingdesc || ''}`;
 
             const sBattles = battleMap[s.id] || [];
@@ -2426,17 +2332,31 @@ app.post('/admin/downloadExcel', async (req, res) => {
                     row[`file_${n}_desc`] = m.file_description || '';
                     row[`file_${n}_type`] = m.multimedia_type || '';
                     row[`file_${n}_loc`] = m.physical_logical_location || '';
-                    if (m.file_path) {
-                        const baseName = path.basename(m.file_path);
-                        const cleanFileName = baseName.includes('-') ? baseName.substring(baseName.indexOf('-') + 1) : baseName;
-                        row[`file_${n}_path`] = m.physical_logical_location === "URL" ? m.file_path : `Images\\Warrior Pages\\multimediaFiles\\A${cleanId}\\${cleanFileName}`;
-                    }
+                    
+                  if (m.file_path) {
+                  // 1. Get just the filename (removes directory path if it exists)
+                      const baseName = path.basename(m.file_path);
+            
+                  // 2. Remove the date stamp (everything before the first hyphen)
+                  // If the filename is "1736083542247-photo.jpg", this results in "photo.jpg"
+                      const cleanFileName = baseName.includes('-') 
+                      ? baseName.substring(baseName.indexOf('-') + 1) 
+                      : baseName;
+
+                      // NEW LOGIC: Check if it is a URL
+                  if (m.physical_logical_location === "URL") {
+                // Just the filename for URLs
+                row[`file_${n}_path`] = cleanFileName;
+                  } else {
+                // Full structured path for physical files
+                row[`file_${n}_path`] = `Images\\Warrior Pages\\multimediaFiles\\A${cleanId}\\${cleanFileName}`;
+                 }
                 }
-            });
+            }});
             return row;
         });
 
-        // 4. Excel Generation
+        // 4. Excel Build
         const workbook = new ExcelJS.Workbook();
         const sheet = workbook.addWorksheet('Soldiers');
         const allKeys = [...new Set(flattenedRows.flatMap(r => Object.keys(r)))];
@@ -2446,46 +2366,22 @@ app.post('/admin/downloadExcel', async (req, res) => {
             .map(k => ({
                 header: EXCEL_HEADER_MAP[k],
                 key: k,
-                style: { numFmt: '@', alignment: { horizontal: 'right', vertical: 'top', wrapText: true } }
+                // Alignment: vertical top + wrapText makes the stacked bio look correct
+                style: { 
+                    numFmt: '@', 
+                    alignment: { horizontal: 'right', vertical: 'top', wrapText: true } 
+                }
             }));
 
+        // Set width for Biography column so it doesn't look like a thin vertical line
         const bioCol = sheet.getColumn('biography');
         if (bioCol) bioCol.width = 60;
+
         flattenedRows.forEach(row => sheet.addRow(row));
-        const excelBuffer = await workbook.xlsx.writeBuffer();
 
-        // 5. XML Generation
-const xmlRoot = create({ version: '1.0', encoding: 'UTF-8' }).ele('Soldiers');
-
-flattenedRows.forEach(row => {
-    const soldierNode = xmlRoot.ele('Soldier');
-    
-    for (const key in row) {
-        const value = row[key];
-        
-        // Only add element if value exists
-        if (value !== null && value !== undefined && value !== '') {
-            
-            // 1. Determine the Tag Name
-            // Use XML_TAG_MAP if exists, otherwise sanitize the DB key
-            let tagName = XML_TAG_MAP[key] || key;
-            
-            // 2. Safety Check: Ensure the tag name is XML-compliant 
-            // (Removes spaces and illegal characters just in case)
-            tagName = tagName.replace(/[^a-z0-9_]/gi, '');
-
-            // 3. Append to XML
-            soldierNode.ele(tagName).txt(String(value)).up();
-        }
-    }
-    soldierNode.up();
-  });
-
-
-        const xmlString = xmlRoot.end({ prettyPrint: true });
-
-        // 6. ZIP Stream Setup
+        // 5. ZIP Stream Setup
         res.setHeader('Content-Type', 'application/zip');
+        // Uses safeDate and quotes to ensure the filename works in all browsers
         res.setHeader('Content-Disposition', `attachment; filename=\"Full_Export_${safeDate}.zip\"`);
 
         const archive = archiver('zip', { zlib: { level: 9 } });
@@ -2499,22 +2395,23 @@ flattenedRows.forEach(row => {
         archive.append(manifest, { name: 'manifest.txt' });
 
         // B. Add Excel Workbook
+        const excelBuffer = await workbook.xlsx.writeBuffer();
+        // Updated filename inside the zip to include safeDate
         archive.append(excelBuffer, { name: `soldiers_data_${safeDate}.xlsx` });
 
-        // C. Add XML File
-        archive.append(xmlString, { name: `soldiers_data_${safeDate}.xml` });
-
-        // D. Add Media Folders
+        // C. Add Folders
         ids.forEach(id => {
             const cleanId = String(id).trim();
             const folderPath = path.join(__dirname, 'public', 'pages', 'soldierUploads', `A${cleanId}`);
+            
             if (fs.existsSync(folderPath)) {
                 archive.directory(folderPath, `Soldier_Files/A${cleanId}`);
             }
         });
 
-        // 7. DB Update and Finish
+        // 6. DB Update and Finish
         await db.none(`UPDATE soldierdetails SET downloaded_date = $1 WHERE id IN ($2:csv)`, [downloadDateString, ids]);
+        
         await archive.finalize();
 
     } catch (err) {
