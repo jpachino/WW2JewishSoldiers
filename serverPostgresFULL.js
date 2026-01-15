@@ -323,7 +323,15 @@ app.get('/addFull', async (req, res) => {
     const medals = await db.any('SELECT id, title FROM "medals_TBL" ORDER BY title');
 
     console.log('Rendering addFULL.ejs form');
+   // 1. Find the "Unknown" entry specifically by ID 0
+    // We use Number() to ensure type safety if the ID comes back as a string
+    const unknownIndex = countries.findIndex(c => Number(c.id) === 0);
 
+    // 2. If it's found and not already at the top (index 0), move it
+    if (unknownIndex > 0) {
+      const [unknownItem] = countries.splice(unknownIndex, 1);
+      countries.unshift(unknownItem);
+    }
     res.render('addFULL', {
       locale,
       countries,
@@ -934,7 +942,14 @@ app.get('/updateSoldier/:id', async (req, res) => {
       db.any('SELECT id, title FROM "medals_TBL"'),
       db.any('SELECT * FROM "multimedia_type_TBL" ORDER BY id')
     ]);
+    // --- BUBBLE UP BY ID 0 ---
+    const unknownIndex = countries.findIndex(c => Number(c.id) === 0);
 
+    if (unknownIndex > 0) { 
+        const [unknownItem] = countries.splice(unknownIndex, 1);
+        countries.unshift(unknownItem);
+    }
+    // -------------------------
     res.render('updateSoldier', {
       soldier,
       countries,
@@ -2042,7 +2057,14 @@ app.get('/adminUpdateSoldier/:id', async (req, res) => {
         // 4. Medals and Multimedia Types kept exactly as requested (no change to order)
         const medals = await db.any('SELECT id, title FROM "medals_TBL"'); 
         const mTypes = await db.any('SELECT * FROM "multimedia_type_TBL" ORDER BY id');
+        // --- BUBBLE UP BY ID 0 ---
+       const unknownIndex = countries.findIndex(c => Number(c.id) === 0);
 
+        if (unknownIndex > 0) { 
+        const [unknownItem] = countries.splice(unknownIndex, 1);
+        countries.unshift(unknownItem);
+        }
+        // -------------------------
         res.render('adminUpdate', {
             soldier,
             countries,

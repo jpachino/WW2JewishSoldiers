@@ -249,7 +249,8 @@
     "admin_ready_for_download": "Ready for Download",
     "admin_approved_date": "Admin Approval Date",
     "multiple_files_tip": "Select multiple files at once by holding Shift or Ctrl (Cmd on Mac) while clicking.",
-    "current_files": "Files previously stored for this soldier"
+    "current_files": "Files previously stored for this soldier",
+    "no_files_found": "No Files Found"
 
   },
 "admin": {

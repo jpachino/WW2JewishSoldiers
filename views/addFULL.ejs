@@ -275,7 +275,7 @@
   
   
   <div class="input-group">
-  <label for="dob" class="mandatory"><%= __('fields.dob') %>:</label>
+  <label for="dob" ><%= __('fields.dob') %>:</label>
   <input 
     type="text" 
     name="dob" 
@@ -358,7 +358,7 @@
   <legend><%= __('sections.battleHistory') %></legend>
   <div class="trio-row">
     <div>
-    <label for="army"><%= __('fields.army') %></label>
+    <label for="army" class = "mandatory"><%= __('fields.army') %></label>
     <select name="armyId" id="army">
       <option value=""><%= __('fields.army') %></option>
 
@@ -376,7 +376,7 @@
   </select>
 </div>
 <div>
-  <label for="resistance"><%= __('fields.resistance') %></label>
+  <label for="resistance" class = "mandatory"><%= __('fields.resistance') %></label>
   <select name="resistanceId" id="resistance">
     <option value=""><%= __('fields.resistance') %></option>
 
@@ -395,7 +395,7 @@
 </div>
    
   <div>
-  <label for="partizan"><%= __('fields.partizan') %></label>
+  <label for="partizan" class = "mandatory"><%= __('fields.partizan') %></label>
   <select name="partizanId" id="partizan">
     <option value=""><%= __('fields.partizan') %></option>
 

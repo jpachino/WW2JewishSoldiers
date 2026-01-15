@@ -268,7 +268,9 @@
     "admin_ready_for_download": "מוכן להורדה",
     "admin_approved_date": "תאריך אישור מנהל",
     "multiple_files_tip": "ניתן לבחור מספר קבצים יחד על ידי לחיצה ממושכת על Shift או Ctrl (Cmd במק)",
-    "current_files": "קבצים שאוחסנו בעבר עבור חייל זה"
+    "current_files": "קבצים שאוחסנו בעבר עבור חייל זה",
+    "no_files_found": "לא נמצאו קבצים"
+
 
 
     },
