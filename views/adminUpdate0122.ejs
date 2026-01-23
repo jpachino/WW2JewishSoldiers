@@ -57,10 +57,6 @@
           <br> <br> <br> <br> <br> <br> <br>
      <fieldset>
       <legend><%= __('sections.basic') %></legend>
-      <p style="color: #d9534f; font-size: 0.9rem; margin-top: -5px; font-weight: 500;">
-        <span style="color: #ff0000;">*</span> <%= __('fields.mandatory') %>
-    </p>
-    <br>
   <div class="trio-row">
           <div class="input-group">
             <label for="fname"class="mandatory"><%= __('fields.fname') %></label>
@@ -171,7 +167,8 @@
    <fieldset>
   <legend><%= __('sections.birthdeath') %></legend>
 
-<label for="birthcountry"><%= __('fields.birthcountry') %></label>
+  
+<label>Birth Country:</label>
 <select name="birthcountry" class="mandatory" class="form-control">
     <option value="">--</option>
     <% countries.forEach(country => { 
@@ -211,20 +208,15 @@
 
         <div class="trio-row">
           <div class="input-group">
-            <label for="state"><%= __('fields.state') %>
-             <span style="font-weight: normal; font-size: 0.85em; color: #666;">(<%= __('fields.if_applicable') %>)</span>
-            </label>
+            <label for="state"><%= __('fields.state') %></label>
             <input type="text" name="state" id="state" value="<%= soldier.state || '' %>" />
           </div>
           <div class="input-group">
-            <label for="stateen"><%= __('fields.stateen') %>
-             <span style="font-weight: normal; font-size: 0.85em; color: #666;">(<%= __('fields.if_applicable') %>)</span>
-            </label>
+            <label for="stateen"><%= __('fields.stateen') %></label>
             <input type="text" name="stateen" id="stateen" value="<%= soldier.stateen || '' %>" />
           </div>
           <div class="input-group">
-            <label for="stateru"><%= __('fields.stateru') %> <span style="font-weight: normal; font-size: 0.85em; color: #666;">(<%= __('fields.if_applicable') %>)</span>
-            </label>
+            <label for="stateru"><%= __('fields.stateru') %></label>
             <input type="text" name="stateru" id="stateru" value="<%= soldier.stateru || '' %>" />
           </div>
         </div>
@@ -487,38 +479,20 @@
   </div>
 </div>
 
- <div class="form-section" style="margin-top: 25px; text-align: start;">
-    <label class="roboto-bold" style="font-size: 1.0rem; border-bottom: 2px solid #ddd; padding-bottom: 5px; margin-bottom: 15px; display: block;">
-        <%= __('fields.categories') %>
-    </label>
-
-    <div class="category-grid">
-        <% category.forEach((c, index) => { 
-            // 1. Determine the label based on current UI language
-            let displayLabel = c.title_heb;
-            if (locale === 'en') displayLabel = c.title_eng;
-            else if (locale === 'ru') displayLabel = c.title_rus;
-
-            // 2. Identify the column name (cat1, cat2, etc.)
-            let fieldName = "cat" + (index + 1);
-            
-            // 3. IMPORTANT: Check if this specific category is already saved in the DB
-            // We check if the value in the soldier object is not empty
-            let isChecked = (soldier[fieldName] && soldier[fieldName].length > 0) ? 'checked' : '';
-        %>
-            <div class="category-card">
-                <input type="checkbox" 
-                       name="<%= fieldName %>" 
-                       id="check_<%= fieldName %>" 
-                       value="<%= displayLabel %>"
-                       <%= isChecked %>>
-                
-                <label for="check_<%= fieldName %>">
-                    <%= displayLabel %>
-                </label>
-            </div>
-        <% }) %>
-    </div>
+  <div class="form-group">
+  <label for="category"><%= __('fields.category') %></label>
+  <select name="category" id="category" class="form-control">
+    <option value="">--</option>
+    <% category.forEach(item => { 
+        let displayTitle;
+        if (locale === 'en') { displayTitle = item.title_eng; } 
+        else if (locale === 'ru') { displayTitle = item.title_rus; } 
+        else { displayTitle = item.title_heb; }
+        const isSelected = (soldier.category === item.title_heb) ? 'selected' : ''; 
+    %>
+      <option value="<%= item.id %>" <%= isSelected %>><%= displayTitle %></option>
+    <% }) %>
+  </select>
 </div>
 
  
@@ -557,7 +531,7 @@
   </select>
 </div>
 
-<!--<div class="trio-row">
+<div class="trio-row">
   <div class="input-group">
     <label for="otherparticipation"><%= __('fields.otherparticipation') %></label>
     <input type="text" name="otherparticipation" id="otherparticipation" value="<%= soldier.otherparticipation || '' %>"/>
@@ -570,7 +544,7 @@
     <label for="otherparticipationru"><%= __('fields.otherparticipationru') %></label>
     <input type="text" name="otherparticipationru" id="otherparticipationru" value="<%= soldier.otherparticipationru || '' %>"/>
   </div>
-</div>-->
+</div>
 <div class="trio-row">
   <div class="input-group">
     <label for="wounddetails"><%= __('fields.wounddetails') %></label>
@@ -605,9 +579,6 @@
 <legend><%= __('sections.bio') %></legend>
         <div class="input-group">
           <label for="biography"><%= __('fields.biography') %></label>
-          <p class="help-text" style="font-size: 0.85rem; color: #666; margin-top: -5px;">
-        <%= __('form.biography_desc') %>
-    </p>
           <textarea id="biography" name="biography" rows="10" cols="60"><%= soldier.biography || '' %></textarea>
         </div>
    <!-- =================== Battle History =================== 
@@ -788,9 +759,6 @@
   </template>-->
       <div class="input-group">
   <label for="fightingdesc"><%= __('fields.fightingdesc') %></label>
-  <p class="help-text" style="font-size: 0.85rem; color: #666; margin-top: -5px;">
-    <%= __('form.personal_story_desc') %>
-  </p>
   <textarea name="fightingdesc" id="fightingdesc">
     <%= soldier.fightingdesc || '' %>
   </textarea>
@@ -912,24 +880,36 @@
 </form>
 
 <script>
-/**
- * 1. GLOBAL MULTIMEDIA FUNCTIONS
- * Defined outside so HTML buttons can always find them.
- */
-function handleFileSelect(input, spanId) {
-    const label = document.getElementById(spanId);
-    if (input.files && input.files[0]) {
-        label.textContent = input.files[0].name;
-    } else {
-        label.textContent = `<%= __('fields.no_file_chosen') %>`;
+    /**
+     * 1. DATE MASKING
+     * Supports YYYY, MM-YYYY, and DD-MM-YYYY
+     */
+    function maskDate(e) {
+        let digits = e.target.value.replace(/\D/g, '');
+        let formatted = '';
+        const firstTwo = digits.substring(0, 2);
+        const looksLikeYear = (firstTwo === '18' || firstTwo === '19' || firstTwo === '20');
+
+        if (looksLikeYear && digits.length <= 4) {
+            formatted = digits;
+        } else {
+            if (digits.length > 0) formatted += digits.substring(0, 2);
+            if (digits.length > 2) formatted += '-' + digits.substring(2, 4);
+            if (digits.length > 4) {
+                if (digits.length > 6) {
+                    formatted = digits.substring(0, 2) + '-' + digits.substring(2, 4) + '-' + digits.substring(4, 8);
+                } else {
+                    formatted = digits.substring(0, 2) + '-' + digits.substring(2, 6);
+                }
+            }
+        }
+        e.target.value = formatted;
     }
-}
 
-let rowCount = document.querySelectorAll('.multimedia-row').length;
-
-function addUploadRow() {
-    const container = document.getElementById('multimedia-rows');
-    if (!container) return;
+    /**
+     * 2. MULTIMEDIA LOGIC
+     */
+    let rowCount = document.querySelectorAll('.multimedia-row').length;
 
     const typeOptionsHtml = `
         <option value="">-- <%= __('fields.select_option') %> --</option>
@@ -942,250 +922,202 @@ function addUploadRow() {
         <% } %>
     `;
 
-    const row = document.createElement('div');
-    const currentId = rowCount++;
-    row.className = 'multimedia-row border p-3 mb-3';
-    row.style = "border: 1px solid #ccc; border-radius: 8px; margin-bottom: 15px; padding: 15px;";
+    function addUploadRow() {
+        const container = document.getElementById('multimedia-rows');
+        if (!container) return;
 
-    row.innerHTML = `
-        <div class="row">
-            <div class="col-md-3">
-                <label><%= __('fields.description') %></label>
-                <input type="text" name="m_description[]" class="form-control" required>
-            </div>
-            <div class="col-md-3">
-                <label><%= __('fields.multimedia_type') %></label>
-                <select name="m_type[]" class="form-control type-select">
-                    ${typeOptionsHtml}
-                </select>
-            </div>
-            <div class="col-md-4">
-                <div class="file-wrapper">
-                    <label><%= __('fields.file_upload') %></label>
-                    <input type="file" name="m_files[]" class="file-input" style="display: none;" 
-                           id="file_input_${currentId}" onchange="handleFileSelect(this, 'file_name_${currentId}')">
-                    <div class="d-flex align-items-center" style="gap: 10px;">
-                        <button type="button" class="btn btn-outline-secondary btn-sm" onclick="document.getElementById('file_input_${currentId}').click()">
-                            <%= __('fields.choose_file') %>
-                        </button>
-                        <small id="file_name_${currentId}" class="text-muted"><%= __('fields.no_file_chosen') %></small>
+        const row = document.createElement('div');
+        const currentId = rowCount++;
+        row.className = 'multimedia-row border p-3 mb-3';
+        row.style = "border: 1px solid #ccc; border-radius: 8px; margin-bottom: 15px; padding: 15px;";
+
+        row.innerHTML = `
+            <div class="row">
+                <div class="col-md-3">
+                    <label><%= __('fields.description') %></label>
+                    <input type="text" name="m_description[]" class="form-control" required>
+                </div>
+                <div class="col-md-3">
+                    <label><%= __('fields.multimedia_type') %></label>
+                    <select name="m_type[]" class="form-control type-select">
+                        ${typeOptionsHtml}
+                    </select>
+                </div>
+                <div class="col-md-4">
+                    <div class="file-wrapper">
+                        <label><%= __('fields.file_upload') %></label>
+                        <input type="file" name="m_files[]" class="file-input" style="display: none;" 
+                               id="file_input_${currentId}" onchange="handleFileSelect(this, 'file_name_${currentId}')">
+                        <div class="d-flex align-items-center" style="gap: 10px;">
+                            <button type="button" class="btn btn-outline-secondary btn-sm" onclick="document.getElementById('file_input_${currentId}').click()">
+                                <%= __('fields.choose_file') %>
+                            </button>
+                            <small id="file_name_${currentId}" class="text-muted"><%= __('fields.no_file_chosen') %></small>
+                        </div>
+                    </div>
+                    <div class="location-wrapper" style="display: none;">
+                        <label><%= __('fields.url_link') %></label>
+                        <input type="text" name="physical_logical_location[]" class="form-control" placeholder="https://...">
                     </div>
                 </div>
-                <div class="location-wrapper" style="display: none;">
-                    <label><%= __('fields.url_link') %></label>
-                    <input type="text" name="physical_logical_location[]" class="form-control" placeholder="https://...">
+                <div class="col-md-2 text-right">
+                    <label>&nbsp;</label><br>
+                    <button type="button" class="btn btn-danger" onclick="this.closest('.multimedia-row').remove()">
+                        <%= __('fields.remove') %>
+                    </button>
                 </div>
             </div>
-            <div class="col-md-2 text-right">
-                <label>&nbsp;</label><br>
-                <button type="button" class="btn btn-danger" onclick="this.closest('.multimedia-row').remove()">
-                    <%= __('fields.remove') %>
-                </button>
-            </div>
-        </div>
-    `;
-    container.appendChild(row);
-}
+        `;
+        container.appendChild(row);
+    }
 
-document.addEventListener('DOMContentLoaded', () => {
-    /**
-     * 2. TRIPLE-INPUT DATE LOGIC
-     */
-    const dateGroups = document.querySelectorAll('.date-entry-group');
-    const currentYear = new Date().getFullYear();
-
-    const getMaxDays = (month, year) => {
-        const m = parseInt(month, 10);
-        const y = parseInt(year, 10);
-        if (!m) return 31;
-        if (m === 2) {
-            if (!y) return 29;
-            const isLeap = (y % 4 === 0 && y % 100 !== 0) || (y % 400 === 0);
-            return isLeap ? 29 : 28;
+    function handleFileSelect(input, spanId) {
+        const label = document.getElementById(spanId);
+        if (input.files && input.files[0]) {
+            label.textContent = input.files[0].name;
+        } else {
+            label.textContent = `<%= __('fields.no_file_chosen') %>`;
         }
-        return [4, 6, 9, 11].includes(m) ? 30 : 31;
-    };
+    }
 
-    const triggerError = (inputEl, groupEl, message) => {
-        const errorSpan = groupEl.querySelector('.date-error-msg');
-        if (inputEl) {
-            inputEl.value = '';
-            inputEl.classList.add('input-error');
-            setTimeout(() => inputEl.classList.remove('input-error'), 800);
-        }
-        if (errorSpan) {
-            errorSpan.textContent = message;
-            setTimeout(() => { errorSpan.textContent = ''; }, 3500);
-        }
-    };
+    // Toggle logic for Multimedia Type (URL vs File)
+    document.addEventListener('change', function (event) {
+        if (event.target && event.target.classList.contains('type-select')) {
+            const select = event.target;
+            const row = select.closest('.multimedia-row');
+            const fileWrapper = row.querySelector('.file-wrapper');
+            const locationWrapper = row.querySelector('.location-wrapper');
+            const selectedText = select.options[select.selectedIndex].text;
 
-    const checkDateChronology = () => {
-        const dobHidden = document.getElementById('dob');
-        const dodHidden = document.getElementById('dod');
-        if (!dobHidden || !dodHidden) return;
-
-        const dobVal = dobHidden.value;
-        const dodVal = dodHidden.value;
-
-        if (dobVal && dodVal) {
-            const parseToDate = (str) => {
-                const p = str.split('-');
-                if (p.length === 3) return new Date(p[2], p[1] - 1, p[0]);
-                if (p.length === 2) return new Date(p[1], p[0] - 1, 1);
-                if (p.length === 1) return new Date(p[0], 0, 1);
-                return null;
-            };
-            const dobDate = parseToDate(dobVal);
-            const dodDate = parseToDate(dodVal);
-
-            if (dobDate && dodDate && dodDate < dobDate) {
-                const dodGroup = dodHidden.closest('.date-entry-group');
-                dodGroup.querySelectorAll('input[type="text"]').forEach(inp => inp.value = '');
-                dodHidden.value = '';
-                triggerError(null, dodGroup, "<%= __('errors.dod_before_dob') || 'Date of Death cannot be before Date of Birth' %>");
+            if (selectedText.includes('URL') || selectedText.includes('קישור') || selectedText.includes('Link')) {
+                fileWrapper.style.display = 'none';
+                locationWrapper.style.display = 'block';
+                fileWrapper.querySelector('input').value = '';
+            } else {
+                fileWrapper.style.display = 'block';
+                locationWrapper.style.display = 'none';
+                locationWrapper.querySelector('input').value = '';
             }
-        }
-    };
-
-    dateGroups.forEach(group => {
-        const hiddenInput = group.querySelector('input[type="hidden"]');
-        const dayInp = group.querySelector('.day');
-        const monthInp = group.querySelector('.month');
-        const yearInp = group.querySelector('.year');
-        if(!hiddenInput || !dayInp || !monthInp || !yearInp) return;
-
-        const inputs = [dayInp, monthInp, yearInp];
-
-        const validateAndSync = () => {
-            let d = dayInp.value.trim(), m = monthInp.value.trim(), y = yearInp.value.trim();
-            if (y.length === 4 && parseInt(y, 10) > currentYear) {
-                triggerError(yearInp, group, `Year cannot exceed ${currentYear}`);
-                y = '';
-            }
-            if (m !== '' && parseInt(m, 10) > 12) {
-                triggerError(monthInp, group, "1-12");
-                m = '';
-            }
-            if (d !== '') {
-                const max = getMaxDays(m, y);
-                if (parseInt(d, 10) > max) {
-                    triggerError(dayInp, group, "Invalid day");
-                    d = '';
-                }
-            }
-            const padD = d ? d.padStart(2, '0') : '';
-            const padM = m ? m.padStart(2, '0') : '';
-            let final = '';
-            if (y && m && d) final = `${padD}-${padM}-${y}`;
-            else if (y && m) final = `${padM}-${y}`;
-            else if (y) final = y;
-
-            hiddenInput.value = final;
-            checkDateChronology();
-        };
-
-        inputs.forEach((el, index) => {
-            el.addEventListener('input', () => {
-                el.value = el.value.replace(/\D/g, '');
-                validateAndSync();
-                if (el.value.length >= el.maxLength && index < inputs.length - 1) inputs[index + 1].focus();
-            });
-            el.addEventListener('keydown', (e) => {
-                if (e.key === 'Backspace' && el.value === '' && index > 0) inputs[index - 1].focus();
-            });
-            el.addEventListener('blur', () => {
-                if (el.value && el.value.length === 1 && !el.classList.contains('year')) el.value = el.value.padStart(2, '0');
-                validateAndSync();
-            });
-        });
-
-        // Pre-fill fields on load
-        if (hiddenInput.value) {
-            let val = hiddenInput.value;
-            if (val.length === 10 && val[4] === '-') {
-                const p = val.split('-');
-                val = `${p[2]}-${p[1]}-${p[0]}`;
-            }
-            const parts = val.split('-');
-            if (parts.length === 3) [dayInp.value, monthInp.value, yearInp.value] = parts;
-            else if (parts.length === 2) [monthInp.value, yearInp.value] = parts;
-            else if (parts.length === 1) yearInp.value = parts[0];
         }
     });
 
     /**
-     * 3. BATTLE LOGIC
+     * 3. BATTLE LOGIC & INIT
      */
-    const battleContainer = document.getElementById('battle-container');
-    const addBattleBtn = document.getElementById('add-battle-entry');
-    if (addBattleBtn && battleContainer) {
-        const template = document.getElementById('battle-template').content;
-        addBattleBtn.addEventListener('click', () => {
-            battleContainer.appendChild(document.importNode(template, true));
+    document.addEventListener('DOMContentLoaded', () => {
+        const container = document.getElementById('battle-container');
+        const addBtn = document.getElementById('add-battle-entry');
+        if (addBtn && container) {
+            const template = document.getElementById('battle-template').content;
+            addBtn.addEventListener('click', () => {
+                const newRow = document.importNode(template, true);
+                container.appendChild(newRow);
+            });
+            container.addEventListener('click', (e) => {
+                if (e.target.classList.contains('remove-entry')) {
+                    const row = e.target.closest('.battle-row');
+                    if (row) {
+                        const idInp = row.querySelector('input[name="battleId[]"]');
+                        const delInp = row.querySelector('input[name="delete_battle_id[]"]');
+                        if (idInp && idInp.value) delInp.value = idInp.value;
+                        row.style.display = 'none';
+                    }
+                }
+            });
+        }
+
+        // Attach mask to existing date inputs
+        document.querySelectorAll('.date-input').forEach(input => {
+            input.addEventListener('input', maskDate);
         });
-        battleContainer.addEventListener('click', (e) => {
-            if (e.target.classList.contains('remove-entry')) {
-                const row = e.target.closest('.battle-row');
-                const idInp = row.querySelector('input[name="battleId[]"]');
-                if (idInp && idInp.value) row.querySelector('input[name="delete_battle_id[]"]').value = idInp.value;
-                row.style.display = 'none';
+    });
+
+    /**
+     * 4. FORM SUBMISSION & VALIDATION
+     */
+    document.getElementById("soldierForm").addEventListener("submit", function (e) {
+        const errorSummary = document.getElementById('error-summary');
+        const errorList = document.getElementById('error-list');
+        
+        errorSummary.style.display = 'none';
+        errorList.innerHTML = '';
+        document.querySelectorAll('.is-invalid').forEach(el => el.classList.remove('is-invalid'));
+        
+        let errors = [];
+        let firstErrorElement = null;
+
+        const markError = (ids, message) => {
+            errors.push(message);
+            ids.forEach(id => {
+                const el = document.getElementById(id);
+                if (el) {
+                    el.classList.add('is-invalid');
+                    if (!firstErrorElement) firstErrorElement = el;
+                }
+            });
+        };
+
+        // Service Type Validation
+        if (!document.getElementById('army').value && !document.getElementById('resistance').value && !document.getElementById('partizan').value) {
+            markError(['army', 'resistance', 'partizan'], "Missing Service Type: Please select at least one.");
+        }
+
+        // Name Validations
+        if (!document.getElementById('fname').value.trim() && !document.getElementById('fnameen').value.trim() && !document.getElementById('fnameru').value.trim()) {
+            markError(['fname', 'fnameen', 'fnameru'], "Missing First Name: Provide at least one language.");
+        }
+        if (!document.getElementById('lname').value.trim() && !document.getElementById('lnameen').value.trim() && !document.getElementById('lnameru').value.trim()) {
+            markError(['lname', 'lnameen', 'lnameru'], "Missing Last Name: Provide at least one language.");
+        }
+
+        // Basic Fields
+        if (!document.getElementById('gender').value) markError(['gender'], "Gender is required.");
+        if (!document.getElementById('birthcountryId').value) markError(['birthcountryId'], "Birth Country is required.");
+
+        // Submitter Validation
+        const emailEl = document.getElementById('useremail');
+        if (!emailEl.value.trim()) {
+            markError(['useremail'], "Submitter Email is required.");
+        } else if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(emailEl.value.trim())) {
+            markError(['useremail'], "Submitter Email format is invalid.");
+        }
+
+        if (!document.getElementById('fname_soldier_submitter').value.trim()) markError(['fname_soldier_submitter'], "Submitter First Name is required.");
+        if (!document.getElementById('lname_soldier_submitter').value.trim()) markError(['lname_soldier_submitter'], "Submitter Last Name is required.");
+        if (!document.getElementById('phone_soldier_submitter').value.trim()) markError(['phone_soldier_submitter'], "Submitter Phone Number is required.");
+
+        // Date Validation
+        const dateFields = ["dob", "dod", "aliyadate"];
+        const flexibleDateRegex = /^(\d{4}|(0[1-9]|1[0-2])-\d{4}|(0[1-9]|[12][0-9]|3[01])-(0[1-9]|1[0-2])-\d{4})$/;
+
+        dateFields.forEach(f => {
+            const el = document.getElementById(f);
+            if (el && el.value.trim()) {
+                if (!flexibleDateRegex.test(el.value.trim())) {
+                    markError([f], `❌ <%= __('errors.invalid_date') %>: ${f.toUpperCase()} (YYYY, MM-YYYY, or DD-MM-YYYY)`);
+                } 
             }
         });
-    }
-});
 
-/**
- * 4. MULTIMEDIA TOGGLE (URL vs FILE)
- */
-document.addEventListener('change', function (event) {
-    if (event.target && event.target.classList.contains('type-select')) {
-        const row = event.target.closest('.multimedia-row');
-        const fileWrapper = row.querySelector('.file-wrapper');
-        const locationWrapper = row.querySelector('.location-wrapper');
-        const selectedText = event.target.options[event.target.selectedIndex].text;
+        if (errors.length > 0) {
+            e.preventDefault(); 
+            errors.forEach(err => {
+                const li = document.createElement('li');
+                li.innerHTML = "❌ " + err; 
+                errorList.appendChild(li);
+            });
 
-        if (selectedText.match(/URL|קישור|Link/i)) {
-            fileWrapper.style.display = 'none';
-            locationWrapper.style.display = 'block';
-        } else {
-            fileWrapper.style.display = 'block';
-            locationWrapper.style.display = 'none';
+            errorSummary.style.display = 'block';
+            const yOffset = -100; 
+            const y = errorSummary.getBoundingClientRect().top + window.pageYOffset + yOffset;
+            window.scrollTo({ top: y, behavior: 'smooth' });
+
+            if (firstErrorElement) {
+                setTimeout(() => { firstErrorElement.focus({ preventScroll: true }); }, 800);
+            }
+            return false;
         }
-    }
-});
-
-/**
- * 5. FORM SUBMISSION
- */
-document.getElementById("soldierForm").addEventListener("submit", function (e) {
-    const errorSummary = document.getElementById('error-summary');
-    const errorList = document.getElementById('error-list');
-    errorSummary.style.display = 'none';
-    errorList.innerHTML = '';
-    
-    let errors = [];
-    const markError = (ids, message) => {
-        errors.push(message);
-        ids.forEach(id => {
-            const el = document.getElementById(id);
-            if (el) el.classList.add('is-invalid');
-        });
-    };
-
-    // Name Validations
-    if (!['fname', 'fnameen', 'fnameru'].some(id => document.getElementById(id)?.value.trim())) {
-        markError(['fname'], "Missing First Name");
-    }
-
-    if (errors.length > 0) {
-        e.preventDefault();
-        errors.forEach(err => {
-            const li = document.createElement('li');
-            li.innerHTML = "❌ " + err;
-            errorList.appendChild(li);
-        });
-        errorSummary.style.display = 'block';
-        window.scrollTo({ top: errorSummary.offsetTop - 100, behavior: 'smooth' });
-    }
-});
+    });
 </script>
+</body>
+</html>

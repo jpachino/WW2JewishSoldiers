@@ -133,15 +133,8 @@
     </fieldset>
     <fieldset>
       <legend><%= __('sections.basic') %></legend>
-      
-    <p style="color: #d9534f; font-size: 0.9rem; margin-top: -5px; font-weight: 500;">
-        <span style="color: #ff0000;">*</span> <%= __('fields.mandatory') %>
-    </p>
-    <br>    
   <div class="trio-row">
-
     <div class="input-group">
-      
       <label for="fname" class="mandatory"><%= __('fields.fname') %></label>
       <input type="text" name="fname" id="fname" />
     </div>
@@ -292,64 +285,63 @@
 
   <div class="trio-row">
     <div class="input-group">
-        <label for="state">
-            <%= __('fields.state') %> 
-            <span style="font-weight: normal; font-size: 0.85em; color: #666;">(<%= __('fields.if_applicable') %>)</span>
-        </label>
-        <input type="text" name="state" id="state" />
+      <label for="state"><%= __('fields.state') %></label>
+      <input type="text" name="state" id="state" />
     </div>
-
     <div class="input-group">
-        <label for="stateen">
-            <%= __('fields.stateen') %> 
-            <span style="font-weight: normal; font-size: 0.85em; color: #666;">(<%= __('fields.if_applicable') %>)</span>
-        </label>
-        <input type="text" name="stateen" id="stateen" />
+      <label for="stateen"><%= __('fields.stateen') %></label>
+      <input type="text" name="stateen" id="stateen" />
     </div>
-
     <div class="input-group">
-        <label for="stateru">
-            <%= __('fields.stateru') %> 
-            <span style="font-weight: normal; font-size: 0.85em; color: #666;">(<%= __('fields.if_applicable') %>)</span>
-        </label>
-        <input type="text" name="stateru" id="stateru" />
+      <label for="stateru"><%= __('fields.stateru') %></label>
+      <input type="text" name="stateru" id="stateru" />
     </div>
-</div>
+  </div>
 
   
   
- <div class="input-group date-entry-group">
-    <label for="dob"><%= __('fields.dob') %>:</label>
-    <div class="triple-input">
-        <input type="text" class="day" placeholder="DD" maxlength="2" aria-label="Day of Birth">
-        <input type="text" class="month" placeholder="MM" maxlength="2" aria-label="Month of Birth">
-        <input type="text" class="year" placeholder="YYYY" maxlength="4" aria-label="Year of Birth">
-    </div>
-    <span class="date-error-msg"></span>
-    <input type="hidden" name="dob" id="dob" value="<%= soldier.dob || '' %>">
+  <div class="input-group">
+  <label for="dob" ><%= __('fields.dob') %>:</label>
+  <input 
+    type="text" 
+    name="dob" 
+    id="dob" 
+    placeholder="YYYY or MM-YYYY or DD-MM-YYYY"
+    value="<%= soldier.dob || '' %>"
+    pattern="^(\d{4}|(0[1-9]|1[0-2])-\d{4}|(0[1-9]|[12][0-9]|3[01])-(0[1-9]|1[0-2])-\d{4})$"
+    title="Accepted: 1945, 05-1945, or 12-05-1945"
+  />
 </div>
 
-<div class="input-group date-entry-group">
-    <label for="dod"><%= __('fields.dod') %>:</label>
-    <div class="triple-input">
-        <input type="text" class="day" placeholder="DD" maxlength="2" aria-label="Day of Death">
-        <input type="text" class="month" placeholder="MM" maxlength="2" aria-label="Month of Death">
-        <input type="text" class="year" placeholder="YYYY" maxlength="4" aria-label="Year of Death">
-    </div>
-    <span class="date-error-msg"></span>
-    <input type="hidden" name="dod" id="dod" value="<%= soldier.dod || '' %>">
+<div class="input-group">
+  <label for="dod"><%= __('fields.dod') %>:</label>
+  <input 
+    type="text" 
+    name="dod" 
+    id="dod" 
+    placeholder="YYYY or MM-YYYY or DD-MM-YYYY"
+    value="<%= soldier.dod || '' %>"
+    pattern="^(\d{4}|(0[1-9]|1[0-2])-\d{4}|(0[1-9]|[12][0-9]|3[01])-(0[1-9]|1[0-2])-\d{4})$"
+    title="Accepted: 1945, 05-1945, or 12-05-1945"
+  />
 </div>
 
-<div class="input-group date-entry-group">
-    <label for="aliyadate"><%= __('fields.aliyadate') %>:</label>
-    <div class="triple-input">
-        <input type="text" class="day" placeholder="DD" maxlength="2" aria-label="Day of Aliyah">
-        <input type="text" class="month" placeholder="MM" maxlength="2" aria-label="Month of Aliyah">
-        <input type="text" class="year" placeholder="YYYY" maxlength="4" aria-label="Year of Aliyah">
-    </div>
-    <span class="date-error-msg"></span>
-    <input type="hidden" name="aliyadate" id="aliyadate" value="<%= soldier.aliyadate || '' %>">
+<div class="input-group">
+  <label for="aliyadate"><%= __('fields.aliyadate') %>:</label>
+  <input 
+    type="text" 
+    name="aliyadate" 
+    id="aliyadate" 
+   placeholder="YYYY or MM-YYYY or DD-MM-YYYY"
+    value="<%= soldier.aliyadate || '' %>"
+    pattern="^(\d{4}|(0[1-9]|1[0-2])-\d{4}|(0[1-9]|[12][0-9]|3[01])-(0[1-9]|1[0-2])-\d{4})$"
+    title="Accepted: 1945, 05-1945, or 12-05-1945"
+  />
 </div>
+   
+
+
+
 
   <div class="trio-row">
     <div class="input-group">
@@ -390,12 +382,7 @@
 
  <fieldset>
   <legend><%= __('sections.battleHistory') %></legend>
-  <p style="color: #d9534f; font-size: 0.9rem; margin-top: -5px; font-weight: 500;">
-        <span style="color: #ff0000;">*</span> <%= __('form.pick_one_option') %>
-    </p>
   <div class="trio-row">
-    
-    
     <div>
     <label for="army" class = "mandatory"><%= __('fields.army') %></label>
     <select name="armyId" id="army">
@@ -559,36 +546,23 @@
       <input type="text" name="gettodescru" id="gettodescru" />
     </div>
   </div>
-   <div class="form-section" style="margin-top: 25px; text-align: start;">
-    <label class="roboto-bold" style="font-size: 1.0rem; border-bottom: 2px solid #ddd; padding-bottom: 5px; margin-bottom: 15px; display: block;">
-        <%= __('fields.categories') %>
-    </label>
+   <div>
+  <label for="category"><%= __('fields.category') %></label>
+  <select name="categoryId" id="category">
+    <option value=""><%= __('fields.category') %></option>
 
-    <div class="category-grid">
-        <% category.forEach((c, index) => { 
-            let displayLabel = c.title_heb;
-            if (locale === 'en') displayLabel = c.title_eng;
-            else if (locale === 'ru') displayLabel = c.title_rus;
-
-            let fieldName = "cat" + (index + 1);
-            
-            let isChecked = (soldier[fieldName] === c.title_heb || 
-                             soldier[fieldName] === c.title_eng || 
-                             soldier[fieldName] === c.title_rus);
-        %>
-            <div class="category-card">
-                <input type="checkbox" 
-                       name="<%= fieldName %>" 
-                       id="check_<%= fieldName %>" 
-                       value="<%= displayLabel %>"
-                       <%= isChecked ? 'checked' : '' %>>
-                
-                <label for="check_<%= fieldName %>">
-                    <%= displayLabel %>
-                </label>
-            </div>
-        <% }) %>
-    </div>
+    <% category.forEach(c => { %>
+      <% 
+         // Logic to determine which label to show the user based on language
+         let label = c.title_heb;
+         if (locale === 'en') label = c.title_eng;
+         if (locale === 'ru') label = c.title_rus;
+      %>
+      <option value="<%= c.id %>" <%= (soldier.categoryId == c.id) ? 'selected' : '' %>>
+        <%= label %>
+      </option>
+    <% }) %>
+  </select>
 </div>
     <!--<div class="trio-row">
     <div class="input-group">
@@ -623,7 +597,7 @@
     <% }) %>
   </select>
 </div>
-   <!--<div class="trio-row">
+   <div class="trio-row">
     <div class="input-group">
       <label for="otherparticipation"><%= __('fields.otherparticipation') %></label>
       <input type="text" name="otherparticipation" id="otherparticipation" />
@@ -636,7 +610,7 @@
       <label for="otherparticipationru"><%= __('fields.otherparticipationru') %></label>
       <input type="text" name="otherparticipationru" id="otherparticipationru" />
     </div>
-  </div>-->
+  </div>
     
 
  
@@ -744,10 +718,7 @@
  <fieldset>
  <legend><%= __('sections.bio') %></legend>
     <div class="input-group">
-     <label for="biography" class="roboto-bold"><%= __('fields.biography') %></label>
-    <p class="help-text" style="font-size: 0.85rem; color: #666; margin-top: -5px;">
-        <%= __('form.biography_desc') %>
-    </p>
+      <label for="biography"><%= __('fields.biography') %></label>
       <!--<textarea name="biography" id="biography"></textarea>-->
       <textarea id="biography" name="biography" rows="10" cols="60" placeholder=""></textarea>
 
@@ -755,11 +726,7 @@
     
   
     <div class="input-group">
-      
-      <label for="personal_story" class="roboto-bold"><%= __('fields.fightingdesc') %></label>
-    <p class="help-text" style="font-size: 0.85rem; color: #666; margin-top: -5px;">
-        <%= __('form.personal_story_desc') %>
-    </p>
+      <label for="fightingdesc"><%= __('fields.fightingdesc') %></label>
       <textarea name="fightingdesc" id="fightingdesc"></textarea>
     </div>
  </fieldset>  
@@ -882,7 +849,7 @@
         <button type="submit" class="btn btn-primary btn-lg"><%= __('submit') %></button>
     </div>
 </form>
-<!--<script>
+<script>
   function maskDate(e) {
     // 1. Get digits only
     let digits = e.target.value.replace(/\D/g, '');
@@ -917,137 +884,6 @@
 
     e.target.value = formatted;
 }
-</script>-->
-<script>
-document.addEventListener('DOMContentLoaded', () => {
-    const dateGroups = document.querySelectorAll('.date-entry-group');
-    const currentYear = new Date().getFullYear();
-
-    const getMaxDays = (month, year) => {
-        const m = parseInt(month, 10);
-        const y = parseInt(year, 10);
-        if (!m) return 31;
-        if (m === 2) {
-            if (!y) return 29; 
-            const isLeap = (y % 4 === 0 && y % 100 !== 0) || (y % 400 === 0);
-            return isLeap ? 29 : 28;
-        }
-        return [4, 6, 9, 11].includes(m) ? 30 : 31;
-    };
-
-    const triggerError = (inputEl, groupEl, message) => {
-        const errorSpan = groupEl.querySelector('.date-error-msg');
-        if (inputEl) {
-            inputEl.value = '';
-            inputEl.classList.add('input-error');
-            setTimeout(() => inputEl.classList.remove('input-error'), 800);
-        }
-        errorSpan.textContent = message;
-        setTimeout(() => { errorSpan.textContent = ''; }, 3500);
-    };
-
-    // New logic: Compare DOB and DOD
-    const checkDateChronology = () => {
-        const dobVal = document.getElementById('dob').value; // e.g. "12-05-1920"
-        const dodVal = document.getElementById('dod').value; // e.g. "10-04-1915"
-
-        if (dobVal && dodVal) {
-            // Split and reverse to YYYY-MM-DD for standard date comparison
-            const dobParts = dobVal.split('-').reverse();
-            const dodParts = dodVal.split('-').reverse();
-
-            // Fill in missing MM or DD with '01' for comparison purposes
-            const dobDate = new Date(dobParts.join('-'));
-            const dodDate = new Date(dodParts.join('-'));
-
-            if (dodDate < dobDate) {
-                const dodGroup = document.getElementById('dod').closest('.date-entry-group');
-                const dodInputs = dodGroup.querySelectorAll('input[type="text"]');
-                
-                dodInputs.forEach(inp => inp.value = '');
-                document.getElementById('dod').value = '';
-                triggerError(null, dodGroup, "Date of Death cannot be before Date of Birth");
-            }
-        }
-    };
-
-    dateGroups.forEach(group => {
-        const hiddenInput = group.querySelector('input[type="hidden"]');
-        const dayInp = group.querySelector('.day');
-        const monthInp = group.querySelector('.month');
-        const yearInp = group.querySelector('.year');
-        const inputs = [dayInp, monthInp, yearInp];
-
-        const validateAndSync = () => {
-            let d = dayInp.value.trim();
-            let m = monthInp.value.trim();
-            let y = yearInp.value.trim();
-
-            if (y !== '' && y.length === 4) {
-                if (parseInt(y, 10) > currentYear) {
-                    triggerError(yearInp, group, `Year cannot exceed ${currentYear}`);
-                    y = '';
-                }
-            }
-
-            if (m !== '' && parseInt(m, 10) > 12) {
-                triggerError(monthInp, group, "Month must be 01-12");
-                m = '';
-            }
-
-            if (d !== '') {
-                const max = getMaxDays(m, y);
-                if (parseInt(d, 10) > max) {
-                    const msg = m == 2 ? `Feb ${y || ''} only has ${max} days` : `This month only has ${max} days`;
-                    triggerError(dayInp, group, msg);
-                    d = '';
-                }
-            }
-
-            const padD = d.padStart(d ? 2 : 0, '0');
-            const padM = m.padStart(m ? 2 : 0, '0');
-            
-            let final = '';
-            if (y && m && d) final = `${padD}-${padM}-${y}`;
-            else if (y && m) final = `${padM}-${y}`;
-            else if (y) final = y;
-            
-            hiddenInput.value = final;
-            
-            // Run chronology check after every update
-            checkDateChronology();
-        };
-
-        inputs.forEach((el, index) => {
-            el.addEventListener('input', () => {
-                el.value = el.value.replace(/\D/g, '');
-                validateAndSync();
-                if (el.value.length >= el.maxLength && index < inputs.length - 1) {
-                    inputs[index + 1].focus();
-                }
-            });
-            el.addEventListener('keydown', (e) => {
-                if (e.key === 'Backspace' && el.value === '' && index > 0) {
-                    inputs[index - 1].focus();
-                }
-            });
-            el.addEventListener('blur', () => {
-                if (el.value && el.value.length === 1 && !el.classList.contains('year')) {
-                    el.value = el.value.padStart(2, '0');
-                }
-                validateAndSync();
-            });
-        });
-
-        // Initial Load
-        if (hiddenInput.value) {
-            const parts = hiddenInput.value.split('-');
-            if (parts.length === 3) [dayInp.value, monthInp.value, yearInp.value] = parts;
-            else if (parts.length === 2) [monthInp.value, yearInp.value] = parts;
-            else if (parts.length === 1) yearInp.value = parts[0];
-        }
-    });
-});
 </script>
 <script>
 const addBattleBtn = document.getElementById('add-battle');

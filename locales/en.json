@@ -46,7 +46,7 @@
   },
  
   "sections": {
-    "basic":"basic information",
+    "basic":"soldier basic information",
     "bio": "bio",
     "parents": "parents",
     "military": "military",
@@ -201,7 +201,7 @@
     "relation_of_soldier_submitter": "Your relationship to soldier",
     "how_found_us_submitter": "How did you find us?",
     "soldier_previously_submitted": "Soldier previously submitted?",
-    "description": "Description",
+    "description": "File Name",
     "multimedia_type": "Multimedia Type",
     "file_upload": "Upload File",
     "profile_preview_title": "Profile Picture Preview:",
@@ -215,7 +215,10 @@
     "choose_file": "Choose File",
     "add_new_files": "Add New Files",
     "preview_link": "Preview / Link",
-    "additional_materials": "Additional materials – please send to"
+    "additional_materials": "Additional materials – please send to",
+    "categories": "Categories",
+    "mandatory": "Fill in at least one language.",
+    "if_applicable": "if applicable"
     
     
   },
@@ -232,10 +235,12 @@
     "infoText": "This form will be used as input to the information system of the Jewish World War II Veterans website (jwmww2.org)...\n\nIt is possible and desirable to fill out the details in 3 languages — Hebrew, English and Russian. However, it is not mandatory to fill out more than one language.\n\nThank you for your cooperation.",
     "sendMaterials": "Additional materials (PDF, etc.) please send to",
     "thankYou": "Thank you for your cooperation.",
-    "mark_complete": "I confirm that the record is complete and accurate",
-    "mark_complete_note": "Once marked complete, changes can only be made by contacting us.",
-    "mark_complete_note2":"Do not click complete record box if you want to make future changes to this soldier information.",
-    "mark_complete_note3":"The record will be stored and you can continue to update the soldier information until this box is checked.",
+    
+    "mark_complete": "I completed filling the record",
+    "mark_complete_note": "By marking “I completed filling the record”, you will finish submitting the form.",
+    "mark_complete_note2": "The record will be stored for 72 hours from creation, and you can continue updating the soldier information until this box is checked.",
+    "mark_complete_note3": "If you wish to keep editing the form, Do not click \"I completed filling the record\" box.",
+
     "admin_complete": "I as an administrator confirm that the record is ready for download",
     "select": "Select",
     "firstName": "First Name",
@@ -250,7 +255,12 @@
     "admin_approved_date": "Admin Approval Date",
     "multiple_files_tip": "Select multiple files at once by holding Shift or Ctrl (Cmd on Mac) while clicking.",
     "current_files": "Files previously stored for this soldier",
-    "no_files_found": "No Files Found"
+    "no_files_found": "No Files Found",
+    "biography_title": "Biography Definition",
+    "biography_desc": "From his (or her) birth to his death, with an emphasis on his activities during World War II",
+    "personal_story_title": "Personal Story Definition",
+    "personal_story_desc": "A personal story from his (or her) time as a soldier",
+    "pick_one_option": "Pick at least one option"
 
   },
 "admin": {

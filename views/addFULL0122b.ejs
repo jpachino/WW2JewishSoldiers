@@ -133,15 +133,8 @@
     </fieldset>
     <fieldset>
       <legend><%= __('sections.basic') %></legend>
-      
-    <p style="color: #d9534f; font-size: 0.9rem; margin-top: -5px; font-weight: 500;">
-        <span style="color: #ff0000;">*</span> <%= __('fields.mandatory') %>
-    </p>
-    <br>    
   <div class="trio-row">
-
     <div class="input-group">
-      
       <label for="fname" class="mandatory"><%= __('fields.fname') %></label>
       <input type="text" name="fname" id="fname" />
     </div>
@@ -292,29 +285,18 @@
 
   <div class="trio-row">
     <div class="input-group">
-        <label for="state">
-            <%= __('fields.state') %> 
-            <span style="font-weight: normal; font-size: 0.85em; color: #666;">(<%= __('fields.if_applicable') %>)</span>
-        </label>
-        <input type="text" name="state" id="state" />
+      <label for="state"><%= __('fields.state') %></label>
+      <input type="text" name="state" id="state" />
     </div>
-
     <div class="input-group">
-        <label for="stateen">
-            <%= __('fields.stateen') %> 
-            <span style="font-weight: normal; font-size: 0.85em; color: #666;">(<%= __('fields.if_applicable') %>)</span>
-        </label>
-        <input type="text" name="stateen" id="stateen" />
+      <label for="stateen"><%= __('fields.stateen') %></label>
+      <input type="text" name="stateen" id="stateen" />
     </div>
-
     <div class="input-group">
-        <label for="stateru">
-            <%= __('fields.stateru') %> 
-            <span style="font-weight: normal; font-size: 0.85em; color: #666;">(<%= __('fields.if_applicable') %>)</span>
-        </label>
-        <input type="text" name="stateru" id="stateru" />
+      <label for="stateru"><%= __('fields.stateru') %></label>
+      <input type="text" name="stateru" id="stateru" />
     </div>
-</div>
+  </div>
 
   
   
@@ -390,12 +372,7 @@
 
  <fieldset>
   <legend><%= __('sections.battleHistory') %></legend>
-  <p style="color: #d9534f; font-size: 0.9rem; margin-top: -5px; font-weight: 500;">
-        <span style="color: #ff0000;">*</span> <%= __('form.pick_one_option') %>
-    </p>
   <div class="trio-row">
-    
-    
     <div>
     <label for="army" class = "mandatory"><%= __('fields.army') %></label>
     <select name="armyId" id="army">
@@ -559,36 +536,23 @@
       <input type="text" name="gettodescru" id="gettodescru" />
     </div>
   </div>
-   <div class="form-section" style="margin-top: 25px; text-align: start;">
-    <label class="roboto-bold" style="font-size: 1.0rem; border-bottom: 2px solid #ddd; padding-bottom: 5px; margin-bottom: 15px; display: block;">
-        <%= __('fields.categories') %>
-    </label>
+   <div>
+  <label for="category"><%= __('fields.category') %></label>
+  <select name="categoryId" id="category">
+    <option value=""><%= __('fields.category') %></option>
 
-    <div class="category-grid">
-        <% category.forEach((c, index) => { 
-            let displayLabel = c.title_heb;
-            if (locale === 'en') displayLabel = c.title_eng;
-            else if (locale === 'ru') displayLabel = c.title_rus;
-
-            let fieldName = "cat" + (index + 1);
-            
-            let isChecked = (soldier[fieldName] === c.title_heb || 
-                             soldier[fieldName] === c.title_eng || 
-                             soldier[fieldName] === c.title_rus);
-        %>
-            <div class="category-card">
-                <input type="checkbox" 
-                       name="<%= fieldName %>" 
-                       id="check_<%= fieldName %>" 
-                       value="<%= displayLabel %>"
-                       <%= isChecked ? 'checked' : '' %>>
-                
-                <label for="check_<%= fieldName %>">
-                    <%= displayLabel %>
-                </label>
-            </div>
-        <% }) %>
-    </div>
+    <% category.forEach(c => { %>
+      <% 
+         // Logic to determine which label to show the user based on language
+         let label = c.title_heb;
+         if (locale === 'en') label = c.title_eng;
+         if (locale === 'ru') label = c.title_rus;
+      %>
+      <option value="<%= c.id %>" <%= (soldier.categoryId == c.id) ? 'selected' : '' %>>
+        <%= label %>
+      </option>
+    <% }) %>
+  </select>
 </div>
     <!--<div class="trio-row">
     <div class="input-group">
@@ -623,7 +587,7 @@
     <% }) %>
   </select>
 </div>
-   <!--<div class="trio-row">
+   <div class="trio-row">
     <div class="input-group">
       <label for="otherparticipation"><%= __('fields.otherparticipation') %></label>
       <input type="text" name="otherparticipation" id="otherparticipation" />
@@ -636,7 +600,7 @@
       <label for="otherparticipationru"><%= __('fields.otherparticipationru') %></label>
       <input type="text" name="otherparticipationru" id="otherparticipationru" />
     </div>
-  </div>-->
+  </div>
     
 
  
@@ -744,10 +708,7 @@
  <fieldset>
  <legend><%= __('sections.bio') %></legend>
     <div class="input-group">
-     <label for="biography" class="roboto-bold"><%= __('fields.biography') %></label>
-    <p class="help-text" style="font-size: 0.85rem; color: #666; margin-top: -5px;">
-        <%= __('form.biography_desc') %>
-    </p>
+      <label for="biography"><%= __('fields.biography') %></label>
       <!--<textarea name="biography" id="biography"></textarea>-->
       <textarea id="biography" name="biography" rows="10" cols="60" placeholder=""></textarea>
 
@@ -755,11 +716,7 @@
     
   
     <div class="input-group">
-      
-      <label for="personal_story" class="roboto-bold"><%= __('fields.fightingdesc') %></label>
-    <p class="help-text" style="font-size: 0.85rem; color: #666; margin-top: -5px;">
-        <%= __('form.personal_story_desc') %>
-    </p>
+      <label for="fightingdesc"><%= __('fields.fightingdesc') %></label>
       <textarea name="fightingdesc" id="fightingdesc"></textarea>
     </div>
  </fieldset>  

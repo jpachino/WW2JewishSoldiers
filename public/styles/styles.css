@@ -435,10 +435,110 @@ html[lang="he"] .info-box {
     border-radius: 4px;
     line-height: 1.5;
 }
+/* Layout for the three fields */
+.triple-input {
+    display: flex;
+    gap: 8px;
+    align-items: center;
+}
+
+.triple-input input {
+    width: 50px; /* Default for DD/MM */
+    text-align: center;
+    padding: 8px;
+    border: 1px solid #ccc;
+    border-radius: 4px;
+}
+
+.triple-input .year {
+    width: 80px; /* Wider for YYYY */
+}
+
+/* Error styling */
+.date-error-msg {
+    color: #d93025;
+    font-size: 0.85rem;
+    display: block;
+    min-height: 1.2em; /* Prevents layout jump when message appears */
+    margin-top: 4px;
+    font-weight: 500;
+}
+
+.input-error {
+    border: 2px solid #d93025 !important;
+    background-color: #fce8e6 !important;
+    outline: none;
+}
 /* For Hebrew (RTL) mode, flip the border to the right */
 html[lang="he"] .help-box-alert {
     border-left: none;
     border-right: 5px solid #2196f3;
+}
+/* --- Categories Grid System --- */
+.category-grid {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 15px;
+    margin-top: 15px;
+    /* Forces alignment to the right if Hebrew, left if English */
+    justify-content: flex-start; 
+}
+
+/* Ensure Hebrew (RTL) aligns to the right */
+html[lang="he"] .category-grid {
+    justify-content: flex-start; 
+}
+
+.category-card {
+    /* flex-grow: 0, flex-shrink: 0, basis: width */
+    flex: 0 0 calc(25% - 11.25px); 
+    box-sizing: border-box;
+    display: flex;
+    align-items: center;
+    padding: 12px;
+    background: #ffffff;
+    border: 1px solid #ddd;
+    border-radius: 6px;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+    transition: transform 0.2s, border-color 0.2s;
+    min-height: 50px;
+}
+
+.category-card:hover {
+    border-color: #333;
+}
+
+/* Fix for the checkbox to prevent global width override */
+.category-card input[type="checkbox"] {
+    width: 20px !important;
+    height: 20px !important;
+    margin: 0 10px !important;
+    cursor: pointer;
+    flex-shrink: 0;
+}
+
+.category-card label {
+    margin: 0 !important;
+    padding: 0 5px;
+    font-size: 0.9rem;
+    font-weight: 400;
+    cursor: pointer;
+    line-height: 1.2;
+    text-align: start;
+}
+
+/* Responsive: 2 per row on smaller tablets */
+@media (max-width: 992px) {
+    .category-card {
+        flex: 0 0 calc(50% - 15px);
+    }
+}
+
+/* Responsive: 1 per row on mobile */
+@media (max-width: 480px) {
+    .category-card {
+        flex: 0 0 100%;
+    }
 }
 /* Adjust for mobile */
 @media (max-width: 768px) {
