@@ -2284,7 +2284,24 @@ app.post('/admin/downloadExcel', async (req, res) => {
     const MAX_BATTLES = 5;
     const MAX_FILES = 12;
 
-    // 1. Updated XML Tag Map (Removed old category, added cat1-cat8)
+     // 1. Create the header map for Categories 1-8 first
+   // --- 2. CREATE THE DYNAMIC DATA FIRST ---
+    const catXmlTags = {};
+    const catHeaders = {};
+
+    for (let i = 1; i <= 8; i++) {
+        // Prepare the XML tags
+        catXmlTags[`cat${i}`]   = `Category_${i}_HEB`;
+        catXmlTags[`cat${i}en`] = `Category_${i}_ENG`;
+        catXmlTags[`cat${i}ru`] = `Category_${i}_RUS`;
+
+        // Prepare the Excel Headers
+        catHeaders[`cat${i}`]   = `קטגוריה_${i}_HEB`;
+        catHeaders[`cat${i}en`] = `קטגוריה_${i}_ENG`;
+        catHeaders[`cat${i}ru`] = `קטגוריה_${i}_RUS`;
+    }
+ // 2. Updated XML Tag Map
+    // 2. Updated XML Tag Map
     const XML_TAG_MAP = {
         'id': 'FormID',
         'fname': 'FirstName_HEB', 'fnameen': 'FirstName_ENG', 'fnameru': 'FirstName_RUS',
@@ -2299,9 +2316,9 @@ app.post('/admin/downloadExcel', async (req, res) => {
         'state': 'State_HEB', 'stateen': 'State_ENG', 'stateru': 'State_RUS',
         'dob': 'DateOfBirth',
         'armyid': 'ArmyID',
-        // Added cat1-cat8
-        'cat1': 'Category_1', 'cat2': 'Category_2', 'cat3': 'Category_3', 'cat4': 'Category_4',
-        'cat5': 'Category_5', 'cat6': 'Category_6', 'cat7': 'Category_7', 'cat8': 'Category_8',
+
+        ...catXmlTags, // Dynamic XML Tags injected here
+
         'platoonname': 'Platoon_HEB', 'platoonnameen': 'Platoon_ENG', 'platoonnameru': 'Platoon_RUS',
         'armyrole': 'Role_HEB', 'armyroleen': 'Role_ENG', 'armyroleru': 'Role_RUS',
         'wounddetails': 'WoundDetails_HEB', 'wounddetailsen': 'WoundDetails_ENG', 'wounddetailsru': 'WoundDetails_RUS',
@@ -2309,7 +2326,7 @@ app.post('/admin/downloadExcel', async (req, res) => {
         'dod': 'DateOfDeath',
         'placeofdeath': 'PlaceOfDeath_HEB', 'placeofdeathen': 'PlaceOfDeath_ENG', 'placeofdeathru': 'PlaceOfDeath_RUS',
         'enlistreason': 'EnlistReason_HEB', 'enlistreasonen': 'EnlistReason_ENG', 'enlistreasonru': 'EnlistReason_RUS',
-        'rank': 'ReleaseReason_HEB', 'ranken': 'ReleaseReason_ENG', 'rankru': 'ReleaseReason_RUS',
+        'rank': 'Rank_HEB', 'ranken': 'Rank_ENG', 'rankru': 'Rank_RUS',
         'army': 'ArmyAffiliation_HEB', 'armyen': 'ArmyAffiliation_ENG', 'armyru': 'ArmyAffiliation_RUS',
         'resistance': 'ResistanceAffiliation_HEB', 'resistanceen': 'ResistanceAffiliation_ENG', 'resistanceru': 'ResistanceAffiliation_RUS',
         'partizan': 'PartisanAffiliation_HEB', 'partizanen': 'PartisanAffiliation_ENG', 'partizanru': 'PartisanAffiliation_RUS',
@@ -2323,10 +2340,11 @@ app.post('/admin/downloadExcel', async (req, res) => {
         'aliyadate': 'AliyaDate',
         'biography': 'FullBiography',
         'download_date': 'DownloadDate'
-        
     };
-
-    // 2. Updated Excel Header Map (Removed old category, added cat1-cat8)
+    
+    
+    // 2.  Excel Header Map 
+  
     const EXCEL_HEADER_MAP = {
         'id': 'Form ID',
         'fname': 'שם פרטי_HEB', 'fnameen': 'שם פרטי_ENG', 'fnameru': 'שם פרטי_RUS',
@@ -2342,8 +2360,9 @@ app.post('/admin/downloadExcel', async (req, res) => {
         'dob': 'תאריך לידה',
         'armyid': 'מ.א. מספר אישי',
         // Added cat1-cat8 headers
-        'cat1': 'קטגוריה_1', 'cat2': 'קטגוריה 2', 'cat3': 'קטגוריה 3', 'cat4': 'קטגוריה 4',
-        'cat5': 'קטגוריה 5', 'cat6': 'קטגוריה 6', 'cat7': 'קטגוריה 7', 'cat8': 'קטגוריה 8',
+        //'cat1': 'קטגוריה_1', 'cat2': 'קטגוריה_2', 'cat3': 'קטגוריה 3', 'cat4': 'קטגוריה 4',
+        //'cat5': 'קטגוריה 5', 'cat6': 'קטגוריה 6', 'cat7': 'קטגוריה 7', 'cat8': 'קטגוריה 8',
+           ...catHeaders, // Spread the TITLES here, not the data
         'platoonname': 'יחידה_HEB', 'platoonnameen': 'יחידה_ENG', 'platoonnameru': 'יחידה_RUS',
         'armyrole': 'תפקיד_HEB', 'armyroleen': 'תפקיד_ENG', 'armyroleru': 'תפקיד_RUS',
         'wounddetails': 'פציעה_HEB', 'wounddetailsen': 'פציעה_ENG', 'wounddetailsru': 'פציעה_RUS',
