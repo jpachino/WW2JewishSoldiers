@@ -1583,10 +1583,12 @@ if (req.body.category) {
 }*/
 // --- CATEGORY CHECKBOXES LOOKUP ---
 // Put this right before your "const inputData = {" line
-const categoryCheckboxes = {};
+const catUpdate = {};
 for (let i = 1; i <= 8; i++) {
     const key = `cat${i}`;
-    categoryCheckboxes[key] = req.body[key] || ''; 
+    // If the checkbox is in req.body, use its value. 
+    // If it's missing (unchecked), set it to an empty string.
+    catUpdate[key] = req.body[key] || ''; 
 }
 // --- ARMY LOOKUP ---
 let army = existingSoldier.army;
@@ -1604,7 +1606,6 @@ if (req.body.army) {
     armyru = armyRow.title_rus;
   }
 }
-
 
 // --- RESISTANCE LOOKUP ---
 let resistance = existingSoldier.resistance;
@@ -1705,18 +1706,7 @@ if (req.body.downloaded_date) {
         new Date(req.body.downloaded_date)   // IMPORTANT FIX
     );
 }
-  // --- Updated Category Logic for all 3 languages ---
-  const catUpdate = {};
-  for (let i = 1; i <= 8; i++) {
-    const base = `cat${i}`;
-    const baseEn = `cat${i}en`;
-    const baseRu = `cat${i}ru`;
 
-    // Grabbing the hidden fields from req.body (populated by the JS sync function)
-    catUpdate[base] = req.body[base] || ''; 
-    catUpdate[baseEn] = req.body[baseEn] || ''; 
-    catUpdate[baseRu] = req.body[baseRu] || ''; 
-} 
         // Main input object
          const inputData = {
       fname: req.body.fname || existingSoldier.fname,
@@ -1800,15 +1790,14 @@ if (req.body.downloaded_date) {
       corps, corpsen, corpsru,
       partizan, partizanen, partizanru,
       //category, categoryen, categoryru,
-      /*cat1: catUpdate.cat1,
+      cat1: catUpdate.cat1,
       cat2: catUpdate.cat2,
       cat3: catUpdate.cat3,
       cat4: catUpdate.cat4,
       cat5: catUpdate.cat5,
       cat6: catUpdate.cat6,
       cat7: catUpdate.cat7,
-      cat8: catUpdate.cat8,*/
-      ...catUpdate, // This magic line injects all 24 cat fields into inputData automatically
+      cat8: catUpdate.cat8,
       army, armyen, armyru,
       resistance, resistanceen, resistanceru,
       participation, participationen, participationru,  

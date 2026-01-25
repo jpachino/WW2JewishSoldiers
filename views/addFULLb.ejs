@@ -490,7 +490,7 @@
     <% }) %>
   </select>
 </div>
-<br> 
+ <br> 
 <div class="trio-row">
     <div class="input-group">
       <label for="rank"><%= __('fields.rank') %></label>
@@ -566,39 +566,70 @@
         <%= __('fields.categories') %>
     </label>
 
-    <div class="category-grid">
-        <% category.forEach((c, index) => { 
-            let displayLabel = c.title_heb;
-            if (locale === 'en') displayLabel = c.title_eng;
-            else if (locale === 'ru') displayLabel = c.title_rus;
+   <div class="category-grid">
+    <% category.forEach((c, index) => { 
+        // Logic for display
+        let displayLabel = c.title_heb;
+        if (locale === 'en') displayLabel = c.title_eng;
+        else if (locale === 'ru') displayLabel = c.title_rus;
 
-            let i = index + 1;
-            let fieldName = "cat" + i;
+        let baseNum = index + 1;
+        
+        // Logic for "Checked" state (usually based on the Hebrew key in DB)
+        let isChecked = (soldier['cat' + baseNum] === c.title_heb);
+    %>
+        <div class="category-card" style="border: 1px solid #ddd; padding: 10px; margin: 5px; border-radius: 5px; display: inline-block;">
             
-            // Checking against Hebrew (the primary key) is usually most reliable
-            let isChecked = (soldier[fieldName] === c.title_heb);
-        %>
-            <div class="category-card">
-                <input type="checkbox" 
-                       id="check_<%= fieldName %>" 
-                       data-index="<%= i %>"
-                       data-heb="<%= c.title_heb %>"
-                       data-eng="<%= c.title_eng %>"
-                       data-rus="<%= c.title_rus %>"
-                       onchange="syncTranslations(this)"
-                       <%= isChecked ? 'checked' : '' %>>
-                
-                <label for="check_<%= fieldName %>">
-                    <%= displayLabel %>
-                </label>
+            <input type="checkbox" 
+                   class="lang-checkbox-trigger"
+                   id="trigger_cat<%= baseNum %>"
+                   data-num="<%= baseNum %>"
+                   data-heb="<%= c.title_heb %>"
+                   data-eng="<%= c.title_eng %>"
+                   data-rus="<%= c.title_rus %>"
+                   onchange="updateCategoryLanguages(this)"
+                   <%= isChecked ? 'checked' : '' %>>
+            
+            <label for="trigger_cat<%= baseNum %>" style="cursor: pointer; font-weight: bold; margin-left: 5px;">
+                <%= displayLabel %>
+            </label>
 
-                <input type="hidden" name="cat<%= i %>" id="hidden_cat<%= i %>" value="<%= isChecked ? c.title_heb : '' %>">
-                <input type="hidden" name="cat<%= i %>en" id="hidden_cat<%= i %>en" value="<%= isChecked ? c.title_eng : '' %>">
-                <input type="hidden" name="cat<%= i %>ru" id="hidden_cat<%= i %>ru" value="<%= isChecked ? c.title_rus : '' %>">
-            </div>
-        <% }) %>
-    </div>
+            <input type="hidden" name="cat<%= baseNum %>" id="val_cat<%= baseNum %>" value="<%= isChecked ? c.title_heb : '' %>">
+            <input type="hidden" name="cat<%= baseNum %>en" id="val_cat<%= baseNum %>en" value="<%= isChecked ? c.title_eng : '' %>">
+            <input type="hidden" name="cat<%= baseNum %>ru" id="val_cat<%= baseNum %>ru" value="<%= isChecked ? c.title_rus : '' %>">
+        </div>
+    <% }) %>
 </div>
+
+<script>
+    /**
+     * Handles the synchronization of Hebrew, English, and Russian values
+     * based on a single checkbox interaction.
+     */
+    function updateCategoryLanguages(element) {
+        // Retrieve values from the data attributes of the checkbox
+        const num = element.getAttribute('data-num');
+        const hebValue = element.getAttribute('data-heb');
+        const engValue = element.getAttribute('data-eng');
+        const rusValue = element.getAttribute('data-rus');
+
+        // Target the hidden inputs by ID
+        const hiddenHeb = document.getElementById('val_cat' + num);
+        const hiddenEng = document.getElementById('val_cat' + num + 'en');
+        const hiddenRus = document.getElementById('val_cat' + num + 'ru');
+
+        if (element.checked) {
+            hiddenHeb.value = hebValue;
+            hiddenEng.value = engValue;
+            hiddenRus.value = rusValue;
+        } else {
+            hiddenHeb.value = "";
+            hiddenEng.value = "";
+            hiddenRus.value = "";
+        }
+    }
+</script>
+
     <!--<div class="trio-row">
     <div class="input-group">
       <label for="otherfightingcontext"><%= __('fields.otherfightingcontext') %></label>
@@ -1333,28 +1364,26 @@ dateFields.forEach(f => {
 });
 </script>
 <script>
-/**
- * Synchronizes the language values into hidden inputs 
- * based on the checkbox state.
- */
 function syncTranslations(checkbox) {
     const idx = checkbox.getAttribute('data-index');
     
-    // Grab the translations from the data attributes
+    // Get the values from the data attributes
     const hebVal = checkbox.getAttribute('data-heb');
     const engVal = checkbox.getAttribute('data-eng');
     const rusVal = checkbox.getAttribute('data-rus');
 
-    // Select the hidden fields
+    // Find the hidden inputs by ID
     const inputHeb = document.getElementById('hidden_cat' + idx);
     const inputEng = document.getElementById('hidden_cat' + idx + 'en');
     const inputRus = document.getElementById('hidden_cat' + idx + 'ru');
 
     if (checkbox.checked) {
+        // Populate all three language fields
         inputHeb.value = hebVal;
         inputEng.value = engVal;
         inputRus.value = rusVal;
     } else {
+        // Clear them all if unchecked
         inputHeb.value = "";
         inputEng.value = "";
         inputRus.value = "";

@@ -237,8 +237,9 @@
     "thankYou": "Thank you for your cooperation.",
     
     "mark_complete": "I completed filling the record",
-    "mark_complete_note": "By marking “I completed filling the record”, you will finish submitting the form.",
-    "mark_complete_note2": "The record will be stored for 72 hours from creation, and you can continue updating the soldier information until this box is checked.",
+   
+    "mark_complete_note": "The record will be stored for 72 hours from creation, and you can continue updating the soldier information until this box is checked.",
+    "mark_complete_note2": "By marking “I completed filling the record”, you will finish submitting the form.",
     "mark_complete_note3": "If you wish to keep editing the form, Do not click \"I completed filling the record\" box.",
 
     "admin_complete": "I as an administrator confirm that the record is ready for download",

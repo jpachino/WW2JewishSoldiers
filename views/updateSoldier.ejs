@@ -387,7 +387,24 @@
       <option value="<%= item.id %>" <%= isSelected %>><%= displayTitle %></option>
     <% }) %>
   </select>
-</div>      
+</div> 
+<br>
+<div class="form-group">
+  <label for="enlistreason"><%= __('fields.enlistreason') %></label>
+  <select name="enlistreason" id="enlistreason" class="form-control">
+    <option value="">--</option>
+    <% enlistreason.forEach(item => { 
+        let displayTitle;
+        if (locale === 'en') { displayTitle = item.title_eng; } 
+        else if (locale === 'ru') { displayTitle = item.title_rus; } 
+        else { displayTitle = item.title_heb; }
+        const isSelected = (soldier.enlistreason === item.title_heb) ? 'selected' : ''; 
+    %>
+      <option value="<%= item.id %>" <%= isSelected %>><%= displayTitle %></option>
+    <% }) %>
+  </select>
+</div>
+<br>     
  <div class="trio-row">
     <div class="input-group">
         <label for="rank"><%= __('fields.rank') %></label>
@@ -435,21 +452,7 @@
   </div>
 </div>
 <div class="trio-row">
-<div class="form-group">
-  <label for="enlistreason"><%= __('fields.enlistreason') %></label>
-  <select name="enlistreason" id="enlistreason" class="form-control">
-    <option value="">--</option>
-    <% enlistreason.forEach(item => { 
-        let displayTitle;
-        if (locale === 'en') { displayTitle = item.title_eng; } 
-        else if (locale === 'ru') { displayTitle = item.title_rus; } 
-        else { displayTitle = item.title_heb; }
-        const isSelected = (soldier.enlistreason === item.title_heb) ? 'selected' : ''; 
-    %>
-      <option value="<%= item.id %>" <%= isSelected %>><%= displayTitle %></option>
-    <% }) %>
-  </select>
-</div>
+
 
 </div>
 
@@ -494,41 +497,64 @@
   </div>
 </div>
 
- <div class="form-section" style="margin-top: 25px; text-align: start;">
+ <!--<div class="form-section" style="margin-top: 25px; text-align: start;">
+    <label class="roboto-bold" style="font-size: 1.0rem; border-bottom: 2px solid #ddd; padding-bottom: 5px; margin-bottom: 15px; display: block;">
+        <%= __('fields.categories') %>
+    </label>-->
+    
+<div class="form-section" style="margin-top: 25px; text-align: start;">
     <label class="roboto-bold" style="font-size: 1.0rem; border-bottom: 2px solid #ddd; padding-bottom: 5px; margin-bottom: 15px; display: block;">
         <%= __('fields.categories') %>
     </label>
 
     <div class="category-grid">
-        <% category.forEach((c, index) => { 
-            // 1. Determine the label based on current UI language
-            let displayLabel = c.title_heb;
-            if (locale === 'en') displayLabel = c.title_eng;
-            else if (locale === 'ru') displayLabel = c.title_rus;
+    <% 
+        // 1. Create a "Searchable" array of what is currently in the DB
+        const savedValues = [
+            (soldier.cat1 || "").trim(), (soldier.cat2 || "").trim(),
+            (soldier.cat3 || "").trim(), (soldier.cat4 || "").trim(),
+            (soldier.cat5 || "").trim(), (soldier.cat6 || "").trim(),
+            (soldier.cat7 || "").trim(), (soldier.cat8 || "").trim()
+        ];
 
-            // 2. Identify the column name (cat1, cat2, etc.)
-            let fieldName = "cat" + (index + 1);
+        category.forEach((c, index) => { 
+            const i = index + 1;
+            const fieldName = "cat" + i;
             
-            // 3. IMPORTANT: Check if this specific category is already saved in the DB
-            // We check if the value in the soldier object is not empty
-            let isChecked = (soldier[fieldName] && soldier[fieldName].length > 0) ? 'checked' : '';
-        %>
-            <div class="category-card">
-                <input type="checkbox" 
-                       name="<%= fieldName %>" 
-                       id="check_<%= fieldName %>" 
-                       value="<%= displayLabel %>"
-                       <%= isChecked %>>
-                
-                <label for="check_<%= fieldName %>">
-                    <%= displayLabel %>
-                </label>
-            </div>
-        <% }) %>
-    </div>
-</div>
+            const masterHeb = (c.title_heb || "").trim();
+            const masterEng = (c.title_eng || "").trim();
+            const masterRus = (c.title_rus || "").trim();
 
- 
+            // 2. The Check: Does this specific category exist in our saved array?
+            const isChecked = savedValues.includes(masterHeb) || 
+                              savedValues.includes(masterEng) || 
+                              savedValues.includes(masterRus);
+            
+            let displayLabel = masterHeb;
+            if (locale === 'en') { displayLabel = masterEng; }
+            else if (locale === 'ru') { displayLabel = masterRus; }
+    %>
+        <div class="category-card">
+            <input type="checkbox" 
+                   id="check_<%= fieldName %>" 
+                   data-index="<%= i %>"
+                   data-heb="<%= masterHeb %>"
+                   data-eng="<%= masterEng %>"
+                   data-rus="<%= masterRus %>"
+                   onchange="syncTranslations(this)"
+                   <%= isChecked ? 'checked' : '' %>>
+            
+            <label for="check_<%= fieldName %>">
+                <%= displayLabel %>
+            </label>
+
+            <input type="hidden" name="cat<%= i %>" id="hidden_cat<%= i %>" value="<%= isChecked ? masterHeb : '' %>">
+            <input type="hidden" name="cat<%= i %>en" id="hidden_cat<%= i %>en" value="<%= isChecked ? masterEng : '' %>">
+            <input type="hidden" name="cat<%= i %>ru" id="hidden_cat<%= i %>ru" value="<%= isChecked ? masterRus : '' %>">
+        </div>
+    <% }) %>
+    </div>
+
    <!--<div class="input-group">
       <label for="otherfightingcontext"><%= __('fields.otherfightingcontext') %></label>
       <input type="text" name="otherfightingcontext" id="otherfightingcontext" value="<%= soldier.otherfightingcontext || '' %>" />
@@ -956,22 +982,28 @@ document.addEventListener('DOMContentLoaded', () => {
         const dodVal = document.getElementById('dod').value;
 
         if (dobVal && dodVal) {
-            const parseToDate = (str) => {
-                const p = str.split('-');
-                if (p.length === 3) return new Date(p[2], p[1] - 1, p[0]);
-                if (p.length === 2) return new Date(p[1], p[0] - 1, 1);
-                if (p.length === 1) return new Date(p[0], 0, 1);
-                return null;
-            };
+            const dobParts = dobVal.split('-').reverse(); // [YYYY, MM, DD]
+            const dodParts = dodVal.split('-').reverse(); // [YYYY, MM, DD]
 
-            const dobDate = parseToDate(dobVal);
-            const dodDate = parseToDate(dodVal);
+            // CRITICAL: Only compare if the year part is a full 4-digit number
+            // This prevents "1" or "19" from being compared to "1920"
+            if (dobParts[0].length === 4 && dodParts[0].length === 4) {
+                
+                // Create comparable dates (Year, MonthIndex, Day)
+                // Use '0' for month and '1' for day if missing to allow year-only comparison
+                const dobDate = new Date(dobParts[0], (dobParts[1] || 1) - 1, dobParts[2] || 1);
+                const dodDate = new Date(dodParts[0], (dodParts[1] || 1) - 1, dodParts[2] || 1);
 
-            if (dobDate && dodDate && dodDate < dobDate) {
-                const dodGroup = document.getElementById('dod').closest('.date-entry-group');
-                dodGroup.querySelectorAll('input[type="text"]').forEach(inp => inp.value = '');
-                document.getElementById('dod').value = '';
-                triggerError(null, dodGroup, "<%= __('errors.dod_before_dob') || 'Date of Death cannot be before Date of Birth' %>");
+                if (dodDate < dobDate) {
+                    const dodGroup = document.getElementById('dod').closest('.date-entry-group');
+                    const dodInputs = dodGroup.querySelectorAll('input[type="text"]');
+                    
+                    // Clear inputs so the user has to re-enter
+                    dodInputs.forEach(inp => inp.value = '');
+                    document.getElementById('dod').value = '';
+                    
+                    triggerError(null, dodGroup, "Date of Death cannot be before Date of Birth");
+                }
             }
         }
     };
@@ -1171,3 +1203,27 @@ document.getElementById("soldierForm").addEventListener("submit", function (e) {
     }
 });
 </script>
+<script>
+function syncTranslations(checkbox) {
+    const idx = checkbox.getAttribute('data-index');
+    const hebVal = checkbox.getAttribute('data-heb');
+    const engVal = checkbox.getAttribute('data-eng');
+    const rusVal = checkbox.getAttribute('data-rus');
+
+    const inputHeb = document.getElementById('hidden_cat' + idx);
+    const inputEng = document.getElementById('hidden_cat' + idx + 'en');
+    const inputRus = document.getElementById('hidden_cat' + idx + 'ru');
+
+    if (checkbox.checked) {
+        inputHeb.value = hebVal;
+        inputEng.value = engVal;
+        inputRus.value = rusVal;
+    } else {
+        inputHeb.value = "";
+        inputEng.value = "";
+        inputRus.value = "";
+    }
+}
+</script>
+</body>
+</html>
