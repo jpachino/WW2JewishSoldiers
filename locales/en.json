@@ -46,19 +46,19 @@
   },
  
   "sections": {
-    "basic":"soldier basic information",
-    "bio": "bio",
+    "basic":"Soldier General Information",
+    "bio": "Bio",
     "parents": "parents",
     "military": "military",
-    "family": "family",
-    "birthdeath": "birth and death information",
+    "family": "Family",
+    "birthdeath": "Birth and Death Information",
     "urlnotes": "URL details",
-    "uploads":"uploads",
+    "uploads":"Uploads",
     "datesmedals":"dates and medals",
     "files": "files",
     "addAnotherBattle": "Add Another Battle",
     "battleHistory": "Battle History",
-    "submitter_info": "information about the person submitting this information",
+    "submitter_info": "Information About the Person Submitting this Information",
     "recordcomplete": "record complete"
     
    
@@ -186,9 +186,9 @@
     "wounddetailsen": "Injury (EN)",
     "wounddetailsru": "Injury (RU)",
     "uprising_participant": "Participated in Revolt Camp/Ghetto",
-    "gettodesc": "Ghetto/Camp  (HE)",
-    "gettodescen": "Ghetto/Camp  (EN)",
-    "gettodescru": "Ghetto/Camp  (RU)",
+    "gettodesc": "Name of the Ghetto/Camp (HE)",
+    "gettodescen": "Name of the Ghetto/Camp (EN)",
+    "gettodescru": "Name of the Ghetto/Camp (RU)",
     "otherfightingcontext": "Other Fighting context (HE)",
     "otherfightingcontexten": "Other Fighting context (EN)",
     "otherfightingcontextru": "Other Fighting context (RU)",
@@ -238,7 +238,7 @@
     
     "mark_complete": "I completed filling the record",
    
-    "mark_complete_note": "The record will be stored for 72 hours from creation, and you can continue updating the soldier information until this box is checked.",
+    "mark_complete_note": "The record will be stored for 30 days from creation, and you can continue updating the soldier information until this box is checked.",
     "mark_complete_note2": "By marking “I completed filling the record”, you will finish submitting the form.",
     "mark_complete_note3": "If you wish to keep editing the form, Do not click \"I completed filling the record\" box.",
 

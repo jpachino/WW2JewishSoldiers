@@ -155,7 +155,7 @@
     "resistance": "מחתרת",
     "partizan": "פרטיזן",
     "participation": "השתתפות",
-    "corps": "לוחם",
+    "corps": "חיל",
     "shortdesc":"תיאור קצר",
     "armyrole": "תפקיד במהלך המלחמה(HE)",
     "armyroleen": "תפקיד במהלך המלחמה(EN)",
@@ -205,10 +205,10 @@
     "wounddetailsru": "פציעה  (HE)",
     
     "uprising_participant": "השתתף במרד בגטו או במחנה",
-    "gettodesc": "גטו/מחנה (HE)",
-    "gettodescen": "גטו/מחנה (EN)",
-    "gettodescru": "גטו/מחנה (RU)",
-
+    "gettodesc": "שם הגטו/מחנה (HE)",
+    "gettodescen": "שם הגטו/מחנה (EN)",
+    "gettodescru": "שם הגטו/מחנה (RU)",
+    
     "otherfightingcontext": "הקשר לחימה אחר (HE)",
      "otherfightingcontexten": "הקשר לחימה אחר (EN)",
      "otherfightingcontextru": "הקשר לחימה אחר (RU)",
@@ -256,7 +256,7 @@
     "thankYou": "תודה על שיתוף הפעולה.",
     "mark_complete": "סיימתי למלא את הטופס",
    
-    "mark_complete_note": "הטופס יישמר למשך 72 שעות מיום יצירתו, ותוכל להמשיך לעדכן את פרטי הלוחם עד לסימון תיבה זו.",
+    "mark_complete_note": "הטופס יישמר למשך 30 ימים מיום יצירתו, ותוכל להמשיך לעדכן את פרטי הלוחם עד לסימון תיבה זו.",
     "mark_complete_note2": "סימון \"סיימתי למלא את הטופס\" יסיים את שליחת הטופס.",
     "mark_complete_note3": "אם ברצונך להמשיך לערוך את הטופס, אל תלחץ על התיבה \"סיימתי למלא את הטופס\".",
     "admin_complete": "אני כמנהל מאשר כי הרשומה מוכנה להורדה",
