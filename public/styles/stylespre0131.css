@@ -26,7 +26,6 @@ header {
   width: 100%;
   z-index: 1000;
   box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
-  border-bottom: 5px solid #0038b8;
 }
 
 header h1 {
@@ -428,7 +427,7 @@ html[lang="he"] .info-box {
 .help-box-alert {
     white-space: pre-line;
     background-color: #e7f3ff;
-    border-inline-start: 5px solid #0038b8F3; /* Automatically handles RTL/LTR */
+    border-inline-start: 5px solid #2196F3; /* Automatically handles RTL/LTR */
     padding: 15px;
     margin-bottom: 20px;
     font-size: 0.95em;

@@ -32,24 +32,29 @@
   </div>
 
   <header>
-    <div class="container">
-      <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap;">
-        <h1><%= __('admin.completedTitle') %></h1>
-      </div>
-      <nav><a href="/"><%= __('nav.home') %></a></nav>
+  <div class="container">
+    <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap;">
+      <h1><%= __('admin.completedTitle') %></h1>
     </div>
-  </header>
-
-  <div class="container" style="margin-top: 1rem;">
-    <form method="GET" action="/admin/completedRecords">
-      <input type="hidden" name="adminemail" value="<%= adminemail %>" />
-      <select name="lang" onchange="this.form.submit()">
-        <option value="he" <%= locale === 'he' ? 'selected' : '' %>>עברית</option>
-        <option value="en" <%= locale === 'en' ? 'selected' : '' %>>English</option>
-        <option value="ru" <%= locale === 'ru' ? 'selected' : '' %>>Русский</option>
-      </select>
-    </form>
+    <nav><a href="/"><%= __('nav.home') %></a></nav>
   </div>
+</header>
+
+<div style="margin-top: 50px; clear: both; display: block; width: 100%;"></div>
+
+<div class="container" style="margin-top: 1rem; position: relative; z-index: 10;">
+  <form method="GET" action="/admin/completedRecords">
+    
+    
+    <input type="hidden" name="adminemail" value="<%= adminemail %>" />
+    <select name="lang" class="lang-select" onchange="this.form.submit()">
+      <option value="he" <%= locale === 'he' ? 'selected' : '' %>>עברית</option>
+      <option value="en" <%= locale === 'en' ? 'selected' : '' %>>English</option>
+      <option value="ru" <%= locale === 'ru' ? 'selected' : '' %>>Русский</option>
+    </select>
+  </form>
+</div>
+ 
 
   <main class="container">
     <% if (typeof saved !== 'undefined' && saved) { %>

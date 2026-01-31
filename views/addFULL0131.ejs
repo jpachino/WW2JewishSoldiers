@@ -41,7 +41,7 @@
     </div>
   </header>
   
- <div style="margin-top: 50px; clear: both; display: block; width: 100%;"></div>
+ 
        
  <!-- 🌐 Language Selector -->
        <form action="/change-lang" method="get" style="margin-top: 2rem;">
@@ -61,25 +61,24 @@
     <button type="button" onclick="this.parentElement.style.display='none'" style="position: absolute; top: 10px; right: 10px; background: none; border: none; font-size: 20px; cursor: pointer;">&times;</button>
 </div>
  <% if (locale === 'he') { %>
-  <div class="important-note" style="background-color: #f0f4f8; color: #333; border-right: 6px solid #0038b8; padding: 15px; margin: 20px auto; max-width: 900px; border-radius: 4px; font-family: 'Roboto', sans-serif; font-size: 1.1em; box-shadow: 0 2px 4px rgba(0,0,0,0.05);" dir="rtl">
-    <span style="color: #0038b8; margin-left: 5px;">⚠️</span> <strong>הערה חשובה:</strong> אנא בדוק אם החייל שלך כבר קיים באתר 
-    <a href="https://infocenters.co.il/jwm" target="_blank" style="color: #0038b8; font-weight: bold; text-decoration: underline;">https://infocenters.co.il/jwm</a>
+  <div class="important-note" style="background-color: #fff9c4; color: #333; border: 2px solid #fdd835; padding: 15px; margin: 20px auto; max-width: 900px; border-radius: 6px; font-family: Arial, sans-serif; font-size: 1.1em;" dir="rtl">
+    ⚠️ <strong>הערה חשובה:</strong> אנא בדוק אם החייל שלך כבר קיים באתר 
+    <a href="https://infocenters.co.il/jwm" target="_blank">https://infocenters.co.il/jwm</a>
     לפני הזנת המידע כאן.
   </div>
 <% } else if (locale === 'ru') { %>
-  <div class="important-note" style="background-color: #f0f4f8; color: #333; border-left: 6px solid #0038b8; padding: 15px; margin: 20px auto; max-width: 900px; border-radius: 4px; font-family: 'Roboto', sans-serif; font-size: 1.1em; box-shadow: 0 2px 4px rgba(0,0,0,0.05);">
-    <span style="color: #0038b8; margin-right: 5px;">⚠️</span> <strong>Важное примечание:</strong> Пожалуйста, проверьте, указан ли ваш солдат на сайте 
-    <a href="https://infocenters.co.il/jwm" target="_blank" style="color: #0038b8; font-weight: bold; text-decoration: underline;">https://infocenters.co.il/jwm</a> 
+  <div class="important-note" style="background-color: #fff9c4; color: #333; border: 2px solid #fdd835; padding: 15px; margin: 20px auto; max-width: 900px; border-radius: 6px; font-family: Arial, sans-serif; font-size: 1.1em;">
+    ⚠️ <strong>Важное замечание:</strong> Пожалуйста, проверьте, указан ли ваш солдат на сайте 
+    <a href="https://infocenters.co.il/jwm" target="_blank">https://infocenters.co.il/jwm</a> 
     перед вводом информации здесь.
   </div>
 <% } else { %>
-  <div class="important-note" style="background-color: #f0f4f8; color: #333; border-left: 6px solid #0038b8; padding: 15px; margin: 20px auto; max-width: 900px; border-radius: 4px; font-family: 'Roboto', sans-serif; font-size: 1.1em; box-shadow: 0 2px 4px rgba(0,0,0,0.05);">
-    <span style="color: #0038b8; margin-right: 5px;">⚠️</span> <strong>Important Note:</strong> Please check for your soldier on 
-    <a href="https://infocenters.co.il/jwm" target="_blank" style="color: #0038b8; font-weight: bold; text-decoration: underline;">https://infocenters.co.il/jwm</a> 
+  <div class="important-note" style="background-color: #fff9c4; color: #333; border: 2px solid #fdd835; padding: 15px; margin: 20px auto; max-width: 900px; border-radius: 6px; font-family: Arial, sans-serif; font-size: 1.1em;">
+    ⚠️ <strong>Important Note:</strong> Please check for your soldier on 
+    <a href="https://infocenters.co.il/jwm" target="_blank">https://infocenters.co.il/jwm</a> 
     <strong>before</strong> entering his/her information here.
   </div>
 <% } %>
-
 
 
 
@@ -808,9 +807,7 @@
         <div class="help-box-alert" style="margin-bottom: 20px; padding: 15px; background-color: #e7f3fe; border-left: 4px solid #007bff; border-radius: 4px;">
             <strong>ℹ️</strong> <%= __('multimedia_info.help_text') %>
         </div>
-        <p class="instruction-text" style="color: #0038b8; font-size: 0.9rem; margin-top: 5px;">
-            <strong><%= __('fields.profile_pic_instruction') %></strong>
-        </p>
+
         <div id="multimedia-rows">
             <div class="multimedia-row" style="border: 1px solid #ccc; border-radius: 8px; margin-bottom: 25px; padding: 20px; background-color: #fff; position: relative; box-shadow: 0 2px 4px rgba(0,0,0,0.05);">
                 
@@ -860,10 +857,6 @@
                         <button type="button" class="btn btn-danger" onclick="this.closest('.multimedia-row').remove()" style="background-color: #dc3545; color: white; border: none; padding: 8px 20px; border-radius: 4px; cursor: pointer; font-weight: bold;">
                             <%= __('fields.remove') %>
                         </button>
-                    </div>
-                      <div id="profile-preview-container" style="display:none; margin-top: 20px;">
-                      <h4>Profile Picture Preview:</h4>
-                      <img id="profile-preview-img" src="#" alt="Preview" style="max-width: 150px; border: 2px solid #ddd; border-radius: 8px;">
                     </div>
                 </div>
             </div>

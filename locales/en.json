@@ -59,7 +59,7 @@
     "addAnotherBattle": "Add Another Battle",
     "battleHistory": "Battle History",
     "submitter_info": "Information About the Person Submitting this Information",
-    "recordcomplete": "record complete"
+    "recordcomplete": "Record Complete"
     
    
   
@@ -208,7 +208,7 @@
     "add_another": "＋ Add Another File",
     "remove": "Remove",
     "note": "Note:",
-    "profile_pic_instruction": "The first image selected in the first row will be used as the Profile Picture.",
+    "profile_pic_instruction": "Note: The first image selected will be used as the Profile Picture.",
     "url_link": "URL / Link",
     "select_option": "Select Option",
     "no_file_chosen": "No file chosen",

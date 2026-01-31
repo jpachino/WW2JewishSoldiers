@@ -28,6 +28,7 @@
         <a href="/"><%= __('nav.home') %></a>
       </nav>
     </div>
+   </header>
         <form method="get" action="" style="margin-top: 2rem;">
           <select name="lang" class="lang-select" onchange="this.form.submit()">
             <option value="he" <%= locale === 'he' ? 'selected' : '' %>>עברית</option>
@@ -49,12 +50,12 @@
         <a href="/"><%= __('nav.home') %></a>
       </nav>-->
     </div>
-  </header>
+  <!--</header>-->
 
   <div class="container">
     
         <form action="/adminUpdateSoldier/<%= soldier.id %>?adminemail=<%= adminemail %>" method="POST" enctype="multipart/form-data">
-          <br> <br> <br> <br> <br> <br> <br>
+         
      <fieldset>
       <legend><%= __('sections.basic') %></legend>
       <p style="color: #d9534f; font-size: 0.9rem; margin-top: -5px; font-weight: 500;">

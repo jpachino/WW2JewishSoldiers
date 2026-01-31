@@ -31,6 +31,9 @@
         <a href="/"><%= __('nav.home') %></a>
       </nav>
     </div>
+  </header>
+  <div style="margin-top: 50px; clear: both; display: block; width: 100%;"></div>
+ 
         <form method="get" action="" style="margin-top: 2rem;">
           <select name="lang" class="lang-select" onchange="this.form.submit()">
             <option value="he" <%= locale === 'he' ? 'selected' : '' %>>עברית</option>
@@ -53,12 +56,12 @@
         <a href="/"><%= __('nav.home') %></a>
       </nav>-->
     </div>
-  </header>
+ 
 
   <div class="container">
     
         <form action="/updateSoldier/<%= soldier.id %>" method="post" enctype="multipart/form-data" id="soldierForm">
-          <br> <br> <br> <br> <br> <br> <br>
+         
      <fieldset>
       <legend><%= __('sections.basic') %></legend>
       <p style="color: #d9534f; font-size: 0.9rem; margin-top: -5px; font-weight: 500;">
@@ -403,8 +406,7 @@
       <option value="<%= item.id %>" <%= isSelected %>><%= displayTitle %></option>
     <% }) %>
   </select>
-</div>
-<br>     
+</div>     
  <div class="trio-row">
     <div class="input-group">
         <label for="rank"><%= __('fields.rank') %></label>
