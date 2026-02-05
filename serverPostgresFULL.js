@@ -93,7 +93,7 @@ const upload = multer({ storage });*/
 
 const fs = require('fs');
 const multer = require('multer');
-const path = require('path');
+
 
 // 1. Define Persistent Paths
 const PERSISTENT_ROOT = '/var/data/soldierUploads';
