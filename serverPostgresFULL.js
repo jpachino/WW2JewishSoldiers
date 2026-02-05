@@ -952,7 +952,9 @@ app.post('/updateSoldier/:id', multiUpload, async (req, res) => {
   const soldierId = req.params.id; 
     const { id } = req.params;
     const adminemail = req.body.adminemail || req.query.adminemail;
-
+    const getField = (name) => {
+        return req.body[name + '[]'] || req.body[name] || [];
+    };
     try {
         const existingSoldier = await db.oneOrNone(`SELECT * FROM ${SOLDIER_TABLE} WHERE id = $1`, [id]);
         if (!existingSoldier) return res.status(404).send('Soldier not found');
@@ -1438,7 +1440,39 @@ for (let i = 0; i < maxRows; i++) {
     `);
   }
 });
+app.post('/delete-multimedia/:id', async (req, res) => {
+    const multimediaId = req.params.id;
+    try {
+        // 1. Get the file info from DB first
+        const item = await db.oneOrNone('SELECT * FROM "multimedia_TBL" WHERE id = $1', [multimediaId]);
+        
+        if (!item) return res.status(404).send('File not found');
 
+        const soldierId = item.soldier_id;
+
+        // 2. If it's a physical file (not a URL), delete it from the disk
+        if (item.file_path) {
+            // Convert the DB path (/soldierUploads/A26/file.jpg) to a full system path
+            // We replace the virtual prefix with the real disk root
+            const absolutePath = item.file_path.replace('/soldierUploads', PERSISTENT_ROOT);
+            
+            if (fs.existsSync(absolutePath)) {
+                fs.unlinkSync(absolutePath);
+                console.log(`Successfully deleted file: ${absolutePath}`);
+            }
+        }
+
+        // 3. Delete from Database
+        await db.none('DELETE FROM "multimedia_TBL" WHERE id = $1', [multimediaId]);
+
+        // 4. Redirect back to the update page
+        res.redirect(`/updateSoldier/${soldierId}?deleted=true`);
+
+    } catch (err) {
+        console.error('Error deleting file:', err);
+        res.status(500).send('Error deleting file');
+    }
+});
 
 // --- GET /admin/completedRecords ---
 app.get('/admin/completedRecords', async (req, res) => {
@@ -1508,7 +1542,7 @@ app.post('/adminUpdateSoldier/:id', multiUpload, async (req, res) => {
     const soldierId = req.params.id; 
     const { id } = req.params;
     const adminemail = req.body.adminemail || req.query.adminemail;
-
+    const getField = (name) => req.body[name + '[]'] || req.body[name] || [];
     try {
         const existingSoldier = await db.oneOrNone(`SELECT * FROM ${SOLDIER_TABLE} WHERE id = $1`, [id]);
         if (!existingSoldier) return res.status(404).send('Soldier not found');
@@ -1916,10 +1950,10 @@ if (req.body.downloaded_date) {
                 }
             }
 
-            // --- STEP D: HANDLE MULTIMEDIA ---
+           // --- STEP D: HANDLE MULTIMEDIA (ADMIN PERSISTENT VERSION) ---
 console.log('--- DIAGNOSTIC: FULL BODY KEYS ---', Object.keys(req.body));
 
-// Helper to handle both array and single-value inputs from the form
+// Helper to handle both array and single-value inputs
 const getField = (name) => {
     return req.body[name + '[]'] || req.body[name] || [];
 };
@@ -1938,67 +1972,57 @@ const existingProfilePic = await t.oneOrNone(
 const hasProfilePic = !!existingProfilePic;
 const maxRows = Math.max(descArr.length, mFiles.length, locArr.length);
 
+// Setup Persistent Target Directory
+const folderName = `A${soldierId}`;
+const targetDir = path.join(PERSISTENT_ROOT, folderName); // Using /var/data/soldierUploads
+
+if (!fs.existsSync(targetDir)) {
+    fs.mkdirSync(targetDir, { recursive: true });
+}
+
 for (let i = 0; i < maxRows; i++) {
     let finalDbPath = null;
     let currentType = (typeArr[i] || '').toString().trim(); 
     let userLocation = (locArr[i] || '').trim();
     
-    // DIAGNOSTIC: Look at your terminal when you save to see what 'currentType' actually is
-    console.log(`--- MULTIMEDIA ROW ${i} DIAGNOSTIC: Type="${currentType}", UserLoc="${userLocation}" ---`);
+    console.log(`--- ADMIN MULTIMEDIA ROW ${i} DIAGNOSTIC: Type="${currentType}", UserLoc="${userLocation}" ---`);
 
     // 2. Logic for physical_logical_location
     let finalLocation = '';
     const normalizedType = currentType.toUpperCase();
 
-    // ⭐ UPDATED CONDITION: Includes the Hebrew string found in your diagnostic
     if (
         normalizedType.includes('PDF') || 
         normalizedType.includes('JPG') || 
         normalizedType.includes('IMAGE') || 
-        normalizedType.includes('מסמך') || // Catch Hebrew "Document"
+        normalizedType.includes('מסמך') || 
         currentType === '1' || currentType === '2' || currentType === '3'
     ) {
         finalLocation = 'מחיצת קבצים לקישור';
-                } else if (currentType === 'קישור') {
-                    // ⭐ SPECIFIC CONDITION FOR "קישור"
-                    finalLocation = 'URL';
-                } else {
-                    finalLocation = userLocation || 'URL'; 
-                }
-                console.log ('final location ',finalLocation)
-    // 3. Handle File Upload
-    
-   if (mFiles[i]) {
-        const file = mFiles[i];
+    } else if (currentType === 'קישור') {
+        finalLocation = 'URL';
+    } else {
+        finalLocation = userLocation || 'URL'; 
+    }
 
-        // --- FIX: DECODE HEBREW/RUSSIAN CHARACTERS ---
-        // This prevents weird symbols (mojibake) in the filename
+    // 3. Handle File Upload (Persistent Logic)
+    if (mFiles[i]) {
+        const file = mFiles[i];
         const decodedFileName = Buffer.from(file.originalname, 'latin1').toString('utf8');
+        const finalPath = path.join(targetDir, decodedFileName);
         
-        // Use the decoded name (Date prefix is already removed from your logic)
-        const uniqueFileName = decodedFileName;
-        
-        const targetDir = path.join(__dirname, 'public', 'pages', 'soldierUploads', `A${soldierId}`);
-        
-        if (!fs.existsSync(targetDir)) {
-            fs.mkdirSync(targetDir, { recursive: true });
-        }
-        
-        const finalPath = path.join(targetDir, uniqueFileName);
-        
-        // Move file from temp to final destination
+        // Move file from /var/data/soldierUploads/temp to /var/data/soldierUploads/A[ID]
         fs.renameSync(file.path, finalPath);
         
-        // Save this clean, decoded path for the database
-        finalDbPath = `/pages/soldierUploads/A${soldierId}/${uniqueFileName}`;
+        // Use the new virtual path for the DB
+        finalDbPath = `/soldierUploads/${folderName}/${decodedFileName}`;
     }
 
     // 4. Final Insert Logic
     if (finalDbPath || descArr[i] || userLocation) {
-        // Prevent NULL error in file_path column
+        // If it's a file, save finalDbPath. If it's just a link, save userLocation.
         const dbPathToSave = finalDbPath || userLocation || '';
         
-        // Profile pic logic: first file uploaded gets it if none exist
         const setToProfile = (!hasProfilePic && i === 0 && finalDbPath !== null);
 
         await t.none(`
