@@ -1,0 +1,145 @@
+<!DOCTYPE html>
+<html lang="<%= locale %>">
+
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title><%= __('home.title') %></title>
+  <link rel="stylesheet" href="/styles/styles.css" />
+  <style>
+    /* Pull the main content closer to the header */
+    main.container {
+      position: relative;
+      z-index: 10;
+      margin-top: 0 !important; /* Remove any manual top margin */
+    }
+
+    .description-text {
+      font-size: 0.95rem; 
+      line-height: 1.45;
+      margin-bottom: 1.5rem;
+      white-space: pre-line;
+      color: #333;
+    }
+
+    .lang-he { direction: rtl; text-align: justify; }
+    .lang-en, .lang-ru { direction: ltr; text-align: left; }
+
+    /* Compact Language Section */
+    .language-section {
+      margin-top: 10px; /* Small gap from header */
+      margin-bottom: 20px;
+      text-align: start;
+    }
+
+    .language-section form {
+      display: inline-block;
+      padding: 8px 15px;
+      background: #fff;
+      border-radius: 6px;
+      box-shadow: 0 2px 5px rgba(0,0,0,0.08);
+      border: 1px solid #ddd;
+    }
+  </style>
+</head>
+
+<body>
+<style>
+  /* 1. Pull the main container up */
+  main.container {
+    margin-top: 0 !important;
+    padding-top: 0 !important;
+  }
+
+  /* 2. Tighten the Language Section */
+  .language-section {
+    margin: 5px 0 10px 0 !important; /* Tiny gap top, small gap bottom */
+    padding: 0 !important;
+    text-align: start;
+  }
+
+  .language-section form {
+    display: inline-block;
+    padding: 5px 12px !important; /* Compact padding */
+    margin: 0 !important;         /* Removes the global form margin */
+    background: #fff;
+    border-radius: 4px;
+    box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+    border: 1px solid #ccc;
+  }
+
+  /* 3. Tighten the Description text */
+  .description-text {
+    margin-top: 0 !important;     /* Pulls text right up to the lang selector */
+    font-size: 0.95rem;
+    line-height: 1.4;
+  }
+
+  /* Existing logic */
+  .lang-he { direction: rtl; text-align: justify; }
+  .lang-en, .lang-ru { direction: ltr; text-align: left; }
+</style>
+<header>
+  <div class="container">
+    <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 15px;">
+      <h1 style="font-size: 36px;"><%= __('home.title') %></h1>
+      <div class="logo-area">
+        <img src="/images/Outlook-dieerunr.png" alt="Logo" style="height: 80px; width: auto; display: block; max-width: 100%;">
+      </div>
+    </div>
+    <nav>
+      <a href="/"><%= __('nav.home') %></a>
+    </nav>
+  </div>
+</header>
+
+<main class="container">
+  <div class="language-section">
+    <form action="/change-lang" method="get">
+      <label style="display:block; font-size: 0.75rem; margin-bottom: 3px; font-weight: bold;">
+        
+      </label>
+      <select name="lang" class="lang-select" onchange="this.form.submit()" style="height: 32px; width: 160px;">
+          <option value="he" <%= locale === 'he' ? 'selected' : '' %>>עברית</option>
+          <option value="en" <%= locale === 'en' ? 'selected' : '' %>>English</option>
+          <option value="ru" <%= locale === 'ru' ? 'selected' : '' %>>Русский</option>
+      </select>
+    </form>
+  </div>
+
+  <% if (typeof saved !== 'undefined' && saved) { %>
+  <div class="success-box">
+    ✅ <%= __('form.saved_success') || 'Record and files saved successfully!' %>
+  </div>
+  <% } %>
+
+  <div class="description-text lang-<%= locale %>">
+    <%= __('home.description') %>
+  </div>
+
+  <form class="choice-form" id="choiceForm">
+    <p><strong><%= __('home.chooseAction') %></strong></p>
+    <div style="display: flex; gap: 15px; justify-content: center; flex-wrap: wrap;">
+        <button type="button" onclick="redirectToAdd()"><%= __('home.addNewSoldier') %></button>
+        <button type="button" onclick="redirectToChange()"><%= __('home.changeSoldierInfo') %></button>
+    </div>
+  </form>
+
+  <div style="text-align: right; font-size: 0.8rem; margin-top: 40px;">
+    <a href="#" style="color: transparent; text-decoration: none;" onmouseover="this.style.color='#ccc'" onmouseout="this.style.color='transparent'" onclick="promptAdminAccess(event)">•</a>
+  </div>
+</main>
+
+<script>
+  function redirectToAdd() { window.location.href = '/addFull'; }
+  function redirectToChange() { window.location.href = `/search?lang=<%= locale %>`; }
+  function promptAdminAccess(e) {
+    e.preventDefault();
+    const password = prompt("Enter admin password:");
+    if (password === 'TestPass123') {
+      window.location.href = '/admin/completedRecords?adminemail=admin@ww2jewishsoldiers.com&lang=<%= locale %>';
+    } else if (password !== null) { alert("Incorrect password."); }
+  }
+</script>
+</body>
+</html>

@@ -856,7 +856,7 @@
                         </div>
                     </div>
 
-                    <div style="text-align: right; border-top: 1px solid #eee; pt: 15px; padding-top: 10px;">
+                    <div style="text-align: right; border-top: 1px solid #eee; padding-top: 10px;">
                         <button type="button" class="btn btn-danger" onclick="this.closest('.multimedia-row').remove()" style="background-color: #dc3545; color: white; border: none; padding: 8px 20px; border-radius: 4px; cursor: pointer; font-weight: bold;">
                             <%= __('fields.remove') %>
                         </button>
@@ -1085,6 +1085,7 @@ addBattleBtn.addEventListener('click', () => {
 
   // 1. Pre-build options (Safe version)
 // Note: We use <%- JSON.stringify() %> to ensure no quotes break the JS string
+// Inside your <script>
 const typeOptionsHtml = `
     <option value="">-- <%= __('fields.select_option') %> --</option>
     <% if (locals.multimedia_type_TBL) { %>
@@ -1157,13 +1158,12 @@ function handleFileSelect(input, spanId) {
 
     if (input.files && input.files[0]) {
         label.textContent = input.files[0].name;
-        // Verify previewProfilePic exists before calling
         if (typeof previewProfilePic === "function") {
             previewProfilePic(input);
         }
     } else {
-        // FIXED: Use backticks or JSON.stringify to prevent "'" from breaking the code
-        label.textContent = `<%= __('fields.no_file_chosen') %>`;
+        // Use the raw translation text
+        label.textContent = "<%= __('fields.no_file_chosen') %>";
     }
 }
     // 4. Toggle Logic for File vs URL (Event Delegation)

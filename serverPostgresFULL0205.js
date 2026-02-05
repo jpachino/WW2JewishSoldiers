@@ -93,35 +93,29 @@ const upload = multer({ storage });*/
 
 const fs = require('fs');
 const multer = require('multer');
-const path = require('path');
 
-// 1. Define Persistent Paths
-const PERSISTENT_ROOT = '/var/data/soldierUploads';
-const TEMP_DIR = path.join(PERSISTENT_ROOT, 'temp');
-
-// 2. Ensure directories exist on server start
-[PERSISTENT_ROOT, TEMP_DIR].forEach(dir => {
-    if (!fs.existsSync(dir)) {
-        fs.mkdirSync(dir, { recursive: true });
-    }
-});
-
-// 3. Configure Storage
+// Define where files go the moment they hit the server
 const storage = multer.diskStorage({
-    destination: (req, file, cb) => {
-        cb(null, TEMP_DIR);
-    },
-    filename: (req, file, cb) => {
-        // Fix for UTF-8 filenames (Russian, Hebrew, etc.)
-        const decodedName = Buffer.from(file.originalname, 'latin1').toString('utf8');
-        cb(null, decodedName);
-    }
+  destination: (req, file, cb) => {
+    const tempDir = 'public/pages/soldierUploads/temp';
+    if (!fs.existsSync(tempDir)) fs.mkdirSync(tempDir, { recursive: true });
+    cb(null, tempDir);
+  },
+  filename: (req, file, cb) => {
+    // This fix works for Russian, Hebrew, and any other UTF-8 language
+    const decodedName = Buffer.from(file.originalname, 'latin1').toString('utf8');
+    
+    // Use the clean, multilingual name without the Date prefix
+    cb(null, decodedName);
+  }
 });
 
 const upload = multer({ storage: storage });
 const multiUpload = upload.fields([
-    { name: 'm_files[]', maxCount: 12 }
+  
+  { name: 'm_files[]', maxCount: 12 }
 ]);
+
 const db = pgp(cn);
 //const { format } = require('date-fns'); // Only if you still use date-fns elsewhere
 
@@ -207,7 +201,6 @@ app.use(express.static('public'));
 // -----------------------------------------------------
 // This line is essential for i18n.init to see req.cookies
 app.use(cookieParser());
-app.use('/soldierUploads', express.static(PERSISTENT_ROOT));
 
 // -----------------------------------------------------
 // 🌍 i18n Configuration
@@ -433,95 +426,91 @@ app.post('/addFULL', multiUpload, async (req, res) => {
         cleaned.record_complete_date = cleaned.recordcomplete ? (cleaned.record_complete_date || new Date().toISOString().split('T')[0]) : '';
 
         // 5. DATABASE TRANSACTION
-await db.tx(async t => {
-    // STEP A: Insert Soldier
-    const query = pgp.helpers.insert(cleaned, csSoldiers) + ' RETURNING id';
-    const { id: soldierId } = await t.one(query);
+        await db.tx(async t => {
+            // STEP A: Insert Soldier
+           
+            const query = pgp.helpers.insert(cleaned, csSoldiers) + ' RETURNING id';
+            const { id: soldierId } = await t.one(query);
 
-    // STEP B: Create Folder in Persistent Storage
-    const folderName = `A${soldierId}`;
-    // CHANGE: Now pointing to /var/data/soldierUploads/A{id}
-    const targetDir = path.join(PERSISTENT_ROOT, folderName); 
-    
-    if (!fs.existsSync(targetDir)) {
-        fs.mkdirSync(targetDir, { recursive: true });
-    }
+            // STEP B: Create Folder
+            const folderName = `A${soldierId}`;
+            const targetDir = path.join(__dirname, 'public', 'pages', 'soldierUploads', folderName);
+            if (!fs.existsSync(targetDir)) {
+                fs.mkdirSync(targetDir, { recursive: true });
+            }
 
-    // STEP C: INSERT BATTLE HISTORY (Keep your existing code here...)
-    const bh = req.body;
-    if (bh.battleyear && Array.isArray(bh.battleyear)) {
-        for (let i = 0; i < bh.battleyear.length; i++) {
-            const hasData = bh.battleyear[i] || bh.front[i] || bh.battle[i];
-            if (!hasData) continue;
+            // STEP C: INSERT BATTLE HISTORY
+            const bh = req.body;
+            if (bh.battleyear && Array.isArray(bh.battleyear)) {
+                for (let i = 0; i < bh.battleyear.length; i++) {
+                    const hasData = bh.battleyear[i] || bh.front[i] || bh.battle[i];
+                    if (!hasData) continue;
 
-            await t.none(`
-                INSERT INTO soldier_battle_history
-                (soldier_id, battleyear, front, battle, medal, details, degreerank, job,
-                 fronten, battleen, medalen, detailsen, degreeranken, joben,
-                 frontru, battleru, medalru, detailsru, degreerankru, jobru)
-                VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11,$12,$13,$14,$15,$16,$17,$18,$19,$20)
-            `, [
-                soldierId, bh.battleyear[i] || null, bh.front[i] || null, bh.battle[i] || null,
-                bh.battle_medal[i] || null, bh.battle_details[i] || null, bh.degreerank[i] || null, bh.job[i] || null,
-                bh.fronten[i] || null, bh.battleen[i] || null, bh.battle_medalen[i] || null, bh.battle_detailsen[i] || null,
-                bh.degreeranken[i] || null, bh.joben[i] || null, bh.frontru[i] || null, bh.battleru[i] || null,
-                bh.battle_medalru[i] || null, bh.battle_detailsru[i] || null, bh.degreerankru[i] || null, bh.jobru[i] || null
-            ]);
-        }
-    }
+                    await t.none(`
+                        INSERT INTO soldier_battle_history
+                        (soldier_id, battleyear, front, battle, medal, details, degreerank, job,
+                         fronten, battleen, medalen, detailsen, degreeranken, joben,
+                         frontru, battleru, medalru, detailsru, degreerankru, jobru)
+                        VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11,$12,$13,$14,$15,$16,$17,$18,$19,$20)
+                    `, [
+                        soldierId, bh.battleyear[i] || null, bh.front[i] || null, bh.battle[i] || null,
+                        bh.battle_medal[i] || null, bh.battle_details[i] || null, bh.degreerank[i] || null, bh.job[i] || null,
+                        bh.fronten[i] || null, bh.battleen[i] || null, bh.battle_medalen[i] || null, bh.battle_detailsen[i] || null,
+                        bh.degreeranken[i] || null, bh.joben[i] || null, bh.frontru[i] || null, bh.battleru[i] || null,
+                        bh.battle_medalru[i] || null, bh.battle_detailsru[i] || null, bh.degreerankru[i] || null, bh.jobru[i] || null
+                    ]);
+                }
+            }
 
-    // STEP D: HANDLE MULTIMEDIA
-    console.log('--- STARTING MULTIMEDIA SAVE ---');
-    const rawDesc = [].concat(req.body['m_description[]'] || req.body.m_description || []);
-    const rawTypes = [].concat(req.body['m_type[]'] || req.body.m_type || []);
-    const rawLocs = [].concat(req.body['physical_logical_location[]'] || req.body.physical_logical_location || []);
-    const mFiles = (req.files && req.files['m_files[]']) ? [].concat(req.files['m_files[]']) : [];
+            // STEP D: HANDLE MULTIMEDIA
+            console.log('--- STARTING MULTIMEDIA SAVE ---');
+            const rawDesc = [].concat(req.body['m_description[]'] || req.body.m_description || []);
+            const rawTypes = [].concat(req.body['m_type[]'] || req.body.m_type || []);
+            const rawLocs = [].concat(req.body['physical_logical_location[]'] || req.body.physical_logical_location || []);
+            const mFiles = (req.files && req.files['m_files[]']) ? [].concat(req.files['m_files[]']) : [];
 
-    const maxRows = Math.max(rawDesc.length, rawTypes.length);
+            const maxRows = Math.max(rawDesc.length, rawTypes.length);
 
-    for (let i = 0; i < maxRows; i++) {
-        let finalDbPath = null;
-        let currentType = (rawTypes[i] || '').toString().trim();
-        let userLocation = (rawLocs[i] || '').trim();
-        let finalLocation = '';
+            for (let i = 0; i < maxRows; i++) {
+                let finalDbPath = null;
+                let currentType = (rawTypes[i] || '').toString().trim();
+                let userLocation = (rawLocs[i] || '').trim();
+                let finalLocation = '';
 
-        if (currentType.match(/PDF|JPG|תמונה|מסמך/i)) {
-            finalLocation = 'מחיצת קבצים לקישור';
-        } else if (currentType === 'קישור') {
-            finalLocation = 'URL';
-        } else {
-            finalLocation = userLocation || 'URL'; 
-        }
+                if (currentType.match(/PDF|JPG|תמונה|מסמך/i)) {
+                    finalLocation = 'מחיצת קבצים לקישור';
+                } else if (currentType === 'קישור') {
+                    finalLocation = 'URL';
+                } else {
+                    finalLocation = userLocation || 'URL'; 
+                }
 
-        if (mFiles[i]) {
-            const file = mFiles[i];
-            const decodedFileName = Buffer.from(file.originalname, 'latin1').toString('utf8');
-            const finalPath = path.join(targetDir, decodedFileName);
-            
-            // Move from /temp to the soldier's folder
-            fs.renameSync(file.path, finalPath);
-            
-            // CHANGE: The path saved in DB now matches our new virtual route
-            finalDbPath = `/soldierUploads/${folderName}/${decodedFileName}`;
-        }
+                if (mFiles[i]) {
+                    const file = mFiles[i];
+                    const decodedFileName = Buffer.from(file.originalname, 'latin1').toString('utf8');
+                    const finalPath = path.join(targetDir, decodedFileName);
+                    fs.renameSync(file.path, finalPath);
+                    finalDbPath = `/pages/soldierUploads/${folderName}/${decodedFileName}`;
+                }
 
-        if (finalDbPath || userLocation || rawDesc[i]) {
-            const dbPathToSave = finalDbPath || userLocation || '';
-            await t.none(`
-                INSERT INTO "multimedia_TBL" 
-                (soldier_id, file_description, file_path, multimedia_type, physical_logical_location, is_profile_pic, uploaded_date)
-                VALUES ($1, $2, $3, $4, $5, $6, NOW())
-            `, [
-                soldierId, 
-                rawDesc[i] || 'No Description', 
-                dbPathToSave, 
-                currentType,
-                finalLocation,
-                (i === 0 && finalDbPath !== null)
-            ]);
-        }
-    }
-});
+                if (finalDbPath || userLocation || rawDesc[i]) {
+                    const dbPathToSave = finalDbPath || userLocation || '';
+                    await t.none(`
+                        INSERT INTO "multimedia_TBL" 
+                        (soldier_id, file_description, file_path, multimedia_type, physical_logical_location, is_profile_pic, uploaded_date)
+                        VALUES ($1, $2, $3, $4, $5, $6, NOW())
+                    `, [
+                        soldierId, 
+                        rawDesc[i] || 'No Description', 
+                        dbPathToSave, 
+                        currentType,
+                        finalLocation,
+                        (i === 0 && finalDbPath !== null)
+                    ]);
+                }
+            }
+        });
+
         res.redirect('/?saved=true');
 
     } catch (err) {
