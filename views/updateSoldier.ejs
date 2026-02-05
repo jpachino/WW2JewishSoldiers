@@ -834,54 +834,7 @@
  </fieldset>
 
       
-<!--<fieldset>
-    <legend><%= __('sections.uploads') %></legend>
 
-    <div class="existing-multimedia">
-        <h4><%= __('form.current_files') %></h4>
-        <table class="table">
-            <thead>
-                <tr>
-                    <th><%= __('fields.description') %></th>
-                    <th><%= __('fields.multimedia_type') %></th>
-                    <th><%= __('fields.preview_link') || 'Preview/Link' %></th>
-                </tr>
-            </thead>
-            <tbody>
-                <% if (locals.multimedia && multimedia.length > 0) { %>
-                    <% multimedia.forEach(item => { %>
-                        <tr>
-                            <td><%= item.file_description %></td>
-                            <td><%= item.multimedia_type %></td>
-                            <td>
-                                <a href="<%= item.file_path %>" target="_blank" class="btn btn-sm btn-outline-info">
-                                    <%= __('buttons.view') || 'View' %>
-                                </a>
-                            </td>
-                        </tr>
-                    <% }) %>
-                <% } else { %>
-                    <tr>
-                        <td colspan="3" class="text-center">
-                            <%= __('form.no_files_found') || 'No files or multimedia links found for this record.' %>
-                        </td>
-                    </tr>
-                <% } %>
-            </tbody>
-        </table>
-    </div>
-
-    <hr>
-
-    <div class="new-uploads">
-        <h4><%= __('fields.add_new_files') || 'Add New Files' %></h4>
-        <div id="multimedia-rows">
-            </div>
-        <button type="button" onclick="addUploadRow()" class="btn-add">
-            <%= __('fields.add_another') %>
-        </button>
-    </div>
-</fieldset>-->
 <fieldset>
     <legend><%= __('sections.uploads') %></legend>
 

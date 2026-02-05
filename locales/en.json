@@ -218,7 +218,8 @@
     "additional_materials": "Additional materials – please send to",
     "categories": "Categories",
     "mandatory": "Fill in at least one language.",
-    "if_applicable": "if applicable"
+    "if_applicable": "if applicable",
+    "info_readonly": "This information was provided by the original submitter and cannot be edited."
     
     
   },

@@ -240,7 +240,8 @@
     "additional_materials": "חומרים נוספים – נא לשלוח לכתובת",
     "categories": "קטגוריות",
     "mandatory": "יש למלא בשפה אחת לפחות",
-    "if_applicable": "אם רלוונטי"
+    "if_applicable": "אם רלוונטי",
+    "info_readonly": "מידע זה סופק על ידי המדווח המקורי ולא ניתן לעריכה."
 
   },
 

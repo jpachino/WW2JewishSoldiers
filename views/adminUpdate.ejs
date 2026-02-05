@@ -56,9 +56,46 @@
     
         <form action="/adminUpdateSoldier/<%= soldier.id %>?adminemail=<%= adminemail %>" method="POST" enctype="multipart/form-data">
          
-     <fieldset>
-      <legend><%= __('sections.basic') %></legend>
-      <p style="color: #d9534f; font-size: 0.9rem; margin-top: -5px; font-weight: 500;">
+         
+    <fieldset style="background-color: #fcfcfc; border: 1px dashed #bbb; margin-top: 10px;">
+    <legend><%= __('sections.submitter_info') %></legend>
+    <p style="font-size: 0.85rem; color: #cc0000; margin: 0 0 5px 0; font-style: italic;">
+        <%= __('fields.info_readonly') || 'This information was provided by the original submitter and cannot be edited.' %>
+    </p>
+    <div class="single-row">
+        <label for="useremail"><%= __('fields.useremail') %></label>
+        <input type="email" id="useremail" value="<%= soldier.useremail || '' %>" readonly style="background-color: #e9ecef; cursor: not-allowed;" />
+    </div>
+
+    <div class="trio-row">
+        <div class="input-group">
+            <label for="fname_soldier_submitter"><%= __('fields.fname_soldier_submitter') %></label>
+            <input type="text" id="fname_soldier_submitter" value="<%= soldier.fname_soldier_submitter || '' %>" readonly style="background-color: #e9ecef; cursor: not-allowed;" />
+        </div>
+        <div class="input-group">
+            <label for="lname_soldier_submitter"><%= __('fields.lname_soldier_submitter') %></label>
+            <input type="text" id="lname_soldier_submitter" value="<%= soldier.lname_soldier_submitter || '' %>" readonly style="background-color: #e9ecef; cursor: not-allowed;" />
+        </div>
+        <div class="input-group">
+            <label for="phone_soldier_submitter"><%= __('fields.phone_soldier_submitter') %></label>
+            <input type="tel" id="phone_soldier_submitter" value="<%= soldier.phone_soldier_submitter || '' %>" readonly style="background-color: #e9ecef; cursor: not-allowed;" />
+        </div>
+    </div>
+
+    <div class="trio-row">
+        <div class="input-group">
+            <label for="relation_of_soldier_submitter"><%= __('fields.relation_of_soldier_submitter') %></label>
+            <input type="text" id="relation_of_soldier_submitter" value="<%= soldier.relation_of_soldier_submitter || '' %>" readonly style="background-color: #e9ecef; cursor: not-allowed;" />
+        </div>
+        <div class="input-group" style="flex: 2;">
+            <label for="how_found_us_submitter"><%= __('fields.how_found_us_submitter') %></label>
+            <input type="text" id="how_found_us_submitter" value="<%= soldier.how_found_us_submitter || '' %>" readonly style="background-color: #e9ecef; cursor: not-allowed;" />
+        </div>
+    </div>
+</fieldset>
+<fieldset>
+ <legend><%= __('sections.basic') %></legend>
+ <p style="color: #d9534f; font-size: 0.9rem; margin-top: -5px; font-weight: 500;">
         <span style="color: #ff0000;">*</span> <%= __('fields.mandatory') %>
     </p>
     <br>

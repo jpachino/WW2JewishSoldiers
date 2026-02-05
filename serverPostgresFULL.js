@@ -1362,69 +1362,60 @@ for (let i = 1; i <= 8; i++) {
                 }
             }
 
-            // STEP D: HANDLE MULTIMEDIA
-console.log('--- DIAGNOSTIC: FULL BODY KEYS ---', Object.keys(req.body));
-
-// This helper finds the field whether it's named "m_description[]" or "m_description"
-const getField = (name) => {
-    return req.body[name + '[]'] || req.body[name] || [];
-};
-
+// STEP D: HANDLE MULTIMEDIA
 const descArr = [].concat(getField('m_description'));
 const typeArr = [].concat(getField('m_type'));
 const locArr  = [].concat(getField('physical_logical_location'));
 const mFiles  = (req.files && req.files['m_files[]']) ? req.files['m_files[]'] : [];
 
-console.log(`Verified Data: Descs=${descArr.length}, Files=${mFiles.length}, Types=${typeArr.length}`);
-// 1. Check if the soldier ALREADY has a profile picture in the database
+// 1. Check if the soldier ALREADY has a profile picture
 const existingProfilePic = await t.oneOrNone(
     'SELECT id FROM "multimedia_TBL" WHERE soldier_id = $1 AND is_profile_pic = true LIMIT 1',
     [soldierId]
 );
-
-// 2. Decide the profile pic rule
-// If they have one, all new uploads are false. 
-// If they don't have one, only the first new file becomes true.
 const hasProfilePic = !!existingProfilePic;
 
-const maxRows = Math.max(descArr.length, mFiles.length);
+// 2. Setup Persistent Target Directory
+const folderName = `A${soldierId}`;
+const targetDir = path.join(PERSISTENT_ROOT, folderName); // Using /var/data/soldierUploads
+
+if (!fs.existsSync(targetDir)) {
+    fs.mkdirSync(targetDir, { recursive: true });
+}
+
+const maxRows = Math.max(descArr.length, mFiles.length, locArr.length);
 
 for (let i = 0; i < maxRows; i++) {
     let finalDbPath = null;
+    let physicalLocation = locArr[i] || null;
     
+    // Handle File Upload
     if (mFiles[i]) {
         const file = mFiles[i];
-
-        // 1. FIX ENCODING: Convert filename from latin1 to utf8 for Hebrew/Russian
         const decodedFileName = Buffer.from(file.originalname, 'latin1').toString('utf8');
+        const finalPath = path.join(targetDir, decodedFileName);
         
-        // 2. REMOVE DATE: We just use the decoded name directly
-        const uniqueFileName = decodedFileName;
-
-        const targetDir = path.join(__dirname, 'public', 'pages', 'soldierUploads', `A${soldierId}`);
-        if (!fs.existsSync(targetDir)) fs.mkdirSync(targetDir, { recursive: true });
-
-        const finalPath = path.join(targetDir, uniqueFileName);
-        
-        // Move file from temp to final destination
+        // Move file from /var/data/soldierUploads/temp to /var/data/soldierUploads/A123
         fs.renameSync(file.path, finalPath);
         
-        // This clean string is what goes into PostgreSQL
-        finalDbPath = `/pages/soldierUploads/A${soldierId}/${uniqueFileName}`;
+        // Database path points to our virtual route
+        finalDbPath = `/soldierUploads/${folderName}/${decodedFileName}`;
     }
 
-    if (finalDbPath || descArr[i]) {
-        // Only set to true if it's the first row AND the soldier doesn't have one yet
+    // Only insert if there's a file, a description, or a URL link
+    if (finalDbPath || descArr[i] || physicalLocation) {
+        // Rule: First new file becomes profile pic only if one doesn't exist
         const setToProfile = (!hasProfilePic && i === 0 && finalDbPath !== null);
 
         await t.none(`
             INSERT INTO "multimedia_TBL" 
-            (soldier_id, file_description, file_path, multimedia_type, is_profile_pic, uploaded_date)
-            VALUES ($1, $2, $3, $4, $5, NOW())
+            (soldier_id, file_description, file_path, physical_logical_location, multimedia_type, is_profile_pic, uploaded_date)
+            VALUES ($1, $2, $3, $4, $5, $6, NOW())
         `, [
             soldierId, 
             descArr[i] || 'No Description', 
             finalDbPath, 
+            physicalLocation,
             typeArr[i] || null,
             setToProfile
         ]);
