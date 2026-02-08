@@ -68,6 +68,9 @@ h2 {
   margin-bottom: 1rem;
 }
 
+
+
+
 /* Choice Form */
 .choice-form {
   margin-top: 1rem;
@@ -250,7 +253,26 @@ button[type="submit"]:hover {
   font-weight: 900;
   font-style: italic;
 }
+/* Navigation bar adjustment */
+nav {
+    display: flex;
+    justify-content: space-between; /* Pushes Home to one side, Admin to the other */
+    align-items: center;
+}
 
+.admin-nav-link {
+    font-size: 10px !important;   /* Much smaller than Home link */
+    color: #777 !important;       /* Faded grey */
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    opacity: 0.6;
+    transition: opacity 0.3s;
+}
+
+.admin-nav-link:hover {
+    opacity: 1;
+    color: #fff !important;       /* Brightens on hover */
+}
 /* Directional Support */
 html[lang="he"] {
   direction: rtl;
@@ -260,6 +282,10 @@ html[lang="he"] {
 html[lang="en"],
 html[lang="ru"] {
   direction: ltr;
+}
+
+html[lang="he"] nav {
+    flex-direction: row-reverse;
 }
  .modal {
     position: fixed;

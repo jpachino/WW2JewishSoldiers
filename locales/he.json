@@ -34,7 +34,9 @@
     "addSoldier": "הוסף לוחם",
     
     "searchUpdate": "חיפוש ועדכון לוחם",
-    "searchResults": "תוצאות חיפוש"
+    "searchResults": "תוצאות חיפוש",
+    "admin_access": "גישת מנהל",
+    "logout": "התנתקות מנהל"
   },
 
   "search": {

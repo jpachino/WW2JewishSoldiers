@@ -33,7 +33,10 @@
     "addSoldier": "Add New Soldier",
     "searchUpdate": "Search and Update Soldier",
     
-    "searchResults": "Search Results"
+    "searchResults": "Search Results",
+    "admin_access": "Admin Access",
+    "logout": "Administrator Logout"
+
     
   },
 

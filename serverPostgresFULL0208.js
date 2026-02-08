@@ -13,7 +13,6 @@ const port = 3000;
 const ExcelJS = require('exceljs'); // Add at top
 const cookieParser = require('cookie-parser'); // The key module
 const archiver = require('archiver');
-const session = require('express-session');
 
 // ... db initialization ...
 
@@ -199,7 +198,7 @@ db.connect()
 // -----------------------------------------------------
 // ⚙️ Core Application & Static Middleware
 // -----------------------------------------------------
-app.use(express.json());
+
 app.use(bodyParser.urlencoded({ extended: true }));
 app.use(express.static('public'));
 
@@ -209,26 +208,7 @@ app.use(express.static('public'));
 // This line is essential for i18n.init to see req.cookies
 app.use(cookieParser());
 app.use('/soldierUploads', express.static(PERSISTENT_ROOT));
-// 2. SESSION MUST BE BEFORE ROUTES
-app.use(session({
-    secret: 'some-random-string',
-    resave: false,
-    saveUninitialized: false,
-    cookie: { secure: false } // Set to true if on Render/HTTPS
-}));
 
-// 3. NOW YOUR ROUTES
-app.post('/admin/login-submit', (req, res) => {
-    console.log("LOGIN ATTEMPT - Body is:", req.body); // Check your terminal/logs for this!
-    const { password } = req.body;
-    const ADMIN_PASS = 'G5*s9@z2Yh';
-
-    if (password === ADMIN_PASS) {
-        req.session.isAdmin = true;
-        return res.json({ success: true });
-    }
-    res.status(401).json({ success: false });
-});
 // -----------------------------------------------------
 // 🌍 i18n Configuration
 // -----------------------------------------------------
@@ -316,60 +296,7 @@ function cleanNulls(obj) {
   }
   return cleaned;
 }
-// A. Show the Login Page
-app.get('/admin-login', (req, res) => {
-    // If they are already logged in, skip the login page and go straight to records
-    if (req.session && req.session.isAdmin) {
-        return res.redirect('/admin/completedRecords');
-    }
-    res.render('adminLogin', { locale: req.getLocale() || 'he' });
-});
 
-// B. Handle the Login Logic
-app.post('/admin/login-submit', (req, res) => {
-    const { password } = req.body;
-    const ADMIN_PASS = 'G5*s9@z2Yh'; 
-
-    if (password === ADMIN_PASS) {
-        req.session.isAdmin = true; // Store in session
-        return res.json({ success: true });
-    }
-    res.status(401).json({ success: false });
-});
-
-// C. The Protection Middleware
-const requireAdmin = (req, res, next) => {
-    if (req.session && req.session.isAdmin) {
-        return next();
-    }
-    // If not logged in, redirect them to the login page
-    res.redirect('/admin-login');
-};
-
-/* D. Protect the Completed Records Route
-app.get('/admin/completedRecords', requireAdmin, async (req, res) => {
-    try {
-        const records = await db.any('SELECT * FROM soldierdetails WHERE recordcomplete = true ORDER BY id DESC');
-      
-        res.render('completedRecords', { 
-            soldiers: records, 
-            locale: req.getLocale() 
-        });
-    } catch (err) {
-        console.error(err);
-        res.status(500).send("Database Error");
-    }
-});*/
-app.get('/logout', (req, res) => {
-    req.session.destroy((err) => {
-        if (err) {
-            console.log(err);
-            return res.redirect('/');
-        }
-        res.clearCookie('connect.sid'); // Clears the session cookie in the browser
-        res.redirect('/'); // Send them back to the home page
-    });
-});
 app.get('/addFull', async (req, res) => {
     const locale = req.query.lang || req.cookies.lang || 'he';
     const langMap = { 'he': 'title_heb', 'en': 'title_eng', 'ru': 'title_rus' };
@@ -1548,12 +1475,13 @@ app.post('/delete-multimedia/:id', async (req, res) => {
 });
 
 // --- GET /admin/completedRecords ---
-// --- GET /admin/completedRecords ---
-app.get('/admin/completedRecords', requireAdmin, async (req, res) => {
-    
-    // 1. DEFINE LOCALE (This was missing)
-    const locale = req.getLocale() || 'he';
+app.get('/admin/completedRecords', async (req, res) => {
+    const adminemail = req.query.adminemail;
     const saved = req.query.saved === 'true';
+
+    if (!adminemail) {
+        return res.redirect(`/admin/completedRecords?adminemail=admin@ww2jewishsoldiers.com`);
+    }
 
     try {
         const soldiers = await db.any(
@@ -1562,7 +1490,6 @@ app.get('/admin/completedRecords', requireAdmin, async (req, res) => {
              ORDER BY id DESC`
         );
 
-        // Fetching lookup tables (Keep these so headers/filters work if needed)
         const countries = await db.any('SELECT id, title_heb, title_eng, title_rus FROM "countries_TBL"');
         const gender = await db.any('SELECT id, title_heb, title_eng, title_rus FROM "gender_TBL"');
         const medals = await db.any('SELECT id, title FROM "medals_TBL" ORDER BY title');
@@ -1574,21 +1501,18 @@ app.get('/admin/completedRecords', requireAdmin, async (req, res) => {
         const participation = await db.any('SELECT id, title_heb, title_eng, title_rus FROM "participation_TBL"');
         const enlistreason = await db.any('SELECT id, title_heb, title_eng, title_rus FROM "enlistreason_TBL"');
         
-        // 2. Format the soldiers
-        const formattedSoldiers = soldiers.map(s => {
-            const isReady = s.admin_ready_for_download === true || String(s.admin_ready_for_download) === 'true';
+        // ❗ NO DATE CONVERSION — database now stores formatted text already
+        const formattedSoldiers = soldiers.map(s => ({
+            ...s,
+            dob: s.dob || 'N/A',
+            dod: s.dod || 'N/A',
+            aliyadate: s.aliyadate || 'N/A',
+            
+            admin_approved_date: s.admin_approved_date || 'N/A',
+            downloaded_date: s.downloaded_date || 'N/A',
+            record_complete_date: s.record_complete_date || 'N/A'
+        }));
 
-            return {
-                ...s, 
-                record_complete_date: s.record_complete_date || 'N/A',
-                uploaded_date: s.uploaded_date ? new Date(s.uploaded_date).toLocaleDateString('en-CA') : 'N/A',
-                admin_approved_date: s.admin_approved_date || 'N/A',
-                ready_status: isReady ? '✅' : '❌', 
-                downloaded_date: s.downloaded_date || 'N/A'
-            };
-        });
-
-        // 3. Render with ALL needed variables
         res.render('completedRecords', {
             soldiers: formattedSoldiers,
             countries,
@@ -1601,9 +1525,9 @@ app.get('/admin/completedRecords', requireAdmin, async (req, res) => {
             partizan,
             participation,
             enlistreason,
-            locale,   // Added this
-            saved,    // Cleaned this up
-            req
+            //uploadedFiles, await db.any('SELECT * FROM uploaded_files WHERE soldier_id = $1', [id]) || [],
+            adminemail,
+            saved
         });
 
     } catch (err) {
@@ -1611,6 +1535,7 @@ app.get('/admin/completedRecords', requireAdmin, async (req, res) => {
         res.status(500).send('Server error');
     }
 });
+
 
 // --- POST /adminUpdateSoldier/:id ---
 app.post('/adminUpdateSoldier/:id', multiUpload, async (req, res) => {
@@ -2129,22 +2054,36 @@ for (let i = 0; i < maxRows; i++) {
     }
 })
 // --- GET /adminUpdateSoldier/:id ---
-//app.get('/adminUpdateSoldier/:id', async (req, res) => {
-  app.get('/adminUpdateSoldier/:id', requireAdmin, async (req, res) => {
+app.get('/adminUpdateSoldier/:id', async (req, res) => {
     const { id } = req.params;
-    const locale = req.getLocale() || 'he';
+    const adminemail = req.query.adminemail;
+    const soldierId = req.params.id;
+    
+    // Get locale (using your req.getLocale() or fallback to cookie/query)
+    const locale = req.getLocale() || req.query.lang || req.cookies.lang || 'he';
+
+    if (!adminemail) {
+        return res.redirect(`/admin/completedRecords?adminemail=admin@ww2jewishsoldiers.com`);
+    }
 
     // Map locale to the specific DB column for sorting
-    const langMap = { 'he': 'title_heb', 'en': 'title_eng', 'ru': 'title_rus' };
+    const langMap = {
+        'he': 'title_heb',
+        'en': 'title_eng',
+        'ru': 'title_rus'
+    };
     const sortCol = langMap[locale] || 'title_heb';
 
     try {
+        // 1. Fetch the soldier record first
         const soldier = await db.oneOrNone(`SELECT * FROM ${SOLDIER_TABLE} WHERE id = $1`, [id]);
         if (!soldier) return res.status(404).send('Soldier not found');
 
+        // 2. Helper for tables that need language-based sorting
         const fetchOrdered = (table) => 
             db.any(`SELECT id, title_heb, title_eng, title_rus FROM "${table}" ORDER BY $(col:name) ASC`, { col: sortCol });
 
+        // 3. Execute all lookups in parallel
         const [
             countries, gender, corps, category, army, 
             resistance, partizan, participation, enlistreason,
@@ -2159,19 +2098,21 @@ for (let i = 0; i < maxRows; i++) {
             fetchOrdered('partizan_TBL'),
             fetchOrdered('participation_TBL'),
             fetchOrdered('enlistreason_TBL'),
-            db.any('SELECT * FROM "multimedia_TBL" WHERE soldier_id = $1', [id]),
+            db.any('SELECT * FROM "multimedia_TBL" WHERE soldier_id = $1', [soldierId]),
             db.any('SELECT * FROM "soldier_battle_history" WHERE soldier_id = $1 ORDER BY id', [id])
         ]);
 
+        // 4. Medals and Multimedia Types kept exactly as requested (no change to order)
         const medals = await db.any('SELECT id, title FROM "medals_TBL"'); 
         const mTypes = await db.any('SELECT * FROM "multimedia_type_TBL" ORDER BY id');
+        // --- BUBBLE UP BY ID 0 ---
+       const unknownIndex = countries.findIndex(c => Number(c.id) === 0);
 
-        const unknownIndex = countries.findIndex(c => Number(c.id) === 0);
         if (unknownIndex > 0) { 
-            const [unknownItem] = countries.splice(unknownIndex, 1);
-            countries.unshift(unknownItem);
+        const [unknownItem] = countries.splice(unknownIndex, 1);
+        countries.unshift(unknownItem);
         }
-
+        // -------------------------
         res.render('adminUpdate', {
             soldier,
             countries,
@@ -2184,6 +2125,7 @@ for (let i = 0; i < maxRows; i++) {
             partizan,
             participation,
             battleHistory,
+            adminemail,
             enlistreason,
             multimedia_type_TBL: mTypes,
             multimedia: multimediaList, 
@@ -2361,8 +2303,7 @@ app.get('/admin/completedRecords', async (req, res) => {
 
 
 
-//app.post('/admin/downloadExcel', async (req, res) => {
-  app.post('/admin/downloadExcel', requireAdmin, async (req, res) => {
+app.post('/admin/downloadExcel', async (req, res) => {
     // --- Configuration Constants ---
     const BATTLE_HISTORY_TABLE = 'soldier_battle_history';
     const MULTIMEDIA_TABLE = 'multimedia_TBL';
@@ -2649,43 +2590,28 @@ app.get('/admin/completedRecords', async (req, res) => {
 
         const xmlString = xmlRoot.end({ prettyPrint: true });
 
- // 6. ZIP Stream Setup
+        // 6. ZIP Stream Setup
         res.setHeader('Content-Type', 'application/zip');
-        res.setHeader('Content-Disposition', `attachment; filename="Full_Export_${safeDate}.zip"`);
+        res.setHeader('Content-Disposition', `attachment; filename=\"Full_Export_${safeDate}.zip\"`);
 
         const archive = archiver('zip', { zlib: { level: 9 } });
         archive.pipe(res);
 
-        // --- IMPROVED MANIFEST CONTENT ---
-        let manifestContent = `Export Summary - ${downloadDateString}\n`;
-        manifestContent += "=".repeat(40) + "\n";
-        manifestContent += `Total Records Exported: ${soldiers.length}\n\n`;
-
-        soldiers.forEach(s => {
-            manifestContent += `[ID: A${s.id}] ${s.fname} ${s.lname}\n`;
-        });
-
-        archive.append(manifestContent, { name: 'manifest.txt' });
+        archive.append(`Export Summary - ${downloadDateString}\n` + "=".repeat(40) + "\n", { name: 'manifest.txt' });
         archive.append(excelBuffer, { name: `soldiers_data_${safeDate}.xlsx` });
         archive.append(xmlString, { name: `soldiers_data_${safeDate}.xml` });
 
-        // --- FIX: Multimedia from Persistent Storage ---
         ids.forEach(id => {
             const cleanId = String(id).trim();
-            // Use PERSISTENT_ROOT instead of __dirname/public
-            const folderPath = path.join(PERSISTENT_ROOT, `A${cleanId}`);
-            
+            const folderPath = path.join(__dirname, 'public', 'pages', 'soldierUploads', `A${cleanId}`);
             if (fs.existsSync(folderPath)) {
-                // Add the folder content to the ZIP
                 archive.directory(folderPath, `Soldier_Files/A${cleanId}`);
-            } else {
-                console.log(`Diagnostic: No folder found for A${cleanId} at ${folderPath}`);
             }
         });
 
-        // 7. Finalize
         await db.none(`UPDATE soldierdetails SET downloaded_date = $1 WHERE id IN ($2:csv)`, [downloadDateString, ids]);
         await archive.finalize();
+
     } catch (err) {
         console.error('ZIP Export Error:', err);
         if (!res.headersSent) res.status(500).send('Package generation failed');

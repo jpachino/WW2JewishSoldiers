@@ -37,9 +37,6 @@
       <h1><%= __('admin.completedTitle') %></h1>
     </div>
     <nav><a href="/"><%= __('nav.home') %></a></nav>
-    <a href="/logout" style="color: #ff4d4d; font-size: 0.9rem; font-weight: bold; text-decoration: none;">
-    <%= __('nav.logout') || 'Logout' %> 🚪
-  </a>
   </div>
 </header>
 
@@ -49,7 +46,7 @@
   <form method="GET" action="/admin/completedRecords">
     
     
-   
+    <!--<input type="hidden" name="adminemail" value="<%= adminemail %>" />-->
     <select name="lang" class="lang-select" onchange="this.form.submit()">
       <option value="he" <%= locale === 'he' ? 'selected' : '' %>>עברית</option>
       <option value="en" <%= locale === 'en' ? 'selected' : '' %>>English</option>
@@ -67,48 +64,52 @@
     <% } %>
 
     <% if (soldiers && soldiers.length > 0) { %>
-<div style="overflow-x: auto; max-height: 500px; border: 1px solid #ddd;">
-  <table>
-    <thead>
-      <tr>
-        <th><%= __('actions.edit') %></th>
-        <th>ID</th>
-        <th><%= __('form.firstName') %></th>
-        <th><%= __('form.lastName') %></th>
-        <th><%= __('form.record_complete_date') || 'Completion Date' %></th>
-        <th><%= __('form.admin_approved_date') %></th>
-        <th><%= __('admin.readyStatus') || 'Ready' %></th> 
-        <th><%= __('fields.downloaded_date') %></th> 
-        <th><%= __('form.select') %></th>
-      </tr>
-    </thead>
-    <tbody>
-      <% soldiers.forEach(s => { %>
-        <tr>
-          <td>
-            <a href="/adminUpdateSoldier/<%= s.id %>">
-              <%= __('actions.edit') %>
-            </a>
-          </td>
-          <td>A<%= s.id %></td>
-          <td><%= s.fname || s.fnameen || s.fnameru || '' %></td>
-          <td><%= s.lname || s.lnameen || s.lnameru || '' %></td>
-          <td><%= s.record_complete_date %></td>
-          <td><%= s.admin_approved_date %></td>
-          <td style="text-align: center; font-size: 1.2rem;">
-          <%= s.ready_status %>
-          </td>
-          <td><%= s.downloaded_date %></td>
-          <td><input type="checkbox" name="selectedIds" value="<%= s.id %>" /></td>
-        </tr>
-      <% }) %>
-    </tbody>
-  </table>
-</div>
+      <div style="overflow-x: auto; max-height: 500px; border: 1px solid #ddd;">
+        <table>
+          <thead>
+            <tr>
+              <th><%= __('actions.edit') %></th>
+              <th>ID</th>
+              <th><%= __('form.firstName') %></th>
+              <th><%= __('form.lastName') %></th>
+              <th><%= __('form.email') %></th>
+              <th><%= __('form.dob') %></th>
+              <th><%= __('form.admin_approved_date') %></th>
+              <th><%= __('fields.downloaded_date') %></th> 
+              <th><%= __('form.select') %></th>
+              <!--<input type="checkbox" id="selectAll" onclick="toggleSelectAll(this)"> 
+            <%= __('form.select') %>-->
+            </tr>
+          </thead>
+          <tbody>
+            <% soldiers.forEach(s => { %>
+  <tr>
+    <td>
+      <a href="/adminUpdateSoldier/<%= s.id %>?adminemail=<%= adminemail %>">
+        <%= __('actions.edit') %>
+      </a>
+    </td>
+    <td>A<%= s.id %></td>
+    <td>
+        <%= s.fname || s.fnameen || s.fnameru || '' %>
+    </td>
+    <td>
+        <%= s.lname || s.lnameen || s.lnameru || '' %>
+    </td>
+    <td><%= s.useremail %></td>
+    <td><%= s.dob || '' %></td>
+    <td><%= s.admin_approved_date || '' %></td>
+    <td><%= s.downloaded_date || '' %></td>
+    <td><input type="checkbox" name="selectedIds" value="<%= s.id %>" /></td>
+  </tr>
+<% }) %>
+          </tbody>
+        </table>
+      </div>
 
       <br />
       <form id="excelForm" method="POST" action="/admin/downloadExcel">
-       
+        <input type="hidden" name="adminemail" value="<%= adminemail %>" />
         <button type="button" onclick="submitForm('excelForm')">
           <%= __('admin.downloadPackage') || 'Download ZIP Package' %>
       </button>
@@ -180,8 +181,8 @@
 
         // Define groups for preview layout
         const layout = [
-          ["fname", "lname", "useremail" , "record_complete_date", ""],
-          ["uploaded_date", "dod", "aliyadate"],
+          ["fname", "lname", "useremail"],
+          ["dob", "dod", "aliyadate"],
           ["admin_approved_date", "downloaded_date"],
           ["biography", "fightingdesc", "remarks"]
         ];
