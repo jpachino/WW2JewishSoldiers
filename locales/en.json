@@ -265,7 +265,9 @@
     "biography_desc": "From his (or her) birth to his death, with an emphasis on his activities during World War II",
     "personal_story_title": "Personal Story Definition",
     "personal_story_desc": "A personal story from his (or her) time as a soldier",
-    "pick_one_option": "Pick at least one option"
+    "pick_one_option": "Pick at least one option",
+    "record_complete_date": "Record Completion Date",
+    "readyStatus": "Approved by Admin"
 
   },
 "admin": {
@@ -300,8 +302,14 @@
     "update": "Update",
     "backToList": "Back to list",
     "view": "View"
-  }
-
+  },
+"errors": {
+  "invalid_extension": "Only JPG or PDF files are allowed.",
+  "image_too_large": "Image file is too large (Maximum 1.5MB).",
+  "pdf_too_large": "PDF file is too large (Maximum 1.5MB).",
+  "mismatch_image": "Multimedia type 'Picture' requires a JPG file.",
+  "mismatch_pdf": "Multimedia type 'Document' requires a PDF file."
+}
 
 
 }

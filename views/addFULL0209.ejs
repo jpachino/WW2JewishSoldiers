@@ -801,28 +801,19 @@
   
 
 
-  <fieldset class="is-multimedia-container" style="border: 1px solid #ddd; padding: 20px; border-radius: 8px;">
+  <fieldset style="border: 1px solid #ddd; padding: 20px; border-radius: 8px;">
     <legend style="padding: 0 10px; font-weight: bold;"><%= __('sections.uploads') %></legend>
-
-    <div id="multimedia-translations" 
-         data-err-ext="<%= __('errors.invalid_extension') %>"
-         data-err-img-size="<%= __('errors.image_too_large') %>"
-         data-err-pdf-size="<%= __('errors.pdf_too_large') %>"
-         data-err-mismatch-img="<%= __('errors.mismatch_image') %>"
-         data-err-mismatch-pdf="<%= __('errors.mismatch_pdf') %>"
-         style="display:none;"></div>
 
     <div class="upload-container">
         <div class="help-box-alert" style="margin-bottom: 20px; padding: 15px; background-color: #e7f3fe; border-left: 4px solid #007bff; border-radius: 4px;">
             <strong>ℹ️</strong> <%= __('multimedia_info.help_text') %>
         </div>
-        
         <p class="instruction-text" style="color: #0038b8; font-size: 0.9rem; margin-top: 5px;">
             <strong><%= __('fields.profile_pic_instruction') %></strong>
         </p>
-
         <div id="multimedia-rows">
             <div class="multimedia-row" style="border: 1px solid #ccc; border-radius: 8px; margin-bottom: 25px; padding: 20px; background-color: #fff; position: relative; box-shadow: 0 2px 4px rgba(0,0,0,0.05);">
+                
                 <div class="row-layout" style="display: flex; flex-direction: column; gap: 15px;">
                     
                     <div class="field-group">
@@ -847,7 +838,8 @@
                     <div class="field-group">
                         <div class="file-wrapper">
                             <label style="display: block; font-weight: bold; margin-bottom: 5px;"><%= __('fields.file_upload') %></label>
-                            <input type="file" name="m_files[]" class="file-input" accept=".jpg,.jpeg,.pdf" style="display: none;" id="file_input_0" onchange="handleFileSelect(this, 'file_name_0')">
+                            <input type="file" name="m_files[]" class="file-input" accept="image/*,.pdf" style="display: none;" id="file_input_0" onchange="handleFileSelect(this, 'file_name_0')">
+                            
                             <div style="display: flex; align-items: center; gap: 15px;">
                                 <button type="button" class="btn btn-outline-secondary" onclick="document.getElementById('file_input_0').click()" style="padding: 8px 15px; cursor: pointer; background: #f8f9fa; border: 1px solid #ddd; border-radius: 4px;">
                                     <%= __('fields.choose_file') %>
@@ -857,7 +849,7 @@
                                 </span>
                             </div>
                         </div>
-
+                        
                         <div class="location-wrapper" style="display: none; margin-top: 15px;">
                             <label style="display: block; font-weight: bold; margin-bottom: 5px;"><%= __('fields.url_link') %></label>
                             <input type="text" name="physical_logical_location[]" class="form-control" placeholder="https://..." style="width: 100%; padding: 10px; border: 1px solid #ccc; border-radius: 4px; box-sizing: border-box;">
@@ -869,10 +861,9 @@
                             <%= __('fields.remove') %>
                         </button>
                     </div>
-
-                    <div id="profile-preview-container" style="display:none; margin-top: 20px;">
-                        <h4>Profile Picture Preview:</h4>
-                        <img id="profile-preview-img" src="#" alt="Preview" style="max-width: 150px; border: 2px solid #ddd; border-radius: 8px;">
+                      <div id="profile-preview-container" style="display:none; margin-top: 20px;">
+                      <h4>Profile Picture Preview:</h4>
+                      <img id="profile-preview-img" src="#" alt="Preview" style="max-width: 150px; border: 2px solid #ddd; border-radius: 8px;">
                     </div>
                 </div>
             </div>
@@ -882,7 +873,8 @@
              <%= __('fields.add_another') %>
         </button>
     </div>
-</fieldset>   
+</fieldset>
+   
     <fieldset>
         <legend><%= __('sections.recordcomplete') %></legend>
         <p class="note"><%= __('form.mark_complete_note') %></p>
@@ -1128,9 +1120,9 @@ const typeOptionsHtml = `
                 <div class="col-md-4">
                     <div class="file-wrapper">
                         <label><%= __('fields.file_upload') %></label>
-                        <input type="file" name="m_files[]" class="file-input" accept=".jpg,.jpeg,.pdf" 
-                          style="display: none;" id="file_input_${currentId}" 
-                          onchange="handleFileSelect(this, 'file_name_${currentId}')">
+                        <input type="file" name="m_files[]" class="file-input" accept="image/*,.pdf" 
+                               style="display: none;" id="file_input_${currentId}" 
+                               onchange="handleFileSelect(this, 'file_name_${currentId}')">
                         
                         <div class="d-flex align-items-center" style="gap: 10px;">
                             <button type="button" class="btn btn-outline-secondary btn-sm" onclick="document.getElementById('file_input_${currentId}').click()">
@@ -1162,41 +1154,16 @@ const typeOptionsHtml = `
     // 3. Handle File Selection (CLEANED VERSION)
 function handleFileSelect(input, spanId) {
     const label = document.getElementById(spanId);
-    const mtrans = document.getElementById('multimedia-translations').dataset;
     if (!label) return;
 
-    const file = input.files[0];
-    if (!file) {
-        label.textContent = "<%= __('fields.no_file_chosen') %>";
-        return;
-    }
-
-    const fileName = file.name.toLowerCase();
-    const fileSizeMB = file.size / 1024 / 1024;
-    let errorMessage = "";
-
-    // Extension Check
-    if (!fileName.endsWith('.jpg') && !fileName.endsWith('.jpeg') && !fileName.endsWith('.pdf')) {
-        errorMessage = mtrans.errExt;
-    } 
-    // Image Size Check (5MB)
-    else if ((fileName.endsWith('.jpg') || fileName.endsWith('.jpeg')) && fileSizeMB > 1.5) {
-        errorMessage = mtrans.errImgSize;
-    }
-    // PDF Size Check (10MB)
-    else if (fileName.endsWith('.pdf') && fileSizeMB > 1.5) {
-        errorMessage = mtrans.errPdfSize;
-    }
-
-    if (errorMessage) {
-        alert(errorMessage);
-        input.value = ""; 
-        label.textContent = "<%= __('fields.no_file_chosen') %>";
-        label.style.color = "red";
+    if (input.files && input.files[0]) {
+        label.textContent = input.files[0].name;
+        if (typeof previewProfilePic === "function") {
+            previewProfilePic(input);
+        }
     } else {
-        label.textContent = file.name;
-        label.style.color = "green";
-        if (typeof previewProfilePic === "function") previewProfilePic(input);
+        // Use the raw translation text
+        label.textContent = "<%= __('fields.no_file_chosen') %>";
     }
 }
     // 4. Toggle Logic for File vs URL (Event Delegation)
@@ -1343,41 +1310,7 @@ dateFields.forEach(f => {
         } 
     }
 });
-// --- Multimedia Cross-Validation ---
-// --- Multimedia Cross-Validation (Improved) ---
-const trans = document.getElementById('multimedia-translations').dataset;
-const multimediaRows = document.querySelectorAll('.multimedia-row');
 
-multimediaRows.forEach((row, index) => {
-    const typeSelect = row.querySelector('.type-select').value; 
-    const fileInput = row.querySelector('.file-input');
-    
-    if (fileInput.files.length > 0) {
-        const file = fileInput.files[0];
-        const fileName = file.name.toLowerCase();
-        const fileSizeMB = file.size / 1024 / 1024;
-        
-        // A. Logical Mismatch Checks
-        const isPictureType = typeSelect.includes('תמונה') || typeSelect.includes('Picture') || typeSelect.includes('Photo');
-        const isDocType = typeSelect.includes('מסמך') || typeSelect.includes('Document') || typeSelect.includes('PDF');
-
-        if (isPictureType && !(fileName.endsWith('.jpg') || fileName.endsWith('.jpeg'))) {
-            markError([], `${trans.errMismatchImg} (#${index + 1})`);
-        }
-        
-        if (isDocType && !fileName.endsWith('.pdf')) {
-            markError([], `${trans.errMismatchPdf} (#${index + 1})`);
-        }
-
-        // B. Size Checks (Safe second-check)
-        if ((fileName.endsWith('.jpg') || fileName.endsWith('.jpeg')) && fileSizeMB > 5) {
-            markError([], `${trans.errImgSize} (#${index + 1})`);
-        }
-        if (fileName.endsWith('.pdf') && fileSizeMB > 10) {
-            markError([], `${trans.errPdfSize} (#${index + 1})`);
-        }
-    }
-});
    // --- 4. SHOW SUMMARY & SCROLL ---
     if (errors.length > 0) {
         e.preventDefault(); 

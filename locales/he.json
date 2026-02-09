@@ -281,7 +281,9 @@
     "biography_desc": "מלידתו עד מותו (או מותה) בדגש על פעילותו במהלך מלחמת העולם השנייה",
     "personal_story_title": "הגדרת סיפור אישי",
     "personal_story_desc": "סיפור אישי מתקופת שירותו (או שירותה) כלוחם.",
-    "pick_one_option": "יש לבחור אפשרות אחת לפחות"
+    "pick_one_option": "יש לבחור אפשרות אחת לפחות",
+    "record_complete_date": "תאריך השלמת הרישום",
+    "approved_by_admin": "אושר על ידי מנהל"
 
 
 
@@ -308,13 +310,20 @@
   "error": {
   "invalidEmail": "אנא הזן כתובת אימייל תקינה."
 },
-
+"errors": {
+  "invalid_extension": "ניתן להעלות קבצי JPG או PDF בלבד.",
+  "image_too_large": "התמונה גדולה מדי (מקסימום 1.5MB).",
+  "pdf_too_large": "קובץ ה-PDF גדול מדי (מקסימום 1.5MB).",
+  "mismatch_image": "סוג המדיה 'תמונה' דורש קובץ JPG.",
+  "mismatch_pdf": "סוג המדיה 'מסמך' דורש קובץ PDF."
+},
   "buttons": {
     "update": "עדכן",
     "backToList": "חזרה לרשימה",
     "view": "צפה"
   }
 }
+
 
 
 

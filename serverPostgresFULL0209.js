@@ -118,15 +118,8 @@ const storage = multer.diskStorage({
         cb(null, decodedName);
     }
 });
-// 4. Configure Multer with 1.5MB Limit
-const upload = multer({ 
-    storage: storage,
-    limits: { 
-        fileSize: 1.5 * 1024 * 1024, // 1.5MB in bytes
-        files: 12 
-    }
-});
 
+const upload = multer({ storage: storage });
 const multiUpload = upload.fields([
     { name: 'm_files[]', maxCount: 12 }
 ]);
@@ -550,38 +543,43 @@ await db.tx(async t => {
         }
     }
 
-   // STEP D: HANDLE MULTIMEDIA
+    // STEP D: HANDLE MULTIMEDIA
     console.log('--- STARTING MULTIMEDIA SAVE ---');
-    const rawDesc = [].concat(req.body['m_description[]'] || []);
-    const rawTypes = [].concat(req.body['m_type[]'] || []);
-    const rawLocs = [].concat(req.body['physical_logical_location[]'] || []);
+    const rawDesc = [].concat(req.body['m_description[]'] || req.body.m_description || []);
+    const rawTypes = [].concat(req.body['m_type[]'] || req.body.m_type || []);
+    const rawLocs = [].concat(req.body['physical_logical_location[]'] || req.body.physical_logical_location || []);
+    const mFiles = (req.files && req.files['m_files[]']) ? [].concat(req.files['m_files[]']) : [];
 
-    let mFiles = (req.files && req.files['m_files[]']) ? req.files['m_files[]'] : [];
     const maxRows = Math.max(rawDesc.length, rawTypes.length);
-    let fileCounter = 0;
 
     for (let i = 0; i < maxRows; i++) {
         let finalDbPath = null;
         let currentType = (rawTypes[i] || '').toString().trim();
         let userLocation = (rawLocs[i] || '').trim();
-        let isURL = currentType.includes('קישור') || currentType.toLowerCase().includes('url');
-        const expectsFile = !isURL && currentType !== '';
+        let finalLocation = '';
 
-        if (expectsFile && mFiles[fileCounter]) {
-            const file = mFiles[fileCounter];
+        if (currentType.match(/PDF|JPG|תמונה|מסמך/i)) {
+            finalLocation = 'מחיצת קבצים לקישור';
+        } else if (currentType === 'קישור') {
+            finalLocation = 'URL';
+        } else {
+            finalLocation = userLocation || 'URL'; 
+        }
+
+        if (mFiles[i]) {
+            const file = mFiles[i];
             const decodedFileName = Buffer.from(file.originalname, 'latin1').toString('utf8');
             const finalPath = path.join(targetDir, decodedFileName);
             
-            try {
-                fs.renameSync(file.path, finalPath);
-                finalDbPath = `/soldierUploads/${folderName}/${decodedFileName}`;
-                fileCounter++;
-            } catch (renameErr) {
-                console.error("File Move Error:", renameErr);
-            }
+            // Move from /temp to the soldier's folder
+            fs.renameSync(file.path, finalPath);
+            
+            // CHANGE: The path saved in DB now matches our new virtual route
+            finalDbPath = `/soldierUploads/${folderName}/${decodedFileName}`;
         }
 
         if (finalDbPath || userLocation || rawDesc[i]) {
+            const dbPathToSave = finalDbPath || userLocation || '';
             await t.none(`
                 INSERT INTO "multimedia_TBL" 
                 (soldier_id, file_description, file_path, multimedia_type, physical_logical_location, is_profile_pic, uploaded_date)
@@ -589,14 +587,14 @@ await db.tx(async t => {
             `, [
                 soldierId, 
                 rawDesc[i] || 'No Description', 
-                finalDbPath || userLocation || '', 
-                currentType || 'General',
-                finalDbPath ? 'מחיצת קבצים לקישור' : (isURL ? 'URL' : 'Other'),
+                dbPathToSave, 
+                currentType,
+                finalLocation,
                 (i === 0 && finalDbPath !== null)
             ]);
         }
-    } // Closes Loop
-}); // Closes Transaction
+    }
+});
         res.redirect('/?saved=true');
 
     } catch (err) {
