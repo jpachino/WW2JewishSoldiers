@@ -203,8 +203,8 @@
     "platoonnameen": "יחידה (EN)",
     "platoonnameru": "יחידה (RU)",
     "wounddetails": "פציעה  (HE)",
-    "wounddetailsen": "פציעה  (HE)",
-    "wounddetailsru": "פציעה  (HE)",
+    "wounddetailsen": "פציעה  (EN)",
+    "wounddetailsru": "פציעה  (RU)",
     
     "uprising_participant": "השתתף במרד בגטו או במחנה",
     "gettodesc": "שם הגטו/מחנה (HE)",
@@ -283,7 +283,7 @@
     "personal_story_desc": "סיפור אישי מתקופת שירותו (או שירותה) כלוחם.",
     "pick_one_option": "יש לבחור אפשרות אחת לפחות",
     "record_complete_date": "תאריך השלמת הרישום",
-    "approved_by_admin": "אושר על ידי מנהל"
+    "readyStatus": "אושר על ידי מנהל"
 
 
 

@@ -86,9 +86,12 @@
       <% soldiers.forEach(s => { %>
         <tr>
           <td>
-            <a href="/adminUpdateSoldier/<%= s.id %>">
+           <!-- <a href="/adminUpdateSoldier/<%= s.id %>">
+              <%= __('actions.edit') %>-->
+              
+          <a href="/UpdateSoldier/<%= s.id %>">
               <%= __('actions.edit') %>
-            </a>
+          </a>
           </td>
           <td>A<%= s.id %></td>
           <td><%= s.fname || s.fnameen || s.fnameru || '' %></td>

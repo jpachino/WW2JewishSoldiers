@@ -60,54 +60,14 @@
 
   <div class="container">
     
-  <form action="/updateSoldier/<%= soldier.id %>" method="post" enctype="multipart/form-data" id="soldierForm">
-
-    <% if (isAdmin) { %>
-    <fieldset style="background-color: #fcfcfc; border: 1px dashed #bbb; margin-top: 10px;">
-    <legend><%= __('sections.submitter_info') %></legend>
-    <p style="font-size: 0.85rem; color: #cc0000; margin: 0 0 5px 0; font-style: italic;">
-        <%= __('fields.info_readonly') || 'This information was provided by the original submitter and cannot be edited.' %>
-    </p>
-    <div class="single-row">
-        <label for="useremail"><%= __('fields.useremail') %></label>
-        <input type="email" id="useremail" value="<%= soldier.useremail || '' %>" readonly style="background-color: #e9ecef; cursor: not-allowed;" />
-    </div>
-
-    <div class="trio-row">
-        <div class="input-group">
-            <label for="fname_soldier_submitter"><%= __('fields.fname_soldier_submitter') %></label>
-            <input type="text" id="fname_soldier_submitter" value="<%= soldier.fname_soldier_submitter || '' %>" readonly style="background-color: #e9ecef; cursor: not-allowed;" />
-        </div>
-        <div class="input-group">
-            <label for="lname_soldier_submitter"><%= __('fields.lname_soldier_submitter') %></label>
-            <input type="text" id="lname_soldier_submitter" value="<%= soldier.lname_soldier_submitter || '' %>" readonly style="background-color: #e9ecef; cursor: not-allowed;" />
-        </div>
-        <div class="input-group">
-            <label for="phone_soldier_submitter"><%= __('fields.phone_soldier_submitter') %></label>
-            <input type="tel" id="phone_soldier_submitter" value="<%= soldier.phone_soldier_submitter || '' %>" readonly style="background-color: #e9ecef; cursor: not-allowed;" />
-        </div>
-    </div>
-
-    <div class="trio-row">
-        <div class="input-group">
-            <label for="relation_of_soldier_submitter"><%= __('fields.relation_of_soldier_submitter') %></label>
-            <input type="text" id="relation_of_soldier_submitter" value="<%= soldier.relation_of_soldier_submitter || '' %>" readonly style="background-color: #e9ecef; cursor: not-allowed;" />
-        </div>
-        <div class="input-group" style="flex: 2;">
-            <label for="how_found_us_submitter"><%= __('fields.how_found_us_submitter') %></label>
-            <input type="text" id="how_found_us_submitter" value="<%= soldier.how_found_us_submitter || '' %>" readonly style="background-color: #e9ecef; cursor: not-allowed;" />
-        </div>
-    </div>
-</fieldset>  
- <% } %>
+        <form action="/updateSoldier/<%= soldier.id %>" method="post" enctype="multipart/form-data" id="soldierForm">
+         
      <fieldset>
       <legend><%= __('sections.basic') %></legend>
       <p style="color: #d9534f; font-size: 0.9rem; margin-top: -5px; font-weight: 500;">
         <span style="color: #ff0000;">*</span> <%= __('fields.mandatory') %>
     </p>
     <br>
-    
-      
   <div class="trio-row">
           <div class="input-group">
             <label for="fname"class="mandatory"><%= __('fields.fname') %></label>
@@ -882,12 +842,13 @@
     <legend style="padding: 0 10px; font-weight: bold;"><%= __('sections.uploads') %></legend>
 
     <div class="existing-multimedia" style="margin-bottom: 30px;">
-        <h4 style="color: #333;"><%= __('form.current_files') %></h4>
-        <table class="table" style="width: 100%; border-collapse: collapse;">
+        <h4 style="border-bottom: 1px solid #eee; padding-bottom: 10px; color: #333;"><%= __('form.current_files') %></h4>
+        <table class="table" style="width: 100%; margin-top: 10px; border-collapse: collapse;">
             <thead>
-                <tr style="background: #f8f9fa;">
+                <tr style="background: #f8f9fa; text-align: left;">
                     <th style="padding: 10px; border-bottom: 2px solid #dee2e6;"><%= __('fields.description') %></th>
-                    <th style="padding: 10px; border-bottom: 2px solid #dee2e6;"><%= __('fields.preview_link') %></th>
+                    <th style="padding: 10px; border-bottom: 2px solid #dee2e6;"><%= __('fields.multimedia_type') %></th>
+                    <th style="padding: 10px; border-bottom: 2px solid #dee2e6;"><%= __('fields.preview_link') || 'Preview/Link' %></th>
                 </tr>
             </thead>
             <tbody>
@@ -895,31 +856,37 @@
                     <% multimedia.forEach(item => { %>
                         <tr>
                             <td style="padding: 10px; border-bottom: 1px solid #eee;"><%= item.file_description %></td>
+                            <td style="padding: 10px; border-bottom: 1px solid #eee;"><%= item.multimedia_type %></td>
                             <td style="padding: 10px; border-bottom: 1px solid #eee;">
-                                <a href="<%= item.file_path || item.physical_logical_location %>" target="_blank" class="btn btn-sm btn-outline-info">
-                                    <%= __('buttons.view') %>
+                                <a href="<%= item.file_path %>" target="_blank" class="btn btn-sm btn-outline-info" style="text-decoration: none; padding: 4px 8px; border: 1px solid #17a2b8; color: #17a2b8; border-radius: 4px;">
+                                    <%= __('buttons.view') || 'View' %>
                                 </a>
                             </td>
                         </tr>
                     <% }) %>
                 <% } else { %>
-                    <tr><td colspan="2" style="text-align:center; padding:10px;"><%= __('form.no_files_found') %></td></tr>
+                    <tr>
+                        <td colspan="3" style="padding: 20px; text-align: center; color: #666;"><%= __('form.no_files_found') %></td>
+                    </tr>
                 <% } %>
             </tbody>
         </table>
     </div>
 
+    <div id="multimedia-translations" 
+         data-err-ext="<%= __('errors.invalid_extension') %>"
+         data-err-img-size="<%= __('errors.image_too_large') %> (Max: 1.5MB)"
+         data-err-pdf-size="<%= __('errors.pdf_too_large') %> (Max: 1.5MB)"
+         data-err-mismatch-img="<%= __('errors.mismatch_image') %>"
+         data-err-mismatch-pdf="<%= __('errors.mismatch_pdf') %>"
+         style="display:none;"></div>
+
     <div class="upload-container" style="background: #fcfcfc; padding: 15px; border-radius: 6px; border: 1px dashed #ccc;">
         <h4 style="margin-top: 0; color: #0038b8;"><%= __('fields.add_new_files') %></h4>
         
-        <div id="multimedia-translations" 
-             data-err-ext="<%= __('errors.invalid_extension') %>"
-             data-err-img-size="<%= __('errors.image_too_large') %>"
-             data-err-pdf-size="<%= __('errors.pdf_too_large') %>"
-             data-err-mismatch-img="<%= __('errors.mismatch_image') %>"
-             data-err-mismatch-pdf="<%= __('errors.mismatch_pdf') %>"
-             data-err-missing-file="<%= __('errors.missing_file') %>"
-             style="display:none;"></div>
+        <div class="help-box-alert" style="background: #e7f3fe; border-left: 4px solid #007bff; padding: 12px; margin-bottom: 20px; border-radius: 4px;">
+            <strong>ℹ️</strong> <%= __('multimedia_info.help_text') %>
+        </div>
 
         <div id="multimedia-rows">
             </div>
@@ -929,7 +896,6 @@
         </button>
     </div>
 </fieldset>
-<% if (!isAdmin) { %>
 <div style="margin-top: 20px;">
     <label>
         <input type="checkbox" name="recordcomplete" value="true" <%= (locals.soldier && soldier.recordcomplete) ? 'checked disabled' : '' %> />
@@ -939,16 +905,7 @@
         <%= __('form.mark_complete_note') %>
     </p>
 </div>
-<% } %>
-<% if (isAdmin) { %>
-<div style="margin-top: 20px;">
-    <label>
-        <input type="checkbox" name="admin_ready_for_download" value="true" 
-               <%= (locals.soldier && soldier.admin_ready_for_download) ? 'checked disabled' : '' %> />
-        <strong><%= __('form.admin_complete') %></strong>
-    </label>
-</div>
-<% } %>
+
 <div class="form-actions" style="margin-top: 30px; margin-bottom: 50px;">
     <button type="submit" class="btn btn-primary btn-lg"><%= __('buttons.update') %></button>
 </div>
@@ -1102,60 +1059,7 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     }
 });
-// 3. FORM SUBMISSION VALIDATION
-document.getElementById('soldierForm').addEventListener('submit', function(e) {
-  // 1. CLEAR PREVIOUS ERRORS IMMEDIATELY
-    const errorSummary = document.getElementById('error-summary');
-    const errorList = document.getElementById('error-list');
-    
-    errorList.innerHTML = '';          // Empty the list
-    errorSummary.style.display = 'none'; // Hide the box
-    errors.length = 0;                 // Clear the array
-    
-    // Remove red borders from previous attempt
-    document.querySelectorAll('.input-error').forEach(el => el.classList.remove('input-error'));
-    const multimediaRows = document.querySelectorAll('.multimedia-row');
-    const mtrans = document.getElementById('multimedia-translations').dataset;
-    let hasError = false;
 
-    multimediaRows.forEach((row, index) => {
-        if (row.style.display === 'none') return; // Skip deleted rows
-
-        const descInput = row.querySelector('input[name="m_description[]"]');
-        const descriptionValue = descInput ? descInput.value.trim() : "";
-        
-        // If the description is blank, we don't care about this row anymore
-        if (descriptionValue === "") {
-            return; 
-        }
-
-        // If we reach here, there IS a description, so we must check for a file/URL
-        const typeSelect = row.querySelector('.type-select');
-        const selectedText = typeSelect.options[typeSelect.selectedIndex].text;
-        const isUrlType = selectedText.match(/URL|קישור|Link|ссылка/i);
-
-        const fileInput = row.querySelector('.file-input');
-        const urlInput = row.querySelector('input[name="physical_logical_location[]"]');
-        const hasFile = fileInput && fileInput.files.length > 0;
-        const hasUrl = urlInput && urlInput.value.trim() !== "";
-        const hasExistingFile = row.querySelector('.existing-file-link, .current-file-label') !== null;
-
-        if (isUrlType && !hasUrl) {
-            alert(`Row #${index + 1}: Please provide a URL link.`);
-            urlInput.focus();
-            hasError = true;
-        } else if (!isUrlType && !hasFile && !hasExistingFile) {
-            const msg = mtrans.errMissingFile || "Please upload a file for the description provided.";
-            alert(`Row #${index + 1}: ${msg}`);
-            hasError = true;
-        }
-    });
-
-    if (hasError) {
-        e.preventDefault();
-        return false;
-    }
-});
 /**
  * IMPROVED MULTIMEDIA LOGIC
  */
@@ -1185,7 +1089,7 @@ function addUploadRow() {
         <div style="display: flex; flex-direction: column; gap: 15px;">
             <div>
                 <label style="display: block; font-weight: bold; margin-bottom: 5px;"><%= __('fields.description') %></label>
-                <input type="text" name="m_description[]" class="form-control m-desc" style="width: 100%; padding: 10px; border: 1px solid #ccc; border-radius: 4px; box-sizing: border-box;">
+                <input type="text" name="m_description[]" class="form-control" required style="width: 100%; padding: 10px; border: 1px solid #ccc; border-radius: 4px; box-sizing: border-box;">
             </div>
             
             <div>
@@ -1221,6 +1125,7 @@ function addUploadRow() {
     `;
     container.appendChild(row);
 }
+
 function handleFileSelect(input, spanId) {
     const label = document.getElementById(spanId);
     const mtrans = document.getElementById('multimedia-translations').dataset;

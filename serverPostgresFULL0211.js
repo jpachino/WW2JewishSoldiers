@@ -1203,44 +1203,30 @@ if (req.body.enlistreason) {
             battle_detailsen = [], battle_detailsru = [], degreerank = [],
             degreeranken = [], degreerankru = [], job = [], joben = [], jobru = []
         } = req.body;
-    const uprising_participant = req.body.uprising_participant === 'true' || req.body.uprising_participant === 'on';
 
-     // --- 1. INITIALIZE VARIABLES (Top of the try block) ---
-let admin_ready_for_download = existingSoldier.admin_ready_for_download || false;
-let admin_approved_date = existingSoldier.admin_approved_date || null;
-let record_complete_boolean = existingSoldier.recordcomplete || false; 
-let record_complete_date = existingSoldier.record_complete_date || null;
-
-// Determine where to redirect (Check if your form sends 'redirectTarget')
-const redirectTarget = req.body.redirectTarget || 'user'; 
-
-// Capture common form inputs
+     //Record complete date
+    // Boolean fields
+    // 1. Capture the form input
 const isCheckingComplete = req.body.recordcomplete === 'true' || req.body.recordcomplete === 'on';
+const uprising_participant = req.body.uprising_participant === 'true' || req.body.uprising_participant === 'on';
 
-// --- 2. LOGIC BLOCKS ---
-if (isAdmin) {
-    const formAdminReady = Array.isArray(req.body.admin_ready_for_download)
-        ? req.body.admin_ready_for_download.includes('true') || req.body.admin_ready_for_download.includes('on')
-        : req.body.admin_ready_for_download === 'true' || req.body.admin_ready_for_download === 'on';
+// 2. Use LET so these variables can be updated
+let record_complete_boolean = existingSoldier.recordcomplete; 
+let record_complete_date = existingSoldier.record_complete_date;
 
-    if (formAdminReady && !existingSoldier.admin_ready_for_download) {
-        // Ensure this helper function exists in your script!
-        admin_approved_date = formatDateToDDMMYYYY(new Date());
-    }
-    admin_ready_for_download = formAdminReady;
-} else {
-    // Non-Admin logic
-    if (isCheckingComplete && !existingSoldier.recordcomplete) {
-        const today = new Date();
-        const dd = String(today.getDate()).padStart(2, '0');
-        const mm = String(today.getMonth() + 1).padStart(2, '0');
-        const yyyy = today.getFullYear();
-        
-        record_complete_date = `${dd}-${mm}-${yyyy}`;
-        record_complete_boolean = true; 
-    }
+// 3. Update if the user checked the box
+if (isCheckingComplete) {
+    const today = new Date();
+    const dd = String(today.getDate()).padStart(2, '0');
+    const mm = String(today.getMonth() + 1).padStart(2, '0');
+    const yyyy = today.getFullYear();
+    
+    // Set format to dd-mm-yyyy
+    record_complete_date = `${dd}-${mm}-${yyyy}`;
+    
+    // Use actual boolean true, not the string 'true'
+    record_complete_boolean = true; 
 }
-
     // --- Updated Category Logic for all 3 languages ---
 const catUpdate = {};
 for (let i = 1; i <= 8; i++) {
@@ -1261,7 +1247,7 @@ for (let i = 1; i <= 8; i++) {
     }
 }
        // Main input object
-  const inputData = {
+         const inputData = {
       fname: req.body.fname || existingSoldier.fname,
       fnameen: req.body.fnameen || existingSoldier.fnameen,
       fnameru: req.body.fnameru || existingSoldier.fnameru,
@@ -1355,10 +1341,8 @@ for (let i = 1; i <= 8; i++) {
       resistance, resistanceen, resistanceru,
       participation, participationen, participationru,  
       recordcomplete: record_complete_boolean,
-      record_complete_date: record_complete_date,
-      admin_ready_for_download: admin_ready_for_download,
-      admin_approved_date: admin_approved_date,
-
+      
+      record_complete_date,
       uprising_participant: req.body.uprising_participant === 'on' || existingSoldier.uprising_participant
 
     };
@@ -1455,44 +1439,52 @@ for (let i = 1; i <= 8; i++) {
                     }
                 }
             }
-// --- RESTORED & CORRECTED STEP D ---
+
+// STEP D: HANDLE MULTIMEDIA
 const descArr = [].concat(getField('m_description'));
 const typeArr = [].concat(getField('m_type'));
 const locArr  = [].concat(getField('physical_logical_location'));
-const mFiles  = (req.files && req.files['m_files[]']) ? [].concat(req.files['m_files[]']) : [];
+const mFiles  = (req.files && req.files['m_files[]']) ? req.files['m_files[]'] : [];
 
+// 1. Check if the soldier ALREADY has a profile picture
+const existingProfilePic = await t.oneOrNone(
+    'SELECT id FROM "multimedia_TBL" WHERE soldier_id = $1 AND is_profile_pic = true LIMIT 1',
+    [soldierId]
+);
+const hasProfilePic = !!existingProfilePic;
+
+// 2. Setup Persistent Target Directory
 const folderName = `A${soldierId}`;
-const targetDir = path.join(PERSISTENT_ROOT, folderName);
+const targetDir = path.join(PERSISTENT_ROOT, folderName); // Using /var/data/soldierUploads
 
 if (!fs.existsSync(targetDir)) {
     fs.mkdirSync(targetDir, { recursive: true });
 }
 
-for (let i = 0; i < descArr.length; i++) {
-    let finalDbPath = null;
-    let dbPhysicalLocation = null;
-    
-    // 1. Check if this is a URL row
-    const isUrlType = typeArr[i] && typeArr[i].match(/URL|קישור|Link/i);
+const maxRows = Math.max(descArr.length, mFiles.length, locArr.length);
 
-    if (isUrlType) {
-        // For URL types, use the text from the input
-        dbPhysicalLocation = "URL"; 
-        finalDbPath = locArr[i] || null; // The actual link goes in the path field
-    } else if (mFiles[i]) {
-        // 2. If it's a File (JPG/PDF)
+for (let i = 0; i < maxRows; i++) {
+    let finalDbPath = null;
+    let physicalLocation = locArr[i] || null;
+    
+    // Handle File Upload
+    if (mFiles[i]) {
         const file = mFiles[i];
         const decodedFileName = Buffer.from(file.originalname, 'latin1').toString('utf8');
         const finalPath = path.join(targetDir, decodedFileName);
         
+        // Move file from /var/data/soldierUploads/temp to /var/data/soldierUploads/A123
         fs.renameSync(file.path, finalPath);
         
+        // Database path points to our virtual route
         finalDbPath = `/soldierUploads/${folderName}/${decodedFileName}`;
-        dbPhysicalLocation = "מחיצת קבצים לקישור"; // <--- This sets your specific text
     }
 
-    // Only INSERT if we actually have a file or a URL
-    if (finalDbPath) {
+    // Only insert if there's a file, a description, or a URL link
+    if (finalDbPath || descArr[i] || physicalLocation) {
+        // Rule: First new file becomes profile pic only if one doesn't exist
+        const setToProfile = (!hasProfilePic && i === 0 && finalDbPath !== null);
+
         await t.none(`
             INSERT INTO "multimedia_TBL" 
             (soldier_id, file_description, file_path, physical_logical_location, multimedia_type, is_profile_pic, uploaded_date)
@@ -1501,22 +1493,22 @@ for (let i = 0; i < descArr.length; i++) {
             soldierId, 
             descArr[i] || 'No Description', 
             finalDbPath, 
-            dbPhysicalLocation, // This will now be your Hebrew string or "URL"
+            physicalLocation,
             typeArr[i] || null,
-            false
+            setToProfile
         ]);
     }
-}      
-});
-if (isAdmin) {
-    // Redirect to the Admin Completed Records page
-    res.redirect('/admin/completedRecords?saved=true');
-} else {
-    // Redirect to the Public Search/Index page
-    res.redirect('/?saved=true');
 }
+        });
+
+        
    
-    
+    // Redirect to index with success message
+    if (isAdmin && redirectTarget === 'admin') {
+            return res.redirect('/completedRecords');
+        } else { res.redirect ('/searchResults');
+          //res.redirect('/?saved=true');
+        }
 
   } catch (err) {
     console.error('❌ Error updating record:', err);
@@ -2681,8 +2673,7 @@ app.get('/admin/completedRecords', async (req, res) => {
             
             if (fs.existsSync(folderPath)) {
                 // Add the folder content to the ZIP
-                //archive.directory(folderPath, `Soldier_Files/A${cleanId}`);
-                 archive.directory(folderPath, `multimediaFiles/A${cleanId}`);
+                archive.directory(folderPath, `Soldier_Files/A${cleanId}`);
             } else {
                 console.log(`Diagnostic: No folder found for A${cleanId} at ${folderPath}`);
             }

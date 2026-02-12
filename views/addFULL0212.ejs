@@ -1240,135 +1240,86 @@ addBattleBtn.addEventListener('click', () => {
 
     // 6. Form Submit Listener
     document.getElementById("soldierForm").addEventListener("submit", function (e) {
-    // --- 1. RESET STATE ---
-    const errorSummary = document.getElementById('error-summary');
-    const errorList = document.getElementById('error-list');
-    
-    // Hide the box and clear the list immediately
-    if (errorSummary) errorSummary.style.display = 'none';
-    if (errorList) errorList.innerHTML = '';
-    
-    // Remove all red border markers from previous attempts
-    document.querySelectorAll('.is-invalid').forEach(el => el.classList.remove('is-invalid'));
-    document.querySelectorAll('.input-error').forEach(el => el.classList.remove('input-error'));
-    
-    // Reset our validation tracking variables
-    let errors = [];
-    let firstErrorElement = null;
+        const errorSummary = document.getElementById('error-summary');
+        const errorList = document.getElementById('error-list');
+        
+        errorSummary.style.display = 'none';
+        errorList.innerHTML = '';
+        document.querySelectorAll('.is-invalid').forEach(el => el.classList.remove('is-invalid'));
+        
+        let errors = [];
+        let firstErrorElement = null;
 
-    // Helper to log errors and highlight inputs
-    const markError = (ids, message) => {
-        errors.push(message);
-        ids.forEach(id => {
-            const el = (typeof id === 'string') ? document.getElementById(id) : id;
-            if (el) {
-                el.classList.add('is-invalid');
-                el.classList.add('input-error'); // Added for CSS flexibility
-                if (!firstErrorElement) firstErrorElement = el;
-            }
-        });
-    };
+        const markError = (ids, message) => {
+            errors.push(message);
+            ids.forEach(id => {
+                const el = (typeof id === 'string') ? document.getElementById(id) : id;
+                if (el) {
+                    el.classList.add('is-invalid');
+                    if (!firstErrorElement) firstErrorElement = el;
+                }
+            });
+        };
 
-    // --- 2. BASIC SERVICE & NAME CHECKS ---
-    const army = document.getElementById('army');
-    const resistance = document.getElementById('resistance');
-    const partizan = document.getElementById('partizan');
-    if (army && resistance && partizan) {
-        if (!army.value && !resistance.value && !partizan.value) {
+        // --- Basic Service & Name Checks ---
+        if (!document.getElementById('army').value && !document.getElementById('resistance').value && !document.getElementById('partizan').value) {
             markError(['army', 'resistance', 'partizan'], "Please select at least one service type.");
         }
-    }
-
-    const fnameFields = ['fname', 'fnameen', 'fnameru'];
-    const fnameFilled = fnameFields.some(id => document.getElementById(id)?.value.trim());
-    if (!fnameFilled) {
-        markError(fnameFields, "First Name is required in at least one language.");
-    }
-
-    const lnameFields = ['lname', 'lnameen', 'lnameru'];
-    const lnameFilled = lnameFields.some(id => document.getElementById(id)?.value.trim());
-    if (!lnameFilled) {
-        markError(lnameFields, "Last Name is required in at least one language.");
-    }
-
-    // --- 3. DATE VALIDATIONS ---
-    const dateFields = ["dob", "dod", "aliyadate"];
-    const flexibleDateRegex = /^(\d{4}|(0[1-9]|1[0-2])-\d{4}|(0[1-9]|[12][0-9]|3[01])-(0[1-9]|1[0-2])-\d{4})$/;
-    dateFields.forEach(f => {
-        const el = document.getElementById(f);
-        if (el && el.value.trim() && !flexibleDateRegex.test(el.value.trim())) {
-            markError([f], `Invalid date format for ${f.toUpperCase()} (Use YYYY, MM-YYYY, or DD-MM-YYYY).`);
+        if (!document.getElementById('fname').value.trim() && !document.getElementById('fnameen').value.trim() && !document.getElementById('fnameru').value.trim()) {
+            markError(['fname', 'fnameen', 'fnameru'], "First Name is required in at least one language.");
         }
-    });
+        if (!document.getElementById('lname').value.trim() && !document.getElementById('lnameen').value.trim() && !document.getElementById('lnameru').value.trim()) {
+            markError(['lname', 'lnameen', 'lnameru'], "Last Name is required in at least one language.");
+        }
 
-    // --- 4. MULTIMEDIA LOGIC ---
-    const mtransEl = document.getElementById('multimedia-translations');
-    const trans = mtransEl ? mtransEl.dataset : {};
-    const multimediaRows = document.querySelectorAll('.multimedia-row');
-
-    multimediaRows.forEach((row, index) => {
-        // Skip rows hidden by deletion if applicable
-        if (row.style.display === 'none') return;
-
-        const typeSelect = row.querySelector('.type-select');
-        const descInput = row.querySelector('.desc-input') || row.querySelector('input[name="m_description[]"]');
-        const fileInput = row.querySelector('.file-input');
-        const urlInput = row.querySelector('.url-input') || row.querySelector('input[name="physical_logical_location[]"]');
-
-        if (!typeSelect || !descInput) return;
-
-        const selectedText = typeSelect.options[typeSelect.selectedIndex].text;
-        const isUrlType = selectedText.match(/URL|קישור|Link|ссылка/i);
-        
-        const hasFile = fileInput && fileInput.files.length > 0;
-        const hasDescription = descInput.value.trim() !== "";
-        const hasUrl = urlInput && urlInput.value.trim() !== "";
-
-        // Row Validation: If user started a row, they must finish it
-        if (hasDescription) {
-        if (!isUrlType && !hasFile) {
-            // 1. Mark the error
-            markError([fileInput], `${trans.errMissingFile || 'File required'} (#${index + 1})`);
-            
-            // 2. THE FIX: Reset the input so it doesn't stay in a "stuck" state
-            if (fileInput) fileInput.value = ""; 
-            if (fileNameSpan) {
-                fileNameSpan.textContent = "<%= __('fields.no_file_chosen') %>";
-                fileNameSpan.style.color = "red";
+        // --- Date Validations ---
+        const dateFields = ["dob", "dod", "aliyadate"];
+        const flexibleDateRegex = /^(\d{4}|(0[1-9]|1[0-2])-\d{4}|(0[1-9]|[12][0-9]|3[01])-(0[1-9]|1[0-2])-\d{4})$/;
+        dateFields.forEach(f => {
+            const el = document.getElementById(f);
+            if (el && el.value.trim() && !flexibleDateRegex.test(el.value.trim())) {
+                markError([f], `Invalid date format for ${f.toUpperCase()}.`);
             }
-        } else if (isUrlType && !hasUrl) {
-            markError([urlInput], `URL required (#${index + 1})`);
-        }
-        }
-    });
-
-    // --- 5. FINAL SUBMISSION HANDLING ---
-    if (errors.length > 0) {
-        e.preventDefault(); // Stop form from sending
-        
-        // Populate the error box
-        errors.forEach(err => {
-            const li = document.createElement('li');
-            li.style.color = "#d9534f";
-            li.style.listStyle = "none";
-            li.style.marginBottom = "5px";
-            li.innerHTML = "❌ " + err; 
-            if (errorList) errorList.appendChild(li);
         });
 
-        // Show box and scroll
-        if (errorSummary) {
-            errorSummary.style.display = 'block';
-            window.scrollTo({ 
-                top: errorSummary.offsetTop - 100, 
-                behavior: 'smooth' 
+        // --- Multimedia Logic ---
+        const trans = document.getElementById('multimedia-translations').dataset;
+        const multimediaRows = document.querySelectorAll('.multimedia-row');
+
+        multimediaRows.forEach((row, index) => {
+            const typeSelect = row.querySelector('.type-select');
+            const selectedText = typeSelect.options[typeSelect.selectedIndex].text;
+            const isUrlType = selectedText.match(/URL|קישור|Link|ссылка/i);
+            
+            const fileInput = row.querySelector('.file-input');
+            const urlInput = row.querySelector('.url-input');
+            const descInput = row.querySelector('.desc-input');
+
+            const hasFile = fileInput.files.length > 0;
+            const hasDescription = descInput && descInput.value.trim() !== "";
+            const hasUrl = urlInput && urlInput.value.trim() !== "";
+
+            if (hasDescription) {
+                if (!isUrlType && !hasFile) {
+                    markError([fileInput], `${trans.errMissingFile || 'File required'} (#${index + 1})`);
+                } else if (isUrlType && !hasUrl) {
+                    markError([urlInput], `URL required (#${index + 1})`);
+                }
+            }
+        });
+
+        if (errors.length > 0) {
+            e.preventDefault(); 
+            errors.forEach(err => {
+                const li = document.createElement('li');
+                li.innerHTML = "❌ " + err; 
+                errorList.appendChild(li);
             });
+            errorSummary.style.display = 'block';
+            window.scrollTo({ top: errorSummary.offsetTop - 100, behavior: 'smooth' });
+            return false;
         }
-        return false;
-    }
-    
-    // If we get here, the form is valid and will submit normally!
-});
+    });
 </script>
 <script>
 /**
