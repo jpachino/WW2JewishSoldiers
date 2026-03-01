@@ -1383,7 +1383,7 @@ function toggleUploadType(select) {
 function handleFileSelect(input) {
     const row = input.closest('.multimedia-row');
     const label = row.querySelector('.file-name-display');
-    const mtrans = document.getElementById('multimedia-translationscompletedRecords').dataset;
+    const mtrans = document.getElementById('multimedia-translations').dataset;
     const file = input.files[0];
     const typeSelect = row.querySelector('.type-select');
     const selectedTypeText = typeSelect ? typeSelect.options[typeSelect.selectedIndex].text.toLowerCase() : "";

@@ -224,7 +224,8 @@
     "if_applicable": "if applicable",
     "info_readonly": "This information was provided by the original submitter and cannot be edited.",
     "delete": "Delete",
-    "existing_files": "Existing Files"
+    "existing_files": "Existing Files",
+    "view": "View"
     
     
   },
