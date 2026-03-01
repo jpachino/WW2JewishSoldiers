@@ -1023,7 +1023,15 @@ app.post('/updateSoldier/:id', upload.any(), async (req, res) => {
             record_complete_date = `${dd}-${mm}-${yyyy}`;
             record_complete_boolean = true; 
         }
+        // Admin Mark Complete (The fix for your 'X' in the table)
+        const adminApprovedVal = req.body.admin_ready_for_download === 'true' || req.body.admin_ready_for_download === 'on';
+        let admin_approved_date = existingSoldier.admin_approved_date;
 
+        // If admin just checked it and it wasn't checked before, set the date
+        if (adminApprovedVal && !existingSoldier.admin_ready_for_download) {
+            const today = new Date();
+        admin_approved_date = `${String(today.getDate()).padStart(2, '0')}-${String(today.getMonth() + 1).padStart(2, '0')}-${today.getFullYear()}`;
+        }
         // --- PREPARE UPDATE DATA ---
         const inputData = {
             fname: req.body.fname || existingSoldier.fname,
@@ -1103,6 +1111,8 @@ app.post('/updateSoldier/:id', upload.any(), async (req, res) => {
             participation, participationen, participationru,  
             recordcomplete: record_complete_boolean,
             record_complete_date,
+            admin_ready_for_download: adminApprovedVal,
+            admin_approved_date: admin_approved_date,
             uprising_participant: req.body.uprising_participant === 'on' || req.body.uprising_participant === 'true' || existingSoldier.uprising_participant
         };
 
@@ -1253,7 +1263,7 @@ if (totalAfterUpdate > 12) {
 });
         //res.redirect(`/updateSoldier/${id}?saved=true`);
         if (isAdmin) {
-           res.redirect('/completedRecords/?saved=true');
+           res.redirect('/admin/completedRecords/?saved=true');
         } else {
             res.redirect('/searchResults?saved=true');
         }
@@ -1537,7 +1547,7 @@ if (req.body.enlistreason) {
             battleId = [], battleyear = [], front = [], fronten = [], frontru = [],
             battle = [], battleen = [], battleru = [], battle_medal = [],
             battle_medalen = [], battle_medalru = [], battle_details = [],
-            battle_detailsen = [], battle_detailsru = [], degreerank = [],
+            battle_detailsen = [], battle_detailsru = [], degreeranadmin_readyk = [],
             degreeranken = [], degreerankru = [], job = [], joben = [], jobru = []
         } = req.body;
 

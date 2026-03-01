@@ -1023,12 +1023,18 @@
 </div>
 <% } %>
 <% if (isAdmin) { %>
-<div style="margin-top: 20px;">
-    <label>
+<div style="margin-top: 20px; padding: 15px; background: #f0f4ff; border-radius: 8px; border: 1px solid #0038b8;">
+    <label style="display: flex; align-items: center; gap: 10px; cursor: pointer;">
         <input type="checkbox" name="admin_ready_for_download" value="true" 
-               <%= (locals.soldier && soldier.admin_ready_for_download) ? 'checked disabled' : '' %> />
-        <strong><%= __('form.admin_complete') %></strong>
+               style="width: 20px; height: 20px;"
+               <%= (soldier.admin_ready_for_download === true) ? 'checked' : '' %> />
+        <span style="font-size: 1.1rem; color: #0038b8;">
+            <strong><%= __('form.admin_complete') %></strong> (Ready for Download)
+        </span>
     </label>
+    <p style="margin: 5px 0 0 30px; font-size: 0.85rem; color: #555;">
+        Checking this will mark the record as "Verified" in the completed list.
+    </p>
 </div>
 <% } %>
 
@@ -1377,7 +1383,7 @@ function toggleUploadType(select) {
 function handleFileSelect(input) {
     const row = input.closest('.multimedia-row');
     const label = row.querySelector('.file-name-display');
-    const mtrans = document.getElementById('multimedia-translations').dataset;
+    const mtrans = document.getElementById('multimedia-translationscompletedRecords').dataset;
     const file = input.files[0];
     const typeSelect = row.querySelector('.type-select');
     const selectedTypeText = typeSelect ? typeSelect.options[typeSelect.selectedIndex].text.toLowerCase() : "";
