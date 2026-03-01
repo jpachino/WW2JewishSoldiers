@@ -303,8 +303,7 @@
         <input type="text" name="stateru" id="stateru" />
     </div>
 </div>
-<% 
-  
+
   
   
  <div class="input-group date-entry-group">
@@ -909,16 +908,14 @@
         </button>
     </div>
   </form>
-<script>
-    /**
-     * 1. GLOBAL MULTIMEDIA FUNCTIONS 
-     * (Defined outside so they are accessible by HTML onclick/onchange attributes)
-     */
+
+  <script>
+    // --- MULTIMEDIA DYNAMICS ---
     function toggleUploadType(select) {
         const row = select.closest('.multimedia-row');
         const fileWrapper = row.querySelector('.file-wrapper');
         const urlWrapper = row.querySelector('.location-wrapper');
-        const engType = (select.options[select.selectedIndex].getAttribute('data-type-eng') || "").toLowerCase();
+        const engType = select.options[select.selectedIndex].getAttribute('data-type-eng') || "";
         const isUrl = engType.includes('link') || engType.includes('url');
 
         fileWrapper.style.display = isUrl ? 'none' : 'block';
@@ -928,8 +925,7 @@
             row.querySelector('.file-input').value = '';
             row.querySelector('.file-name-display').textContent = "<%= __('fields.no_file_chosen') %>";
         } else {
-            const urlInput = row.querySelector('input[name="physical_logical_location[]"]');
-            if(urlInput) urlInput.value = '';
+            row.querySelector('input[name="physical_logical_location[]"]').value = '';
         }
     }
 
@@ -983,7 +979,29 @@
         if (rows.length > 1) btn.closest('.multimedia-row').remove();
         else alert("At least one upload row is required.");
     }
+    
+    document.addEventListener('input', function(e) {
+        if (e.target.name === 'm_description[]') {
+            e.target.style.border = "1px solid #ccc";
+        }
+    });
 
+    document.getElementById('add-multimedia').addEventListener('click', function() {
+        const container = document.getElementById('multimedia-rows');
+        const firstRow = container.querySelector('.multimedia-row');
+        const newRow = firstRow.cloneNode(true);
+        
+        newRow.querySelectorAll('input').forEach(i => i.value = '');
+        newRow.querySelectorAll('select').forEach(s => s.selectedIndex = 0);
+        newRow.querySelector('.file-name-display').textContent = "<%= __('fields.no_file_chosen') %>";
+        newRow.querySelector('.file-name-display').style.color = "#666";
+        newRow.querySelector('.location-wrapper').style.display = 'none';
+        newRow.querySelector('.file-wrapper').style.display = 'block';
+        
+        container.appendChild(newRow);
+    });
+
+    // --- CATEGORY SYNC ---
     function syncTranslations(checkbox) {
         const idx = checkbox.getAttribute('data-index');
         const isChecked = checkbox.checked;
@@ -991,133 +1009,78 @@
         document.getElementById('hidden_cat' + idx + 'en').value = isChecked ? checkbox.getAttribute('data-eng') : "";
         document.getElementById('hidden_cat' + idx + 'ru').value = isChecked ? checkbox.getAttribute('data-rus') : "";
     }
-
-    /**
-     * 2. DOM CONTENT LOADED (Logic that requires the page to be ready)
-     */
-    document.addEventListener('DOMContentLoaded', () => {
-        const soldierForm = document.getElementById('soldierForm');
-        const dateGroups = document.querySelectorAll('.date-entry-group');
-        const currentYear = new Date().getFullYear();
-
-        // --- DATE UTILITIES ---
-        const getMaxDays = (month, year) => {
-            const m = parseInt(month, 10);
-            const y = parseInt(year, 10);
-            if (!m) return 31;
-            if (m === 2) {
-                if (!y) return 29; 
-                const isLeap = (y % 4 === 0 && y % 100 !== 0) || (y % 400 === 0);
-                return isLeap ? 29 : 28;
-            }
-            return [4, 6, 9, 11].includes(m) ? 30 : 31;
-        };
-
-        const triggerDateError = (inputEl, groupEl, message) => {
-            const errorSpan = groupEl.querySelector('.date-error-msg');
-            if (inputEl) {
-                inputEl.value = '';
-                inputEl.classList.add('input-error');
-                setTimeout(() => inputEl.classList.remove('input-error'), 800);
-            }
-            if (errorSpan) {
-                errorSpan.textContent = message;
-                errorSpan.style.color = 'red';
-                setTimeout(() => { errorSpan.textContent = ''; }, 3500);
-            }
-        };
-
-       window.syncDates = function() {
-    document.querySelectorAll('.date-entry-group').forEach(group => {
-        const dayInp = group.querySelector('.day');
-        const monthInp = group.querySelector('.month');
-        const yearInp = group.querySelector('.year');
-        const hiddenInput = group.querySelector('input[type="hidden"]');
-        
-        if (dayInp && monthInp && yearInp && hiddenInput) {
-            const d = dayInp.value.trim();
-            const m = monthInp.value.trim();
-            const y = yearInp.value.trim();
-
-            let finalValue = "";
+    
+    // --- DATE GROUP SYNC ---
+    /*function syncDates() {
+        document.querySelectorAll('.date-entry-group').forEach(group => {
+            const day = group.querySelector('.day').value.padStart(2, '0');
+            const month = group.querySelector('.month').value.padStart(2, '0');
+            const year = group.querySelector('.year').value;
+            const hiddenInput = group.querySelector('input[type="hidden"]');
             
-            // Format: DD-MM-YYYY (Text style)
-            if (y && m && d) {
-                finalValue = `${d.padStart(2, '0')}-${m.padStart(2, '0')}-${y}`;
-            } else if (y && m) {
-                finalValue = `${m.padStart(2, '0')}-${y}`;
-            } else if (y) {
-                finalValue = y;
+            if (year && month !== '00' && day !== '00') {
+                hiddenInput.value = `${year}-${month}-${day}`;
             }
-            
-            hiddenInput.value = finalValue;
-            console.log("Synced Group:", hiddenInput.name, "Value:", finalValue); // Debug line
-        }
-    });
-};
-
-        // --- DATE INPUT LISTENERS ---
-        dateGroups.forEach(group => {
-            const inputs = [group.querySelector('.day'), group.querySelector('.month'), group.querySelector('.year')];
-            inputs.forEach((el, index) => {
-                if(!el) return;
-                el.addEventListener('input', () => {
-                    el.value = el.value.replace(/\D/g, ''); 
-                    let d = inputs[0].value, m = inputs[1].value, y = inputs[2].value;
-                    if (y.length === 4 && parseInt(y) > currentYear) triggerDateError(inputs[2], group, "Invalid Year");
-                    if (m && parseInt(m) > 12) triggerDateError(inputs[1], group, "Month 01-12");
-                    if (d) {
-                        const max = getMaxDays(m, y);
-                        if (parseInt(d) > max) triggerDateError(inputs[0], group, `Max ${max} days`);
-                    }
-                    if (el.value.length >= el.maxLength && index < 2) inputs[index + 1].focus();
-                });
-                el.addEventListener('blur', () => {
-                    if (el.value && el.value.length === 1 && !el.classList.contains('year')) el.value = el.value.padStart(2, '0');
-                });
-            });
         });
+    }*/
+    
+    // --- FINAL VALIDATION & SUBMISSION ---
+    document.getElementById('soldierForm').addEventListener('submit', function(e) {
+        // 1. Always sync dates first
+        syncDates(); 
 
-        // --- ADD MULTIMEDIA ROW ---
-        document.getElementById('add-multimedia').addEventListener('click', function() {
-            const container = document.getElementById('multimedia-rows');
-            const newRow = container.querySelector('.multimedia-row').cloneNode(true);
-            newRow.querySelectorAll('input').forEach(i => i.value = '');
-            newRow.querySelectorAll('select').forEach(s => s.selectedIndex = 0);
-            newRow.querySelector('.file-name-display').textContent = "<%= __('fields.no_file_chosen') %>";
-            newRow.querySelector('.file-name-display').style.color = "#666";
-            newRow.querySelector('.location-wrapper').style.display = 'none';
-            newRow.querySelector('.file-wrapper').style.display = 'block';
-            container.appendChild(newRow);
-        });
+        const trans = document.getElementById('multimedia-translations').dataset;
+        let isValid = true;
 
-        // --- SUBMIT VALIDATION ---
-        soldierForm.addEventListener('submit', function(e) {
-            window.syncDates(); 
-            const trans = document.getElementById('multimedia-translations').dataset;
-            let isValid = true;
-
-            this.querySelectorAll('[required]').forEach(input => {
-                if (!input.value.trim()) { isValid = false; input.style.borderColor = 'red'; }
-                else { input.style.borderColor = '#ccc'; }
-            });
-
-            document.querySelectorAll('.multimedia-row').forEach(row => {
-                const desc = row.querySelector('input[name="m_description[]"]');
-                const hasFile = row.querySelector('.file-input').files.length > 0;
-                const hasUrl = row.querySelector('input[name="physical_logical_location[]"]')?.value.trim() !== "";
-                if ((hasFile || hasUrl) && !desc.value.trim()) {
-                    isValid = false;
-                    desc.style.borderColor = 'red';
-                }
-            });
-
-            if (!isValid) {
-                e.preventDefault();
-                document.getElementById('error-summary').style.display = 'block';
-                window.scrollTo({ top: 0, behavior: 'smooth' });
+        // 2. Check standard required fields
+        this.querySelectorAll('[required]').forEach(input => {
+            if (!input.value.trim()) {
+                isValid = false;
+                input.style.borderColor = 'red';
             } else {
-                document.querySelectorAll('input[name="m_description[]"]').forEach(d => { if(!d.value.trim()) d.value = " "; });
+                input.style.borderColor = '#ccc';
+            }
+        });
+
+        // 3. Conditional Multimedia Check (VALIDATE FIRST)
+        document.querySelectorAll('.multimedia-row').forEach(row => {
+            const descInput = row.querySelector('input[name="m_description[]"]');
+            const fileInput = row.querySelector('.file-input');
+            const urlInput = row.querySelector('input[name="physical_logical_location[]"]');
+
+            const hasFile = fileInput && fileInput.files.length > 0;
+            const hasUrl = urlInput && urlInput.value.trim() !== "";
+            const hasDesc = descInput.value.trim() !== "";
+
+            if ((hasFile || hasUrl) && !hasDesc) {
+                isValid = false;
+                descInput.style.borderColor = 'red';
+                descInput.placeholder = "<%= __('errors.description_required') %>"; 
+            }
+        });
+
+        // 4. STOP if invalid
+        if (!isValid) {
+            e.preventDefault();
+            const errorSummary = document.getElementById('error-summary');
+            if (errorSummary) {
+                errorSummary.style.display = 'block';
+                errorSummary.innerHTML = `<p>${trans.errMissingFields || 'Please fill in all required fields and descriptions.'}</p>`;
+            }
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+            return; 
+        }
+
+        // 5. Anti-Scramble Logic (ONLY RUNS IF FORM IS VALID)
+        document.querySelectorAll('.multimedia-row').forEach(row => {
+            const descInput = row.querySelector('input[name="m_description[]"]');
+            const urlInput = row.querySelector('input[name="physical_logical_location[]"]');
+            
+            if (descInput.value.trim() === "") {
+                descInput.value = " "; 
+            }
+            if (urlInput && urlInput.value.trim() === "") {
+                urlInput.value = ""; 
             }
         });
     });
