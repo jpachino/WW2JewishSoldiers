@@ -1,6 +1,6 @@
 <!DOCTYPE html>
 <html lang="<%= locale %>">
-<% 
+  <% 
   const sfx = locale === 'en' ? 'en' : (locale === 'ru' ? 'ru' : '');
   const tblSfx = locale === 'en' ? 'eng' : (locale === 'ru' ? 'rus' : 'heb');
 %>
@@ -10,72 +10,58 @@
   <title><%= __('nav.title2') %></title>
   <link rel="stylesheet" href="/styles/styles.css" />
   <style>
-    /* Specific overrides for Update page */
-    .info-box { 
-      background-color: #f8f9fa; 
-      border-inline-start: 6px solid #0038b8; 
-      padding: 20px; 
-      margin: 20px auto; 
-      max-width: 1000px; 
-      border-radius: 8px; 
-    }
-    textarea { resize: vertical; min-height: 100px; }
-    
-    /* Error box matching new pill-style UI */
-    #error-summary {
-      display: none;
-      position: sticky;
-      top: 10px;
-      z-index: 1000;
-      background-color: #fff5f5;
-      border: 2px solid #cc0000;
-      padding: 20px;
-      margin: 20px auto;
-      max-width: 900px;
-      border-radius: 15px;
-      box-shadow: 0 4px 12px rgba(0,0,0,0.15);
-    }
+    .info-box { background-color: #f8f9fa; border-left: 6px solid #007bff; padding: 20px; margin: 20px auto; max-width: 800px; border-radius: 6px; font-family: Arial, sans-serif; line-height: 1.6; color: #333; }
+    form { max-width: 1000px; margin: 0 auto; }
+    fieldset { margin-top: 25px; border-radius: 6px; padding: 15px; border: 1px solid #ccc; }
+    .trio-row { display: flex; gap: 10px; margin-bottom: 10px; }
+    .trio-row .input-group { flex: 1; display: flex; flex-direction: column; }
+    .single-row { margin-bottom: 10px; display: flex; flex-direction: column; }
+    textarea { resize: vertical; }
   </style>
 </head>
 
 <body>
 
   <header>
-    <div class="container header-flex">
-      <h1><%= __('titleUpdate') %></h1>
-      <div class="logo-area">
-        <img src="/images/Outlook-dieerunr.png" alt="Logo">
-      </div>
-    </div>
     <div class="container">
+      <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap;">
+        <h1><%= __('titleUpdate') %></h1>
+         </div>
       <nav>
         <a href="/"><%= __('nav.home') %></a>
       </nav>
     </div>
   </header>
-
-  <main class="container">
-    <div style="margin-top: 20px;">
-      <form method="get" action="" style="background:none; box-shadow:none; padding:0; margin:0;">
-        <select name="lang" class="lang-select" onchange="this.form.submit()" style="width: auto;">
-          <option value="he" <%= locale === 'he' ? 'selected' : '' %>>עברית</option>
-          <option value="en" <%= locale === 'en' ? 'selected' : '' %>>English</option>
-          <option value="ru" <%= locale === 'ru' ? 'selected' : '' %>>Русский</option>
-        </select>
-      </form>
+  <div style="margin-top: 50px; clear: both; display: block; width: 100%;"></div>
+ 
+        <form method="get" action="" style="margin-top: 2rem;">
+          <select name="lang" class="lang-select" onchange="this.form.submit()">
+            <option value="he" <%= locale === 'he' ? 'selected' : '' %>>עברית</option>
+            <option value="en" <%= locale === 'en' ? 'selected' : '' %>>English</option>
+            <option value="ru" <%= locale === 'ru' ? 'selected' : '' %>>Русский</option>
+          </select>
+        </form>
+        <div id="error-summary" style="display: none; position: sticky; top: 10px; z-index: 1000; background-color: #fff5f5; border: 2px solid #cc0000; padding: 20px; margin: 20px auto; max-width: 900px; border-radius: 8px; box-shadow: 0 4px 12px rgba(0,0,0,0.15);">
+        <h3 style="color: #cc0000; margin-top: 0; display: flex; align-items: center;">
+          <span style="font-size: 24px; margin-right: 10px;">⚠️</span> 
+          <%= __('error.validation_failed') || 'Validation Error' %>
+        </h3>
+        <p style="color: #333; font-weight: bold;"><%= __('error.please_fix_following') || 'Please fix the following fields:' %></p>
+        <ul id="error-list" style="color: #cc0000; font-weight: bold; list-style-type: none; padding-left: 0;"></ul>
+        <button type="button" onclick="this.parentElement.style.display='none'" style="position: absolute; top: 10px; right: 10px; background: none; border: none; font-size: 20px; cursor: pointer;">&times;</button>
+      </div>
+      </div>
+      
+      <!--<nav>
+        <a href="/"><%= __('nav.home') %></a>
+      </nav>-->
     </div>
+ 
 
-    <div id="error-summary">
-      <h3 style="color: #cc0000; margin-top: 0; display: flex; align-items: center; gap: 10px;">
-        <span>⚠️</span> 
-        <%= __('error.validation_failed') || 'Validation Error' %>
-      </h3>
-      <p style="color: #333; font-weight: bold;"><%= __('error.please_fix_following') || 'Please fix the following fields:' %></p>
-      <ul id="error-list" style="color: #cc0000; font-weight: bold; list-style-type: none; padding-left: 0;"></ul>
-      <button type="button" onclick="this.parentElement.style.display='none'" style="position: absolute; top: 15px; right: 15px; background: none; border: none; font-size: 24px; cursor: pointer; color: #999;">&times;</button>
-    </div>
+  <div class="container">
+    
+  <form action="/updateSoldier/<%= soldier.id %>" method="post" enctype="multipart/form-data" id="soldierForm">
 
-    <form action="/updateSoldier/<%= soldier.id %>" method="post" enctype="multipart/form-data" id="soldierForm">
     <% if (isAdmin) { %>
     <fieldset style="background-color: #fcfcfc; border: 1px dashed #bbb; margin-top: 10px;">
     <legend><%= __('sections.submitter_info') %></legend>
@@ -314,7 +300,6 @@
     <span class="date-error-msg"></span>
     <input type="hidden" name="dod" id="dod" value="<%= soldier.dod || '' %>">
 </div>
-
 
 <div class="input-group date-entry-group">
     <label for="aliyadate"><%= __('fields.aliyadate') %>:</label>
@@ -901,15 +886,6 @@
 
 <fieldset class="is-multimedia-container" style="border: 1px solid #ddd; padding: 20px; border-radius: 8px; margin-top: 25px;">
     <legend style="padding: 0 10px; font-weight: bold;"><%= __('sections.uploads') %></legend>
-    <div id="multimedia-translations" 
-     data-err-ext="<%= __('errors.invalid_extension') || 'Invalid file extension' %>"
-     data-err-mismatch-img="<%= __('errors.mismatch_image') || 'Please upload an image for this type' %>"
-     data-err-mismatch-pdf="<%= __('errors.mismatch_pdf') || 'Please upload a PDF for this type' %>"
-     data-err-type-required="<%= __('errors.type_required') || 'Please select a multimedia type' %>"
-     data-err-missing-fields="<%= __('errors.description_required') || 'Please fill in descriptions for all uploads.' %>"
-     style="display:none;">
-    </div>
-
 
     <% if (multimedia && multimedia.length > 0) { %>
         <div class="existing-multimedia" style="margin-bottom: 30px;">
@@ -921,15 +897,14 @@
                             <%= item.file_description %>
                         </p>
                         
-                        <% if (item.multimedia_type && item.multimedia_type.match(/PDF/i)) { %>
-    <div style="text-align: center; padding: 10px;">📄 PDF Document</div>
-<% } else if (item.file_path && item.file_path.startsWith('http')) { %>
-    <div style="text-align: center; padding: 10px;">🔗 External Link</div>
-<% } else if (item.file_path) { %>
-    <img src="<%= item.file_path %>" style="max-width: 100px;">
-<% } else { %>
-    <div style="text-align: center; padding: 10px;">ℹ️ <%= item.physical_logical_location %></div>
-<% } %>
+                        <% if (item.multimedia_type.match(/PDF/i)) { %>
+                            <div style="text-align: center; padding: 10px;">📄 PDF Document</div>
+                        <% } else if (item.file_path.startsWith('http')) { %>
+                            <div style="text-align: center; padding: 10px;">🔗 External Link</div>
+                        <% } else { %>
+                            <img src="<%= item.file_path %>" style="width: 100%; hieght: 100px; object-fit: cover; border-radius: 4px;">
+                        <% } %>
+
                         <div style="margin-top: 10px; display: flex; justify-content: space-between; align-items: center;">
                             <label style="color: #d9534f; font-size: 0.8rem; cursor: pointer;">
                                 <input type="checkbox" name="delete_multimedia[]" value="<%= item.id %>"> <%= __('fields.delete') || 'Delete' %>
@@ -951,75 +926,56 @@
          style="display:none;"></div>
 
     <div class="upload-container">
-    <h4><%= __('fields.add_new_files') || 'Add New Files' %></h4>
-    
-    <div id="multimedia-rows">
-        <div class="multimedia-row" style="border: 1px dashed #ccc; border-radius: 12px; margin-bottom: 15px; padding: 20px; background-color: #fafafa;">
-            <div class="row-layout" style="display: flex; flex-direction: column; gap: 15px;">
-                
-                <div class="field-group">
-                    <label><%= __('fields.description') %></label>
-                    <input type="text" name="m_description[]" placeholder="<%= __('fields.enter_description') %>">
-                </div>
-                
-                <div class="field-group">
-                    <label><%= __('fields.multimedia_type') %></label>
-                    <select name="m_type[]" class="type-select" onchange="toggleUploadType(this)">
-                        <option value="">-- <%= __('fields.select_option') %> --</option>
-                        <% multimedia_types.forEach(type => { 
-                            let typeLabel = locale === 'he' ? type.title_heb : (locale === 'ru' ? type.title_rus : type.title_eng);
-                        %>
-                            <option value="<%= type.title_heb %>" data-type-eng="<%= (type.title_eng || '').toLowerCase() %>">
-                                <%= typeLabel %>
-                            </option>
-                        <% }) %>
-                    </select>
-                </div>
-
-                <div class="field-group">
-                    <div class="file-wrapper">
-                        <input type="file" name="m_files[]" class="file-input" accept=".jpg,.jpeg,.png,.pdf" style="display: none;" onchange="handleFileSelect(this)">
-                        <button type="button" class="btn" onclick="this.previousElementSibling.click()"><%= __('fields.choose_file') %></button>
-                        <span class="file-name-display" style="color: #666; margin-inline-start: 10px;"><%= __('fields.no_file_chosen') %></span>
+        <h4><%= __('fields.add_new_files') || 'Add New Files' %></h4>
+        <div id="multimedia-rows">
+            <div class="multimedia-row" style="border: 1px dashed #ccc; border-radius: 8px; margin-bottom: 15px; padding: 15px; background-color: #fff;">
+                <div class="row-layout" style="display: flex; flex-direction: column; gap: 10px;">
+                    
+                    <div class="field-group">
+                        <label><%= __('fields.description') %></label>
+                        <input type="text" name="m_description[]" class="form-control" style="width: 100%;">
                     </div>
-                    <div class="location-wrapper" style="display: none; margin-top: 10px;">
-                        <input type="url" name="physical_logical_location[]" placeholder="https://...">
+                    
+                    <div class="field-group">
+                        <label><%= __('fields.multimedia_type') %></label>
+                        <select name="m_type[]" class="form-control type-select" onchange="toggleUploadType(this)" style="width: 100%;">
+                            <option value="">-- <%= __('fields.select_option') %> --</option>
+                            <% multimedia_types.forEach(type => { 
+                                let typeLabel = locale === 'he' ? type.title_heb : (locale === 'ru' ? type.title_rus : type.title_eng);
+                            %>
+                                <option value="<%= type.title_heb %>" data-type-eng="<%= (type.title_eng || '').toLowerCase() %>">
+                                    <%= typeLabel %>
+                                </option>
+                            <% }) %>
+                        </select>
                     </div>
-                </div>
 
-                <div style="text-align: end;">
-                    <button type="button" class="btn-danger" onclick="removeMultimediaRow(this)"><%= __('fields.remove') %></button>
+                    <div class="field-group">
+                        <div class="file-wrapper">
+                            <input type="file" name="m_files[]" class="file-input" accept=".jpg,.jpeg,.png,.pdf" style="display: none;" onchange="handleFileSelect(this)">
+                            <button type="button" onclick="this.previousElementSibling.click()"><%= __('fields.choose_file') %></button>
+                            <span class="file-name-display" style="color: #666; margin-left: 10px;"><%= __('fields.no_file_chosen') %></span>
+                        </div>
+                        <div class="location-wrapper" style="display: none;">
+                            <input type="url" name="physical_logical_location[]" class="form-control" placeholder="https://...">
+                        </div>
+                    </div>
+
+                    <button type="button" class="btn-danger" onclick=ss"removeMultimediaRow(this)" style="align-self: flex-end;"><%= __('fields.remove') %></button>
                 </div>
             </div>
         </div>
+        <button type="button" id="add-multimedia" class="btn-add" style="width: 100%;">+ <%= __('fields.add_another') %></button>
+        
     </div>
-    
-    <div style="display: flex; justify-content: flex-start; margin-top: 15px;">
-    <button type="button" id="add-multimedia" class="btn-add">
-        <%= __('fields.add_another') %>
-    </button>
-</div>
-</div>
 </fieldset>
 
 <% if (!isAdmin) { %>
 <div style="margin-top: 20px;">
-    <div class="completion-notes" style="display: flex; flex-direction: column; gap: 10px;">
-        <p style="margin: 0; font-weight: 600; color: #333;">
-            <span style="color: #0038b8;">ℹ️</span> <%= __('form.mark_complete_note') %>
-        </p>
-        <p style="margin: 0; color: #155724; font-weight: 500;">
-            <%= __('form.mark_complete_note2') %>
-        </p>
-        <p style="margin: 0; color: #dc3545; font-weight: 700; font-style: italic;">
-            <%= __('form.mark_complete_note3') %>
-        </p> <br>
-    </div>
     <label>
         <input type="checkbox" name="recordcomplete" value="true" <%= (locals.soldier && soldier.recordcomplete) ? 'checked disabled' : '' %> />
         <strong><%= __('form.mark_complete') %></strong>
     </label>
-
 </div>
 <% } %>
 <% if (isAdmin) { %>
@@ -1042,53 +998,17 @@ document.addEventListener('DOMContentLoaded', () => {
      */
     const dateGroups = document.querySelectorAll('.date-entry-group');
     const currentYear = new Date().getFullYear();
-    // --- ADD THIS AT THE TOP OF DOMContentLoaded ---
-  // --- FIX: VISUAL DISPLAY ORDER ---
-const dateGroupsOnLoad = document.querySelectorAll('.date-entry-group');
-dateGroupsOnLoad.forEach(group => {
-    const hiddenInput = group.querySelector('input[type="hidden"]');
-    const dayInput = group.querySelector('.day');
-    const monthInput = group.querySelector('.month');
-    const yearInput = group.querySelector('.year');
 
-    if (hiddenInput && hiddenInput.value) {
-        const val = hiddenInput.value.trim();
-        // Split by dash (standard DB format: 1945-05-09)
-        const parts = val.split('-'); 
-
-        if (parts.length === 3) {
-            // Check if the FIRST part is the Year (4 digits)
-            if (parts[0].length === 4) {
-                // DB Format: YYYY-MM-DD -> Map to UI: DD-MM-YYYY
-                yearInput.value = parts[0];
-                monthInput.value = parts[1];
-                dayInput.value = parts[2];
-            } else {
-                // Form Format: DD-MM-YYYY -> Map to UI: DD-MM-YYYY
-                dayInput.value = parts[0];
-                monthInput.value = parts[1];
-                yearInput.value = parts[2];
-            }
-        } else if (parts.length === 1 && val.length === 4) {
-            // Only Year exists
-            yearInput.value = val;
-        }
-    }
-});
+    // Defined inside DOMContentLoaded so it's available to your logic
     window.syncDates = function() {
         document.querySelectorAll('.date-entry-group').forEach(group => {
-            const dayInput = group.querySelector('.day');
-            const monthInput = group.querySelector('.month');
-            const yearInput = group.querySelector('.year');
+            const day = group.querySelector('.day').value.padStart(2, '0');
+            const month = group.querySelector('.month').value.padStart(2, '0');
+            const year = group.querySelector('.year').value;
             const hiddenInput = group.querySelector('input[type="hidden"]');
             
-            if (dayInput && monthInput && yearInput && hiddenInput) {
-                const day = dayInput.value.padStart(2, '0');
-                const month = monthInput.value.padStart(2, '0');
-                const year = yearInput.value;
-                if (year && month !== '00' && day !== '00') {
-                    hiddenInput.value = `${year}-${month}-${day}`;
-                }
+            if (year && month !== '00' && day !== '00') {
+                hiddenInput.value = `${year}-${month}-${day}`;
             }
         });
     };
@@ -1140,6 +1060,7 @@ dateGroupsOnLoad.forEach(group => {
     };
 
     dateGroups.forEach(group => {
+        const hiddenInput = group.querySelector('input[type="hidden"]');
         const dayInp = group.querySelector('.day');
         const monthInp = group.querySelector('.month');
         const yearInp = group.querySelector('.year');
@@ -1162,12 +1083,6 @@ dateGroupsOnLoad.forEach(group => {
                     d = '';
                 }
             }
-            validateAndSyncFinal(group, d, m, y);
-            checkDateChronology();
-        };
-
-        function validateAndSyncFinal(group, d, m, y) {
-            const hiddenInput = group.querySelector('input[type="hidden"]');
             const padD = d ? d.padStart(2, '0') : '';
             const padM = m ? m.padStart(2, '0') : '';
             let final = '';
@@ -1175,10 +1090,10 @@ dateGroupsOnLoad.forEach(group => {
             else if (y && m) final = `${padM}-${y}`;
             else if (y) final = y;
             hiddenInput.value = final;
-        }
+            checkDateChronology();
+        };
 
         inputs.forEach((el, index) => {
-            if(!el) return;
             el.addEventListener('input', () => {
                 el.value = el.value.replace(/\D/g, '');
                 validateAndSync();
@@ -1221,25 +1136,15 @@ dateGroupsOnLoad.forEach(group => {
         });
     }
 
-/**
- * 3. SUBMIT VALIDATION & ANTI-SCRAMBLE
- */
-const soldierForm = document.getElementById('soldierForm');
-if (soldierForm) {
-    soldierForm.addEventListener('submit', function(e) {
-        if (typeof window.syncDates === 'function') window.syncDates(); 
+    /**
+     * 3. SUBMIT VALIDATION & ANTI-SCRAMBLE
+     */
+    document.getElementById('soldierForm').addEventListener('submit', function(e) {
+        window.syncDates(); 
 
-        const transDiv = document.getElementById('multimedia-translations');
-        const trans = transDiv ? transDiv.dataset : {};
-        
         let isValid = true;
-        const errorList = document.getElementById('error-list');
-        const errorSummary = document.getElementById('error-summary');
-        
-        if (errorList) errorList.innerHTML = ''; 
-        if (errorSummary) errorSummary.style.display = 'none';
 
-        // Validate standard required fields
+        // Standard Required Fields
         this.querySelectorAll('[required]').forEach(input => {
             if (!input.value.trim()) {
                 isValid = false;
@@ -1249,175 +1154,62 @@ if (soldierForm) {
             }
         });
 
+        // Multimedia Validation
         const multimediaRows = document.querySelectorAll('.multimedia-row');
-        if (multimediaRows.length > 12) {
-          isValid = false;
-        addErrorMsg("You cannot have more than 12 multimedia items.");
-        }
-        multimediaRows.forEach((row, index) => {
-            // MATCH BRACKETS []
+        multimediaRows.forEach(row => {
             const descInput = row.querySelector('input[name="m_description[]"]');
             const fileInput = row.querySelector('.file-input');
             const urlInput = row.querySelector('input[name="physical_logical_location[]"]');
-            const typeSelect = row.querySelector('.type-select');
 
             const hasFile = fileInput && fileInput.files.length > 0;
             const hasUrl = urlInput && urlInput.value.trim() !== "";
-            const hasDesc = descInput && descInput.value.trim() !== "";
+            const hasDesc = descInput.value.trim() !== "";
 
-            // 1. Check Description Requirement
             if ((hasFile || hasUrl) && !hasDesc) {
                 isValid = false;
-                if (descInput) {
-                    descInput.style.borderColor = 'red';
-                    descInput.placeholder = "<%= __('errors.description_required') %>";
-                }
-                addErrorMsg(`Row ${index + 1}: Description is required for the upload.`);
-            }
-
-            // 2. Check File Type vs Extension (Fixed the crash here)
-            if (hasFile && typeSelect) {
-                const fileName = fileInput.files[0].name.toLowerCase();
-                const selectedType = (typeSelect.options[typeSelect.selectedIndex].getAttribute('data-type-eng') || "").toLowerCase();
-                const isPdfFile = fileName.endsWith('.pdf');
-
-                if (selectedType.includes('pdf') && !isPdfFile) {
-                    isValid = false;
-                    addErrorMsg(`Row ${index + 1}: ${trans.errMismatchPdf}`);
-                } else if ((selectedType.includes('image') || selectedType.includes('picture')) && isPdfFile) {
-                    isValid = false;
-                    addErrorMsg(`Row ${index + 1}: ${trans.errMismatchImg}`);
-                }
+                descInput.style.border = "2px solid red";
             }
         });
 
-        // If any error exists, STOP SUBMISSION
         if (!isValid) {
-            e.preventDefault(); // This stops the refresh
+            e.preventDefault();
+            const errorSummary = document.getElementById('error-summary');
             if (errorSummary) errorSummary.style.display = 'block';
             window.scrollTo({ top: 0, behavior: 'smooth' });
             return;
         }
 
-        // Anti-scramble: Ensure empty descriptions are a single space
+        // Anti-Scramble padding
         multimediaRows.forEach(row => {
-            const d = row.querySelector('input[name="m_description[]"]');
-            if (d && d.value.trim() === "") d.value = " "; 
+            const descInput = row.querySelector('input[name="m_description[]"]');
+            if (descInput.value.trim() === "") descInput.value = " "; 
         });
-
-        function addErrorMsg(msg) {
-            if (errorList) {
-                const li = document.createElement('li');
-                li.textContent = msg;
-                errorList.appendChild(li);
-            }
-        }
     });
-}
-
-    /**
-     * 4. ADD MULTIMEDIA ROW
-     */
-    const addMultiBtn = document.getElementById('add-multimedia');
-    if (addMultiBtn) {
-        addMultiBtn.addEventListener('click', function() {
-            const container = document.getElementById('multimedia-rows');
-            const rows = container.querySelectorAll('.multimedia-row');
-            // Count existing records (if any) + current new rows
-        const existingCount = document.querySelectorAll('.existing-multimedia-item').length; // Items already in DB
-        const newRowsCount = container.querySelectorAll('.multimedia-row').length; // Rows currently on screen
-        
-        if ((existingCount + newRowsCount) >= 12) {
-            alert("Maximum 12 total multimedia items allowed per soldier.");
-            return; 
-        }
-            if (rows.length > 0) {
-                const firstRow = rows[0];
-                const newRow = firstRow.cloneNode(true);
-                newRow.querySelectorAll('input').forEach(i => {
-                    i.value = '';
-                    i.style.borderColor = '#ccc';
-                });
-                const label = newRow.querySelector('.file-name-display');
-                if(label) {
-                    label.textContent = "<%= __('fields.no_file_chosen') %>";
-                    label.style.color = "#666";
-                }
-                container.appendChild(newRow);
-            }
-        });
-    }
-}); // Correctly closed the DOMContentLoaded listener here
+});
 
 /**
- * 5. GLOBAL MULTIMEDIA FUNCTIONS
+ * 4. MULTIMEDIA GLOBAL FUNCTIONS (Outside DOMContentLoaded so HTML attributes can see them)
  */
 function toggleUploadType(select) {
     const row = select.closest('.multimedia-row');
     const fileWrapper = row.querySelector('.file-wrapper');
     const urlWrapper = row.querySelector('.location-wrapper');
-    const engType = (select.options[select.selectedIndex].getAttribute('data-type-eng') || "").toLowerCase();
+    const engType = select.options[select.selectedIndex].getAttribute('data-type-eng') || "";
     const isUrl = engType.includes('link') || engType.includes('url');
 
     fileWrapper.style.display = isUrl ? 'none' : 'block';
     urlWrapper.style.display = isUrl ? 'block' : 'none';
-    
-    if(isUrl) {
-        const f = row.querySelector('.file-input');
-        if(f) f.value = '';
-        const lbl = row.querySelector('.file-name-display');
-        if(lbl) lbl.textContent = "<%= __('fields.no_file_chosen') %>";
-    } else {
-        // Use the bracket notation to match your HTML
-        const u = row.querySelector('input[name="physical_logical_location[]"]');
-        if(u) u.value = '';
-    }
+    if(isUrl) row.querySelector('.file-input').value = '';
+    else row.querySelector('input[name="physical_logical_location[]"]').value = '';
 }
 
 function handleFileSelect(input) {
     const row = input.closest('.multimedia-row');
     const label = row.querySelector('.file-name-display');
-    const mtrans = document.getElementById('multimedia-translations').dataset;
     const file = input.files[0];
-    const typeSelect = row.querySelector('.type-select');
-    const selectedTypeText = typeSelect ? typeSelect.options[typeSelect.selectedIndex].text.toLowerCase() : "";
-
-    if (!file) {
-        label.textContent = "<%= __('fields.no_file_chosen') %>";
-        label.style.color = "#666";
-        return;
-    }
-
-    const fileName = file.name.toLowerCase();
-    const fileSizeMB = file.size / (1024 * 1024);
-    let errorMessage = "";
-
-    const isJpg = fileName.endsWith('.jpg') || fileName.endsWith('.jpeg') || fileName.endsWith('.png');
-    const isPdf = fileName.endsWith('.pdf');
-
-    // Multi-language keyword check
-    const typeIsPicture = selectedTypeText.includes('picture') || selectedTypeText.includes('תמונה') || selectedTypeText.includes('фото');
-    const typeIsDoc = selectedTypeText.includes('document') || selectedTypeText.includes('מסמך') || selectedTypeText.includes('документ') || selectedTypeText.includes('pdf');
-
-    if (typeIsPicture && !isJpg) {
-        errorMessage = mtrans.errMismatchImg || "Please upload an image (JPG/PNG)";
-    } else if (typeIsDoc && !isPdf) {
-        errorMessage = mtrans.errMismatchPdf || "Please upload a PDF";
-    } else if (!isJpg && !isPdf) {
-        errorMessage = mtrans.errExt || "Invalid file extension";
-    } else if (fileSizeMB > 1.5) {
-        errorMessage = isPdf ? (mtrans.errPdfSize || "PDF too large (Max 1.5MB)") : (mtrans.errImgSize || "Image too large (Max 1.5MB)");
-    }
-
-    if (errorMessage) {
-        alert(errorMessage);
-        input.value = ""; 
-        label.textContent = "<%= __('fields.no_file_chosen') %>";
-        label.style.color = "red";
-    } else {
-        label.textContent = file.name + " (" + fileSizeMB.toFixed(2) + "MB)";
+    if (file) {
+        label.textContent = file.name;
         label.style.color = "green";
-        input.style.borderColor = "#ccc";
     }
 }
 
@@ -1426,6 +1218,15 @@ function removeMultimediaRow(btn) {
     if (rows.length > 1) btn.closest('.multimedia-row').remove();
     else alert("At least one upload row is required.");
 }
+
+document.getElementById('add-multimedia').addEventListener('click', function() {
+    const container = document.getElementById('multimedia-rows');
+    const firstRow = container.querySelector('.multimedia-row');
+    const newRow = firstRow.cloneNode(true);
+    newRow.querySelectorAll('input').forEach(i => i.value = '');
+    newRow.querySelector('.file-name-display').textContent = "<%= __('fields.no_file_chosen') %>";
+    container.appendChild(newRow);
+});
 </script>
 </body>
 </html>

@@ -5,116 +5,166 @@
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <title><%= __('nav.searchResults') %></title>
   <link rel="stylesheet" href="/styles/styles.css" />
+  <style>
+    /* Table Styling for Results */
+    .table-container { margin-top: 20px; overflow-x: auto; }
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      background: #fff;
+      border-radius: 8px;
+      overflow: hidden;
+      box-shadow: 0 2px 10px rgba(0,0,0,0.05);
+    }
+    th {
+      background-color: #333;
+      color: white;
+      text-align: inherit;
+      padding: 15px;
+      font-size: 0.9rem;
+      text-transform: uppercase;
+    }
+    td {
+      padding: 15px;
+      border-bottom: 1px solid #eee;
+      vertical-align: middle;
+    }
+    tr:hover { background-color: #f9f9fb; }
+
+    .success-box {
+      position: fixed;
+      top: 30px;
+      left: 50%;
+      transform: translateX(-50%);
+      z-index: 99999;
+      background-color: #d4edda;
+      color: #155724;
+      border: 1px solid #c3e6cb;
+      padding: 15px 40px;
+      border-radius: 50px;
+      box-shadow: 0 4px 15px rgba(0,0,0,0.3);
+      font-weight: bold;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+    
+    .action-links {
+      margin-top: 30px;
+      display: flex;
+      gap: 15px;
+    }
+  </style>
 </head>
 <body>
+
   <header>
-    <div class="container">
+    <div class="container header-flex">
       <h1><%= __('nav.searchResults') %></h1>
+      <div class="logo-area">
+        <img src="/images/Outlook-dieerunr.png" alt="Logo">
+      </div>
+    </div>
+    <div class="container">
       <nav>
         <a href="/"><%= __('nav.home') %></a>
-        <!--<a href="/soldierlistFULL"><%= __('nav.soldierList') %></a>
-        <a href="/addFULL"><%= __('nav.addSoldier') %></a>
-        <a href="/search"><%= __('nav.searchUpdate') %></a>-->
       </nav>
     </div>
   </header>
 
+  <main class="container">
+    <div style="margin-top: 20px;">
+      <form method="get" action="/searchResults" style="background:none; box-shadow:none; padding:0;">
+        <input type="hidden" name="firstname" value="<%= typeof firstname !== 'undefined' ? firstname : '' %>" />
+        <input type="hidden" name="lastname" value="<%= typeof lastname !== 'undefined' ? lastname : '' %>" />
+        <% if (typeof useremail !== 'undefined') { %>
+          <input type="hidden" name="useremail" value="<%= useremail %>" />
+        <% } %>
+        <select name="lang" class="lang-select" onchange="this.form.submit()" style="width: auto;">
+          <option value="he" <%= locale === 'he' ? 'selected' : '' %>>עברית</option>
+          <option value="en" <%= locale === 'en' ? 'selected' : '' %>>English</option>
+          <option value="ru" <%= locale === 'ru' ? 'selected' : '' %>>Русский</option>
+        </select>
+      </form>
+    </div>
 
-  <!-- Language switcher that keeps search parameters -->
-  <div style="margin-top: 50px; clear: both; display: block; width: 100%;"></div>
-  <form method="get" action="/searchResults">
-    <input type="hidden" name="firstname" value="<%= firstname || '' %>" />
-    <input type="hidden" name="lastname" value="<%= lastname || '' %>" />
-    <% if (typeof useremail !== 'undefined') { %>
-      <input type="hidden" name="useremail" value="<%= useremail %>" />
+    <% if (req.query.saved === 'true') { %>
+      <div class="success-box">
+        <span class="success-icon">✅</span>
+        <span><%= __('success.save_complete') || 'Record Saved Successfully!' %></span>
+      </div>
     <% } %>
-    <select name="lang" onchange="this.form.submit()">
-      <option value="he" <%= lang === 'he' ? 'selected' : '' %>>עברית</option>
-      <option value="en" <%= lang === 'en' ? 'selected' : '' %>>English</option>
-      <option value="ru" <%= lang === 'ru' ? 'selected' : '' %>>Русский</option>
-    </select>
-  </form>
 
-  <div class="container">
-    <% if (soldiers.length > 0) { %>
-      <table>
-        <thead>
-          <tr>
-            <% if (locale === 'he') { %>
-            <th><%= __('fields.fname') %></th>
-            <% } else if (locale === 'en') { %>
-               <th><%= __('fields.fnameen') %></th>
-            <% } else if (locale === 'ru') { %>
-               <th><%= __('fields.fnameru') %></th>
-               <% } else { %>
-                <th><%= __('fields.fname') %></th> <!-- default Hebrew -->
-              <% } %>
-
-              <% if (locale === 'he') { %>
-            <th><%= __('fields.lname') %></th>
-            <% } else if (locale === 'en') { %>
-               <th><%= __('fields.lnameen') %></th>
-            <% } else if (locale === 'ru') { %>
-               <th><%= __('fields.lnameru') %></th>
-               <% } else { %>
-                <th><%= __('fields.lname') %></th> <!-- default Hebrew -->
-              <% } %>
-              
-            <th><%= __('fields.birthcountry') %></th>
-           
-            
-            <th><%= __('fields.dob') %></th>
-            <th><%= __('fields.dod') %></th>
-            <th><%= __('fields.id') %></th>
-            <th><%= __('actions.edit') %></th>
-          </tr>
-        </thead>
-        <tbody>
-          <% soldiers.forEach(soldier => { %>
+    <div class="table-container">
+      <% if (soldiers && soldiers.length > 0) { %>
+        <table>
+          <thead>
             <tr>
-              <!--<td><%= soldier.translatedFname %></td>
-              <td><%= soldier.translatedLname %></td>-->
-            <td>
-              <% if (locale === 'he') { %>
-                <%= soldier.fname %>
-              <% } else if (locale === 'en') { %>
-                <%= soldier.fnameen %>
-              <% } else if (locale === 'ru') { %>
-                <%= soldier.fnameru %>
-              <% } else { %>
-                <%= soldier.fname %> <!-- default Hebrew -->
-              <% } %>
-            </td>
-
-            <td>
-              <% if (locale === 'he') { %>
-                <%= soldier.lname %>
-              <% } else if (locale === 'en') { %>
-                <%= soldier.lnameen %>
-              <% } else if (locale === 'ru') { %>
-                <%= soldier.lnameru %>
-              <% } else { %>
-                <%= soldier.lname %>
-              <% } %>
-            </td>
-
-              
-              <td><%= soldier.birthcountry %></td>
-              
-              <td><%= soldier.dob %></td>
-              <td><%= soldier.dod %></td>
-              <td><%= soldier.id %></td>
-              <td><a href="/updateSoldier/<%= soldier.id %>"><%= __('actions.edit') %></a></td>
+              <th>
+                <% if (locale === 'en') { %><%= __('fields.fnameen') %><% } 
+                   else if (locale === 'ru') { %><%= __('fields.fnameru') %><% } 
+                   else { %><%= __('fields.fname') %><% } %>
+              </th>
+              <th>
+                <% if (locale === 'en') { %><%= __('fields.lnameen') %><% } 
+                   else if (locale === 'ru') { %><%= __('fields.lnameru') %><% } 
+                   else { %><%= __('fields.lname') %><% } %>
+              </th>
+              <th><%= __('fields.birthcountry') %></th>
+              <th><%= __('fields.dob') %></th>
+              <th><%= __('fields.dod') %></th>
+              <th><%= __('actions.edit') %></th>
             </tr>
-          <% }) %>
-        </tbody>
-      </table>
-    <% } else { %>
-      <p><%= __('messages.noResults') %></p>
-    <% } %>
+          </thead>
+          <tbody>
+            <% soldiers.forEach(soldier => { %>
+              <tr>
+                <td>
+                  <% if (locale === 'en') { %><%= soldier.fnameen || soldier.fname %><% } 
+                     else if (locale === 'ru') { %><%= soldier.fnameru || soldier.fname %><% } 
+                     else { %><%= soldier.fname %><% } %>
+                </td>
+                <td>
+                  <% if (locale === 'en') { %><%= soldier.lnameen || soldier.lname %><% } 
+                     else if (locale === 'ru') { %><%= soldier.lnameru || soldier.lname %><% } 
+                     else { %><%= soldier.lname %><% } %>
+                </td>
+                <td><%= soldier.birthcountry %></td>
+                <td><%= soldier.dob %></td>
+                <td><%= soldier.dod %></td>
+                <td>
+                  <a href="/updateSoldier/<%= soldier.id %>" class="btn" style="padding: 8px 20px; font-size: 0.85rem;">
+                    <%= __('actions.edit') %>
+                  </a>
+                </td>
+              </tr>
+            <% }) %>
+          </tbody>
+        </table>
+      <% } else { %>
+        <div style="padding: 40px; text-align: center; background: #fff; border-radius: 8px; margin-top: 20px;">
+          <p><%= __('messages.noResults') %></p>
+        </div>
+      <% } %>
+    </div>
 
-    <a href="/search"><%= __('actions.backToSearch') %></a>
-  </div>
+    <div class="action-links">
+      <a href="/search" class="btn" style="background: #333;"><%= __('actions.backToSearch') %></a>
+    </div>
+  </main>
+
+  <script>
+    document.addEventListener('DOMContentLoaded', () => {
+      const successBox = document.querySelector('.success-box');
+      if (successBox) {
+        setTimeout(() => {
+          successBox.style.transition = 'opacity 1s ease';
+          successBox.style.opacity = '0';
+          setTimeout(() => successBox.remove(), 1000);
+        }, 5000);
+      }
+    });
+  </script>
 </body>
 </html>
 

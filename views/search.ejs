@@ -5,65 +5,98 @@
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <title><%= __('search.title') %></title>
   <link rel="stylesheet" href="/styles/styles.css" />
+  <style>
+    /* Specific styling for the centered search box */
+    .search-container {
+      max-width: 500px;
+      margin: 80px auto;
+      text-align: center;
+    }
+
+    .success-box {
+      position: fixed;
+      top: 30px;
+      left: 50%;
+      transform: translateX(-50%);
+      z-index: 99999;
+      background-color: #d4edda;
+      color: #155724;
+      border: 1px solid #c3e6cb;
+      padding: 15px 40px;
+      border-radius: 50px;
+      box-shadow: 0 4px 15px rgba(0,0,0,0.3);
+      font-weight: bold;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+  </style>
 </head>
 <body>
+
   <header>
-    <div class="container">
-      <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap;">
-        <h1><%= __('search.title') %></h1>
-
-        <!-- 🌐 Language Selector 
-        <form method="get" action="">
-  <select name="lang" onchange="this.form.submit()">
-    <option value="he" <%= (locale === 'he' ? 'selected' : '') %>>עברית</option>
-    <option value="en" <%= (locale === 'en' ? 'selected' : '') %>>English</option>
-    <option value="ru" <%= (locale === 'ru' ? 'selected' : '') %>>Русский</option>
-  </select>
-</form>-->
+    <div class="container header-flex">
+      <h1><%= __('search.title') %></h1>
+      <div class="logo-area">
+        <img src="/images/Outlook-dieerunr.png" alt="Logo">
       </div>
-
+    </div>
+    <div class="container">
       <nav>
         <a href="/"><%= __('nav.home') %></a>
-        <!-- Hidden nav links for future use -->
-        <!--<a href="/soldierlistFULL"><%= __('nav.soldierList') %></a>
-        <a href="/addFull"><%= __('nav.addSoldier') %></a>
-        <a href="/search"><%= __('nav.searchUpdate') %></a>-->
       </nav>
     </div>
   </header>
-  <!-- 🌐 Language Selector -->
-        <form method="get" action="" style="margin-top: 2rem;">
-  <select name="lang" onchange="this.form.submit()">
-    <option value="he" <%= (locale === 'he' ? 'selected' : '') %>>עברית</option>
-    <option value="en" <%= (locale === 'en' ? 'selected' : '') %>>English</option>
-    <option value="ru" <%= (locale === 'ru' ? 'selected' : '') %>>Русский</option>
-  </select>
-</form>
 
+  <main class="container">
+    <div style="margin-top: 20px;">
+      <form action="/change-lang" method="get" style="background:none; box-shadow:none; padding:0; margin:0;">
+        <select name="lang" class="lang-select" onchange="this.form.submit()" style="width: auto;">
+          <option value="he" <%= locale === 'he' ? 'selected' : '' %>>עברית</option>
+          <option value="en" <%= locale === 'en' ? 'selected' : '' %>>English</option>
+          <option value="ru" <%= locale === 'ru' ? 'selected' : '' %>>Русский</option>
+        </select>
+      </form>
+    </div>
 
-  <div class="container">
-    <form action="/searchResults" method="get"style="margin-top: 2rem;">
-     <!-- <input
-        type="text"
-        name="firstname"
-        placeholder="<%= __('search.enterFirstName') %>"
-        value="<%= firstname || '' %>"
-      />
-      <input
-        type="text"
-        name="lastname"
-        placeholder="<%= __('search.enterLastName') %>"
-        value="<%= lastname || '' %>"
-      />-->
-      <input
-        type="email"
-        name="useremail"
-        placeholder="<%= __('search.enterEmail') %>"
-        value="<%= useremail || '' %>" required
-      />
-      <button type="submit"><%= __('search.searchButton') %></button>
-    </form>
-  </div>
+    <% if (typeof req !== 'undefined' && req.query.saved == 'true') { %>
+      <div class="success-box">
+        <span class="success-icon">✅</span>
+        <span><%= __('form.saved_success') || 'Record updated successfully!' %></span>
+      </div>
+    <% } %>
+
+    <div class="search-container">
+      <form action="/searchResults" method="get">
+        <div class="input-group">
+          <label class="mandatory"><%= __('search.enterEmail') %></label>
+          <input
+            type="email"
+            name="useremail"
+            placeholder="example@email.com"
+            value="<%= typeof useremail !== 'undefined' ? useremail : '' %>" 
+            required
+          />
+        </div>
+        <div style="margin-top: 30px;">
+          <button type="submit" class="btn"><%= __('search.searchButton') %></button>
+        </div>
+      </form>
+    </div>
+  </main>
+
+  <script>
+    document.addEventListener('DOMContentLoaded', () => {
+      const successBox = document.querySelector('.success-box');
+      if (successBox) {
+        setTimeout(() => {
+          successBox.style.transition = 'opacity 1s ease';
+          successBox.style.opacity = '0';
+          setTimeout(() => successBox.remove(), 1000);
+        }, 5000);
+      }
+    });
+  </script>
 </body>
 </html>
 

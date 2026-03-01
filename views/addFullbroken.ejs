@@ -6,82 +6,95 @@
   <title><%= __('nav.title1') %></title>
   <link rel="stylesheet" href="/styles/styles.css" />
   <style>
-    /* Info Box Styling */
-    .info-box { background-color: #f8f9fa; border-inline-start: 6px solid #007bff; padding: 20px; margin: 20px auto; max-width: 900px; border-radius: 6px; }
-    
-    /* Category Grid: Forces 4 per row on desktop */
-    .category-grid {
-      display: grid;
-      grid-template-columns: repeat(4, 1fr); 
-      gap: 15px;
-      margin-top: 15px;
-    }
-
-    /* Date triple-input layout */
-    .triple-input {
-      display: flex;
-      gap: 8px;
-      align-items: center;
-      max-width: 300px; /* Keeps it compact */
-    }
-
-    /* Responsive adjustments */
-    @media (max-width: 1024px) {
-      .category-grid { grid-template-columns: repeat(2, 1fr); }
-    }
-    @media (max-width: 600px) {
-      .category-grid { grid-template-columns: 1fr; }
-      .trio-row { flex-direction: column; gap: 0; }
-    }
+    .info-box { background-color: #f8f9fa; border-left: 6px solid #007bff; padding: 20px; margin: 20px auto; max-width: 800px; border-radius: 6px; font-family: Arial, sans-serif; line-height: 1.6; color: #333; }
+    form { max-width: 1000px; margin: 0 auto; }
+    fieldset { margin-top: 25px; border-radius: 6px; padding: 15px; border: 1px solid #ccc; }
+    .trio-row { display: flex; gap: 10px; margin-bottom: 10px; }
+    .trio-row .input-group { flex: 1; display: flex; flex-direction: column; }
+    .single-row { margin-bottom: 10px; display: flex; flex-direction: column; }
+    textarea { resize: vertical; }
   </style>
+ 
+
 </head>
 
+</div>
+
+
+
 <body>
-  <header>
-    <div class="container header-flex">
-      <h1><%= __('title') %></h1>
-      <div class="logo-area">
-        <img src="/images/Outlook-dieerunr.png" alt="Logo">
-      </div>
-    </div>
+ <header>
     <div class="container">
+      <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap;">
+        <h1><%= __('title') %></h1>
+
+        
+      </div>
+
       <nav>
         <a href="/"><%= __('nav.home') %></a>
+        <!-- Hidden nav links for future use -->
+        <!--<a href="/soldierlistFULL"><%= __('nav.soldierList') %></a>
+        <a href="/addFull"><%= __('nav.addSoldier') %></a>
+        <a href="/search"><%= __('nav.searchUpdate') %></a>-->
       </nav>
     </div>
   </header>
+  
+ <div style="margin-top: 50px; clear: both; display: block; width: 100%;"></div>
+       
+ <!-- 🌐 Language Selector -->
+       <form action="/change-lang" method="get" style="margin-top: 2rem;">
+          <select name="lang" class="lang-select" onchange="this.form.submit()">
+            <option value="he" <%= locale === 'he' ? 'selected' : '' %>> עברית</option>
+            <option value="en" <%= locale === 'en' ? 'selected' : '' %>>English</option>
+            <option value="ru" <%= locale === 'ru' ? 'selected' : '' %>>Русский</option>
+          </select>
+        </form>
+  <div id="error-summary" style="display: none; position: sticky; top: 10px; z-index: 1000; background-color: #fff5f5; border: 2px solid #cc0000; padding: 20px; margin: 20px auto; max-width: 900px; border-radius: 8px; box-shadow: 0 4px 12px rgba(0,0,0,0.15);">
+    <h3 style="color: #cc0000; margin-top: 0; display: flex; align-items: center;">
+        <span style="font-size: 24px; margin-right: 10px;">⚠️</span> 
+        <%= __('error.validation_failed') || 'Validation Error' %>
+    </h3>
+    <p style="color: #333; font-weight: bold;"><%= __('error.please_fix_following') || 'Please fix the following fields:' %></p>
+    <ul id="error-list" style="color: #cc0000; font-weight: bold; list-style-type: none; padding-left: 0;"></ul>
+    <button type="button" onclick="this.parentElement.style.display='none'" style="position: absolute; top: 10px; right: 10px; background: none; border: none; font-size: 20px; cursor: pointer;">&times;</button>
+</div>
+ <% if (locale === 'he') { %>
+  <div class="important-note" style="background-color: #f0f4f8; color: #333; border-right: 6px solid #0038b8; padding: 15px; margin: 20px auto; max-width: 900px; border-radius: 4px; font-family: 'Roboto', sans-serif; font-size: 1.1em; box-shadow: 0 2px 4px rgba(0,0,0,0.05);" dir="rtl">
+    <span style="color: #0038b8; margin-left: 5px;">⚠️</span> <strong>הערה חשובה:</strong> אנא בדוק אם החייל שלך כבר קיים באתר 
+    <a href="https://infocenters.co.il/jwm" target="_blank" style="color: #0038b8; font-weight: bold; text-decoration: underline;">https://infocenters.co.il/jwm</a>
+    לפני הזנת המידע כאן.
+  </div>
+<% } else if (locale === 'ru') { %>
+  <div class="important-note" style="background-color: #f0f4f8; color: #333; border-left: 6px solid #0038b8; padding: 15px; margin: 20px auto; max-width: 900px; border-radius: 4px; font-family: 'Roboto', sans-serif; font-size: 1.1em; box-shadow: 0 2px 4px rgba(0,0,0,0.05);">
+    <span style="color: #0038b8; margin-right: 5px;">⚠️</span> <strong>Важное примечание:</strong> Пожалуйста, проверьте, указан ли ваш солдат на сайте 
+    <a href="https://infocenters.co.il/jwm" target="_blank" style="color: #0038b8; font-weight: bold; text-decoration: underline;">https://infocenters.co.il/jwm</a> 
+    перед вводом информации здесь.
+  </div>
+<% } else { %>
+  <div class="important-note" style="background-color: #f0f4f8; color: #333; border-left: 6px solid #0038b8; padding: 15px; margin: 20px auto; max-width: 900px; border-radius: 4px; font-family: 'Roboto', sans-serif; font-size: 1.1em; box-shadow: 0 2px 4px rgba(0,0,0,0.05);">
+    <span style="color: #0038b8; margin-right: 5px;">⚠️</span> <strong>Important Note:</strong> Please check for your soldier on 
+    <a href="https://infocenters.co.il/jwm" target="_blank" style="color: #0038b8; font-weight: bold; text-decoration: underline;">https://infocenters.co.il/jwm</a> 
+    <strong>before</strong> entering his/her information here.
+  </div>
+<% } %>
 
-  <main class="container">
-    <form action="/change-lang" method="get" style="background:none; box-shadow:none; padding:10px 0;">
-      <select name="lang" class="lang-select" onchange="this.form.submit()" style="width: auto;">
-        <option value="he" <%= locale === 'he' ? 'selected' : '' %>>עברית</option>
-        <option value="en" <%= locale === 'en' ? 'selected' : '' %>>English</option>
-        <option value="ru" <%= locale === 'ru' ? 'selected' : '' %>>Русский</option>
-      </select>
-    </form>
 
-    <div id="error-summary" style="display: none;">
-      <h3 style="color: #cc0000; margin-top: 0;">⚠️ <%= __('error.validation_failed') || 'Validation Error' %></h3>
-      <ul id="error-list"></ul>
-      <button type="button" onclick="this.parentElement.style.display='none'">&times;</button>
+
+
+ <div class="info-container">
+  <div class="info-box">
+    <h2 style="color: #004a99; margin-top: 0; margin-bottom: 5px;"><%= __('form_top.title') %></h2>
+    
+    <div class="form-top-body">
+        <%= __('form_top.body').trim() %>
     </div>
-
-    <% if (locale === 'he') { %>
-      <div class="help-box-alert" dir="rtl">
-        <strong>⚠️ הערה חשובה:</strong> אנא בדוק אם החייל שלך כבר קיים באתר 
-        <a href="https://infocenters.co.il/jwm" target="_blank">https://infocenters.co.il/jwm</a> לפני הזנת המידע כאן.
-      </div>
-    <% } else { %>
-      <div class="help-box-alert">
-        <strong>⚠️ Important Note:</strong> Please check for your soldier on 
-        <a href="https://infocenters.co.il/jwm" target="_blank">https://infocenters.co.il/jwm</a> before entering information.
-      </div>
-    <% } %>
-
-    <div class="info-box">
-      <h2 style="color: #004a99;"><%= __('form_top.title') %></h2>
-      <div class="form-top-body"><%= __('form_top.body').trim() %></div>
-    </div>
+    
+    <hr style="border: 0; border-top: 1px solid #eee; margin: 5px 0;">
+    ...
+  </div>
+</div>
 
 
   <!--<form action="/addfull" method="POST">-->
@@ -107,7 +120,7 @@
         <input type="tel" name="phone_soldier_submitter" id="phone_soldier_submitter" required />
 
         <label for="relation_of_soldier_submitter"><%= __('fields.relation_of_soldier_submitter') %>:</label>
-        <input type="text" name="relation_of_soldier_submitter" id="relation_of_soldier_submitter"  />
+        <input type="text" name="relation_of_soldier_submitter" id="relation_of_soldier_submitter" required />
 
         <label for="how_found_us_submitter"><%= __('fields.how_found_us_submitter') %>:</label>
         <input type="text" name="how_found_us_submitter" id="how_found_us_submitter" />
@@ -788,302 +801,469 @@
   
 
 
-<fieldset class="is-multimedia-container" style="border: 1px solid #ddd; padding: 20px; border-radius: 8px;">
+  <fieldset class="is-multimedia-container" style="border: 1px solid #ddd; padding: 20px; border-radius: 8px;">
         <legend style="padding: 0 10px; font-weight: bold;"><%= __('sections.uploads') %></legend>
 
+        <div id="type-options-source" style="display: none;">
+            <option value="">-- <%= __('fields.select_option') %> --</option>
+            <% if (locals.multimedia_type_TBL) { %>
+                <% multimedia_type_TBL.forEach(type => { %>
+                    <option value="<%= type.title_heb %>">
+                        <%= locale === 'he' ? type.title_heb : (locale === 'ru' ? type.title_rus : type.title_eng) %>
+                    </option>
+                <% }) %>
+            <% } %>
+        </div>
+
         <div id="multimedia-translations" 
-             data-err-ext="<%= __('errors.invalid_extension') || 'Invalid file extension' %>"
-             data-err-mismatch-img="<%= __('errors.mismatch_image') || 'Please upload an image for this type' %>"
-             data-err-mismatch-pdf="<%= __('errors.mismatch_pdf') || 'Please upload a PDF for this type' %>"
-             data-err-type-required="<%= __('errors.type_required') || 'Please select a multimedia type' %>"
+             data-err-mismatch-img="<%= __('errors.mismatch_image') %>"
+             data-err-mismatch-pdf="<%= __('errors.mismatch_pdf') %>"
              style="display:none;"></div>
 
         <div class="upload-container">
             <div class="help-box-alert" style="margin-bottom: 20px; padding: 15px; background-color: #e7f3fe; border-left: 4px solid #007bff; border-radius: 4px;">
                 <strong>ℹ️</strong> <%= __('multimedia_info.help_text') %>
             </div>
-            
-            <p class="instruction-text" style="color: #0038b8; font-size: 0.9rem; margin-top: 5px;">
-                <strong><%= __('fields.profile_pic_instruction') %></strong>
-            </p>
 
-            <div id="multimedia-rows">
-  <% 
-    // 1. Ensure we have an array to loop through
-    let multimediaRows = (locals.oldData && oldData.m_description) ? oldData.m_description : ['']; 
-    
-    multimediaRows.forEach((desc, index) => { 
-      // 2. Get previous values if they exist
-      let oldType = (locals.oldData && oldData.m_type) ? oldData.m_type[index] : '';
-      let oldUrl = (locals.oldData && oldData.physical_logical_location) ? oldData.physical_logical_location[index] : '';
-  %>
-    <div class="multimedia-row" style="border: 1px solid #ccc; border-radius: 8px; margin-bottom: 25px; padding: 20px; background-color: #fff; position: relative;">
-        <div class="row-layout" style="display: flex; flex-direction: column; gap: 15px;">
-            
-            <div class="field-group">
-                <label style="display: block; font-weight: bold;"><%= __('fields.description') %></label>
-                <input type="text" name="m_description[]" class="form-control" style="width: 100%; padding: 10px; border: 1px solid #ccc;" value="<%= desc %>">
-            </div>
-            
-            <div class="field-group">
-                <label style="display: block; font-weight: bold;"><%= __('fields.multimedia_type') %></label>
-                <select name="m_type[]" class="form-control type-select" onchange="toggleUploadType(this)" style="width: 100%; padding: 10px; height: 45px;">
-                    <option value="">-- <%= __('fields.select_option') %> --</option>
-                    <% if (locals.multimedia_type_TBL) { %>
-                        <% multimedia_type_TBL.forEach(type => { 
-                            let typeLabel = locale === 'he' ? type.title_heb : (locale === 'ru' ? type.title_rus : type.title_eng);
-                            // ADDED: selected logic
-                            let isSelected = (oldType === type.title_heb) ? 'selected' : '';
-                        %>
-                            <option value="<%= type.title_heb %>" data-type-eng="<%= (type.title_eng || '').toLowerCase() %>" <%= isSelected %>>
-                                <%= typeLabel %>
-                            </option>
-                        <% }) %>
-                    <% } %>
-                </select>
-            </div>
+            <!--<div id="multimedia-rows">
+                <div class="multimedia-row" style="border: 1px solid #ccc; border-radius: 8px; margin-bottom: 25px; padding: 20px; background-color: #fff; box-shadow: 0 2px 4px rgba(0,0,0,0.05);">
+                    <div class="row-layout" style="display: flex; flex-direction: column; gap: 15px;">
+                        
+                        <div class="field-group">
+                            <label style="display: block; font-weight: bold; margin-bottom: 5px;"><%= __('fields.description') %></label>
+                            <input type="text" name="m_description[]" class="form-control" required style="width: 100%; padding: 10px; border: 1px solid #ccc; border-radius: 4px;">
+                        </div>
+                        
+                        <div class="field-group">
+                            <label style="display: block; font-weight: bold; margin-bottom: 5px;"><%= __('fields.multimedia_type') %></label>
+                            <select name="m_type[]" class="form-control type-select" style="width: 100%; padding: 10px; border: 1px solid #ccc; border-radius: 4px;">
+                                <option value="">-- <%= __('fields.select_option') %> --</option>
+                                <% if (locals.multimedia_type_TBL) { %>
+                                    <% multimedia_type_TBL.forEach(type => { %>
+                                        <option value="<%= type.title_heb %>">
+                                            <%= locale === 'he' ? type.title_heb : (locale === 'ru' ? type.title_rus : type.title_eng) %>
+                                        </option>
+                                    <% }) %>
+                                <% } %>
+                            </select>
+                        </div>-->
+                        <div id="multimedia-rows">
 
-            <div class="field-group">
-                <div class="file-wrapper">
-                    <label style="display: block; font-weight: bold;"><%= __('fields.file_upload') %></label>
-                    <input type="file" name="m_files[]" class="file-input" accept=".jpg,.jpeg,.png,.pdf" style="display: none;" onchange="handleFileSelect(this)">
-                    
-                    <div style="display: flex; align-items: center; gap: 15px;">
-                        <button type="button" onclick="this.parentElement.previousElementSibling.click()" style="padding: 8px 15px; cursor: pointer;">
-                            <%= __('fields.choose_file') %>
-                        </button>
-                        <span class="file-name-display" style="color: #666;">
-                            <% if (locals.oldData && oldData.m_files && oldData.m_files[index]) { %>
-                                <span style="color: #d9534f;">⚠️ Re-upload: <%= oldData.m_files[index] %></span>
-                            <% } else { %>
-                                <%= __('fields.no_file_chosen') %>
-                            <% } %>
-                        </span>
+    <!-- FIRST ROW -->
+    <div class="multimedia-row" data-index="0">
+
+        <input type="text"
+               name="m_description[0]"
+               placeholder="Description"
+               class="form-control">
+
+        <select name="m_type[0]"
+                class="form-control type-select">
+            <option value="">-- Select Type --</option>
+            <% multimedia_type_TBL.forEach(type => { %>
+                <option value="<%= type.title_heb %>">
+                    <%= locale === 'he'
+                        ? type.title_heb
+                        : (locale === 'ru'
+                            ? type.title_rus
+                            : type.title_eng) %>
+                </option>
+            <% }) %>
+        </select>
+
+        <div class="file-wrapper">
+            <input type="file"
+                   name="m_files[0]"
+                   class="file-input"
+                   accept=".jpg,.jpeg,.pdf">
+        </div>
+
+        <div class="url-wrapper" style="display:none;">
+            <input type="text"
+                   name="physical_logical_location[0]"
+                   placeholder="https://..."
+                   disabled>
+        </div>
+
+        <button type="button" onclick="removeRow(this)">Remove</button>
+
+    </div>
+
+</div>
+
+<button type="button" onclick="addUploadRow()">Add Another</button>
+
+                        <div class="field-group">
+                            <div class="file-wrapper">
+                                <label style="display: block; font-weight: bold; margin-bottom: 5px;"><%= __('fields.file_upload') %></label>
+                                <input type="file" name="m_files[]" class="file-input" accept=".jpg,.jpeg,.pdf" style="display: none;" id="file_input_0" onchange="handleFileSelect(this, 'file_name_0')">
+                                <div style="display: flex; align-items: center; gap: 15px;">
+                                    <button type="button" class="btn btn-outline-secondary" onclick="document.getElementById('file_input_0').click()" style="padding: 8px 15px; cursor: pointer; background: #f8f9fa; border: 1px solid #ddd; border-radius: 4px;">
+                                        <%= __('fields.choose_file') %>
+                                    </button>
+                                    <span id="file_name_0" style="color: #666; font-size: 0.9rem;"><%= __('fields.no_file_chosen') %></span>
+                                </div>
+                            </div>
+
+                            <div class="location-wrapper" style="display: none;">
+                                <label style="display: block; font-weight: bold; margin-bottom: 5px;"><%= __('fields.url_link') %></label>
+                                <input type="text" name="physical_logical_location[]" class="form-control" placeholder="https://..." style="width: 100%; padding: 10px; border: 1px solid #ccc; border-radius: 4px;" disabled>
+                            </div>
+
+                            <div class="preview-container" style="display: none; margin-top: 15px; text-align: center; border: 1px solid #eee; padding: 10px; border-radius: 8px; background: #fafafa;">
+                                <p style="font-size: 0.8rem; color: #666; margin-bottom: 5px;"><%= __('fields.preview') %></p>
+                                <img class="image-preview" src="" alt="Preview" style="max-width: 150px; max-height: 150px; border-radius: 4px; box-shadow: 0 2px 5px rgba(0,0,0,0.1);">
+                            </div>
+                        </div>
+
+                        <div style="text-align: right; border-top: 1px solid #eee; padding-top: 10px;">
+                            <button type="button" class="btn btn-danger" onclick="this.closest('.multimedia-row').remove()" style="background-color: #dc3545; color: white; border: none; padding: 8px 20px; border-radius: 4px; cursor: pointer; font-weight: bold;">
+                                <%= __('fields.remove') %>
+                            </button>
+                        </div>
                     </div>
                 </div>
+            </div>
 
-                <div class="location-wrapper" style="display: none; margin-top: 15px;">
-                    <label style="display: block; font-weight: bold;"><%= __('fields.url_link') %></label>
-                    <input type="url" name="physical_logical_location[]" class="form-control" placeholder="https://..." style="width: 100%; padding: 10px;" value="<%= oldUrl %>">
+            <button type="button" onclick="addUploadRow()" class="btn-add" style="padding: 12px 30px; cursor: pointer; background-color: #28a745; color: white; border: none; border-radius: 4px; font-weight: bold; width: 100%;">
+                 <%= __('fields.add_another') %>
+            </button>
+        </div>
+    </fieldset>
+
+    <fieldset>
+        <legend><%= __('sections.recordcomplete') %></legend>
+        <p class="note"><%= __('form.mark_complete_note') %></p>
+        <p class="note"><%= __('form.mark_complete_note2') %></p>
+        <p class="note"><%= __('form.mark_complete_note3') %></p>
+        
+        <div class="checkbox-group">
+            <label>
+                <input type="checkbox" name="recordcomplete" id="recordcomplete" value="true" />
+                <strong><%= __('form.mark_complete') %></strong>
+            </label>
+        </div>
+    </fieldset>
+
+    <div style="margin-top: 30px; margin-bottom: 50px;">
+        <button type="submit" class="btn btn-primary btn-lg"><%= __('submit') %></button>
+    </div>
+</form>
+
+<script>
+let rowCount = 1;
+
+/**
+ * Handle File Selection, Validation & Live Preview
+ */
+function handleFileSelect(input, spanId) {
+    const span = document.getElementById(spanId);
+    const mtrans = document.getElementById('multimedia-translations').dataset;
+    const row = input.closest('.multimedia-row');
+    const previewContainer = row.querySelector('.preview-container');
+    const previewImg = row.querySelector('.image-preview');
+    const typeSelect = row.querySelector('.type-select');
+    const selectedTypeText = typeSelect ? typeSelect.options[typeSelect.selectedIndex].text.toLowerCase() : "";
+
+    if (!input.files || !input.files[0]) {
+        span.textContent = "<%= __('fields.no_file_chosen') %>";
+        previewContainer.style.display = 'none';
+        return;
+    }
+
+    const file = input.files[0];
+    const fileSizeMB = file.size / (1024 * 1024);
+    const fileName = file.name.toLowerCase();
+    const isJpg = fileName.endsWith('.jpg') || fileName.endsWith('.jpeg');
+    const isPdf = fileName.endsWith('.pdf');
+
+    // Mismatch Logic
+    const typeIsPicture = selectedTypeText.match(/picture|תמונה|photo|фото/i);
+    const typeIsDoc = selectedTypeText.match(/document|מסמך|документ/i);
+
+    let errorMessage = "";
+    if (typeIsPicture && !isJpg) errorMessage = mtrans.errMismatchImg;
+    else if (typeIsDoc && !isPdf) errorMessage = mtrans.errMismatchPdf;
+    else if (fileSizeMB > 1.5) errorMessage = "File too large (Max 1.5MB)";
+
+    if (errorMessage) {
+        alert(errorMessage);
+        input.value = "";
+        span.textContent = "<%= __('fields.no_file_chosen') %>";
+        span.style.color = "red";
+        previewContainer.style.display = 'none';
+    } else {
+        span.textContent = file.name + " (" + fileSizeMB.toFixed(2) + "MB)";
+        span.style.color = "green";
+
+        // Show Preview if it's an image
+        if (isJpg && (typeIsPicture || selectedTypeText === "")) {
+            const reader = new FileReader();
+            reader.onload = e => {
+                previewImg.src = e.target.result;
+                previewContainer.style.display = 'block';
+            };
+            reader.readAsDataURL(file);
+        } else {
+            previewContainer.style.display = 'none';
+        }
+    }
+}
+
+/**
+ * URL/File Toggle and Dynamic Type Re-validation
+ */
+document.addEventListener('change', function (e) {
+    if (e.target && e.target.classList.contains('type-select')) {
+        const row = e.target.closest('.multimedia-row');
+        const selectedText = e.target.options[e.target.selectedIndex].text;
+        const isUrl = selectedText.match(/URL|קישור|Link|ссылка/i);
+        
+        const fileWrapper = row.querySelector('.file-wrapper');
+        const locationWrapper = row.querySelector('.location-wrapper');
+        const fileInput = row.querySelector('.file-input');
+        const urlInput = row.querySelector('input[name="physical_logical_location[]"]');
+        const previewContainer = row.querySelector('.preview-container');
+
+        if (isUrl) {
+            fileWrapper.style.display = 'none';
+            locationWrapper.style.display = 'block';
+            fileInput.disabled = true;
+            urlInput.disabled = false;
+            previewContainer.style.display = 'none';
+        } else {
+            fileWrapper.style.display = 'block';
+            locationWrapper.style.display = 'none';
+            fileInput.disabled = false;
+            urlInput.disabled = true;
+            
+            // Re-run validation for existing file with new type
+            if (fileInput.files.length > 0) {
+                const spanId = fileInput.id.replace('input', 'name');
+                handleFileSelect(fileInput, spanId);
+            }
+        }
+    }
+});
+
+/**
+ * Add New Multimedia Row
+ */
+function addUploadRow() {
+    const container = document.getElementById('multimedia-rows');
+    const source = document.getElementById('type-options-source');
+    const id = rowCount++;
+
+    const row = document.createElement('div');
+    row.className = 'multimedia-row';
+    row.style = "border: 1px solid #ccc; border-radius: 8px; margin-bottom: 25px; padding: 20px; background-color: #fff; box-shadow: 0 2px 4px rgba(0,0,0,0.05);";
+
+    row.innerHTML = `
+        <div class="row-layout" style="display: flex; flex-direction: column; gap: 15px;">
+            <div class="field-group">
+                <label style="display: block; font-weight: bold; margin-bottom: 5px;"><%= __('fields.description') %></label>
+                <input type="text" name="m_description[]" class="form-control" required style="width: 100%; padding: 10px; border: 1px solid #ccc; border-radius: 4px;">
+            </div>
+            <div class="field-group">
+                <label style="display: block; font-weight: bold; margin-bottom: 5px;"><%= __('fields.multimedia_type') %></label>
+                <select name="m_type[]" class="form-control type-select" style="width: 100%; padding: 10px; border: 1px solid #ccc; border-radius: 4px;">
+                    ${source.innerHTML}
+                </select>
+            </div>
+            <div class="field-group">
+                <div class="file-wrapper">
+                    <label style="display: block; font-weight: bold; margin-bottom: 5px;"><%= __('fields.file_upload') %></label>
+                    <input type="file" name="m_files[]" class="file-input" accept=".jpg,.jpeg,.pdf" style="display: none;" id="file_input_${id}" onchange="handleFileSelect(this, 'file_name_${id}')">
+                    <div style="display: flex; align-items: center; gap: 15px;">
+                        <button type="button" class="btn btn-outline-secondary" onclick="document.getElementById('file_input_${id}').click()" style="padding: 8px 15px; cursor: pointer; background: #f8f9fa; border: 1px solid #ddd; border-radius: 4px;">
+                            <%= __('fields.choose_file') %>
+                        </button>
+                        <span id="file_name_${id}" style="color: #666; font-size: 0.9rem;"><%= __('fields.no_file_chosen') %></span>
+                    </div>
+                </div>
+                <div class="location-wrapper" style="display: none;">
+                    <label style="display: block; font-weight: bold; margin-bottom: 5px;"><%= __('fields.url_link') %></label>
+                    <input type="text" name="physical_logical_location[]" class="form-control" placeholder="https://..." disabled style="width: 100%; padding: 10px; border: 1px solid #ccc; border-radius: 4px;">
+                </div>
+                <div class="preview-container" style="display: none; margin-top: 15px; text-align: center; border: 1px solid #eee; padding: 10px; border-radius: 8px; background: #fafafa;">
+                    <p style="font-size: 0.8rem; color: #666; margin-bottom: 5px;"><%= __('fields.preview') %></p>
+                    <img class="image-preview" src="" alt="Preview" style="max-width: 150px; max-height: 150px; border-radius: 4px;">
                 </div>
             </div>
-
-            <div style="text-align: right;">
-                <button type="button" class="btn btn-danger" onclick="removeMultimediaRow(this)"><%= __('fields.remove') %></button>
+            <div style="text-align: right; border-top: 1px solid #eee; padding-top: 10px;">
+                <button type="button" class="btn btn-danger" onclick="this.closest('.multimedia-row').remove()" style="background-color: #dc3545; color: white; border: none; padding: 8px 20px; border-radius: 4px; cursor: pointer;">
+                    <%= __('fields.remove') %>
+                </button>
             </div>
         </div>
-    </div>
-  <% }) %>
-</div>
+    `;
+    container.appendChild(row);
+}
+</script>
 
-            <div style="display: flex; justify-content: flex-start; margin-top: 15px;">
-    <button type="button" id="add-multimedia" class="btn-add">
-        <%= __('fields.add_another') %>
-    </button>
-</div>
-        </div>
-    </fieldset>
-    <div class="completion-notes" style="display: flex; flex-direction: column; gap: 10px;">
-        <p style="margin: 0; font-weight: 600; color: #333;">
-            <span style="color: #0038b8;">ℹ️</span> <%= __('form.mark_complete_note') %>
-        </p>
-        <p style="margin: 0; color: #155724; font-weight: 500;">
-            <%= __('form.mark_complete_note2') %>
-        </p>
-        <p style="margin: 0; color: #dc3545; font-weight: 700; font-style: italic;">
-            <%= __('form.mark_complete_note3') %>
-        </p> <br>
-    </div>
-    <!--<fieldset style="margin-top: 20px;">
-        <legend><%= __('sections.recordcomplete') %></legend>-->
-        <label>
-            <input type="checkbox" name="recordcomplete" value="true">
-            <strong><%= __('form.mark_complete') %></strong>
-        </label>
-    </fieldset>
+<script>
+/**
+ * DATE LOGIC (DOB vs DOD Chronology)
+ */
+document.addEventListener('DOMContentLoaded', () => {
+    const dateGroups = document.querySelectorAll('.date-entry-group');
+    const currentYear = new Date().getFullYear();
 
-    <div style="margin: 40px 0; text-align: center;">
-        <button type="submit" id="mainSubmitBtn" style="padding: 15px 50px; font-size: 1.2rem; background-color: #0038b8; color: white; border: none; border-radius: 5px; cursor: pointer;">
-            <%= __('submit') %>
-        </button>
-    </div>
-  </form>
-
-  <script>
-    // --- MULTIMEDIA DYNAMICS ---
-    function toggleUploadType(select) {
-        const row = select.closest('.multimedia-row');
-        const fileWrapper = row.querySelector('.file-wrapper');
-        const urlWrapper = row.querySelector('.location-wrapper');
-        const engType = select.options[select.selectedIndex].getAttribute('data-type-eng') || "";
-        const isUrl = engType.includes('link') || engType.includes('url');
-
-        fileWrapper.style.display = isUrl ? 'none' : 'block';
-        urlWrapper.style.display = isUrl ? 'block' : 'none';
-        
-        if(isUrl) {
-            row.querySelector('.file-input').value = '';
-            row.querySelector('.file-name-display').textContent = "<%= __('fields.no_file_chosen') %>";
-        } else {
-            row.querySelector('input[name="physical_logical_location[]"]').value = '';
+    const triggerError = (inputEl, groupEl, message) => {
+        const errorSpan = groupEl.querySelector('.date-error-msg');
+        if (inputEl) {
+            inputEl.value = '';
+            inputEl.classList.add('input-error');
+            setTimeout(() => inputEl.classList.remove('input-error'), 800);
         }
-    }
-
-    function handleFileSelect(input) {
-        const row = input.closest('.multimedia-row');
-        const label = row.querySelector('.file-name-display');
-        const mtrans = document.getElementById('multimedia-translations').dataset;
-        const file = input.files[0];
-        const typeSelect = row.querySelector('.type-select');
-        const selectedTypeText = typeSelect ? typeSelect.options[typeSelect.selectedIndex].text.toLowerCase() : "";
-
-        if (!file) {
-            label.textContent = "<%= __('fields.no_file_chosen') %>";
-            label.style.color = "#666";
-            return;
+        if (errorSpan) {
+            errorSpan.textContent = message;
+            setTimeout(() => { errorSpan.textContent = ''; }, 3500);
         }
+    };
 
-        const fileName = file.name.toLowerCase();
-        const fileSizeMB = file.size / (1024 * 1024);
-        let errorMessage = "";
+    const checkDateChronology = () => {
+        const dobVal = document.getElementById('dob')?.value;
+        const dodVal = document.getElementById('dod')?.value;
 
-        const isJpg = fileName.endsWith('.jpg') || fileName.endsWith('.jpeg') || fileName.endsWith('.png');
-        const isPdf = fileName.endsWith('.pdf');
+        if (dobVal && dodVal) {
+            const dobParts = dobVal.split('-').reverse(); 
+            const dodParts = dodVal.split('-').reverse(); 
 
-        const typeIsPicture = selectedTypeText.includes('picture') || selectedTypeText.includes('תמונה') || selectedTypeText.includes('фото');
-        const typeIsDoc = selectedTypeText.includes('document') || selectedTypeText.includes('מסמך') || selectedTypeText.includes('документ');
+            if (dobParts[0].length === 4 && dodParts[0].length === 4) {
+                const dobDate = new Date(dobParts[0], (dobParts[1] || 1) - 1, dobParts[2] || 1);
+                const dodDate = new Date(dodParts[0], (dodParts[1] || 1) - 1, dodParts[2] || 1);
 
-        if (typeIsPicture && !isJpg) {
-            errorMessage = mtrans.errMismatchImg || "Please upload an image (JPG/PNG)";
-        } else if (typeIsDoc && !isPdf) {
-            errorMessage = mtrans.errMismatchPdf || "Please upload a PDF";
-        } else if (!isJpg && !isPdf) {
-            errorMessage = mtrans.errExt || "Invalid file extension";
-        } else if (fileSizeMB > 1.5) {
-            errorMessage = isPdf ? (mtrans.errPdfSize || "PDF too large (Max 1.5MB)") : (mtrans.errImgSize || "Image too large (Max 1.5MB)");
+                if (dodDate < dobDate) {
+                    const dodGroup = document.getElementById('dod').closest('.date-entry-group');
+                    const dodInputs = dodGroup.querySelectorAll('input[type="text"]');
+                    dodInputs.forEach(inp => inp.value = '');
+                    document.getElementById('dod').value = '';
+                    triggerError(null, dodGroup, "Date of Death cannot be before Date of Birth");
+                }
+            }
         }
+    };
 
-        if (errorMessage) {
-            alert(errorMessage);
-            input.value = ""; 
-            label.textContent = "<%= __('fields.no_file_chosen') %>";
-            label.style.color = "red";
-        } else {
-            label.textContent = file.name + " (" + fileSizeMB.toFixed(2) + "MB)";
-            label.style.color = "green";
-        }
-    }
+    dateGroups.forEach(group => {
+        const hiddenInput = group.querySelector('input[type="hidden"]');
+        const inputs = [group.querySelector('.day'), group.querySelector('.month'), group.querySelector('.year')];
 
-    function removeMultimediaRow(btn) {
-        const rows = document.querySelectorAll('.multimedia-row');
-        if (rows.length > 1) btn.closest('.multimedia-row').remove();
-        else alert("At least one upload row is required.");
-    }
+        inputs.forEach((el, index) => {
+            if (!el) return;
+            el.addEventListener('input', () => {
+                el.value = el.value.replace(/\D/g, '');
+                // Basic sync logic here...
+                checkDateChronology();
+            });
+        });
+    });
+});
+</script>
+
+<script>
+/** * FORM SUBMISSION VALIDATION 
+ */
+document.getElementById("soldierForm").addEventListener("submit", function (e) {
+   // let errors = [];
+  // --- MULTIMEDIA VALIDATION ---
+const multimediaRows = document.querySelectorAll('.multimedia-row');
+let multiError = false;
+
+multimediaRows.forEach((row, index) => {
+    const typeSelect = row.querySelector('.type-select');
+    const descInput = row.querySelector('input[name="m_description[]"]');
+    const fileInput = row.querySelector('.file-input');
+    const urlInput = row.querySelector('input[name="physical_logical_location[]"]');
     
-    document.addEventListener('input', function(e) {
-        if (e.target.name === 'm_description[]') {
-            e.target.style.border = "1px solid #ccc";
+    // Determine if user is trying to use this row
+    const selectedText = typeSelect.options[typeSelect.selectedIndex].text;
+    const isUrlType = selectedText.match(/URL|קישור|Link|ссылка/i);
+    const hasFile = fileInput.files.length > 0;
+    const hasUrl = urlInput && urlInput.value.trim() !== "";
+    const hasDesc = descInput.value.trim() !== "";
+    const hasType = typeSelect.value !== "";
+
+    // If ANY field is filled, the WHOLE row must be valid
+    if (hasFile || hasUrl || hasDesc || hasType) {
+        let missing = [];
+        if (!hasDesc) missing.push("<%= __('fields.description') %>");
+        if (!hasType) missing.push("<%= __('fields.multimedia_type') %>");
+        if (!isUrlType && !hasFile) missing.push("<%= __('fields.file_upload') %>");
+        if (isUrlType && !hasUrl) missing.push("<%= __('fields.url_link') %>");
+
+        if (missing.length > 0) {
+            multiError = true;
+            row.style.border = "2px solid #d9534f";
+            row.style.padding = "15px";
+            row.style.backgroundColor = "#fff2f2";
+            
+            // Add a temporary warning message if not present
+            if (!row.querySelector('.error-hint')) {
+                const hint = document.createElement('div');
+                hint.className = 'error-hint';
+                hint.style = "color: #d9534f; font-weight: bold; margin-bottom: 10px;";
+                hint.innerHTML = `⚠️ Row #${index + 1} is incomplete. Missing: ${missing.join(', ')}. <br> Please complete it or remove the row.`;
+                row.prepend(hint);
+            }
+        } else {
+            // Reset styling if they fixed it
+            row.style.border = "1px solid #ccc";
+            row.style.backgroundColor = "#fff";
+            const hint = row.querySelector('.error-hint');
+            if (hint) hint.remove();
+        }
+    }
+});
+
+if (multiError) {
+    e.preventDefault();
+    alert("Please fix the errors in your upload rows or remove the incomplete ones.");
+    return false;
+}
+});
+</script>
+
+<script>
+/**
+ * BATTLE ROW CLONING
+ */
+const addBattleBtn = document.getElementById('add-battle');
+const battleContainer = document.getElementById('battle-container');
+if (addBattleBtn && battleContainer) {
+    addBattleBtn.addEventListener('click', () => {
+        const firstRow = battleContainer.querySelector('.battle-row');
+        if (firstRow) {
+            const newRow = firstRow.cloneNode(true);
+            newRow.querySelectorAll('input, textarea').forEach(el => el.value = '');
+            battleContainer.appendChild(newRow);
         }
     });
+}
 
-    document.getElementById('add-multimedia').addEventListener('click', function() {
-        const container = document.getElementById('multimedia-rows');
-        const firstRow = container.querySelector('.multimedia-row');
-        const newRow = firstRow.cloneNode(true);
-        
-        newRow.querySelectorAll('input').forEach(i => i.value = '');
-        newRow.querySelectorAll('select').forEach(s => s.selectedIndex = 0);
-        newRow.querySelector('.file-name-display').textContent = "<%= __('fields.no_file_chosen') %>";
-        newRow.querySelector('.file-name-display').style.color = "#666";
-        newRow.querySelector('.location-wrapper').style.display = 'none';
-        newRow.querySelector('.file-wrapper').style.display = 'block';
-        
-        container.appendChild(newRow);
-    });
+/**
+ * CATEGORY LANGUAGE SYNC
+ */
+function syncTranslations(checkbox) {
+    const idx = checkbox.getAttribute('data-index');
+    const hebVal = checkbox.getAttribute('data-heb');
+    const engVal = checkbox.getAttribute('data-eng');
+    const rusVal = checkbox.getAttribute('data-rus');
 
-    // --- CATEGORY SYNC ---
-    function syncTranslations(checkbox) {
-        const idx = checkbox.getAttribute('data-index');
-        const isChecked = checkbox.checked;
-        document.getElementById('hidden_cat' + idx).value = isChecked ? checkbox.getAttribute('data-heb') : "";
-        document.getElementById('hidden_cat' + idx + 'en').value = isChecked ? checkbox.getAttribute('data-eng') : "";
-        document.getElementById('hidden_cat' + idx + 'ru').value = isChecked ? checkbox.getAttribute('data-rus') : "";
+    const inputHeb = document.getElementById('hidden_cat' + idx);
+    const inputEng = document.getElementById('hidden_cat' + idx + 'en');
+    const inputRus = document.getElementById('hidden_cat' + idx + 'ru');
+
+    if (checkbox.checked) {
+        if(inputHeb) inputHeb.value = hebVal;
+        if(inputEng) inputEng.value = engVal;
+        if(inputRus) inputRus.value = rusVal;
+    } else {
+        if(inputHeb) inputHeb.value = "";
+        if(inputEng) inputEng.value = "";
+        if(inputRus) inputRus.value = "";
     }
-
-    // --- DATE GROUP SYNC ---
-    function syncDates() {
-        document.querySelectorAll('.date-entry-group').forEach(group => {
-            const day = group.querySelector('.day').value.padStart(2, '0');
-            const month = group.querySelector('.month').value.padStart(2, '0');
-            const year = group.querySelector('.year').value;
-            const hiddenInput = group.querySelector('input[type="hidden"]');
-            
-            if (year && month !== '00' && day !== '00') {
-                hiddenInput.value = `${year}-${month}-${day}`;
-            }
-        });
-    }
-
-    // --- FINAL VALIDATION & SUBMISSION ---
-    document.getElementById('soldierForm').addEventListener('submit', function(e) {
-        // 1. Always sync dates first
-        syncDates(); 
-
-        const trans = document.getElementById('multimedia-translations').dataset;
-        let isValid = true;
-
-        // 2. Check standard required fields
-        this.querySelectorAll('[required]').forEach(input => {
-            if (!input.value.trim()) {
-                isValid = false;
-                input.style.borderColor = 'red';
-            } else {
-                input.style.borderColor = '#ccc';
-            }
-        });
-
-        // 3. Conditional Multimedia Check (VALIDATE FIRST)
-        document.querySelectorAll('.multimedia-row').forEach(row => {
-            const descInput = row.querySelector('input[name="m_description[]"]');
-            const fileInput = row.querySelector('.file-input');
-            const urlInput = row.querySelector('input[name="physical_logical_location[]"]');
-
-            const hasFile = fileInput && fileInput.files.length > 0;
-            const hasUrl = urlInput && urlInput.value.trim() !== "";
-            const hasDesc = descInput.value.trim() !== "";
-
-            if ((hasFile || hasUrl) && !hasDesc) {
-                isValid = false;
-                descInput.style.borderColor = 'red';
-                descInput.placeholder = "<%= __('errors.description_required') %>"; 
-            }
-        });
-
-        // 4. STOP if invalid
-        if (!isValid) {
-            e.preventDefault();
-            const errorSummary = document.getElementById('error-summary');
-            if (errorSummary) {
-                errorSummary.style.display = 'block';
-                errorSummary.innerHTML = `<p>${trans.errMissingFields || 'Please fill in all required fields and descriptions.'}</p>`;
-            }
-            window.scrollTo({ top: 0, behavior: 'smooth' });
-            return; 
-        }
-
-        // 5. Anti-Scramble Logic (ONLY RUNS IF FORM IS VALID)
-        document.querySelectorAll('.multimedia-row').forEach(row => {
-            const descInput = row.querySelector('input[name="m_description[]"]');
-            const urlInput = row.querySelector('input[name="physical_logical_location[]"]');
-            
-            if (descInput.value.trim() === "") {
-                descInput.value = " "; 
-            }
-            if (urlInput && urlInput.value.trim() === "") {
-                urlInput.value = ""; 
-            }
-        });
-    });
+}
 </script>
 </body>
 </html>

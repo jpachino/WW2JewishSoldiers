@@ -759,12 +759,10 @@ app.get('/searchByEmail', async (req, res) => {
     }));
 
     res.render('searchResults', {
-    
-     soldiers: formattedSoldiers,
+      soldiers: formattedSoldiers,
       locale,
       lang,
       useremail
-      
     });
 
     console.log(`Email search results for: ${useremail}`);
@@ -781,7 +779,6 @@ app.get('/search', (req, res) => {
   const locale = req.getLocale();
 
   res.render('search', {
-    req,
     locale,
     firstname: '',
     lastname: '',
@@ -802,7 +799,6 @@ app.get('/searchResults', async (req, res) => {
 
   if (!useremail || !emailRegex.test(useremail)) {
     return res.render('search', {
-     req, 
       locale,
       firstname,
       lastname,
@@ -848,8 +844,7 @@ app.get('/searchResults', async (req, res) => {
       lang,
       firstname,
       lastname,
-      useremail,
-      req
+      useremail
     });
   } catch (err) {
     console.error('Error fetching search results:', err);
@@ -1253,9 +1248,9 @@ if (totalAfterUpdate > 12) {
 });
         //res.redirect(`/updateSoldier/${id}?saved=true`);
         if (isAdmin) {
-           res.redirect('/completedRecords/?saved=true');
+            res.redirect('/completedRecords');
         } else {
-            res.redirect('/searchResults?saved=true');
+            res.redirect('/searchResults');
         }
 
     } catch (err) {

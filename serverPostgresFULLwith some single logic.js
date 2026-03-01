@@ -120,11 +120,9 @@ const storage = multer.diskStorage({
 });
 
 const upload = multer({ storage: storage });
-// This will accept m_file_row_0, m_file_row_1, and your profile pic all at once
-const multiUpload = upload.any();
-/*const multiUpload = upload.fields([
+const multiUpload = upload.fields([
     { name: 'm_files[]', maxCount: 12 }
-]);*/
+]);
 const db = pgp(cn);
 //const { format } = require('date-fns'); // Only if you still use date-fns elsewhere
 
@@ -211,7 +209,6 @@ app.use(express.static('public'));
 // This line is essential for i18n.init to see req.cookies
 app.use(cookieParser());
 app.use('/soldierUploads', express.static(PERSISTENT_ROOT));
-
 // 2. SESSION MUST BE BEFORE ROUTES
 app.use(session({
     secret: 'some-random-string',
@@ -441,10 +438,9 @@ app.get('/addFull', async (req, res) => {
         res.status(500).send(`<h1>Error</h1><pre>${err.message}</pre>`);
     }
 });
-//app.post('/addFULL', multiUpload, async (req, res) => {
-  app.post('/addFULL', upload.any(), async (req, res) => {
+app.post('/addFULL', multiUpload, async (req, res) => {
     try {
-        // 1. Clean the incoming body
+        // 1. Clean the incoming body (removes empty strings/nulls)
         const cleaned = cleanNulls(req.body);
 
         // --- VALIDATION BLOCK ---
@@ -460,15 +456,24 @@ app.get('/addFull', async (req, res) => {
         if (errors.length > 0) {
             return res.status(400).send(`<h1>Validation Error</h1><ul>${errors.map(e => `<li>${e}</li>`).join('')}</ul><a href="javascript:history.back()">Go Back</a>`);
         }
+        // --- END VALIDATION ---
 
-        // 2. CATEGORY CHECKBOX LOGIC
-        for (let i = 1; i <= 8; i++) {
-            cleaned[`cat${i}`] = req.body[`cat${i}`] || ''; 
-            cleaned[`cat${i}en`] = req.body[`cat${i}en`] || ''; 
-            cleaned[`cat${i}ru`] = req.body[`cat${i}ru`] || '';
-        }
+       // 2. CATEGORY CHECKBOX LOGIC (cat1 - cat8)
+      for (let i = 1; i <= 8; i++) {
+        const fieldName = `cat${i}`;
+        const fieldNameEn = `cat${i}en`;
+        const fieldNameRu = `cat${i}ru`;
+        
+    
+        // If checked, req.body[fieldName] now contains the title in the active language
+        // If not checked, we store an empty string
+        cleaned[fieldName] = req.body[fieldName] || ''; 
+        cleaned[fieldNameEn] = req.body[fieldNameEn] || ''; 
+        cleaned[fieldNameRu] = req.body[fieldNameRu] || '';
+      }
 
         // 3. DYNAMIC TRANSLATION LOOKUPS
+        // Removed categoryId from here as it's now handled by cat1-cat8
         const translations = [
             { id: cleaned.birthcountryId, table: 'countries_TBL', field: 'birthcountry' },
             { id: cleaned.genderId, table: 'gender_TBL', field: 'gender' },
@@ -483,7 +488,9 @@ app.get('/addFull', async (req, res) => {
 
         for (const t of translations) {
             if (t.id) {
-                const data = await db.oneOrNone(`SELECT title_heb, title_eng, title_rus FROM "${t.table}" WHERE id = $1`, [t.id]);
+                const data = await db.oneOrNone(
+                    `SELECT title_heb, title_eng, title_rus FROM "${t.table}" WHERE id = $1`, [t.id]
+                );
                 if (data) {
                     cleaned[t.field] = data.title_heb;
                     cleaned[`${t.field}en`] = data.title_eng;
@@ -499,116 +506,202 @@ app.get('/addFull', async (req, res) => {
         cleaned.record_complete_date = cleaned.recordcomplete ? (cleaned.record_complete_date || new Date().toISOString().split('T')[0]) : '';
 
         // 5. DATABASE TRANSACTION
-        await db.tx(async t => {
-            // STEP A: Insert Soldier
-            const query = pgp.helpers.insert(cleaned, csSoldiers) + ' RETURNING id';
-            const { id: soldierId } = await t.one(query);
+await db.tx(async t => {
+    // STEP A: Insert Soldier
+    const query = pgp.helpers.insert(cleaned, csSoldiers) + ' RETURNING id';
+    const { id: soldierId } = await t.one(query);
 
-            // STEP B: Create Folder
-            const folderName = `A${soldierId}`;
-            const targetDir = path.join(PERSISTENT_ROOT, folderName); 
-            if (!fs.existsSync(targetDir)) fs.mkdirSync(targetDir, { recursive: true });
-
-            // STEP C: INSERT BATTLE HISTORY
-            const bh = req.body;
-            if (bh.battleyear && Array.isArray(bh.battleyear)) {
-                for (let i = 0; i < bh.battleyear.length; i++) {
-                    const hasData = bh.battleyear[i] || bh.front[i] || bh.battle[i];
-                    if (!hasData) continue;
-                    await t.none(`INSERT INTO soldier_battle_history (soldier_id, battleyear, front, battle, medal, details, degreerank, job, fronten, battleen, medalen, detailsen, degreeranken, joben, frontru, battleru, medalru, detailsru, degreerankru, jobru) VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11,$12,$13,$14,$15,$16,$17,$18,$19,$20)`, 
-                    [soldierId, bh.battleyear[i] || null, bh.front[i] || null, bh.battle[i] || null, bh.battle_medal[i] || null, bh.battle_details[i] || null, bh.degreerank[i] || null, bh.job[i] || null, bh.fronten[i] || null, bh.battleen[i] || null, bh.battle_medalen[i] || null, bh.battle_detailsen[i] || null, bh.degreeranken[i] || null, bh.joben[i] || null, bh.frontru[i] || null, bh.battleru[i] || null, bh.battle_medalru[i] || null, bh.battle_detailsru[i] || null, bh.degreerankru[i] || null, bh.jobru[i] || null]);
-                }
-            }
-
-          // --- STEP D: HANDLE MULTIMEDIA (ARRAY-BASED LOGIC) ---
-console.log('--- STARTING MULTIMEDIA SAVE ---');
-
-const descriptions = [].concat(req.body.m_description || []);
-const types = [].concat(req.body.m_type || []);
-const locations = [].concat(req.body.physical_logical_location || []);
-// req.files is populated by upload.any()
-const files = req.files || [];
-
-// We loop based on the number of multimedia types submitted
-for (let i = 0; i < types.length; i++) {
-    if (!types[i] && !locations[i] && (!req.files || !req.files.length)) continue;
-    let currentType = (types[i] || '').toString().trim();
-    let desc = (descriptions[i] || '').trim();
-    let userLocation = (locations[i] || '').trim();
+    // STEP B: Create Folder in Persistent Storage
+    const folderName = `A${soldierId}`;
+    // CHANGE: Now pointing to /var/data/soldierUploads/A{id}
+    const targetDir = path.join(PERSISTENT_ROOT, folderName); 
     
-    // Logic to find the specific file for this row index
-    // Since we use upload.any(), we look for 'm_files[]' at index i
-    const rowFiles = files.filter(f => f.fieldname === 'm_files[]');
-    const file = rowFiles[i]; 
-
-    let finalDbPath = null;
-    let finalLocationLabel = '';
-
-    // Determine the Location Label based on type
-    if (currentType.match(/PDF|JPG|תמונה|מסמך|Picture|Document/i)) {
-        finalLocationLabel = 'מחיצת קבצים לקישור';
-    } else if (currentType.includes('קישור') || currentType.toLowerCase().includes('url') || currentType.toLowerCase().includes('link')) {
-        finalLocationLabel = 'URL';
-    } else {
-        finalLocationLabel = userLocation || 'URL'; 
+    if (!fs.existsSync(targetDir)) {
+        fs.mkdirSync(targetDir, { recursive: true });
     }
 
-    if (file) {
-        // --- VALIDATION (Size & Format) ---
-        const MAX_SIZE = 5 * 1024 * 1024; // Upping to 5MB as 1.5MB is very small for modern PDFs
-        if (file.size > MAX_SIZE) {
-            if (fs.existsSync(file.path)) fs.unlinkSync(file.path);
-            throw new Error(`Row ${i + 1}: File too large (Max 5MB).`);
-        }
+    // STEP C: INSERT BATTLE HISTORY (Keep your existing code here...)
+    const bh = req.body;
+    if (bh.battleyear && Array.isArray(bh.battleyear)) {
+        for (let i = 0; i < bh.battleyear.length; i++) {
+            const hasData = bh.battleyear[i] || bh.front[i] || bh.battle[i];
+            if (!hasData) continue;
 
-        const fileName = file.originalname.toLowerCase();
-        const isPicType = /תמונה|picture|фото/i.test(currentType);
-        const isDocType = /מסמך|document|документ|pdf/i.test(currentType);
-
-        if (isPicType && !(fileName.endsWith('.jpg') || fileName.endsWith('.jpeg') || fileName.endsWith('.png'))) {
-            if (fs.existsSync(file.path)) fs.unlinkSync(file.path);
-            throw new Error(`Row ${i + 1}: Pictures must be JPG or PNG.`);
+            await t.none(`
+                INSERT INTO soldier_battle_history
+                (soldier_id, battleyear, front, battle, medal, details, degreerank, job,
+                 fronten, battleen, medalen, detailsen, degreeranken, joben,
+                 frontru, battleru, medalru, detailsru, degreerankru, jobru)
+                VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11,$12,$13,$14,$15,$16,$17,$18,$19,$20)
+            `, [
+                soldierId, bh.battleyear[i] || null, bh.front[i] || null, bh.battle[i] || null,
+                bh.battle_medal[i] || null, bh.battle_details[i] || null, bh.degreerank[i] || null, bh.job[i] || null,
+                bh.fronten[i] || null, bh.battleen[i] || null, bh.battle_medalen[i] || null, bh.battle_detailsen[i] || null,
+                bh.degreeranken[i] || null, bh.joben[i] || null, bh.frontru[i] || null, bh.battleru[i] || null,
+                bh.battle_medalru[i] || null, bh.battle_detailsru[i] || null, bh.degreerankru[i] || null, bh.jobru[i] || null
+            ]);
         }
-        if (isDocType && !fileName.endsWith('.pdf')) {
-            if (fs.existsSync(file.path)) fs.unlinkSync(file.path);
-            throw new Error(`Row ${i + 1}: Documents must be PDF.`);
-        }
-
-        // --- SAVE FILE ---
-        // Using timestamp to avoid filename collisions
-        const safeName = Date.now() + "_" + Buffer.from(file.originalname, 'latin1').toString('utf8').replace(/\s+/g, '_');
-        const finalPath = path.join(targetDir, safeName);
-        
-        fs.renameSync(file.path, finalPath);
-        finalDbPath = `/soldierUploads/${folderName}/${safeName}`;
     }
 
-    // 4. DATABASE INSERT
-    if (finalDbPath || userLocation || desc) {
-        const dbPathToSave = finalDbPath || userLocation || '';
-        
-        await t.none(`
-            INSERT INTO "multimedia_TBL" 
-            (soldier_id, file_description, file_path, multimedia_type, physical_logical_location, is_profile_pic, uploaded_date)
-            VALUES ($1, $2, $3, $4, $5, $6, NOW())
-        `, [
-            soldierId, 
-            desc || 'No Description', 
-            dbPathToSave, 
-            currentType,
-            finalLocationLabel,
-            (i === 0 && finalDbPath !== null) // Automatically make first uploaded file the profile pic
-        ]);
-    }
-}
-        });
+    // STEP D: HANDLE MULTIMEDIA
+    console.log('--- STARTING MULTIMEDIA SAVE ---');
+    const rawDesc = [].concat(req.body['m_description[]'] || req.body.m_description || []);
+    const rawTypes = [].concat(req.body['m_type[]'] || req.body.m_type || []);
+    const rawLocs = [].concat(req.body['physical_logical_location[]'] || req.body.physical_logical_location || []);
+    const mFiles = (req.files && req.files['m_files[]']) ? [].concat(req.files['m_files[]']) : [];
 
+    const maxRows = Math.max(rawDesc.length, rawTypes.length);
+
+    for (let i = 0; i < maxRows; i++) {
+        let finalDbPath = null;
+        let currentType = (rawTypes[i] || '').toString().trim();
+        let userLocation = (rawLocs[i] || '').trim();
+        let finalLocation = '';
+
+        if (currentType.match(/PDF|JPG|תמונה|מסמך/i)) {
+            finalLocation = 'מחיצת קבצים לקישור';
+        } else if (currentType === 'קישור') {
+            finalLocation = 'URL';
+        } else {
+            finalLocation = userLocation || 'URL'; 
+        }
+
+        if (mFiles[i]) {
+            const file = mFiles[i];
+            const decodedFileName = Buffer.from(file.originalname, 'latin1').toString('utf8');
+            const finalPath = path.join(targetDir, decodedFileName);
+            
+            // Move from /temp to the soldier's folder
+            fs.renameSync(file.path, finalPath);
+            
+            // CHANGE: The path saved in DB now matches our new virtual route
+            finalDbPath = `/soldierUploads/${folderName}/${decodedFileName}`;
+        }
+
+        if (finalDbPath || userLocation || rawDesc[i]) {
+            const dbPathToSave = finalDbPath || userLocation || '';
+            await t.none(`
+                INSERT INTO "multimedia_TBL" 
+                (soldier_id, file_description, file_path, multimedia_type, physical_logical_location, is_profile_pic, uploaded_date)
+                VALUES ($1, $2, $3, $4, $5, $6, NOW())
+            `, [
+                soldierId, 
+                rawDesc[i] || 'No Description', 
+                dbPathToSave, 
+                currentType,
+                finalLocation,
+                (i === 0 && finalDbPath !== null)
+            ]);
+        }
+    }
+});
         res.redirect('/?saved=true');
 
     } catch (err) {
         console.error('❌ Error saving record:', err);
         res.status(500).send(`<h1>Error Saving Record</h1><p>${err.message}</p><a href="/addFULL">Back to Form</a>`);
     }
+});
+
+// Route to display the soldier list from soldierdetails
+app.get('/soldierlistSoldier', async (req, res) => {
+  try {
+    console.log(`Fetching soldiers from ${SOLDIER_TABLE}`);
+    
+    // Test database connection
+    const testConnection = await db.one('SELECT 1 as connected');
+    console.log('Database connection test:', testConnection);
+    
+    // List all tables to verify soldierdetails exists
+    const tables = await db.any(`
+      SELECT table_name 
+      FROM information_schema.tables 
+      WHERE table_schema = 'public'
+    `);
+    console.log('Available tables:', tables);
+    
+    // Fetch soldiers
+    const soldiers = await db.any(`SELECT * FROM ${SOLDIER_TABLE}`);
+    console.log(`Retrieved ${soldiers.length} soldiers from database`);
+    
+    // Use text dates directly
+    const formattedSoldiers = soldiers.map(soldier => ({
+      ...soldier,
+      dob: soldier.dob || 'N/A',
+      dod: soldier.dod || 'N/A',
+      aliyadate: soldier.aliyadate || 'N/A'
+    }));
+
+    console.log('Soldiers formatted, rendering view'); 
+    res.render('soldierlistSoldier', { soldiers: formattedSoldiers });
+  } catch (err) {
+    console.error('Error fetching soldiers:', err);
+    res.status(500).send(`
+      <h1>Server Error</h1>
+      <p>Failed to fetch soldiers:</p>
+      <p>${err.message}</p>
+      <pre>${err.stack || 'No stack trace available'}</pre>
+      <a href="/">Return to home</a>
+    `);
+  }
+});
+
+// Route to display the full soldier list from soldierdetails
+app.get('/soldierlistFULL', async (req, res) => {
+  try {
+    const soldiers = await db.any(`SELECT * FROM ${SOLDIER_TABLE}`);
+
+    // Sort soldiers by last name and then by first name
+    soldiers.sort((a, b) => {
+      const lnameA = a.lname || '';
+      const lnameB = b.lname || '';
+      const fnameA = a.fname || '';
+      const fnameB = b.fname || '';
+      return lnameA === lnameB ? fnameA.localeCompare(fnameB) : lnameA.localeCompare(lnameB);
+    });
+
+    // Use text dates directly
+    const formattedSoldiers = soldiers.map(soldier => ({
+      ...soldier,
+      dob: soldier.dob || 'N/A',
+      dod: soldier.dod || 'N/A',
+      aliyadate: soldier.aliyadate || 'N/A'
+    }));
+
+    console.log('Soldiers fetched:', formattedSoldiers);
+    res.render('soldierlistFULL', { soldiers: formattedSoldiers });
+  } catch (err) {
+    console.error('Error fetching soldiers:', err);
+    res.status(500).send(`
+      <h1>Server Error at soldierlistFULL</h1>
+      <p>Message: ${err.message}</p>
+      <pre>${err.stack}</pre>
+    `);
+  }
+});
+// ✅ Show soldier detail + battle form
+app.get('/soldiers/:id/battles', async (req, res) => {
+  const { id } = req.params;
+  try {
+    const soldierResult = await db.one('SELECT * FROM soldierdetails WHERE id = $1', [id]);
+    const battlesResult = await db.manyOrNone(
+      'SELECT * FROM soldier_battle_history WHERE soldier_id = $1 ORDER BY id',
+      [id]
+    );
+
+    res.render('battles', {
+      soldier: soldierResult,
+      existingBattles: battlesResult,
+      locale: 'en',
+      __: (key) => key, // simple placeholder
+    });
+  } catch (err) {
+    if (err.name === 'QueryResultError' && err.code === 0) {
+      return res.status(404).send('Soldier not found');
+    }
+    console.error('Error fetching battles:', err);
+    res.status(500).send('Server error');
+  }
 });
 
 // ✅ Add multiple battles
@@ -759,12 +852,10 @@ app.get('/searchByEmail', async (req, res) => {
     }));
 
     res.render('searchResults', {
-    
-     soldiers: formattedSoldiers,
+      soldiers: formattedSoldiers,
       locale,
       lang,
       useremail
-      
     });
 
     console.log(`Email search results for: ${useremail}`);
@@ -781,7 +872,6 @@ app.get('/search', (req, res) => {
   const locale = req.getLocale();
 
   res.render('search', {
-    req,
     locale,
     firstname: '',
     lastname: '',
@@ -802,7 +892,6 @@ app.get('/searchResults', async (req, res) => {
 
   if (!useremail || !emailRegex.test(useremail)) {
     return res.render('search', {
-     req, 
       locale,
       firstname,
       lastname,
@@ -848,8 +937,7 @@ app.get('/searchResults', async (req, res) => {
       lang,
       firstname,
       lastname,
-      useremail,
-      req
+      useremail
     });
   } catch (err) {
     console.error('Error fetching search results:', err);
@@ -922,7 +1010,7 @@ app.get('/updateSoldier/:id', async (req, res) => {
       participation,
       battleHistory,
       enlistreason,
-      multimedia_types: mTypes,
+      multimedia_type_TBL: mTypes,
       multimedia: multimediaList,
       locale, // Added: your EJS needs this to pick the right column to show
       isAdmin, // <--- PASS THIS TO THE EJS
@@ -934,333 +1022,513 @@ app.get('/updateSoldier/:id', async (req, res) => {
   }
 });
 // Route to handle form submission for updating a soldier
-app.post('/updateSoldier/:id', upload.any(), async (req, res) => {
-    // --- ADD THESE LINES HERE ---
-    console.log("========================================");
-    console.log("1. RECEIVED REQ.BODY:", JSON.stringify(req.body, null, 2));
-    console.log("2. RECEIVED REQ.FILES:", req.files);
-    console.log("========================================");
+
+app.post('/updateSoldier/:id', multiUpload, async (req, res) => {
+  const soldierId = req.params.id; 
     const { id } = req.params;
-    const soldierId = id; 
-    const isAdmin = !!(req.session && req.session.isAdmin);
-
-    console.log("========================================");
-    console.log(`POST update for ID: ${id} | isAdmin: ${isAdmin}`);
-  
-
+    const adminemail = req.body.adminemail || req.query.adminemail;
+    const getField = (name) => {
+        return req.body[name + '[]'] || req.body[name] || [];
+    };
     try {
-        // 1. Fetch existing data to compare for changes
         const existingSoldier = await db.oneOrNone(`SELECT * FROM ${SOLDIER_TABLE} WHERE id = $1`, [id]);
         if (!existingSoldier) return res.status(404).send('Soldier not found');
+      // --- NEW LOOKUP LOGIC FOR COUNTRY ---
+    let birthcountry = existingSoldier.birthcountry;
+    let birthcountryen = existingSoldier.birthcountryen;
+    let birthcountryru = existingSoldier.birthcountryru;
 
-        // --- LOOKUP LOGIC (Country, Corps, Partizan, Army, etc.) ---
-        let { birthcountry, birthcountryen, birthcountryru } = existingSoldier;
-        if (req.body.birthcountry) {
-            const row = await db.oneOrNone('SELECT title_heb, title_eng, title_rus FROM "countries_TBL" WHERE id = $1', [req.body.birthcountry]);
-            if (row) { birthcountry = row.title_heb; birthcountryen = row.title_eng; birthcountryru = row.title_rus; }
-        }
+    const selectedCountryId = req.body.birthcountry; // This comes from the <select> value
 
-        let { corps, corpsen, corpsru } = existingSoldier;
-        if (req.body.corps) {
-            const row = await db.oneOrNone('SELECT title_heb, title_eng, title_rus FROM "corps_TBL" WHERE id = $1', [req.body.corps]);
-            if (row) { corps = row.title_heb; corpsen = row.title_eng; corpsru = row.title_rus; }
-        }
+    if (selectedCountryId) {
+      // Fetch the full row from the countries table
+      const countryRow = await db.oneOrNone(
+        'SELECT title_heb, title_eng, title_rus FROM "countries_TBL" WHERE id = $1', 
+        [selectedCountryId]
+      );
 
-        let { partizan, partizanen, partizanru } = existingSoldier;
-        if (req.body.partizan) {
-            const row = await db.oneOrNone('SELECT title_heb, title_eng, title_rus FROM "partizan_TBL" WHERE id = $1', [req.body.partizan]);
-            if (row) { partizan = row.title_heb; partizanen = row.title_eng; partizanru = row.title_rus; }
-        }
+      if (countryRow) {
+        birthcountry = countryRow.title_heb;
+        birthcountryen = countryRow.title_eng;
+        birthcountryru = countryRow.title_rus;
+      }
+    }
+    // ------------------------------------
+    // --- CORPS LOOKUP ---
+let corps = existingSoldier.corps;
+let corpsen = existingSoldier.corpsen;
+let corpsru = existingSoldier.corpsru;
 
-        let { army, armyen, armyru } = existingSoldier;
-        if (req.body.army) {
-            const row = await db.oneOrNone('SELECT title_heb, title_eng, title_rus FROM "army_TBL" WHERE id = $1', [req.body.army]);
-            if (row) { army = row.title_heb; armyen = row.title_eng; armyru = row.title_rus; }
-        }
+if (req.body.corps) {
+  const corpsRow = await db.oneOrNone(
+    'SELECT title_heb, title_eng, title_rus FROM "corps_TBL" WHERE id = $1', 
+    [req.body.corps]
+  );
+  if (corpsRow) {
+    corps = corpsRow.title_heb;
+    corpsen = corpsRow.title_eng;
+    corpsru = corpsRow.title_rus;
+  }
+}
 
-        let { resistance, resistanceen, resistanceru } = existingSoldier;
-        if (req.body.resistance) {
-            const row = await db.oneOrNone('SELECT title_heb, title_eng, title_rus FROM "resistance_TBL" WHERE id = $1', [req.body.resistance]);
-            if (row) { resistance = row.title_heb; resistanceen = row.title_eng; resistanceru = row.title_rus; }
-        }
+// --- PARTIZAN LOOKUP ---
+let partizan = existingSoldier.partizan;
+let partizanen = existingSoldier.partizanen;
+let partizanru = existingSoldier.partizanru;
 
-        let { participation, participationen, participationru } = existingSoldier;
-        if (req.body.participation) {
-            const row = await db.oneOrNone('SELECT title_heb, title_eng, title_rus FROM "participation_TBL" WHERE id = $1', [req.body.participation]);
-            if (row) { participation = row.title_heb; participationen = row.title_eng; participationru = row.title_rus; }
-        }
+if (req.body.partizan) {
+  const partizanRow = await db.oneOrNone(
+    'SELECT title_heb, title_eng, title_rus FROM "partizan_TBL" WHERE id = $1', 
+    [req.body.partizan]
+  );
+  if (partizanRow) {
+    partizan = partizanRow.title_heb;
+    partizanen = partizanRow.title_eng;
+    partizanru = partizanRow.title_rus;
+  }
+}
 
-        let { gender, genderen, genderru } = existingSoldier;
-        if (req.body.gender) {
-            const row = await db.oneOrNone('SELECT title_heb, title_eng, title_rus FROM "gender_TBL" WHERE id = $1', [req.body.gender]);
-            if (row) { gender = row.title_heb; genderen = row.title_eng; genderru = row.title_rus; }
-        }
+// --- CATEGORY LOOKUP ---
+/*let category = existingSoldier.category;
+let categoryen = existingSoldier.categoryen;
+let categoryru = existingSoldier.categoryru;
 
-        let { enlistreason, enlistreasonen, enlistreasonru } = existingSoldier;
-        if (req.body.enlistreason) {
-            const row = await db.oneOrNone('SELECT title_heb, title_eng, title_rus FROM "enlistreason_TBL" WHERE id = $1', [req.body.enlistreason]);
-            if (row) { enlistreason = row.title_heb; enlistreasonen = row.title_eng; enlistreasonru = row.title_rus; }
-        }
+if (req.body.category) {
+  const categoryRow = await db.oneOrNone(
+    'SELECT title_heb, title_eng, title_rus FROM "category_TBL" WHERE id = $1', 
+    [req.body.category]
+  );
+  if (categoryRow) {
+    category = categoryRow.title_heb;
+    categoryen = categoryRow.title_eng;
+    categoryru = categoryRow.title_rus;
+  }
+}*/
+// --- CATEGORY CHECKBOXES LOOKUP ---
+// We loop through 1-8. If it exists in req.body, use it. 
+// If not, it's unchecked, so we use an empty string.
+const categoryCheckboxes = {};
+for (let i = 1; i <= 8; i++) {
+    const key = `cat${i}`;
+    categoryCheckboxes[key] = req.body[key] || ''; 
+}
+// --- ARMY LOOKUP ---
+let army = existingSoldier.army;
+let armyen = existingSoldier.armyen;
+let armyru = existingSoldier.armyru;
 
-        // --- CATEGORY CHECKBOXES ---
-        const catUpdate = {};
-        for (let i = 1; i <= 8; i++) {
-            catUpdate[`cat${i}`] = req.body[`cat${i}`] || ''; 
-            catUpdate[`cat${i}en`] = req.body[`cat${i}en`] || ''; 
-            catUpdate[`cat${i}ru`] = req.body[`cat${i}ru`] || ''; 
-        }
+if (req.body.army) {
+  const armyRow = await db.oneOrNone(
+    'SELECT title_heb, title_eng, title_rus FROM "army_TBL" WHERE id = $1', 
+    [req.body.army]
+  );
+  if (armyRow) {
+    army = armyRow.title_heb;
+    armyen = armyRow.title_eng;
+    armyru = armyRow.title_rus;
+  }
+}
 
-        // --- BOOLEANS & DATES ---
-        const isCheckingComplete = req.body.recordcomplete === 'true' || req.body.recordcomplete === 'on';
-        let record_complete_boolean = existingSoldier.recordcomplete; 
-        let record_complete_date = existingSoldier.record_complete_date;
+// --- RESISTANCE LOOKUP ---
+let resistance = existingSoldier.resistance;
+let resistanceen = existingSoldier.resistanceen;
+let resistanceru = existingSoldier.resistanceru;
 
-        if (isCheckingComplete && !existingSoldier.recordcomplete) {
-            const today = new Date();
-            const dd = String(today.getDate()).padStart(2, '0');
-            const mm = String(today.getMonth() + 1).padStart(2, '0');
-            const yyyy = today.getFullYear();
-            record_complete_date = `${dd}-${mm}-${yyyy}`;
-            record_complete_boolean = true; 
-        }
+if (req.body.resistance) {
+  const resRow = await db.oneOrNone(
+    'SELECT title_heb, title_eng, title_rus FROM "resistance_TBL" WHERE id = $1', 
+    [req.body.resistance]
+  );
+  if (resRow) {
+    resistance = resRow.title_heb;
+    resistanceen = resRow.title_eng;
+    resistanceru = resRow.title_rus;
+  }
+}
 
-        // --- PREPARE UPDATE DATA ---
-        const inputData = {
-            fname: req.body.fname || existingSoldier.fname,
-            fnameen: req.body.fnameen || existingSoldier.fnameen,
-            fnameru: req.body.fnameru || existingSoldier.fnameru,
-            lname: req.body.lname || existingSoldier.lname,
-            lnameen: req.body.lnameen || existingSoldier.lnameen,
-            lnameru: req.body.lnameru || existingSoldier.lnameru,
-            previouslname: req.body.previouslname || existingSoldier.previouslname,
-            previouslnameen: req.body.previouslnameen || existingSoldier.previouslnameen,
-            previouslnameru: req.body.previouslnameru || existingSoldier.previouslnameru,
-            fathername: req.body.fathername || existingSoldier.fathername,
-            fathernameen: req.body.fathernameen || existingSoldier.fathernameen,
-            fathernameru: req.body.fathernameru || existingSoldier.fathernameru,
-            mothername: req.body.mothername || existingSoldier.mothername,
-            mothernameen: req.body.mothernameen || existingSoldier.mothernameen,
-            mothernameru: req.body.mothernameru || existingSoldier.mothernameru,
-            calledby: req.body.calledby || existingSoldier.calledby,
-            calledbyen: req.body.calledbyen || existingSoldier.calledbyen,
-            calledbyru: req.body.calledbyru || existingSoldier.calledbyru,
-            birthcountry, birthcountryen, birthcountryru,
-            birthcity: req.body.birthcity || existingSoldier.birthcity,
-            birthcityen: req.body.birthcityen || existingSoldier.birthcityen,
-            birthcityru: req.body.birthcityru || existingSoldier.birthcityru,
-            state: req.body.state || existingSoldier.state,
-            stateen: req.body.stateen || existingSoldier.stateen,
-            stateru: req.body.stateru || existingSoldier.stateru,
-            gender, genderen, genderru,
-            placeofdeath: req.body.placeofdeath || existingSoldier.placeofdeath,
-            placeofdeathen: req.body.placeofdeathen || existingSoldier.placeofdeathen,
-            placeofdeathru: req.body.placeofdeathru || existingSoldier.placeofdeathru,
-            deathdetails: req.body.deathdetails || existingSoldier.deathdetails,
-            deathdetailsen: req.body.deathdetailsen || existingSoldier.deathdetailsen,
-            deathdetailsru: req.body.deathdetailsru || existingSoldier.deathdetailsru,
-            biography: req.body.biography || existingSoldier.biography,
-            otherparticipation: req.body.otherparticipation || existingSoldier.otherparticipation,
-            otherparticipationen: req.body.otherparticipationen || existingSoldier.otherparticipationen,
-            otherparticipationru: req.body.otherparticipationru || existingSoldier.otherparticipationru,
-            otherdecoration: req.body.otherdecoration || existingSoldier.otherdecoration,
-            otherdecorationen: req.body.otherdecorationen || existingSoldier.otherdecorationen,
-            otherdecorationru: req.body.otherdecorationru || existingSoldier.otherdecorationru,
-            fightingdesc: req.body.fightingdesc || existingSoldier.fightingdesc,
-            shortdesc: req.body.shortdesc || existingSoldier.shortdesc,
-            armyrole: req.body.armyrole || existingSoldier.armyrole,
-            armyroleen: req.body.armyroleen || existingSoldier.armyroleen,
-            armyroleru: req.body.armyroleru || existingSoldier.armyroleru,
-            rank: req.body.rank || existingSoldier.rank,
-            ranken: req.body.ranken || existingSoldier.ranken,
-            rankru: req.body.rankru || existingSoldier.rankru,
-            enlistreason, enlistreasonen, enlistreasonru,
-            platoonname: req.body.platoonname || existingSoldier.platoonname,
-            platoonnameen: req.body.platoonnameen || existingSoldier.platoonnameen,
-            platoonnameru: req.body.platoonnameru || existingSoldier.platoonnameru,
-            wounddetails: req.body.wounddetails || existingSoldier.wounddetails,
-            wounddetailsen: req.body.wounddetailsen || existingSoldier.wounddetailsen,
-            wounddetailsru: req.body.wounddetailsru || existingSoldier.wounddetailsru,
-            gettodesc: req.body.gettodesc || existingSoldier.gettodesc,
-            gettodescen: req.body.gettodescen || existingSoldier.gettodescen,
-            gettodescru: req.body.gettodescru || existingSoldier.gettodescru,
-            otherfightingcontext: req.body.otherfightingcontext || existingSoldier.otherfightingcontext,
-            otherfightingcontexten: req.body.otherfightingcontexten || existingSoldier.otherfightingcontexten,
-            otherfightingcontextru: req.body.otherfightingcontextru || existingSoldier.otherfightingcontextru,
-            armyid: req.body.armyid || existingSoldier.armyid,
-            dob: req.body.dob || existingSoldier.dob,
-            dod: req.body.dod || existingSoldier.dod,
-            aliyadate: req.body.aliyadate || existingSoldier.aliyadate,
-            title: req.body.title || existingSoldier.title,
-            titleen: req.body.titleen || existingSoldier.titleen,
-            titleru: req.body.titleru || existingSoldier.titleru,
-            linkurl: req.body.linkurl || existingSoldier.linkurl,
-            useremail: req.body.useremail && req.body.useremail.trim() !== '' ? req.body.useremail : existingSoldier.useremail,
-            corps, corpsen, corpsru,
-            partizan, partizanen, partizanru,
-            ...catUpdate,
-            army, armyen, armyru,
-            resistance, resistanceen, resistanceru,
-            participation, participationen, participationru,  
-            recordcomplete: record_complete_boolean,
-            record_complete_date,
-            uprising_participant: req.body.uprising_participant === 'on' || req.body.uprising_participant === 'true' || existingSoldier.uprising_participant
-        };
+// --- PARTICIPATION LOOKUP ---
+let participation = existingSoldier.participation;
+let participationen = existingSoldier.participationen;
+let participationru = existingSoldier.participationru;
+
+if (req.body.participation) {
+  const partRow = await db.oneOrNone(
+    'SELECT title_heb, title_eng, title_rus FROM "participation_TBL" WHERE id = $1', 
+    [req.body.participation]
+  );
+  if (partRow) {
+    participation = partRow.title_heb;
+    participationen = partRow.title_eng;
+    participationru = partRow.title_rus;
+  }
+}
+// --- GENDER LOOKUP ---
+let gender = existingSoldier.gender;
+let genderen = existingSoldier.genderen;
+let genderru = existingSoldier.genderru;
+
+if (req.body.gender) {
+  const genderRow = await db.oneOrNone(
+    'SELECT title_heb, title_eng, title_rus FROM "gender_TBL" WHERE id = $1', 
+    [req.body.gender]
+  );
+  if (genderRow) {
+    gender = genderRow.title_heb;
+    genderen = genderRow.title_eng;
+    genderru = genderRow.title_rus;
+  }
+}
+// --- ENLIST REASON LOOKUP ---
+let enlistreason = existingSoldier.enlistreason;
+let enlistreasonen = existingSoldier.enlistreasonen;
+let enlistreasonru = existingSoldier.enlistreasonru;
+
+if (req.body.enlistreason) {
+  const enlistRow = await db.oneOrNone(
+    'SELECT title_heb, title_eng, title_rus FROM "enlistreason_TBL" WHERE id = $1', 
+    [req.body.enlistreason]
+  );
+  if (enlistRow) {
+    enlistreason = enlistRow.title_heb;
+    enlistreasonen = enlistRow.title_eng;
+    enlistreasonru = enlistRow.title_rus;
+  }
+}
+        // Extract array fields
+        const {
+            battleId = [], battleyear = [], front = [], fronten = [], frontru = [],
+            battle = [], battleen = [], battleru = [], battle_medal = [],
+            battle_medalen = [], battle_medalru = [], battle_details = [],
+            battle_detailsen = [], battle_detailsru = [], degreerank = [],
+            degreeranken = [], degreerankru = [], job = [], joben = [], jobru = []
+        } = req.body;
+
+     //Record complete date
+    // Boolean fields
+    // 1. Capture the form input
+const isCheckingComplete = req.body.recordcomplete === 'true' || req.body.recordcomplete === 'on';
+const uprising_participant = req.body.uprising_participant === 'true' || req.body.uprising_participant === 'on';
+
+// 2. Use LET so these variables can be updated
+let record_complete_boolean = existingSoldier.recordcomplete; 
+let record_complete_date = existingSoldier.record_complete_date;
+
+// 3. Update if the user checked the box
+if (isCheckingComplete) {
+    const today = new Date();
+    const dd = String(today.getDate()).padStart(2, '0');
+    const mm = String(today.getMonth() + 1).padStart(2, '0');
+    const yyyy = today.getFullYear();
+    
+    // Set format to dd-mm-yyyy
+    record_complete_date = `${dd}-${mm}-${yyyy}`;
+    
+    // Use actual boolean true, not the string 'true'
+    record_complete_boolean = true; 
+}
+    // --- Updated Category Logic for all 3 languages ---
+const catUpdate = {};
+for (let i = 1; i <= 8; i++) {
+    const base = `cat${i}`;
+    const baseEn = `cat${i}en`;
+    const baseRu = `cat${i}ru`;
+
+    // Grabbing the hidden fields from req.body (populated by the JS sync function)
+    catUpdate[base] = req.body[base] || ''; 
+    catUpdate[baseEn] = req.body[baseEn] || ''; 
+    catUpdate[baseRu] = req.body[baseRu] || ''; 
+}
+// --- DIAGNOSTIC LOG ---
+console.log('--- Category Update Sync Check ---');
+for (let i = 1; i <= 8; i++) {
+    if (req.body[`cat${i}`]) {
+        console.log(`Row ${i}: HE: ${req.body['cat'+i]}, EN: ${req.body['cat'+i+'en']}, RU: ${req.body['cat'+i+'ru']}`);
+    }
+}
+       // Main input object
+         const inputData = {
+      fname: req.body.fname || existingSoldier.fname,
+      fnameen: req.body.fnameen || existingSoldier.fnameen,
+      fnameru: req.body.fnameru || existingSoldier.fnameru,
+      lname: req.body.lname || existingSoldier.lname,
+      lnameen: req.body.lnameen || existingSoldier.lnameen,
+      lnameru: req.body.lnameru || existingSoldier.lnameru,
+      previouslname: req.body.previouslname || existingSoldier.previouslname,
+      previouslnameen: req.body.previouslnameen || existingSoldier.previouslnameen,
+      previouslnameru: req.body.previouslnameru || existingSoldier.previouslnameru,
+      fathername: req.body.fathername || existingSoldier.fathername,
+      fathernameen: req.body.fathernameen || existingSoldier.fathernameen,
+      fathernameru: req.body.fathernameru || existingSoldier.fathernameru,
+      mothername: req.body.mothername || existingSoldier.mothername,
+      mothernameen: req.body.mothernameen || existingSoldier.mothernameen,
+      mothernameru: req.body.mothernameru || existingSoldier.mothernameru,
+      calledby: req.body.calledby || existingSoldier.calledby,
+      calledbyen: req.body.calledbyen || existingSoldier.calledbyen,
+      calledbyru: req.body.calledbyru || existingSoldier.calledbyru,
+      //birthcountry: req.body.birthcountry || existingSoldier.birthcountry,
+      birthcountry,
+      birthcountryen,
+      birthcountryru,
+        
+      birthcity: req.body.birthcity || existingSoldier.birthcity,
+      birthcityen: req.body.birthcityen || existingSoldier.birthcityen,
+      birthcityru: req.body.birthcityru || existingSoldier.birthcityru,
+      state: req.body.state || existingSoldier.state,
+      stateen: req.body.stateen || existingSoldier.stateen,
+      stateru: req.body.stateru || existingSoldier.stateru,
+      gender, genderen, genderru,
+      placeofdeath: req.body.placeofdeath || existingSoldier.placeofdeath,
+      placeofdeathen: req.body.placeofdeathen || existingSoldier.placeofdeathen,
+      placeofdeathru: req.body.placeofdeathru || existingSoldier.placeofdeathru,
+      deathdetails: req.body.deathdetails || existingSoldier.deathdetails,
+      deathdetailsen: req.body.deathdetailsen || existingSoldier.deathdetailsen,
+      deathdetailsru: req.body.deathdetailsru || existingSoldier.deathdetailsru,
+      biography: req.body.biography || existingSoldier.biography,
+      
+      otherparticipation: req.body.otherparticipation || existingSoldier.otherparticipation,
+      otherparticipationen: req.body.otherparticipationen || existingSoldier.otherparticipationen,
+      otherparticipationru: req.body.otherparticipationru || existingSoldier.otherparticipationru,
+      otherdecoration: req.body.otherdecoration || existingSoldier.otherdecoration,
+      otherdecorationen: req.body.otherdecorationen || existingSoldier.otherdecorationen,
+      otherdecorationru: req.body.otherdecorationru || existingSoldier.otherdecorationru,
+      fightingdesc: req.body.fightingdesc || existingSoldier.fightingdesc,
+      shortdesc: req.body.shortdesc || existingSoldier.shortdesc,
+      armyrole: req.body.armyrole || existingSoldier.armyrole,
+      armyroleen: req.body.armyroleen || existingSoldier.armyroleen,
+      armyroleru: req.body.armyroleru || existingSoldier.armyroleru,
+      rank: req.body.rank || existingSoldier.rank,
+      ranken: req.body.ranken || existingSoldier.ranken,
+      rankru: req.body.rankru || existingSoldier.rankru,
+      
+      enlistreason, enlistreasonen, enlistreasonru,
+      platoonname: req.body.platoonname || existingSoldier.platoonname,
+      platoonnameen: req.body.platoonnameen || existingSoldier.platoonnameen,
+      platoonnameru: req.body.platoonnameru || existingSoldier.platoonnameru,
+      wounddetails: req.body.wounddetails || existingSoldier.wounddetails,
+      wounddetailsen: req.body.wounddetailsen || existingSoldier.wounddetailsen,
+      wounddetailsru: req.body.wounddetailsru || existingSoldier.wounddetailsru,
+      gettodesc: req.body.gettodesc || existingSoldier.gettodesc,
+      gettodescen: req.body.gettodescen || existingSoldier.gettodescen,
+      gettodescru: req.body.gettodescru || existingSoldier.gettodescru,
+      otherfightingcontext: req.body.otherfightingcontext || existingSoldier.otherfightingcontext,
+      otherfightingcontexten: req.body.otherfightingcontexten || existingSoldier.otherfightingcontexten,
+      otherfightingcontextru: req.body.otherfightingcontextru || existingSoldier.otherfightingcontextru,
+      armyid: req.body.armyid || existingSoldier.armyid,
+     
+      dob: req.body.dob || existingSoldier.dob,
+      dod: req.body.dod || existingSoldier.dod,
+      aliyadate: req.body.aliyadate || existingSoldier.aliyadate,
+      
+      title: req.body.title || existingSoldier.title,
+      titleen: req.body.titleen || existingSoldier.titleen,
+      titleru: req.body.titleru || existingSoldier.titleru,
+      linkurl: req.body.linkurl || existingSoldier.linkurl,
+      useremail: req.body.useremail && req.body.useremail.trim() !== '' ? req.body.useremail : existingSoldier.useremail,
+      corps, corpsen, corpsru,
+      partizan, partizanen, partizanru,
+      //category, categoryen, categoryru,
+      /*cat1: catUpdate.cat1,
+      cat2: catUpdate.cat2,
+      cat3: catUpdate.cat3,
+      cat4: catUpdate.cat4,
+      cat5: catUpdate.cat5,
+      cat6: catUpdate.cat6,
+      cat7: catUpdate.cat7,
+      cat8: catUpdate.cat8,*/
+      ...catUpdate, // This magic line injects all 24 cat fields into inputData automatically
+      army, armyen, armyru,
+      resistance, resistanceen, resistanceru,
+      participation, participationen, participationru,  
+      recordcomplete: record_complete_boolean,
+      
+      record_complete_date,
+      uprising_participant: req.body.uprising_participant === 'on' || existingSoldier.uprising_participant
+
+    };
 
         const updates = [];
         const values = [];
         let i = 1;
 
+        const dateFields = [
+            'dob', 'dod', 'aliyadate', 
+            'record_complete_date', 'admin_approved_date', 'downloaded_date'
+        ];
+
         for (const key in inputData) {
-            if (String(inputData[key]) !== String(existingSoldier[key])) {
+            let newValue = inputData[key] === '' ? null : inputData[key];
+            let oldValue = existingSoldier[key] === '' ? null : existingSoldier[key];
+
+            let same;
+            if (dateFields.includes(key)) {
+                same = normalizeDateToDDMMYYYY(newValue) === normalizeDateToDDMMYYYY(oldValue);
+            } else if (typeof newValue === 'boolean') {
+                same = newValue === oldValue;
+            } else {
+                same = String(newValue) === String(oldValue);
+            }
+
+            if (!same) {
                 updates.push(`"${key}" = $${i}`);
-                values.push(inputData[key] === '' ? null : inputData[key]);
+                values.push(newValue);
                 i++;
             }
         }
-        // 1. Get the current count of records in the DB
-const currentDbCountRow = await db.one('SELECT COUNT(*) FROM "multimedia_TBL" WHERE soldier_id = $1', [id]);
-const currentDbCount = parseInt(currentDbCountRow.count);
 
-// 2. Determine how many we are about to delete
-const deleteIds = Array.isArray(req.body.delete_multimedia) ? req.body.delete_multimedia : (req.body.delete_multimedia ? [req.body.delete_multimedia] : []);
-const deleteCount = deleteIds.length;
-
-// 3. Determine how many NEW ones are being uploaded
-const m_descriptions = Array.isArray(req.body.m_description) ? req.body.m_description : (req.body.m_description ? [req.body.m_description] : []);
-// We only count rows that have either a file OR a URL
-const multimediaFiles = req.files ? req.files.filter(f => f.fieldname === 'm_files[]') : [];
-const m_locations = Array.isArray(req.body.physical_logical_location) ? req.body.physical_logical_location : [];
-
-let newUploadCount = 0;
-let filePointer = 0; // To track files as we loop through rows
-
-for (let k = 0; k < m_descriptions.length; k++) {
-    const type = Array.isArray(req.body.m_type) ? req.body.m_type[k] : req.body.m_type;
-    const isUrlType = /link|קישור|url|ссылка/i.test(type || "");
-    
-    const hasUrl = m_locations[k] && m_locations[k].trim() !== "";
-    const hasFile = !isUrlType && multimediaFiles[filePointer]; // Check the file buffer
-    
-    // If the row has a file or a URL, it's a valid new record
-    if (hasFile || hasUrl) {
-        newUploadCount++;
-        if (hasFile) filePointer++; // Increment pointer only if a file was used
-    }
-}
-// 4. Final Calculation
-const totalAfterUpdate = (currentDbCount - deleteCount) + newUploadCount;
-
-if (totalAfterUpdate > 12) {
-    throw new Error(`Total multimedia items exceed the limit of 12 (Current: ${currentDbCount}, New: ${newUploadCount}, Deleting: ${deleteCount}).`);
-}
-        // --- START TRANSACTION ---
-    await db.tx(async t => {
-    if (updates.length > 0) {
-        const updateSQL = `UPDATE ${SOLDIER_TABLE} SET ${updates.join(', ')} WHERE id = $${i}`;
-        values.push(id);
-        await t.none(updateSQL, values);
-    }
-
-    // 1. --- DELETE SELECTED MULTIMEDIA ---
-    const deleteIds = Array.isArray(req.body.delete_multimedia) ? req.body.delete_multimedia : (req.body.delete_multimedia ? [req.body.delete_multimedia] : []);
-    if (deleteIds.length > 0) {
-        // Fetch paths first to delete actual files from disk
-        const filesToDelete = await t.any('SELECT file_path FROM "multimedia_TBL" WHERE id IN ($1:list)', [deleteIds]);
-        for (const f of filesToDelete) {
-            if (f.file_path && !f.file_path.startsWith('http')) {
-                const fullPath = path.join(process.cwd(), 'public', f.file_path);
-                if (fs.existsSync(fullPath)) fs.unlinkSync(fullPath);
+        await db.tx(async t => {
+            if (updates.length > 0) {
+                const updateSQL = `UPDATE ${SOLDIER_TABLE} SET ${updates.join(', ')} WHERE id = $${i}`;
+                values.push(id);
+                await t.none(updateSQL, values);
             }
-        }
-        await t.none('DELETE FROM "multimedia_TBL" WHERE id IN ($1:list)', [deleteIds]);
-    }
 
-    // 2. --- BATTLE HISTORY (Keep your existing battle logic here) ---
-    // ... (Your battleId loop code) ...
+            // --- Battle History ---
+            for (let j = 0; j < battleyear.length; j++) {
+                const hasContent =
+                    (battleyear[j] && battleyear[j].trim() !== '') ||
+                    (front[j] && front[j].trim() !== '') ||
+                    (battle[j] && battle[j].trim() !== '');
 
-   // --- NEW MULTIMEDIA UPLOAD (Optimized for upload.any() and [] notation) ---
-// 3. --- NEW MULTIMEDIA UPLOAD (Optimized for your Terminal Data) ---
-        const m_descriptions = Array.isArray(req.body.m_description) 
-            ? req.body.m_description 
-            : (req.body.m_description ? [req.body.m_description] : []);
-
-        const m_types = Array.isArray(req.body.m_type) 
-            ? req.body.m_type 
-            : (req.body.m_type ? [req.body.m_type] : []);
-
-        const m_locations = Array.isArray(req.body.physical_logical_location) 
-            ? req.body.physical_logical_location 
-            : (req.body.physical_logical_location ? [req.body.physical_logical_location] : []);
-
-        // Filter files specifically for 'm_files[]' as seen in your terminal
-        const multimediaFiles = req.files ? req.files.filter(f => f.fieldname === 'm_files[]') : [];
-        let filePointer = 0;
-
-        for (let j = 0; j < m_descriptions.length; j++) {
-            const desc = m_descriptions[j].trim();
-            const type = m_types[j];
-            const loc = m_locations[j] ? m_locations[j].trim() : null;
-
-            // Determine if this row is a URL/Link type
-            const isUrlType = /link|קישור|url|ссылка/i.test(type || "");
-            let finalDbPath = null;
-            let currentFile = null;
-
-            // If not a URL, pull the next file from the buffer
-            if (!isUrlType && multimediaFiles[filePointer]) {
-                currentFile = multimediaFiles[filePointer];
-                filePointer++; 
+                if (hasContent) {
+                    if (battleId[j]) {
+                        await t.none(
+                            `UPDATE soldier_battle_history
+                             SET battleyear=$1,
+                                 front=$2, fronten=$3, frontru=$4,
+                                 battle=$5, battleen=$6, battleru=$7,
+                                 medal=$8, medalen=$9, medalru=$10,
+                                 details=$11, detailsen=$12, detailsru=$13,
+                                 degreerank=$14, degreeranken=$15, degreerankru=$16,
+                                 job=$17, joben=$18, jobru=$19,
+                                 updated_at=NOW()
+                             WHERE id=$20 AND soldier_id=$21`,
+                            [
+                                battleyear[j] || null,
+                                front[j] || null, fronten[j] || null, frontru[j] || null,
+                                battle[j] || null, battleen[j] || null, battleru[j] || null,
+                                battle_medal[j] || null, battle_medalen[j] || null, battle_medalru[j] || null,
+                                battle_details[j] || null, battle_detailsen[j] || null, battle_detailsru[j] || null,
+                                degreerank[j] || null, degreeranken[j] || null, degreerankru[j] || null,
+                                job[j] || null, joben[j] || null, jobru[j] || null,
+                                battleId[j], id
+                            ]
+                        );
+                    } else {
+                        await t.none(
+                            `INSERT INTO soldier_battle_history (
+                                 soldier_id, battleyear,
+                                 front, fronten, frontru,
+                                 battle, battleen, battleru,
+                                 medal, medalen, medalru,
+                                 details, detailsen, detailsru,
+                                 degreerank, degreeranken, degreerankru,
+                                 job, joben, jobru
+                               ) VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11,$12,$13,$14,$15,$16,$17,$18,$19,$20)`,
+                            [
+                                id,
+                                battleyear[j] || null,
+                                front[j] || null, fronten[j] || null, frontru[j] || null,
+                                battle[j] || null, battleen[j] || null, battleru[j] || null,
+                                battle_medal[j] || null, battle_medalen[j] || null, battle_medalru[j] || null,
+                                battle_details[j] || null, battle_detailsen[j] || null, battle_detailsru[j] || null,
+                                degreerank[j] || null, degreeranken[j] || null, degreerankru[j] || null,
+                                job[j] || null, joben[j] || null, jobru[j] || null
+                            ]
+                        );
+                    }
+                }
             }
-            // 2. SET THE LABELS (Matching your addFULL logic)
-    if (type.match(/PDF|JPG|תמונה|מסמך|Picture|Document/i)) {
-        finalLocationLabel = 'מחיצת קבצים לקישור';
-    } else if (isUrlType) {
-        finalLocationLabel = 'URL';
-    } else {
-        finalLocationLabel = loc || 'URL'; 
-    }
+// --- 3. Multimedia Logic (Single Upload Mode) ---
+            
+            // Capture single values from the form
+            const newDesc = req.body.m_description_new;
+            const newType = req.body.m_type_new;
+            const newLoc  = req.body.m_location_new;
+            
+            // Check for the file (assuming multer field name is 'm_file_new')
+            const fileForThisRow = (req.files && req.files['m_file_new']) ? req.files['m_file_new'][0] : null;
 
-    // 3. Process File Upload if it exists
-    if (currentFile || (isUrlType && loc !== "")) {
-        const folderName = `A${id}`;
-        const targetDir = path.join(PERSISTENT_ROOT, folderName);
-        
-        if (!fs.existsSync(targetDir)) fs.mkdirSync(targetDir, { recursive: true });
+            // Only proceed if there is a file OR a physical location description
+            if (fileForThisRow || (newLoc && newLoc.trim() !== '')) {
+                
+                const folderName = `A${soldierId}`;
+                const targetDir = path.join(PERSISTENT_ROOT, folderName);
+                if (!fs.existsSync(targetDir)) fs.mkdirSync(targetDir, { recursive: true });
 
-        if (currentFile) {
-            // ... your existing size validation ...
-            const decodedName = Buffer.from(currentFile.originalname, 'latin1').toString('utf8');
-            const finalPath = path.join(targetDir, decodedName);
-            fs.renameSync(currentFile.path, finalPath);
-            finalDbPath = `/soldierUploads/${folderName}/${decodedName}`;
-        } else {
-            // It's a URL
-            finalDbPath = loc;
-        }
+                let finalDbPath = null;
 
-        // 4. Final Insert (Using the new finalLocationLabel)
-        const hasProfilePic = await t.oneOrNone('SELECT id FROM "multimedia_TBL" WHERE soldier_id = $1 AND is_profile_pic = true', [id]);
-        const setToProfile = (!hasProfilePic && finalDbPath !== null && !isUrlType);
+                if (fileForThisRow) {
+                    // Size Safety Check (1.5MB)
+                    const MAX_SIZE = 1.5 * 1024 * 1024;
+                    if (fileForThisRow.size > MAX_SIZE) {
+                        if (fs.existsSync(fileForThisRow.path)) fs.unlinkSync(fileForThisRow.path);
+                        throw new Error(`File ${fileForThisRow.originalname} is too large (Max 1.5MB).`);
+                    }
 
-        await t.none(`
-            INSERT INTO "multimedia_TBL" 
-            (soldier_id, file_description, file_path, physical_logical_location, multimedia_type, is_profile_pic, uploaded_date) 
-            VALUES ($1, $2, $3, $4, $5, $6, NOW())`,
-            [id, desc || ' ', finalDbPath, finalLocationLabel, type, setToProfile]
-        );
-    }
-}
-});
-        //res.redirect(`/updateSoldier/${id}?saved=true`);
-        if (isAdmin) {
-           res.redirect('/completedRecords/?saved=true');
-        } else {
-            res.redirect('/searchResults?saved=true');
-        }
+                    const fileName = fileForThisRow.originalname.toLowerCase();
+                    const selectedType = (newType || '').toLowerCase();
+
+                    // TYPE VALIDATION
+                    const isPicType = selectedType.includes('תמונה') || selectedType.includes('picture') || selectedType.includes('фото');
+                    const isDocType = selectedType.includes('מסמך') || selectedType.includes('document') || selectedType.includes('документ');
+
+                    if (isPicType && !(fileName.endsWith('.jpg') || fileName.endsWith('.jpeg'))) {
+                        if (fs.existsSync(fileForThisRow.path)) fs.unlinkSync(fileForThisRow.path);
+                        throw new Error(`Invalid Format: Pictures must be JPG/JPEG.`);
+                    }
+                    if (isDocType && !fileName.endsWith('.pdf')) {
+                        if (fs.existsSync(fileForThisRow.path)) fs.unlinkSync(fileForThisRow.path);
+                        throw new Error(`Invalid Format: Documents must be PDF.`);
+                    }
+
+                    // Move/Rename logic
+                    try {
+                        const decodedFileName = Buffer.from(fileForThisRow.originalname, 'latin1').toString('utf8');
+                        const finalPath = path.join(targetDir, decodedFileName);
+                        fs.renameSync(fileForThisRow.path, finalPath);
+                        finalDbPath = `/soldierUploads/${folderName}/${decodedFileName}`;
+                    } catch (err) {
+                        const safeName = fileForThisRow.originalname;
+                        fs.copyFileSync(fileForThisRow.path, path.join(targetDir, safeName));
+                        fs.unlinkSync(fileForThisRow.path);
+                        finalDbPath = `/soldierUploads/${folderName}/${safeName}`;
+                    }
+                }
+
+                // Profile Picture Logic: Check if soldier already has one
+                const existingProfilePic = await t.oneOrNone('SELECT id FROM "multimedia_TBL" WHERE soldier_id = $1 AND is_profile_pic = true LIMIT 1', [soldierId]);
+                
+                // Set as profile pic only if they don't have one and this is a file upload
+                const setToProfile = (!existingProfilePic && finalDbPath !== null);
+
+                // Insert into Database
+                await t.none(`
+                    INSERT INTO "multimedia_TBL" 
+                    (soldier_id, file_description, file_path, physical_logical_location, multimedia_type, is_profile_pic, uploaded_date)
+                    VALUES ($1, $2, $3, $4, $5, $6, NOW())`, 
+                    [
+                        soldierId, 
+                        newDesc || 'No Description', 
+                        finalDbPath, 
+                        newLoc || null, 
+                        newType || null, 
+                        setToProfile
+                    ]
+                );
+            }
+        }); // End of db.tx
+
+        // Redirect back to the edit page with a success flag
+        res.redirect(`/updateSoldier/${id}?saved=true`);
 
     } catch (err) {
-        console.error('❌ Update Error:', err);
-        res.status(500).send(`<h1>Update Failed</h1><p>${err.message}</p><a href="/updateSoldier/${id}">Go Back</a>`);
+        console.error('❌ Error updating record:', err);
+        res.status(500).send(`
+            <h1>Error</h1>
+            <p>${err.message}</p>
+            <pre>${err.stack}</pre>
+            <a href="/updateSoldier/${id}">Back to form</a>
+        `);
     }
 });
 app.post('/delete-multimedia/:id', async (req, res) => {

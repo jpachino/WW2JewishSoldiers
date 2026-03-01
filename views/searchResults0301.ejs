@@ -1,0 +1,170 @@
+<!DOCTYPE html>
+<html lang="<%= locale %>">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title><%= __('nav.searchResults') %></title>
+  <link rel="stylesheet" href="/styles/styles.css" />
+</head>
+<body>
+  <header>
+    <div class="container">
+      <h1><%= __('nav.searchResults') %></h1>
+      <nav>
+        <a href="/"><%= __('nav.home') %></a>
+        <!--<a href="/soldierlistFULL"><%= __('nav.soldierList') %></a>
+        <a href="/addFULL"><%= __('nav.addSoldier') %></a>
+        <a href="/search"><%= __('nav.searchUpdate') %></a>-->
+      </nav>
+    </div>
+  
+  </header>
+  <% if (req.query.saved === 'true') { %>
+  <div class="success-box">
+    <div class="success-content">
+      <span class="success-icon">✅</span>
+      <span><%= __('success.save_complete') || 'Soldier record saved successfully!' %></span>
+    </div>
+  </div>
+<% } %>
+
+  <!-- Language switcher that keeps search parameters -->
+  <div style="margin-top: 50px; clear: both; display: block; width: 100%;"></div>
+  <form method="get" action="/searchResults">
+    <input type="hidden" name="firstname" value="<%= firstname || '' %>" />
+    <input type="hidden" name="lastname" value="<%= lastname || '' %>" />
+    <% if (typeof useremail !== 'undefined') { %>
+      <input type="hidden" name="useremail" value="<%= useremail %>" />
+    <% } %>
+    <select name="lang" onchange="this.form.submit()">
+      <option value="he" <%= lang === 'he' ? 'selected' : '' %>>עברית</option>
+      <option value="en" <%= lang === 'en' ? 'selected' : '' %>>English</option>
+      <option value="ru" <%= lang === 'ru' ? 'selected' : '' %>>Русский</option>
+    </select>
+  </form>
+
+  <div class="container">
+    <% if (soldiers.length > 0) { %>
+      <table>
+        <thead>
+          <tr>
+            <% if (locale === 'he') { %>
+            <th><%= __('fields.fname') %></th>
+            <% } else if (locale === 'en') { %>
+               <th><%= __('fields.fnameen') %></th>
+            <% } else if (locale === 'ru') { %>
+               <th><%= __('fields.fnameru') %></th>
+               <% } else { %>
+                <th><%= __('fields.fname') %></th> <!-- default Hebrew -->
+              <% } %>
+
+              <% if (locale === 'he') { %>
+            <th><%= __('fields.lname') %></th>
+            <% } else if (locale === 'en') { %>
+               <th><%= __('fields.lnameen') %></th>
+            <% } else if (locale === 'ru') { %>
+               <th><%= __('fields.lnameru') %></th>
+               <% } else { %>
+                <th><%= __('fields.lname') %></th> <!-- default Hebrew -->
+              <% } %>
+              
+            <th><%= __('fields.birthcountry') %></th>
+           
+            
+            <th><%= __('fields.dob') %></th>
+            <th><%= __('fields.dod') %></th>
+            <th><%= __('fields.id') %></th>
+            <th><%= __('actions.edit') %></th>
+          </tr>
+        </thead>
+        <tbody>
+          <% soldiers.forEach(soldier => { %>
+            <tr>
+              <!--<td><%= soldier.translatedFname %></td>
+              <td><%= soldier.translatedLname %></td>-->
+            <td>
+              <% if (locale === 'he') { %>
+                <%= soldier.fname %>
+              <% } else if (locale === 'en') { %>
+                <%= soldier.fnameen %>
+              <% } else if (locale === 'ru') { %>
+                <%= soldier.fnameru %>
+              <% } else { %>
+                <%= soldier.fname %> <!-- default Hebrew -->
+              <% } %>
+            </td>
+
+            <td>
+              <% if (locale === 'he') { %>
+                <%= soldier.lname %>
+              <% } else if (locale === 'en') { %>
+                <%= soldier.lnameen %>
+              <% } else if (locale === 'ru') { %>
+                <%= soldier.lnameru %>
+              <% } else { %>
+                <%= soldier.lname %>
+              <% } %>
+            </td>
+
+              
+              <td><%= soldier.birthcountry %></td>
+              
+              <td><%= soldier.dob %></td>
+              <td><%= soldier.dod %></td>
+              <td><%= soldier.id %></td>
+              <td><a href="/updateSoldier/<%= soldier.id %>"><%= __('actions.edit') %></a></td>
+            </tr>
+          <% }) %>
+        </tbody>
+      </table>
+    <% } else { %>
+      <p><%= __('messages.noResults') %></p>
+    <% } %>
+
+    <a href="/search"><%= __('actions.backToSearch') %></a>
+  </div>
+  <style>
+  /* Force the box to be visible regardless of other CSS */
+  .force-show {
+    display: block !important;
+    visibility: visible !important;
+    opacity: 1 !important;
+    position: relative !important;
+    z-index: 9999 !important;
+    background: #d4edda !important;
+    border: 2px solid #155724 !important;
+    color: #155724 !important;
+    padding: 20px !important;
+    margin: 20px !important;
+  }
+</style>
+
+<% if (req.query.saved == 'true') { %>
+  <div class="success-box force-show">
+     <div class="success-content">
+       <span class="success-icon">✅</span>
+       <span><%= __('success.save_complete') || 'Record Saved!' %></span>
+     </div>
+  </div>
+<% } %>
+  <script>
+  document.addEventListener('DOMContentLoaded', () => {
+    const successBox = document.querySelector('.success-box');
+    
+    if (successBox) {
+      console.log("Success box found! Starting timer...");
+      
+      // Wait 5 seconds, then fade out
+      setTimeout(() => {
+        successBox.style.transition = 'opacity 1s ease';
+        successBox.style.opacity = '0';
+        setTimeout(() => successBox.remove(), 1000);
+      }, 5000);
+    } else {
+      console.log("No success box found in the HTML.");
+    }
+  });
+</script>
+</body>
+</html>
+

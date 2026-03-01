@@ -6,82 +6,92 @@
   <title><%= __('nav.title1') %></title>
   <link rel="stylesheet" href="/styles/styles.css" />
   <style>
-    /* Info Box Styling */
-    .info-box { background-color: #f8f9fa; border-inline-start: 6px solid #007bff; padding: 20px; margin: 20px auto; max-width: 900px; border-radius: 6px; }
-    
-    /* Category Grid: Forces 4 per row on desktop */
-    .category-grid {
-      display: grid;
-      grid-template-columns: repeat(4, 1fr); 
-      gap: 15px;
-      margin-top: 15px;
-    }
-
-    /* Date triple-input layout */
-    .triple-input {
-      display: flex;
-      gap: 8px;
-      align-items: center;
-      max-width: 300px; /* Keeps it compact */
-    }
-
-    /* Responsive adjustments */
-    @media (max-width: 1024px) {
-      .category-grid { grid-template-columns: repeat(2, 1fr); }
-    }
-    @media (max-width: 600px) {
-      .category-grid { grid-template-columns: 1fr; }
-      .trio-row { flex-direction: column; gap: 0; }
-    }
+    .info-box { background-color: #f8f9fa; border-left: 6px solid #007bff; padding: 20px; margin: 20px auto; max-width: 800px; border-radius: 6px; font-family: Arial, sans-serif; line-height: 1.6; color: #333; }
+    form { max-width: 1000px; margin: 0 auto; }
+    fieldset { margin-top: 25px; border-radius: 6px; padding: 15px; border: 1px solid #ccc; }
+    .trio-row { display: flex; gap: 10px; margin-bottom: 10px; }
+    .trio-row .input-group { flex: 1; display: flex; flex-direction: column; }
+    .single-row { margin-bottom: 10px; display: flex; flex-direction: column; }
+    textarea { resize: vertical; }
   </style>
+ 
+
 </head>
 
+
 <body>
-  <header>
-    <div class="container header-flex">
-      <h1><%= __('title') %></h1>
-      <div class="logo-area">
-        <img src="/images/Outlook-dieerunr.png" alt="Logo">
-      </div>
-    </div>
+ <header>
     <div class="container">
+      <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap;">
+        <h1><%= __('title') %></h1>
+
+        
+      </div>
+
       <nav>
         <a href="/"><%= __('nav.home') %></a>
+        <!-- Hidden nav links for future use -->
+        <!--<a href="/soldierlistFULL"><%= __('nav.soldierList') %></a>
+        <a href="/addFull"><%= __('nav.addSoldier') %></a>
+        <a href="/search"><%= __('nav.searchUpdate') %></a>-->
       </nav>
     </div>
   </header>
+  
+ <div style="margin-top: 50px; clear: both; display: block; width: 100%;"></div>
+       
+ <!-- 🌐 Language Selector -->
+       <form action="/change-lang" method="get" style="margin-top: 2rem;">
+          <select name="lang" class="lang-select" onchange="this.form.submit()">
+            <option value="he" <%= locale === 'he' ? 'selected' : '' %>> עברית</option>
+            <option value="en" <%= locale === 'en' ? 'selected' : '' %>>English</option>
+            <option value="ru" <%= locale === 'ru' ? 'selected' : '' %>>Русский</option>
+          </select>
+        </form>
+  <div id="error-summary" style="display: none; position: sticky; top: 10px; z-index: 1000; background-color: #fff5f5; border: 2px solid #cc0000; padding: 20px; margin: 20px auto; max-width: 900px; border-radius: 8px; box-shadow: 0 4px 12px rgba(0,0,0,0.15);">
+    <h3 style="color: #cc0000; margin-top: 0; display: flex; align-items: center;">
+        <span style="font-size: 24px; margin-right: 10px;">⚠️</span> 
+        <%= __('error.validation_failed') || 'Validation Error' %>
+    </h3>
+    <p style="color: #333; font-weight: bold;"><%= __('error.please_fix_following') || 'Please fix the following fields:' %></p>
+    <ul id="error-list" style="color: #cc0000; font-weight: bold; list-style-type: none; padding-left: 0;"></ul>
+    <button type="button" onclick="this.parentElement.style.display='none'" style="position: absolute; top: 10px; right: 10px; background: none; border: none; font-size: 20px; cursor: pointer;">&times;</button>
+</div>
+ <% if (locale === 'he') { %>
+  <div class="important-note" style="background-color: #f0f4f8; color: #333; border-right: 6px solid #0038b8; padding: 15px; margin: 20px auto; max-width: 900px; border-radius: 4px; font-family: 'Roboto', sans-serif; font-size: 1.1em; box-shadow: 0 2px 4px rgba(0,0,0,0.05);" dir="rtl">
+    <span style="color: #0038b8; margin-left: 5px;">⚠️</span> <strong>הערה חשובה:</strong> אנא בדוק אם החייל שלך כבר קיים באתר 
+    <a href="https://infocenters.co.il/jwm" target="_blank" style="color: #0038b8; font-weight: bold; text-decoration: underline;">https://infocenters.co.il/jwm</a>
+    לפני הזנת המידע כאן.
+  </div>
+<% } else if (locale === 'ru') { %>
+  <div class="important-note" style="background-color: #f0f4f8; color: #333; border-left: 6px solid #0038b8; padding: 15px; margin: 20px auto; max-width: 900px; border-radius: 4px; font-family: 'Roboto', sans-serif; font-size: 1.1em; box-shadow: 0 2px 4px rgba(0,0,0,0.05);">
+    <span style="color: #0038b8; margin-right: 5px;">⚠️</span> <strong>Важное примечание:</strong> Пожалуйста, проверьте, указан ли ваш солдат на сайте 
+    <a href="https://infocenters.co.il/jwm" target="_blank" style="color: #0038b8; font-weight: bold; text-decoration: underline;">https://infocenters.co.il/jwm</a> 
+    перед вводом информации здесь.
+  </div>
+<% } else { %>
+  <div class="important-note" style="background-color: #f0f4f8; color: #333; border-left: 6px solid #0038b8; padding: 15px; margin: 20px auto; max-width: 900px; border-radius: 4px; font-family: 'Roboto', sans-serif; font-size: 1.1em; box-shadow: 0 2px 4px rgba(0,0,0,0.05);">
+    <span style="color: #0038b8; margin-right: 5px;">⚠️</span> <strong>Important Note:</strong> Please check for your soldier on 
+    <a href="https://infocenters.co.il/jwm" target="_blank" style="color: #0038b8; font-weight: bold; text-decoration: underline;">https://infocenters.co.il/jwm</a> 
+    <strong>before</strong> entering his/her information here.
+  </div>
+<% } %>
 
-  <main class="container">
-    <form action="/change-lang" method="get" style="background:none; box-shadow:none; padding:10px 0;">
-      <select name="lang" class="lang-select" onchange="this.form.submit()" style="width: auto;">
-        <option value="he" <%= locale === 'he' ? 'selected' : '' %>>עברית</option>
-        <option value="en" <%= locale === 'en' ? 'selected' : '' %>>English</option>
-        <option value="ru" <%= locale === 'ru' ? 'selected' : '' %>>Русский</option>
-      </select>
-    </form>
 
-    <div id="error-summary" style="display: none;">
-      <h3 style="color: #cc0000; margin-top: 0;">⚠️ <%= __('error.validation_failed') || 'Validation Error' %></h3>
-      <ul id="error-list"></ul>
-      <button type="button" onclick="this.parentElement.style.display='none'">&times;</button>
+
+
+ <div class="info-container">
+  <div class="info-box">
+    <h2 style="color: #004a99; margin-top: 0; margin-bottom: 5px;"><%= __('form_top.title') %></h2>
+    
+    <div class="form-top-body">
+        <%= __('form_top.body').trim() %>
     </div>
-
-    <% if (locale === 'he') { %>
-      <div class="help-box-alert" dir="rtl">
-        <strong>⚠️ הערה חשובה:</strong> אנא בדוק אם החייל שלך כבר קיים באתר 
-        <a href="https://infocenters.co.il/jwm" target="_blank">https://infocenters.co.il/jwm</a> לפני הזנת המידע כאן.
-      </div>
-    <% } else { %>
-      <div class="help-box-alert">
-        <strong>⚠️ Important Note:</strong> Please check for your soldier on 
-        <a href="https://infocenters.co.il/jwm" target="_blank">https://infocenters.co.il/jwm</a> before entering information.
-      </div>
-    <% } %>
-
-    <div class="info-box">
-      <h2 style="color: #004a99;"><%= __('form_top.title') %></h2>
-      <div class="form-top-body"><%= __('form_top.body').trim() %></div>
-    </div>
+    
+    <hr style="border: 0; border-top: 1px solid #eee; margin: 5px 0;">
+    ...
+  </div>
+</div>
 
 
   <!--<form action="/addfull" method="POST">-->
@@ -808,94 +818,77 @@
             </p>
 
             <div id="multimedia-rows">
-  <% 
-    // 1. Ensure we have an array to loop through
-    let multimediaRows = (locals.oldData && oldData.m_description) ? oldData.m_description : ['']; 
-    
-    multimediaRows.forEach((desc, index) => { 
-      // 2. Get previous values if they exist
-      let oldType = (locals.oldData && oldData.m_type) ? oldData.m_type[index] : '';
-      let oldUrl = (locals.oldData && oldData.physical_logical_location) ? oldData.physical_logical_location[index] : '';
-  %>
-    <div class="multimedia-row" style="border: 1px solid #ccc; border-radius: 8px; margin-bottom: 25px; padding: 20px; background-color: #fff; position: relative;">
-        <div class="row-layout" style="display: flex; flex-direction: column; gap: 15px;">
-            
-            <div class="field-group">
-                <label style="display: block; font-weight: bold;"><%= __('fields.description') %></label>
-                <input type="text" name="m_description[]" class="form-control" style="width: 100%; padding: 10px; border: 1px solid #ccc;" value="<%= desc %>">
-            </div>
-            
-            <div class="field-group">
-                <label style="display: block; font-weight: bold;"><%= __('fields.multimedia_type') %></label>
-                <select name="m_type[]" class="form-control type-select" onchange="toggleUploadType(this)" style="width: 100%; padding: 10px; height: 45px;">
-                    <option value="">-- <%= __('fields.select_option') %> --</option>
-                    <% if (locals.multimedia_type_TBL) { %>
-                        <% multimedia_type_TBL.forEach(type => { 
-                            let typeLabel = locale === 'he' ? type.title_heb : (locale === 'ru' ? type.title_rus : type.title_eng);
-                            // ADDED: selected logic
-                            let isSelected = (oldType === type.title_heb) ? 'selected' : '';
-                        %>
-                            <option value="<%= type.title_heb %>" data-type-eng="<%= (type.title_eng || '').toLowerCase() %>" <%= isSelected %>>
-                                <%= typeLabel %>
-                            </option>
-                        <% }) %>
-                    <% } %>
-                </select>
-            </div>
+              <% 
+            // Check if we have 'old' data from a failed submission, 
+            // otherwise default to one empty row
+            let rows = (locals.oldData && oldData.m_description) ? oldData.m_description : ['']; 
+            rows.forEach((desc, index) => { 
+            %>
+                <div class="multimedia-row" style="border: 1px solid #ccc; border-radius: 8px; margin-bottom: 25px; padding: 20px; background-color: #fff; position: relative;">
+                    <div class="row-layout" style="display: flex; flex-direction: column; gap: 15px;">
+                        
+                        <div class="field-group">
+                            <label style="display: block; font-weight: bold;"><%= __('fields.description') %></label>
+                            <input type="text" name="m_description[]" class="form-control" style="width: 100%; padding: 10px; border: 1px solid #ccc;">
+                        </div>
+                        
+                        <div class="field-group">
+                            <label style="display: block; font-weight: bold;"><%= __('fields.multimedia_type') %></label>
+                            <select name="m_type[]" class="form-control type-select" onchange="toggleUploadType(this)" style="width: 100%; padding: 10px; height: 45px;">
+                                <option value="">-- <%= __('fields.select_option') %> --</option>
+                                <% if (locals.multimedia_type_TBL) { %>
+                                    <% multimedia_type_TBL.forEach(type => { 
+                                        let typeLabel = locale === 'he' ? type.title_heb : (locale === 'ru' ? type.title_rus : type.title_eng);
+                                    %>
+                                        <option value="<%= type.title_heb %>" data-type-eng="<%= (type.title_eng || '').toLowerCase() %>">
+                                            <%= typeLabel %>
+                                        </option>
+                                    <% }) %>
+                                <% } %>
+                            </select>
+                        </div>
 
-            <div class="field-group">
-                <div class="file-wrapper">
-                    <label style="display: block; font-weight: bold;"><%= __('fields.file_upload') %></label>
-                    <input type="file" name="m_files[]" class="file-input" accept=".jpg,.jpeg,.png,.pdf" style="display: none;" onchange="handleFileSelect(this)">
-                    
-                    <div style="display: flex; align-items: center; gap: 15px;">
-                        <button type="button" onclick="this.parentElement.previousElementSibling.click()" style="padding: 8px 15px; cursor: pointer;">
-                            <%= __('fields.choose_file') %>
-                        </button>
-                        <span class="file-name-display" style="color: #666;">
-                            <% if (locals.oldData && oldData.m_files && oldData.m_files[index]) { %>
-                                <span style="color: #d9534f;">⚠️ Re-upload: <%= oldData.m_files[index] %></span>
-                            <% } else { %>
-                                <%= __('fields.no_file_chosen') %>
-                            <% } %>
-                        </span>
+                        <div class="field-group">
+                            <div class="file-wrapper">
+                              <span class="file-name-display">
+                              <% if (oldData && oldData.m_files && oldData.m_files[index]) { %>
+                                  ⚠️ Re-upload required: <%= oldData.m_files[index] %>
+                              <% } else { %>
+                              <%= __('fields.no_file_chosen') %>
+                              <% } %>
+                          </span>
+                                <label style="display: block; font-weight: bold;"><%= __('fields.file_upload') %></label>
+                                <input type="file" name="m_files[]" class="file-input" accept=".jpg,.jpeg,.png,.pdf" 
+                               style="display: none;" 
+                               onchange="handleFileSelect(this)"> <div style="display: flex; align-items: center; gap: 15px;">
+                              <button type="button" onclick="this.parentElement.previousElementSibling.click()" style="padding: 8px 15px; cursor: pointer;">
+                              <%= __('fields.choose_file') %>
+                              </button>
+                                <span class="file-name-display" style="color: #666;"><%= __('fields.no_file_chosen') %></span>
+                            </div>
+                            </div>
+
+                            <div class="location-wrapper" style="display: none; margin-top: 15px;">
+                                <label style="display: block; font-weight: bold;"><%= __('fields.url_link') %></label>
+                                <input type="url" name="physical_logical_location[]" class="form-control" placeholder="https://..." style="width: 100%; padding: 10px;">
+                            </div>
+                        </div>
+
+                        <div style="text-align: right;">
+                            <button type="button" class="btn btn-danger" onclick="removeMultimediaRow(this)"><%= __('fields.remove') %></button>
+                        </div>
                     </div>
                 </div>
-
-                <div class="location-wrapper" style="display: none; margin-top: 15px;">
-                    <label style="display: block; font-weight: bold;"><%= __('fields.url_link') %></label>
-                    <input type="url" name="physical_logical_location[]" class="form-control" placeholder="https://..." style="width: 100%; padding: 10px;" value="<%= oldUrl %>">
-                </div>
             </div>
 
-            <div style="text-align: right;">
-                <button type="button" class="btn btn-danger" onclick="removeMultimediaRow(this)"><%= __('fields.remove') %></button>
-            </div>
-        </div>
-    </div>
-  <% }) %>
-</div>
-
-            <div style="display: flex; justify-content: flex-start; margin-top: 15px;">
-    <button type="button" id="add-multimedia" class="btn-add">
-        <%= __('fields.add_another') %>
-    </button>
-</div>
+            <button type="button" id="add-multimedia" class="btn-add" style="padding: 12px; background-color: #28a745; color: white; border: none; width: 100%; cursor: pointer; border-radius: 4px;">
+                <%= __('fields.add_another') %>
+            </button>
         </div>
     </fieldset>
-    <div class="completion-notes" style="display: flex; flex-direction: column; gap: 10px;">
-        <p style="margin: 0; font-weight: 600; color: #333;">
-            <span style="color: #0038b8;">ℹ️</span> <%= __('form.mark_complete_note') %>
-        </p>
-        <p style="margin: 0; color: #155724; font-weight: 500;">
-            <%= __('form.mark_complete_note2') %>
-        </p>
-        <p style="margin: 0; color: #dc3545; font-weight: 700; font-style: italic;">
-            <%= __('form.mark_complete_note3') %>
-        </p> <br>
-    </div>
-    <!--<fieldset style="margin-top: 20px;">
-        <legend><%= __('sections.recordcomplete') %></legend>-->
+
+    <fieldset style="margin-top: 20px;">
+        <legend><%= __('sections.recordcomplete') %></legend>
         <label>
             <input type="checkbox" name="recordcomplete" value="true">
             <strong><%= __('form.mark_complete') %></strong>

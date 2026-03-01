@@ -6,82 +6,92 @@
   <title><%= __('nav.title1') %></title>
   <link rel="stylesheet" href="/styles/styles.css" />
   <style>
-    /* Info Box Styling */
-    .info-box { background-color: #f8f9fa; border-inline-start: 6px solid #007bff; padding: 20px; margin: 20px auto; max-width: 900px; border-radius: 6px; }
-    
-    /* Category Grid: Forces 4 per row on desktop */
-    .category-grid {
-      display: grid;
-      grid-template-columns: repeat(4, 1fr); 
-      gap: 15px;
-      margin-top: 15px;
-    }
-
-    /* Date triple-input layout */
-    .triple-input {
-      display: flex;
-      gap: 8px;
-      align-items: center;
-      max-width: 300px; /* Keeps it compact */
-    }
-
-    /* Responsive adjustments */
-    @media (max-width: 1024px) {
-      .category-grid { grid-template-columns: repeat(2, 1fr); }
-    }
-    @media (max-width: 600px) {
-      .category-grid { grid-template-columns: 1fr; }
-      .trio-row { flex-direction: column; gap: 0; }
-    }
+    .info-box { background-color: #f8f9fa; border-left: 6px solid #007bff; padding: 20px; margin: 20px auto; max-width: 800px; border-radius: 6px; font-family: Arial, sans-serif; line-height: 1.6; color: #333; }
+    form { max-width: 1000px; margin: 0 auto; }
+    fieldset { margin-top: 25px; border-radius: 6px; padding: 15px; border: 1px solid #ccc; }
+    .trio-row { display: flex; gap: 10px; margin-bottom: 10px; }
+    .trio-row .input-group { flex: 1; display: flex; flex-direction: column; }
+    .single-row { margin-bottom: 10px; display: flex; flex-direction: column; }
+    textarea { resize: vertical; }
   </style>
+ 
+
 </head>
 
+
 <body>
-  <header>
-    <div class="container header-flex">
-      <h1><%= __('title') %></h1>
-      <div class="logo-area">
-        <img src="/images/Outlook-dieerunr.png" alt="Logo">
-      </div>
-    </div>
+ <header>
     <div class="container">
+      <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap;">
+        <h1><%= __('title') %></h1>
+
+        
+      </div>
+
       <nav>
         <a href="/"><%= __('nav.home') %></a>
+        <!-- Hidden nav links for future use -->
+        <!--<a href="/soldierlistFULL"><%= __('nav.soldierList') %></a>
+        <a href="/addFull"><%= __('nav.addSoldier') %></a>
+        <a href="/search"><%= __('nav.searchUpdate') %></a>-->
       </nav>
     </div>
   </header>
+  
+ <div style="margin-top: 50px; clear: both; display: block; width: 100%;"></div>
+       
+ <!-- 🌐 Language Selector -->
+       <form action="/change-lang" method="get" style="margin-top: 2rem;">
+          <select name="lang" class="lang-select" onchange="this.form.submit()">
+            <option value="he" <%= locale === 'he' ? 'selected' : '' %>> עברית</option>
+            <option value="en" <%= locale === 'en' ? 'selected' : '' %>>English</option>
+            <option value="ru" <%= locale === 'ru' ? 'selected' : '' %>>Русский</option>
+          </select>
+        </form>
+  <div id="error-summary" style="display: none; position: sticky; top: 10px; z-index: 1000; background-color: #fff5f5; border: 2px solid #cc0000; padding: 20px; margin: 20px auto; max-width: 900px; border-radius: 8px; box-shadow: 0 4px 12px rgba(0,0,0,0.15);">
+    <h3 style="color: #cc0000; margin-top: 0; display: flex; align-items: center;">
+        <span style="font-size: 24px; margin-right: 10px;">⚠️</span> 
+        <%= __('error.validation_failed') || 'Validation Error' %>
+    </h3>
+    <p style="color: #333; font-weight: bold;"><%= __('error.please_fix_following') || 'Please fix the following fields:' %></p>
+    <ul id="error-list" style="color: #cc0000; font-weight: bold; list-style-type: none; padding-left: 0;"></ul>
+    <button type="button" onclick="this.parentElement.style.display='none'" style="position: absolute; top: 10px; right: 10px; background: none; border: none; font-size: 20px; cursor: pointer;">&times;</button>
+</div>
+ <% if (locale === 'he') { %>
+  <div class="important-note" style="background-color: #f0f4f8; color: #333; border-right: 6px solid #0038b8; padding: 15px; margin: 20px auto; max-width: 900px; border-radius: 4px; font-family: 'Roboto', sans-serif; font-size: 1.1em; box-shadow: 0 2px 4px rgba(0,0,0,0.05);" dir="rtl">
+    <span style="color: #0038b8; margin-left: 5px;">⚠️</span> <strong>הערה חשובה:</strong> אנא בדוק אם החייל שלך כבר קיים באתר 
+    <a href="https://infocenters.co.il/jwm" target="_blank" style="color: #0038b8; font-weight: bold; text-decoration: underline;">https://infocenters.co.il/jwm</a>
+    לפני הזנת המידע כאן.
+  </div>
+<% } else if (locale === 'ru') { %>
+  <div class="important-note" style="background-color: #f0f4f8; color: #333; border-left: 6px solid #0038b8; padding: 15px; margin: 20px auto; max-width: 900px; border-radius: 4px; font-family: 'Roboto', sans-serif; font-size: 1.1em; box-shadow: 0 2px 4px rgba(0,0,0,0.05);">
+    <span style="color: #0038b8; margin-right: 5px;">⚠️</span> <strong>Важное примечание:</strong> Пожалуйста, проверьте, указан ли ваш солдат на сайте 
+    <a href="https://infocenters.co.il/jwm" target="_blank" style="color: #0038b8; font-weight: bold; text-decoration: underline;">https://infocenters.co.il/jwm</a> 
+    перед вводом информации здесь.
+  </div>
+<% } else { %>
+  <div class="important-note" style="background-color: #f0f4f8; color: #333; border-left: 6px solid #0038b8; padding: 15px; margin: 20px auto; max-width: 900px; border-radius: 4px; font-family: 'Roboto', sans-serif; font-size: 1.1em; box-shadow: 0 2px 4px rgba(0,0,0,0.05);">
+    <span style="color: #0038b8; margin-right: 5px;">⚠️</span> <strong>Important Note:</strong> Please check for your soldier on 
+    <a href="https://infocenters.co.il/jwm" target="_blank" style="color: #0038b8; font-weight: bold; text-decoration: underline;">https://infocenters.co.il/jwm</a> 
+    <strong>before</strong> entering his/her information here.
+  </div>
+<% } %>
 
-  <main class="container">
-    <form action="/change-lang" method="get" style="background:none; box-shadow:none; padding:10px 0;">
-      <select name="lang" class="lang-select" onchange="this.form.submit()" style="width: auto;">
-        <option value="he" <%= locale === 'he' ? 'selected' : '' %>>עברית</option>
-        <option value="en" <%= locale === 'en' ? 'selected' : '' %>>English</option>
-        <option value="ru" <%= locale === 'ru' ? 'selected' : '' %>>Русский</option>
-      </select>
-    </form>
 
-    <div id="error-summary" style="display: none;">
-      <h3 style="color: #cc0000; margin-top: 0;">⚠️ <%= __('error.validation_failed') || 'Validation Error' %></h3>
-      <ul id="error-list"></ul>
-      <button type="button" onclick="this.parentElement.style.display='none'">&times;</button>
+
+
+ <div class="info-container">
+  <div class="info-box">
+    <h2 style="color: #004a99; margin-top: 0; margin-bottom: 5px;"><%= __('form_top.title') %></h2>
+    
+    <div class="form-top-body">
+        <%= __('form_top.body').trim() %>
     </div>
-
-    <% if (locale === 'he') { %>
-      <div class="help-box-alert" dir="rtl">
-        <strong>⚠️ הערה חשובה:</strong> אנא בדוק אם החייל שלך כבר קיים באתר 
-        <a href="https://infocenters.co.il/jwm" target="_blank">https://infocenters.co.il/jwm</a> לפני הזנת המידע כאן.
-      </div>
-    <% } else { %>
-      <div class="help-box-alert">
-        <strong>⚠️ Important Note:</strong> Please check for your soldier on 
-        <a href="https://infocenters.co.il/jwm" target="_blank">https://infocenters.co.il/jwm</a> before entering information.
-      </div>
-    <% } %>
-
-    <div class="info-box">
-      <h2 style="color: #004a99;"><%= __('form_top.title') %></h2>
-      <div class="form-top-body"><%= __('form_top.body').trim() %></div>
-    </div>
+    
+    <hr style="border: 0; border-top: 1px solid #eee; margin: 5px 0;">
+    ...
+  </div>
+</div>
 
 
   <!--<form action="/addfull" method="POST">-->
@@ -876,26 +886,14 @@
   <% }) %>
 </div>
 
-            <div style="display: flex; justify-content: flex-start; margin-top: 15px;">
-    <button type="button" id="add-multimedia" class="btn-add">
-        <%= __('fields.add_another') %>
-    </button>
-</div>
+            <button type="button" id="add-multimedia" class="btn-add" style="padding: 12px; background-color: #28a745; color: white; border: none; width: 100%; cursor: pointer; border-radius: 4px;">
+                <%= __('fields.add_another') %>
+            </button>
         </div>
     </fieldset>
-    <div class="completion-notes" style="display: flex; flex-direction: column; gap: 10px;">
-        <p style="margin: 0; font-weight: 600; color: #333;">
-            <span style="color: #0038b8;">ℹ️</span> <%= __('form.mark_complete_note') %>
-        </p>
-        <p style="margin: 0; color: #155724; font-weight: 500;">
-            <%= __('form.mark_complete_note2') %>
-        </p>
-        <p style="margin: 0; color: #dc3545; font-weight: 700; font-style: italic;">
-            <%= __('form.mark_complete_note3') %>
-        </p> <br>
-    </div>
-    <!--<fieldset style="margin-top: 20px;">
-        <legend><%= __('sections.recordcomplete') %></legend>-->
+
+    <fieldset style="margin-top: 20px;">
+        <legend><%= __('sections.recordcomplete') %></legend>
         <label>
             <input type="checkbox" name="recordcomplete" value="true">
             <strong><%= __('form.mark_complete') %></strong>

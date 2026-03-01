@@ -222,7 +222,9 @@
     "categories": "Categories",
     "mandatory": "Fill in at least one language.",
     "if_applicable": "if applicable",
-    "info_readonly": "This information was provided by the original submitter and cannot be edited."
+    "info_readonly": "This information was provided by the original submitter and cannot be edited.",
+    "delete": "Delete",
+    "existing_files": "Existing Files"
     
     
   },
@@ -299,7 +301,7 @@
 },
 
   "buttons": {
-    "update": "Update",
+    "update": "Save and Update",
     "backToList": "Back to list",
     "view": "View"
   },
