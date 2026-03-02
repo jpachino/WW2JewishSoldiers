@@ -2138,11 +2138,6 @@ app.get('/admin/completedRecords', async (req, res) => {
     // 2. Updated XML Tag Map
     const XML_TAG_MAP = {
         'id': 'FormID',
-        'useremail': 'Submitter_Email',
-        'name_soldier_submitter': 'Submitter_FullName',
-        'phone_soldier_submitter': 'Submitter_Phone',
-        'relation_of_soldier_submitter': 'Submitter_Relation',
-        'how_found_us_submitter': 'HowFoundUs', 
         'fname': 'FirstName_HEB', 'fnameen': 'FirstName_ENG', 'fnameru': 'FirstName_RUS',
         'lname': 'LastName_HEB', 'lnameen': 'LastName_ENG', 'lnameru': 'LastName_RUS',
         'previouslname': 'PreviousLastName_HEB', 'previouslnameen': 'PreviousLastName_ENG', 'previouslnameru': 'PreviousLastName_RUS',
@@ -2186,11 +2181,6 @@ app.get('/admin/completedRecords', async (req, res) => {
   
     const EXCEL_HEADER_MAP = {
         'id': 'Form ID',
-        'useremail': 'אימייל שולח',
-        'name_soldier_submitter': 'שם מלא שולח', // Combined Key
-        'phone_soldier_submitter': 'טלפון שולח',
-        'relation_of_soldier_submitter': 'קשר לחייל',
-        'how_found_us_submitter': 'איך הגיע אלינו',
         'fname': 'שם פרטי_HEB', 'fnameen': 'שם פרטי_ENG', 'fnameru': 'שם פרטי_RUS',
         'lname': 'שם משפחה_HEB', 'lnameen': 'שם משפחה_ENG', 'lnameru': 'שם משפחה_RUS',
         'previouslname': 'שם משפחה קודם_HEB', 'previouslnameen': 'שם משפחה קודם_ENG', 'previouslnameru': 'שם משפחה קודם_RUS',
@@ -2269,8 +2259,9 @@ app.get('/admin/completedRecords', async (req, res) => {
         const excludeFields = [
             'fightingdesc', 'useremail', 'recordcomplete',
             'admin_ready_for_download', 'record_complete_date', 'admin_approved_date',
-            'downloaded_date', 'uprising_participant', 
-            'soldier_previously_submitted', 
+            'downloaded_date', 'uprising_participant', 'fname_soldier_submitter',
+            'lname_soldier_submitter', 'phone_soldier_submitter', 'relation_of_soldier_submitter',
+            'soldier_previously_submitted', 'how_found_us_submitter',
             // Added old categories to exclusion
             'category', 'categoryen', 'categoryru' 
         ];
@@ -2299,10 +2290,6 @@ app.get('/admin/completedRecords', async (req, res) => {
                     row[key] = dateFields.includes(key) ? formatDateToDDMMYYYY(s[key]) : s[key];
                 }
             }
-            
-             // This creates the "First Last" string for the Excel column
-            row.name_soldier_submitter = `${s.fname_soldier_submitter || ''} ${s.lname_soldier_submitter || ''}`.trim();
-
             const cleanId = String(s.id).trim();
             row.id = `A${cleanId}`;
             row.download_date = downloadDateString;
@@ -2361,66 +2348,54 @@ app.get('/admin/completedRecords', async (req, res) => {
         });
 
         // 4. Excel Generation
-const workbook = new ExcelJS.Workbook();
-const sheet = workbook.addWorksheet('Soldiers');
+        const workbook = new ExcelJS.Workbook();
+        const sheet = workbook.addWorksheet('Soldiers');
+        const allKeys = [...new Set(flattenedRows.flatMap(r => Object.keys(r)))];
 
-// FIX: Instead of taking keys from the database (which are mixed up),
-// take them from your EXCEL_HEADER_MAP keys, which are already grouped logically.
-const allKeys = Object.keys(EXCEL_HEADER_MAP);
-
-sheet.columns = allKeys
-    .map(k => {
-        const isBio = k === 'biography';
-        return {
-            header: EXCEL_HEADER_MAP[k],
-            key: k,
-            width: isBio ? 80 : 20, 
-            style: { 
-                numFmt: '@', 
-                alignment: { 
-                    horizontal: isBio ? 'right' : 'center', 
-                    vertical: 'top', 
-                    wrapText: true 
-                } 
-            }
-        };
-    });
+        sheet.columns = allKeys
+            .filter(k => EXCEL_HEADER_MAP.hasOwnProperty(k))
+            .map(k => {
+                const isBio = k === 'biography';
+                return {
+                    header: EXCEL_HEADER_MAP[k],
+                    key: k,
+                    width: isBio ? 80 : 20, 
+                    style: { 
+                        numFmt: '@', 
+                        alignment: { 
+                            horizontal: isBio ? 'right' : 'center', 
+                            vertical: 'top', 
+                            wrapText: true 
+                        } 
+                    }
+                };
+            });
 
         flattenedRows.forEach(row => sheet.addRow(row));
         const excelBuffer = await workbook.xlsx.writeBuffer();
-// 5. XML Generation
-const xmlRoot = create({ version: '1.0', encoding: 'UTF-8' }).ele('Soldiers');
 
-flattenedRows.forEach(row => {
-    const soldierNode = xmlRoot.ele('Soldier');
+        // 5. XML Generation
+        const xmlRoot = create({ version: '1.0', encoding: 'UTF-8' }).ele('Soldiers');
 
-    // THIS IS THE KEY: We loop through the MAP, not the data row
-    Object.keys(XML_TAG_MAP).forEach(key => {
-        let value = row[key];
-        
-        // Handle Biography rich text fallback
-        if (value && typeof value === 'object' && value.richText) {
-            value = value.richText.map(rt => rt.text).join('');
-        }
+        flattenedRows.forEach(row => {
+            const soldierNode = xmlRoot.ele('Soldier');
+            for (const key in row) {
+                let value = row[key];
+                
+                // Rich Text fallback for XML
+                if (value && typeof value === 'object' && value.richText) {
+                    value = value.richText.map(rt => rt.text).join('');
+                }
 
-        // Only create a tag if there is data
-        if (value !== null && value !== undefined && value !== '') {
-            let tagName = XML_TAG_MAP[key];
-            // Safe cleanup for XML tag names
-            tagName = tagName.replace(/[^a-z0-9_]/gi, '');
-            soldierNode.ele(tagName).txt(String(value)).up();
-        }
-    });
+                if (value !== null && value !== undefined && value !== '') {
+                    let tagName = XML_TAG_MAP[key] || key;
+                    tagName = tagName.replace(/[^a-z0-9_]/gi, '');
+                    soldierNode.ele(tagName).txt(String(value)).up();
+                }
+            }
+            soldierNode.up();
+        });
 
-    // Add battles/files at the end (since they aren't in the static map)
-    for (const key in row) {
-        if ((key.startsWith('battle_') || key.startsWith('file_')) && row[key]) {
-            soldierNode.ele(key).txt(String(row[key])).up();
-        }
-    }
-
-    soldierNode.up();
-});
         const xmlString = xmlRoot.end({ prettyPrint: true });
 
  // 6. ZIP Stream Setup
