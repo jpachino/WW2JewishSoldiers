@@ -220,7 +220,7 @@
     "preview_link": "Preview / Link",
     "additional_materials": "Additional materials – please send to",
     "categories": "Categories",
-    "mandatory": "Fill in at least one language.",
+    "mandatory": "Fill in at least one of the following languages (it is not mandatory to fill all 3 options).",
     "if_applicable": "if applicable",
     "info_readonly": "This information was provided by the original submitter and cannot be edited.",
     "delete": "Delete",
@@ -243,11 +243,12 @@
     "sendMaterials": "Additional materials (PDF, etc.) please send to",
     "thankYou": "Thank you for your cooperation.",
     
-    "mark_complete": "I completed filling the record",
+    "mark_complete": "I have completed filling in the record",
    
-    "mark_complete_note": "The record will be stored for 30 days from creation, and you can continue updating the soldier information until this box is checked.",
-    "mark_complete_note2": "By marking “I completed filling the record”, you will finish submitting the form.",
-    "mark_complete_note3": "If you wish to keep editing the form, Do not click \"I completed filling the record\" box.",
+    "mark_complete_note": "You can continue updating the soldier information until the 'I have completed filling in the record' box is checked.",
+    "mark_complete_note2": "The information entered will be stored for 30 days after which, if the record completion box is not checked, the information will be deleted.",
+    "mark_complete_note2b": "By marking 'I have completed filling in the record' you will finish submitting the form, and will not have access to keep editing the form.",
+    "mark_complete_note3": "If you wish to keep editing the form, Do not click \"I have completed filling in the record\" box.",
 
     "admin_complete": "I as an administrator confirm that the record is ready for download",
     "select": "Select",
@@ -268,7 +269,7 @@
     "biography_desc": "From his (or her) birth to his death, with an emphasis on his activities during World War II",
     "personal_story_title": "Personal Story Definition",
     "personal_story_desc": "A personal story from his (or her) time as a soldier",
-    "pick_one_option": "Pick at least one option",
+    "pick_one_option": "Pick at least one of the three options (it is not mandatory to fill all 3 options).",
     "record_complete_date": "Record Completion Date",
     "readyStatus": "Approved by Admin"
 

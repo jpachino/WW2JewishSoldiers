@@ -812,6 +812,14 @@
             <strong><%= __('fields.profile_pic_instruction') %></strong>
         </p>
         <div id="multimedia-rows">
+          <% 
+                // Changed: Initialize as empty array so no row appears unless explicitly added or returning from error
+                let multimediaRows = (locals.oldData && oldData.m_description) ? oldData.m_description : []; 
+                
+                multimediaRows.forEach((desc, index) => { 
+                    let oldType = (locals.oldData && oldData.m_type) ? oldData.m_type[index] : '';
+                    let oldUrl = (locals.oldData && oldData.physical_logical_location) ? oldData.physical_logical_location[index] : '';
+            %>
             <div class="multimedia-row" style="border: 1px solid #ccc; border-radius: 8px; margin-bottom: 25px; padding: 20px; background-color: #fff; position: relative; box-shadow: 0 2px 4px rgba(0,0,0,0.05);">
                 
                 <div class="row-layout" style="display: flex; flex-direction: column; gap: 15px;">
@@ -1081,6 +1089,14 @@ addBattleBtn.addEventListener('click', () => {
 });
 </script>
 <script>
+  function removeMultimediaRow(btn) {
+    // We removed the "if (rows.length > 1)" check to allow the user 
+    // to remove the very last row if they changed their mind.
+    const row = btn.closest('.multimedia-row');
+    if (row) {
+        row.remove();
+    }
+}
     let rowCount = 1; // Used for unique IDs on dynamic rows
 
   // 1. Pre-build options (Safe version)

@@ -520,23 +520,27 @@ app.get('/addFull', async (req, res) => {
                 }
             }
 
- // --- STEP D: HANDLE MULTIMEDIA (ARRAY-BASED LOGIC) ---
+          // --- STEP D: HANDLE MULTIMEDIA (ARRAY-BASED LOGIC) ---
 console.log('--- STARTING MULTIMEDIA SAVE ---');
 
+// Ensure these are always arrays, even if only one row is sent
 const descriptions = [].concat(req.body.m_description || []);
 const types = [].concat(req.body.m_type || []);
 const locations = [].concat(req.body.physical_logical_location || []);
-const multimediaFiles = (req.files || []).filter(f => f.fieldname === 'm_files[]');
+const allFiles = req.files || [];
 
-// 1. Initialize Tracker: We haven't assigned a profile pic yet
-let profilePicAssigned = false;
+// Filter specifically for the multimedia files to keep them separate from other potential uploads
+const multimediaFiles = allFiles.filter(f => f.fieldname === 'm_files[]');
 
 for (let i = 0; i < types.length; i++) {
     let currentType = (types[i] || '').toString().trim();
     let desc = (descriptions[i] || '').trim();
     let userLocation = (locations[i] || '').trim();
+    
+    // Grab the file that corresponds to this row's position in the "m_files[]" sequence
     const file = multimediaFiles[i]; 
 
+    // Skip row if it's completely empty
     if (!currentType && !userLocation && !file) continue;
 
     let finalDbPath = null;
@@ -552,26 +556,24 @@ for (let i = 0; i < types.length; i++) {
     }
 
     if (file) {
-        const safeName = Buffer.from(file.originalname, 'latin1').toString('utf8').replace(/\s+/g, '_');
+        // Validation
+        const MAX_SIZE = 5 * 1024 * 1024; 
+        if (file.size > MAX_SIZE) {
+            if (fs.existsSync(file.path)) fs.unlinkSync(file.path);
+            throw new Error(`Row ${i + 1}: File too large (Max 5MB).`);
+        }
+
+        // Save with proper encoding for Hebrew/Russian filenames
+        const safeName = Date.now() + "_" + Buffer.from(file.originalname, 'latin1').toString('utf8').replace(/\s+/g, '_');
         const finalPath = path.join(targetDir, safeName);
+        
         fs.renameSync(file.path, finalPath);
         finalDbPath = `/soldierUploads/${folderName}/${safeName}`;
     }
 
-    // 2. NEW PROFILE PIC LOGIC
-    let isProfilePic = false;
-    
-    // Check if this row is a "Picture/Image" type using English, Hebrew, or Russian keywords
-    const isImageType = /Picture|Image|תמונה|фото/i.test(currentType);
-
-    // If it's an image, and it has a file, and we haven't picked a profile pic yet...
-    if (isImageType && finalDbPath && !profilePicAssigned) {
-        isProfilePic = true;
-        profilePicAssigned = true; // Mark as done so no other row in this loop gets it
-    }
-
     // Insert into DB
     if (finalDbPath || userLocation || desc) {
+        // Use file path if exists, otherwise use the URL link
         const dbPathToSave = finalDbPath || userLocation || '';
         
         await t.none(`
@@ -584,7 +586,7 @@ for (let i = 0; i < types.length; i++) {
             dbPathToSave, 
             currentType,
             finalLocationLabel,
-            isProfilePic // <--- Now uses our calculated boolean
+            (i === 0 && finalDbPath !== null) // First uploaded file becomes profile pic
         ]);
     }
 }
@@ -922,37 +924,72 @@ app.get('/updateSoldier/:id', async (req, res) => {
 });
 // Route to handle form submission for updating a soldier
 app.post('/updateSoldier/:id', upload.any(), async (req, res) => {
+    // --- ADD THESE LINES HERE ---
     console.log("========================================");
     console.log("1. RECEIVED REQ.BODY:", JSON.stringify(req.body, null, 2));
     console.log("2. RECEIVED REQ.FILES:", req.files);
     console.log("========================================");
-
     const { id } = req.params;
+    const soldierId = id; 
     const isAdmin = !!(req.session && req.session.isAdmin);
 
+    console.log("========================================");
+    console.log(`POST update for ID: ${id} | isAdmin: ${isAdmin}`);
+  
+
     try {
-        // 1. Fetch existing data
+        // 1. Fetch existing data to compare for changes
         const existingSoldier = await db.oneOrNone(`SELECT * FROM ${SOLDIER_TABLE} WHERE id = $1`, [id]);
         if (!existingSoldier) return res.status(404).send('Soldier not found');
 
-        // --- LOOKUP LOGIC (Standard Field Mappings) ---
-        // Helper to handle lookup tables
-        const getLookup = async (table, bodyVal, existingHeb, existingEng, existingRus) => {
-            if (bodyVal) {
-                const row = await db.oneOrNone(`SELECT title_heb, title_eng, title_rus FROM "${table}" WHERE id = $1`, [bodyVal]);
-                return row ? { heb: row.title_heb, eng: row.title_eng, rus: row.title_rus } : { heb: existingHeb, eng: existingEng, rus: existingRus };
-            }
-            return { heb: existingHeb, eng: existingEng, rus: existingRus };
-        };
+        // --- LOOKUP LOGIC (Country, Corps, Partizan, Army, etc.) ---
+        let { birthcountry, birthcountryen, birthcountryru } = existingSoldier;
+        if (req.body.birthcountry) {
+            const row = await db.oneOrNone('SELECT title_heb, title_eng, title_rus FROM "countries_TBL" WHERE id = $1', [req.body.birthcountry]);
+            if (row) { birthcountry = row.title_heb; birthcountryen = row.title_eng; birthcountryru = row.title_rus; }
+        }
 
-        const bCountry = await getLookup('countries_TBL', req.body.birthcountry, existingSoldier.birthcountry, existingSoldier.birthcountryen, existingSoldier.birthcountryru);
-        const sCorps = await getLookup('corps_TBL', req.body.corps, existingSoldier.corps, existingSoldier.corpsen, existingSoldier.corpsru);
-        const sPartizan = await getLookup('partizan_TBL', req.body.partizan, existingSoldier.partizan, existingSoldier.partizanen, existingSoldier.partizanru);
-        const sArmy = await getLookup('army_TBL', req.body.army, existingSoldier.army, existingSoldier.armyen, existingSoldier.armyru);
-        const sResistance = await getLookup('resistance_TBL', req.body.resistance, existingSoldier.resistance, existingSoldier.resistanceen, existingSoldier.resistanceru);
-        const sParticipation = await getLookup('participation_TBL', req.body.participation, existingSoldier.participation, existingSoldier.participationen, existingSoldier.participationru);
-        const sGender = await getLookup('gender_TBL', req.body.gender, existingSoldier.gender, existingSoldier.genderen, existingSoldier.genderru);
-        const sEnlist = await getLookup('enlistreason_TBL', req.body.enlistreason, existingSoldier.enlistreason, existingSoldier.enlistreasonen, existingSoldier.enlistreasonru);
+        let { corps, corpsen, corpsru } = existingSoldier;
+        if (req.body.corps) {
+            const row = await db.oneOrNone('SELECT title_heb, title_eng, title_rus FROM "corps_TBL" WHERE id = $1', [req.body.corps]);
+            if (row) { corps = row.title_heb; corpsen = row.title_eng; corpsru = row.title_rus; }
+        }
+
+        let { partizan, partizanen, partizanru } = existingSoldier;
+        if (req.body.partizan) {
+            const row = await db.oneOrNone('SELECT title_heb, title_eng, title_rus FROM "partizan_TBL" WHERE id = $1', [req.body.partizan]);
+            if (row) { partizan = row.title_heb; partizanen = row.title_eng; partizanru = row.title_rus; }
+        }
+
+        let { army, armyen, armyru } = existingSoldier;
+        if (req.body.army) {
+            const row = await db.oneOrNone('SELECT title_heb, title_eng, title_rus FROM "army_TBL" WHERE id = $1', [req.body.army]);
+            if (row) { army = row.title_heb; armyen = row.title_eng; armyru = row.title_rus; }
+        }
+
+        let { resistance, resistanceen, resistanceru } = existingSoldier;
+        if (req.body.resistance) {
+            const row = await db.oneOrNone('SELECT title_heb, title_eng, title_rus FROM "resistance_TBL" WHERE id = $1', [req.body.resistance]);
+            if (row) { resistance = row.title_heb; resistanceen = row.title_eng; resistanceru = row.title_rus; }
+        }
+
+        let { participation, participationen, participationru } = existingSoldier;
+        if (req.body.participation) {
+            const row = await db.oneOrNone('SELECT title_heb, title_eng, title_rus FROM "participation_TBL" WHERE id = $1', [req.body.participation]);
+            if (row) { participation = row.title_heb; participationen = row.title_eng; participationru = row.title_rus; }
+        }
+
+        let { gender, genderen, genderru } = existingSoldier;
+        if (req.body.gender) {
+            const row = await db.oneOrNone('SELECT title_heb, title_eng, title_rus FROM "gender_TBL" WHERE id = $1', [req.body.gender]);
+            if (row) { gender = row.title_heb; genderen = row.title_eng; genderru = row.title_rus; }
+        }
+
+        let { enlistreason, enlistreasonen, enlistreasonru } = existingSoldier;
+        if (req.body.enlistreason) {
+            const row = await db.oneOrNone('SELECT title_heb, title_eng, title_rus FROM "enlistreason_TBL" WHERE id = $1', [req.body.enlistreason]);
+            if (row) { enlistreason = row.title_heb; enlistreasonen = row.title_eng; enlistreasonru = row.title_rus; }
+        }
 
         // --- CATEGORY CHECKBOXES ---
         const catUpdate = {};
@@ -969,17 +1006,21 @@ app.post('/updateSoldier/:id', upload.any(), async (req, res) => {
 
         if (isCheckingComplete && !existingSoldier.recordcomplete) {
             const today = new Date();
-            record_complete_date = `${String(today.getDate()).padStart(2, '0')}-${String(today.getMonth() + 1).padStart(2, '0')}-${today.getFullYear()}`;
+            const dd = String(today.getDate()).padStart(2, '0');
+            const mm = String(today.getMonth() + 1).padStart(2, '0');
+            const yyyy = today.getFullYear();
+            record_complete_date = `${dd}-${mm}-${yyyy}`;
             record_complete_boolean = true; 
         }
-
+        // Admin Mark Complete (The fix for your 'X' in the table)
         const adminApprovedVal = req.body.admin_ready_for_download === 'true' || req.body.admin_ready_for_download === 'on';
         let admin_approved_date = existingSoldier.admin_approved_date;
+
+        // If admin just checked it and it wasn't checked before, set the date
         if (adminApprovedVal && !existingSoldier.admin_ready_for_download) {
             const today = new Date();
-            admin_approved_date = `${String(today.getDate()).padStart(2, '0')}-${String(today.getMonth() + 1).padStart(2, '0')}-${today.getFullYear()}`;
+        admin_approved_date = `${String(today.getDate()).padStart(2, '0')}-${String(today.getMonth() + 1).padStart(2, '0')}-${today.getFullYear()}`;
         }
-
         // --- PREPARE UPDATE DATA ---
         const inputData = {
             fname: req.body.fname || existingSoldier.fname,
@@ -1000,14 +1041,14 @@ app.post('/updateSoldier/:id', upload.any(), async (req, res) => {
             calledby: req.body.calledby || existingSoldier.calledby,
             calledbyen: req.body.calledbyen || existingSoldier.calledbyen,
             calledbyru: req.body.calledbyru || existingSoldier.calledbyru,
-            birthcountry: bCountry.heb, birthcountryen: bCountry.eng, birthcountryru: bCountry.rus,
+            birthcountry, birthcountryen, birthcountryru,
             birthcity: req.body.birthcity || existingSoldier.birthcity,
             birthcityen: req.body.birthcityen || existingSoldier.birthcityen,
             birthcityru: req.body.birthcityru || existingSoldier.birthcityru,
             state: req.body.state || existingSoldier.state,
             stateen: req.body.stateen || existingSoldier.stateen,
             stateru: req.body.stateru || existingSoldier.stateru,
-            gender: sGender.heb, genderen: sGender.eng, genderru: sGender.rus,
+            gender, genderen, genderru,
             placeofdeath: req.body.placeofdeath || existingSoldier.placeofdeath,
             placeofdeathen: req.body.placeofdeathen || existingSoldier.placeofdeathen,
             placeofdeathru: req.body.placeofdeathru || existingSoldier.placeofdeathru,
@@ -1029,7 +1070,7 @@ app.post('/updateSoldier/:id', upload.any(), async (req, res) => {
             rank: req.body.rank || existingSoldier.rank,
             ranken: req.body.ranken || existingSoldier.ranken,
             rankru: req.body.rankru || existingSoldier.rankru,
-            enlistreason: sEnlist.heb, enlistreasonen: sEnlist.eng, enlistreasonru: sEnlist.rus,
+            enlistreason, enlistreasonen, enlistreasonru,
             platoonname: req.body.platoonname || existingSoldier.platoonname,
             platoonnameen: req.body.platoonnameen || existingSoldier.platoonnameen,
             platoonnameru: req.body.platoonnameru || existingSoldier.platoonnameru,
@@ -1051,71 +1092,78 @@ app.post('/updateSoldier/:id', upload.any(), async (req, res) => {
             titleru: req.body.titleru || existingSoldier.titleru,
             linkurl: req.body.linkurl || existingSoldier.linkurl,
             useremail: req.body.useremail && req.body.useremail.trim() !== '' ? req.body.useremail : existingSoldier.useremail,
-            corps: sCorps.heb, corpsen: sCorps.eng, corpsru: sCorps.rus,
-            partizan: sPartizan.heb, partizanen: sPartizan.eng, partizanru: sPartizan.rus,
+            corps, corpsen, corpsru,
+            partizan, partizanen, partizanru,
             ...catUpdate,
-            army: sArmy.heb, armyen: sArmy.eng, armyru: sArmy.rus,
-            resistance: sResistance.heb, resistanceen: sResistance.eng, resistanceru: sResistance.rus,
-            participation: sParticipation.heb, participationen: sParticipation.eng, participationru: sParticipation.rus,  
+            army, armyen, armyru,
+            resistance, resistanceen, resistanceru,
+            participation, participationen, participationru,  
             recordcomplete: record_complete_boolean,
             record_complete_date,
             admin_ready_for_download: adminApprovedVal,
-            admin_approved_date,
+            admin_approved_date: admin_approved_date,
             uprising_participant: req.body.uprising_participant === 'on' || req.body.uprising_participant === 'true' || existingSoldier.uprising_participant
         };
 
         const updates = [];
         const values = [];
-        let pIndex = 1;
+        let i = 1;
 
         for (const key in inputData) {
             if (String(inputData[key]) !== String(existingSoldier[key])) {
-                updates.push(`"${key}" = $${pIndex}`);
+                updates.push(`"${key}" = $${i}`);
                 values.push(inputData[key] === '' ? null : inputData[key]);
-                pIndex++;
+                i++;
             }
         }
+        // 1. Get the current count of records in the DB
+const currentDbCountRow = await db.one('SELECT COUNT(*) FROM "multimedia_TBL" WHERE soldier_id = $1', [id]);
+const currentDbCount = parseInt(currentDbCountRow.count);
 
-        // --- MULTIMEDIA PRE-CHECK ---
-        const currentDbCountRow = await db.one('SELECT COUNT(*) FROM "multimedia_TBL" WHERE soldier_id = $1', [id]);
-        const currentDbCount = parseInt(currentDbCountRow.count);
+// 2. Determine how many we are about to delete
+const deleteIds = Array.isArray(req.body.delete_multimedia) ? req.body.delete_multimedia : (req.body.delete_multimedia ? [req.body.delete_multimedia] : []);
+const deleteCount = deleteIds.length;
 
-        const deleteIds = Array.isArray(req.body.delete_multimedia) ? req.body.delete_multimedia : (req.body.delete_multimedia ? [req.body.delete_multimedia] : []);
-        const m_descriptions = Array.isArray(req.body.m_description) ? req.body.m_description : (req.body.m_description ? [req.body.m_description] : []);
-        const multimediaFiles = req.files ? req.files.filter(f => f.fieldname === 'm_files[]') : [];
-        const m_locations = Array.isArray(req.body.physical_logical_location) ? req.body.physical_logical_location : (req.body.physical_logical_location ? [req.body.physical_logical_location] : []);
-        const m_types = Array.isArray(req.body.m_type) ? req.body.m_type : (req.body.m_type ? [req.body.m_type] : []);
+// 3. Determine how many NEW ones are being uploaded
+const m_descriptions = Array.isArray(req.body.m_description) ? req.body.m_description : (req.body.m_description ? [req.body.m_description] : []);
+// We only count rows that have either a file OR a URL
+const multimediaFiles = req.files ? req.files.filter(f => f.fieldname === 'm_files[]') : [];
+const m_locations = Array.isArray(req.body.physical_logical_location) ? req.body.physical_logical_location : [];
 
-        let newUploadCount = 0;
-        let checkFilePointer = 0;
+let newUploadCount = 0;
+let filePointer = 0; // To track files as we loop through rows
 
-        for (let k = 0; k < m_descriptions.length; k++) {
-            const type = m_types[k];
-            const isUrlType = /link|קישור|url|ссылка/i.test(type || "");
-            const hasUrl = m_locations[k] && m_locations[k].trim() !== "";
-            const hasFile = !isUrlType && multimediaFiles[checkFilePointer];
-            
-            if (hasFile || hasUrl) {
-                newUploadCount++;
-                if (hasFile) checkFilePointer++;
-            }
-        }
+for (let k = 0; k < m_descriptions.length; k++) {
+    const type = Array.isArray(req.body.m_type) ? req.body.m_type[k] : req.body.m_type;
+    const isUrlType = /link|קישור|url|ссылка/i.test(type || "");
+    
+    const hasUrl = m_locations[k] && m_locations[k].trim() !== "";
+    const hasFile = !isUrlType && multimediaFiles[filePointer]; // Check the file buffer
+    
+    // If the row has a file or a URL, it's a valid new record
+    if (hasFile || hasUrl) {
+        newUploadCount++;
+        if (hasFile) filePointer++; // Increment pointer only if a file was used
+    }
+}
+// 4. Final Calculation
+const totalAfterUpdate = (currentDbCount - deleteCount) + newUploadCount;
 
-        const totalAfterUpdate = (currentDbCount - deleteIds.length) + newUploadCount;
-        if (totalAfterUpdate > 12) {
-            throw new Error(`Total multimedia items exceed limit of 12.`);
-        }
-
-    // --- START TRANSACTION ---
-await db.tx(async t => {
+if (totalAfterUpdate > 12) {
+    throw new Error(`Total multimedia items exceed the limit of 12 (Current: ${currentDbCount}, New: ${newUploadCount}, Deleting: ${deleteCount}).`);
+}
+        // --- START TRANSACTION ---
+    await db.tx(async t => {
     if (updates.length > 0) {
-        const updateSQL = `UPDATE ${SOLDIER_TABLE} SET ${updates.join(', ')} WHERE id = $${pIndex}`;
+        const updateSQL = `UPDATE ${SOLDIER_TABLE} SET ${updates.join(', ')} WHERE id = $${i}`;
         values.push(id);
         await t.none(updateSQL, values);
     }
 
-    // 1. Delete Multimedia (Existing logic)
+    // 1. --- DELETE SELECTED MULTIMEDIA ---
+    const deleteIds = Array.isArray(req.body.delete_multimedia) ? req.body.delete_multimedia : (req.body.delete_multimedia ? [req.body.delete_multimedia] : []);
     if (deleteIds.length > 0) {
+        // Fetch paths first to delete actual files from disk
         const filesToDelete = await t.any('SELECT file_path FROM "multimedia_TBL" WHERE id IN ($1:list)', [deleteIds]);
         for (const f of filesToDelete) {
             if (f.file_path && !f.file_path.startsWith('http')) {
@@ -1126,77 +1174,85 @@ await db.tx(async t => {
         await t.none('DELETE FROM "multimedia_TBL" WHERE id IN ($1:list)', [deleteIds]);
     }
 
-    // 2. Insert New Multimedia (UPDATED LOGIC)
-    
-    // Check if the soldier ALREADY has a profile pic in the DB (after deletions)
-    const existingPic = await t.oneOrNone('SELECT id FROM "multimedia_TBL" WHERE soldier_id = $1 AND is_profile_pic = true', [id]);
-    
-    // Tracker: if one exists, we shouldn't assign another one
-    let profilePicAssigned = !!existingPic; 
-    let filePointer = 0;
+    // 2. --- BATTLE HISTORY (Keep your existing battle logic here) ---
+    // ... (Your battleId loop code) ...
 
-    for (let j = 0; j < m_descriptions.length; j++) {
-        const desc = m_descriptions[j].trim();
-        const type = m_types[j] || "";
-        const loc = m_locations[j] ? m_locations[j].trim() : null;
-        const isUrlType = /link|קישור|url|ссылка/i.test(type);
+   // --- NEW MULTIMEDIA UPLOAD (Optimized for upload.any() and [] notation) ---
+// 3. --- NEW MULTIMEDIA UPLOAD (Optimized for your Terminal Data) ---
+        const m_descriptions = Array.isArray(req.body.m_description) 
+            ? req.body.m_description 
+            : (req.body.m_description ? [req.body.m_description] : []);
 
-        let finalDbPath = null;
-        let currentFile = null;
-        let finalLocationLabel = ''; 
+        const m_types = Array.isArray(req.body.m_type) 
+            ? req.body.m_type 
+            : (req.body.m_type ? [req.body.m_type] : []);
 
-        // Handle File Logic
-        if (!isUrlType && multimediaFiles[filePointer]) {
-            currentFile = multimediaFiles[filePointer];
-            filePointer++; 
-        }
+        const m_locations = Array.isArray(req.body.physical_logical_location) 
+            ? req.body.physical_logical_location 
+            : (req.body.physical_logical_location ? [req.body.physical_logical_location] : []);
 
-        // Label Assignment
-        if (type.match(/PDF|JPG|תמונה|מסמך|Picture|Document/i)) {
-            finalLocationLabel = 'מחיצת קבצים לקישור';
-        } else if (isUrlType) {
-            finalLocationLabel = 'URL';
-        } else {
-            finalLocationLabel = loc || 'URL'; 
-        }
+        // Filter files specifically for 'm_files[]' as seen in your terminal
+        const multimediaFiles = req.files ? req.files.filter(f => f.fieldname === 'm_files[]') : [];
+        let filePointer = 0;
 
-        if (currentFile || (isUrlType && loc && loc !== "")) {
-            const folderName = `A${id}`;
-            const targetDir = path.join(PERSISTENT_ROOT, folderName);
-            if (!fs.existsSync(targetDir)) fs.mkdirSync(targetDir, { recursive: true });
+        for (let j = 0; j < m_descriptions.length; j++) {
+            const desc = m_descriptions[j].trim();
+            const type = m_types[j];
+            const loc = m_locations[j] ? m_locations[j].trim() : null;
 
-            if (currentFile) {
-                const decodedName = Buffer.from(currentFile.originalname, 'latin1').toString('utf8').replace(/\s+/g, '_');
-                const finalPath = path.join(targetDir, decodedName);
-                fs.renameSync(currentFile.path, finalPath);
-                finalDbPath = `/soldierUploads/${folderName}/${decodedName}`;
-            } else {
-                finalDbPath = loc;
+            // Determine if this row is a URL/Link type
+            const isUrlType = /link|קישור|url|ссылка/i.test(type || "");
+            let finalDbPath = null;
+            let currentFile = null;
+
+            // If not a URL, pull the next file from the buffer
+            if (!isUrlType && multimediaFiles[filePointer]) {
+                currentFile = multimediaFiles[filePointer];
+                filePointer++; 
             }
-
-            // --- REFINED PROFILE PIC LOGIC ---
-            let setToProfile = false;
-            // Check if this row is a picture/image file upload
-            const isImageType = /Picture|Image|תמונה|фото/i.test(type);
-
-            // Set to true ONLY if it's an image file AND nothing else is the profile pic yet
-            if (isImageType && currentFile && !profilePicAssigned) {
-                setToProfile = true;
-                profilePicAssigned = true; // Stop any subsequent loops from picking a pic
-            }
-
-            await t.none(`
-                INSERT INTO "multimedia_TBL" 
-                (soldier_id, file_description, file_path, physical_logical_location, multimedia_type, is_profile_pic, uploaded_date) 
-                VALUES ($1, $2, $3, $4, $5, $6, NOW())`,
-                [id, desc || ' ', finalDbPath, finalLocationLabel, type, setToProfile]
-            );
-        }
+            // 2. SET THE LABELS (Matching your addFULL logic)
+    if (type.match(/PDF|JPG|תמונה|מסמך|Picture|Document/i)) {
+        finalLocationLabel = 'מחיצת קבצים לקישור';
+    } else if (isUrlType) {
+        finalLocationLabel = 'URL';
+    } else {
+        finalLocationLabel = loc || 'URL'; 
     }
-});
 
+    // 3. Process File Upload if it exists
+    if (currentFile || (isUrlType && loc !== "")) {
+        const folderName = `A${id}`;
+        const targetDir = path.join(PERSISTENT_ROOT, folderName);
+        
+        if (!fs.existsSync(targetDir)) fs.mkdirSync(targetDir, { recursive: true });
+
+        if (currentFile) {
+            // ... your existing size validation ...
+            const decodedName = Buffer.from(currentFile.originalname, 'latin1').toString('utf8');
+            const finalPath = path.join(targetDir, decodedName);
+            fs.renameSync(currentFile.path, finalPath);
+            finalDbPath = `/soldierUploads/${folderName}/${decodedName}`;
+        } else {
+            // It's a URL
+            finalDbPath = loc;
+        }
+
+        // 4. Final Insert (Using the new finalLocationLabel)
+        const hasProfilePic = await t.oneOrNone('SELECT id FROM "multimedia_TBL" WHERE soldier_id = $1 AND is_profile_pic = true', [id]);
+        const setToProfile = (!hasProfilePic && finalDbPath !== null && !isUrlType);
+
+        await t.none(`
+            INSERT INTO "multimedia_TBL" 
+            (soldier_id, file_description, file_path, physical_logical_location, multimedia_type, is_profile_pic, uploaded_date) 
+            VALUES ($1, $2, $3, $4, $5, $6, NOW())`,
+            [id, desc || ' ', finalDbPath, finalLocationLabel, type, setToProfile]
+        );
+    }
+}
+});
+        //res.redirect(`/updateSoldier/${id}?saved=true`);
         if (isAdmin) {
-            res.redirect('/admin/completedRecords/?saved=true');
+           res.redirect('/admin/completedRecords/?saved=true');
         } else {
             res.redirect('/searchResults?saved=true');
         }

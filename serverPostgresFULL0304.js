@@ -441,7 +441,7 @@ app.get('/addFull', async (req, res) => {
         res.status(500).send(`<h1>Error</h1><pre>${err.message}</pre>`);
     }
 });
-
+//app.post('/addFULL', multiUpload, async (req, res) => {
   app.post('/addFULL', upload.any(), async (req, res) => {
     try {
         // 1. Clean the incoming body
@@ -520,57 +520,70 @@ app.get('/addFull', async (req, res) => {
                 }
             }
 
- // --- STEP D: HANDLE MULTIMEDIA (ARRAY-BASED LOGIC) ---
+          // --- STEP D: HANDLE MULTIMEDIA (ARRAY-BASED LOGIC) ---
 console.log('--- STARTING MULTIMEDIA SAVE ---');
 
 const descriptions = [].concat(req.body.m_description || []);
 const types = [].concat(req.body.m_type || []);
 const locations = [].concat(req.body.physical_logical_location || []);
-const multimediaFiles = (req.files || []).filter(f => f.fieldname === 'm_files[]');
+// req.files is populated by upload.any()
+const files = req.files || [];
 
-// 1. Initialize Tracker: We haven't assigned a profile pic yet
-let profilePicAssigned = false;
-
+// We loop based on the number of multimedia types submitted
 for (let i = 0; i < types.length; i++) {
+    if (!types[i] && !locations[i] && (!req.files || !req.files.length)) continue;
     let currentType = (types[i] || '').toString().trim();
     let desc = (descriptions[i] || '').trim();
     let userLocation = (locations[i] || '').trim();
-    const file = multimediaFiles[i]; 
-
-    if (!currentType && !userLocation && !file) continue;
+    
+    // Logic to find the specific file for this row index
+    // Since we use upload.any(), we look for 'm_files[]' at index i
+    const rowFiles = files.filter(f => f.fieldname === 'm_files[]');
+    const file = rowFiles[i]; 
 
     let finalDbPath = null;
     let finalLocationLabel = '';
 
-    // Determine Label Logic
+    // Determine the Location Label based on type
     if (currentType.match(/PDF|JPG|תמונה|מסמך|Picture|Document/i)) {
         finalLocationLabel = 'מחיצת קבצים לקישור';
-    } else if (currentType.includes('קישור') || currentType.toLowerCase().includes('url')) {
+    } else if (currentType.includes('קישור') || currentType.toLowerCase().includes('url') || currentType.toLowerCase().includes('link')) {
         finalLocationLabel = 'URL';
     } else {
         finalLocationLabel = userLocation || 'URL'; 
     }
 
     if (file) {
-        const safeName = Buffer.from(file.originalname, 'latin1').toString('utf8').replace(/\s+/g, '_');
+        // --- VALIDATION (Size & Format) ---
+        const MAX_SIZE = 5 * 1024 * 1024; // Upping to 5MB as 1.5MB is very small for modern PDFs
+        if (file.size > MAX_SIZE) {
+            if (fs.existsSync(file.path)) fs.unlinkSync(file.path);
+            throw new Error(`Row ${i + 1}: File too large (Max 5MB).`);
+        }
+
+        const fileName = file.originalname.toLowerCase();
+        const isPicType = /תמונה|picture|фото/i.test(currentType);
+        const isDocType = /מסמך|document|документ|pdf/i.test(currentType);
+
+        if (isPicType && !(fileName.endsWith('.jpg') || fileName.endsWith('.jpeg') || fileName.endsWith('.png'))) {
+            if (fs.existsSync(file.path)) fs.unlinkSync(file.path);
+            throw new Error(`Row ${i + 1}: Pictures must be JPG or PNG.`);
+        }
+        if (isDocType && !fileName.endsWith('.pdf')) {
+            if (fs.existsSync(file.path)) fs.unlinkSync(file.path);
+            throw new Error(`Row ${i + 1}: Documents must be PDF.`);
+        }
+
+        // --- SAVE FILE ---
+        // Using timestamp to avoid filename collisions
+        const safeName = Date.now() + "_" + Buffer.from(file.originalname, 'latin1').toString('utf8').replace(/\s+/g, '_');
         const finalPath = path.join(targetDir, safeName);
+        
         fs.renameSync(file.path, finalPath);
         finalDbPath = `/soldierUploads/${folderName}/${safeName}`;
     }
 
-    // 2. NEW PROFILE PIC LOGIC
-    let isProfilePic = false;
-    
-    // Check if this row is a "Picture/Image" type using English, Hebrew, or Russian keywords
-    const isImageType = /Picture|Image|תמונה|фото/i.test(currentType);
-
-    // If it's an image, and it has a file, and we haven't picked a profile pic yet...
-    if (isImageType && finalDbPath && !profilePicAssigned) {
-        isProfilePic = true;
-        profilePicAssigned = true; // Mark as done so no other row in this loop gets it
-    }
-
-    // Insert into DB
+    // 4. DATABASE INSERT
     if (finalDbPath || userLocation || desc) {
         const dbPathToSave = finalDbPath || userLocation || '';
         
@@ -584,7 +597,7 @@ for (let i = 0; i < types.length; i++) {
             dbPathToSave, 
             currentType,
             finalLocationLabel,
-            isProfilePic // <--- Now uses our calculated boolean
+            (i === 0 && finalDbPath !== null) // Automatically make first uploaded file the profile pic
         ]);
     }
 }
@@ -922,37 +935,72 @@ app.get('/updateSoldier/:id', async (req, res) => {
 });
 // Route to handle form submission for updating a soldier
 app.post('/updateSoldier/:id', upload.any(), async (req, res) => {
+    // --- ADD THESE LINES HERE ---
     console.log("========================================");
     console.log("1. RECEIVED REQ.BODY:", JSON.stringify(req.body, null, 2));
     console.log("2. RECEIVED REQ.FILES:", req.files);
     console.log("========================================");
-
     const { id } = req.params;
+    const soldierId = id; 
     const isAdmin = !!(req.session && req.session.isAdmin);
 
+    console.log("========================================");
+    console.log(`POST update for ID: ${id} | isAdmin: ${isAdmin}`);
+  
+
     try {
-        // 1. Fetch existing data
+        // 1. Fetch existing data to compare for changes
         const existingSoldier = await db.oneOrNone(`SELECT * FROM ${SOLDIER_TABLE} WHERE id = $1`, [id]);
         if (!existingSoldier) return res.status(404).send('Soldier not found');
 
-        // --- LOOKUP LOGIC (Standard Field Mappings) ---
-        // Helper to handle lookup tables
-        const getLookup = async (table, bodyVal, existingHeb, existingEng, existingRus) => {
-            if (bodyVal) {
-                const row = await db.oneOrNone(`SELECT title_heb, title_eng, title_rus FROM "${table}" WHERE id = $1`, [bodyVal]);
-                return row ? { heb: row.title_heb, eng: row.title_eng, rus: row.title_rus } : { heb: existingHeb, eng: existingEng, rus: existingRus };
-            }
-            return { heb: existingHeb, eng: existingEng, rus: existingRus };
-        };
+        // --- LOOKUP LOGIC (Country, Corps, Partizan, Army, etc.) ---
+        let { birthcountry, birthcountryen, birthcountryru } = existingSoldier;
+        if (req.body.birthcountry) {
+            const row = await db.oneOrNone('SELECT title_heb, title_eng, title_rus FROM "countries_TBL" WHERE id = $1', [req.body.birthcountry]);
+            if (row) { birthcountry = row.title_heb; birthcountryen = row.title_eng; birthcountryru = row.title_rus; }
+        }
 
-        const bCountry = await getLookup('countries_TBL', req.body.birthcountry, existingSoldier.birthcountry, existingSoldier.birthcountryen, existingSoldier.birthcountryru);
-        const sCorps = await getLookup('corps_TBL', req.body.corps, existingSoldier.corps, existingSoldier.corpsen, existingSoldier.corpsru);
-        const sPartizan = await getLookup('partizan_TBL', req.body.partizan, existingSoldier.partizan, existingSoldier.partizanen, existingSoldier.partizanru);
-        const sArmy = await getLookup('army_TBL', req.body.army, existingSoldier.army, existingSoldier.armyen, existingSoldier.armyru);
-        const sResistance = await getLookup('resistance_TBL', req.body.resistance, existingSoldier.resistance, existingSoldier.resistanceen, existingSoldier.resistanceru);
-        const sParticipation = await getLookup('participation_TBL', req.body.participation, existingSoldier.participation, existingSoldier.participationen, existingSoldier.participationru);
-        const sGender = await getLookup('gender_TBL', req.body.gender, existingSoldier.gender, existingSoldier.genderen, existingSoldier.genderru);
-        const sEnlist = await getLookup('enlistreason_TBL', req.body.enlistreason, existingSoldier.enlistreason, existingSoldier.enlistreasonen, existingSoldier.enlistreasonru);
+        let { corps, corpsen, corpsru } = existingSoldier;
+        if (req.body.corps) {
+            const row = await db.oneOrNone('SELECT title_heb, title_eng, title_rus FROM "corps_TBL" WHERE id = $1', [req.body.corps]);
+            if (row) { corps = row.title_heb; corpsen = row.title_eng; corpsru = row.title_rus; }
+        }
+
+        let { partizan, partizanen, partizanru } = existingSoldier;
+        if (req.body.partizan) {
+            const row = await db.oneOrNone('SELECT title_heb, title_eng, title_rus FROM "partizan_TBL" WHERE id = $1', [req.body.partizan]);
+            if (row) { partizan = row.title_heb; partizanen = row.title_eng; partizanru = row.title_rus; }
+        }
+
+        let { army, armyen, armyru } = existingSoldier;
+        if (req.body.army) {
+            const row = await db.oneOrNone('SELECT title_heb, title_eng, title_rus FROM "army_TBL" WHERE id = $1', [req.body.army]);
+            if (row) { army = row.title_heb; armyen = row.title_eng; armyru = row.title_rus; }
+        }
+
+        let { resistance, resistanceen, resistanceru } = existingSoldier;
+        if (req.body.resistance) {
+            const row = await db.oneOrNone('SELECT title_heb, title_eng, title_rus FROM "resistance_TBL" WHERE id = $1', [req.body.resistance]);
+            if (row) { resistance = row.title_heb; resistanceen = row.title_eng; resistanceru = row.title_rus; }
+        }
+
+        let { participation, participationen, participationru } = existingSoldier;
+        if (req.body.participation) {
+            const row = await db.oneOrNone('SELECT title_heb, title_eng, title_rus FROM "participation_TBL" WHERE id = $1', [req.body.participation]);
+            if (row) { participation = row.title_heb; participationen = row.title_eng; participationru = row.title_rus; }
+        }
+
+        let { gender, genderen, genderru } = existingSoldier;
+        if (req.body.gender) {
+            const row = await db.oneOrNone('SELECT title_heb, title_eng, title_rus FROM "gender_TBL" WHERE id = $1', [req.body.gender]);
+            if (row) { gender = row.title_heb; genderen = row.title_eng; genderru = row.title_rus; }
+        }
+
+        let { enlistreason, enlistreasonen, enlistreasonru } = existingSoldier;
+        if (req.body.enlistreason) {
+            const row = await db.oneOrNone('SELECT title_heb, title_eng, title_rus FROM "enlistreason_TBL" WHERE id = $1', [req.body.enlistreason]);
+            if (row) { enlistreason = row.title_heb; enlistreasonen = row.title_eng; enlistreasonru = row.title_rus; }
+        }
 
         // --- CATEGORY CHECKBOXES ---
         const catUpdate = {};
@@ -969,17 +1017,21 @@ app.post('/updateSoldier/:id', upload.any(), async (req, res) => {
 
         if (isCheckingComplete && !existingSoldier.recordcomplete) {
             const today = new Date();
-            record_complete_date = `${String(today.getDate()).padStart(2, '0')}-${String(today.getMonth() + 1).padStart(2, '0')}-${today.getFullYear()}`;
+            const dd = String(today.getDate()).padStart(2, '0');
+            const mm = String(today.getMonth() + 1).padStart(2, '0');
+            const yyyy = today.getFullYear();
+            record_complete_date = `${dd}-${mm}-${yyyy}`;
             record_complete_boolean = true; 
         }
-
+        // Admin Mark Complete (The fix for your 'X' in the table)
         const adminApprovedVal = req.body.admin_ready_for_download === 'true' || req.body.admin_ready_for_download === 'on';
         let admin_approved_date = existingSoldier.admin_approved_date;
+
+        // If admin just checked it and it wasn't checked before, set the date
         if (adminApprovedVal && !existingSoldier.admin_ready_for_download) {
             const today = new Date();
-            admin_approved_date = `${String(today.getDate()).padStart(2, '0')}-${String(today.getMonth() + 1).padStart(2, '0')}-${today.getFullYear()}`;
+        admin_approved_date = `${String(today.getDate()).padStart(2, '0')}-${String(today.getMonth() + 1).padStart(2, '0')}-${today.getFullYear()}`;
         }
-
         // --- PREPARE UPDATE DATA ---
         const inputData = {
             fname: req.body.fname || existingSoldier.fname,
@@ -1000,14 +1052,14 @@ app.post('/updateSoldier/:id', upload.any(), async (req, res) => {
             calledby: req.body.calledby || existingSoldier.calledby,
             calledbyen: req.body.calledbyen || existingSoldier.calledbyen,
             calledbyru: req.body.calledbyru || existingSoldier.calledbyru,
-            birthcountry: bCountry.heb, birthcountryen: bCountry.eng, birthcountryru: bCountry.rus,
+            birthcountry, birthcountryen, birthcountryru,
             birthcity: req.body.birthcity || existingSoldier.birthcity,
             birthcityen: req.body.birthcityen || existingSoldier.birthcityen,
             birthcityru: req.body.birthcityru || existingSoldier.birthcityru,
             state: req.body.state || existingSoldier.state,
             stateen: req.body.stateen || existingSoldier.stateen,
             stateru: req.body.stateru || existingSoldier.stateru,
-            gender: sGender.heb, genderen: sGender.eng, genderru: sGender.rus,
+            gender, genderen, genderru,
             placeofdeath: req.body.placeofdeath || existingSoldier.placeofdeath,
             placeofdeathen: req.body.placeofdeathen || existingSoldier.placeofdeathen,
             placeofdeathru: req.body.placeofdeathru || existingSoldier.placeofdeathru,
@@ -1029,7 +1081,7 @@ app.post('/updateSoldier/:id', upload.any(), async (req, res) => {
             rank: req.body.rank || existingSoldier.rank,
             ranken: req.body.ranken || existingSoldier.ranken,
             rankru: req.body.rankru || existingSoldier.rankru,
-            enlistreason: sEnlist.heb, enlistreasonen: sEnlist.eng, enlistreasonru: sEnlist.rus,
+            enlistreason, enlistreasonen, enlistreasonru,
             platoonname: req.body.platoonname || existingSoldier.platoonname,
             platoonnameen: req.body.platoonnameen || existingSoldier.platoonnameen,
             platoonnameru: req.body.platoonnameru || existingSoldier.platoonnameru,
@@ -1051,71 +1103,78 @@ app.post('/updateSoldier/:id', upload.any(), async (req, res) => {
             titleru: req.body.titleru || existingSoldier.titleru,
             linkurl: req.body.linkurl || existingSoldier.linkurl,
             useremail: req.body.useremail && req.body.useremail.trim() !== '' ? req.body.useremail : existingSoldier.useremail,
-            corps: sCorps.heb, corpsen: sCorps.eng, corpsru: sCorps.rus,
-            partizan: sPartizan.heb, partizanen: sPartizan.eng, partizanru: sPartizan.rus,
+            corps, corpsen, corpsru,
+            partizan, partizanen, partizanru,
             ...catUpdate,
-            army: sArmy.heb, armyen: sArmy.eng, armyru: sArmy.rus,
-            resistance: sResistance.heb, resistanceen: sResistance.eng, resistanceru: sResistance.rus,
-            participation: sParticipation.heb, participationen: sParticipation.eng, participationru: sParticipation.rus,  
+            army, armyen, armyru,
+            resistance, resistanceen, resistanceru,
+            participation, participationen, participationru,  
             recordcomplete: record_complete_boolean,
             record_complete_date,
             admin_ready_for_download: adminApprovedVal,
-            admin_approved_date,
+            admin_approved_date: admin_approved_date,
             uprising_participant: req.body.uprising_participant === 'on' || req.body.uprising_participant === 'true' || existingSoldier.uprising_participant
         };
 
         const updates = [];
         const values = [];
-        let pIndex = 1;
+        let i = 1;
 
         for (const key in inputData) {
             if (String(inputData[key]) !== String(existingSoldier[key])) {
-                updates.push(`"${key}" = $${pIndex}`);
+                updates.push(`"${key}" = $${i}`);
                 values.push(inputData[key] === '' ? null : inputData[key]);
-                pIndex++;
+                i++;
             }
         }
+        // 1. Get the current count of records in the DB
+const currentDbCountRow = await db.one('SELECT COUNT(*) FROM "multimedia_TBL" WHERE soldier_id = $1', [id]);
+const currentDbCount = parseInt(currentDbCountRow.count);
 
-        // --- MULTIMEDIA PRE-CHECK ---
-        const currentDbCountRow = await db.one('SELECT COUNT(*) FROM "multimedia_TBL" WHERE soldier_id = $1', [id]);
-        const currentDbCount = parseInt(currentDbCountRow.count);
+// 2. Determine how many we are about to delete
+const deleteIds = Array.isArray(req.body.delete_multimedia) ? req.body.delete_multimedia : (req.body.delete_multimedia ? [req.body.delete_multimedia] : []);
+const deleteCount = deleteIds.length;
 
-        const deleteIds = Array.isArray(req.body.delete_multimedia) ? req.body.delete_multimedia : (req.body.delete_multimedia ? [req.body.delete_multimedia] : []);
-        const m_descriptions = Array.isArray(req.body.m_description) ? req.body.m_description : (req.body.m_description ? [req.body.m_description] : []);
-        const multimediaFiles = req.files ? req.files.filter(f => f.fieldname === 'm_files[]') : [];
-        const m_locations = Array.isArray(req.body.physical_logical_location) ? req.body.physical_logical_location : (req.body.physical_logical_location ? [req.body.physical_logical_location] : []);
-        const m_types = Array.isArray(req.body.m_type) ? req.body.m_type : (req.body.m_type ? [req.body.m_type] : []);
+// 3. Determine how many NEW ones are being uploaded
+const m_descriptions = Array.isArray(req.body.m_description) ? req.body.m_description : (req.body.m_description ? [req.body.m_description] : []);
+// We only count rows that have either a file OR a URL
+const multimediaFiles = req.files ? req.files.filter(f => f.fieldname === 'm_files[]') : [];
+const m_locations = Array.isArray(req.body.physical_logical_location) ? req.body.physical_logical_location : [];
 
-        let newUploadCount = 0;
-        let checkFilePointer = 0;
+let newUploadCount = 0;
+let filePointer = 0; // To track files as we loop through rows
 
-        for (let k = 0; k < m_descriptions.length; k++) {
-            const type = m_types[k];
-            const isUrlType = /link|קישור|url|ссылка/i.test(type || "");
-            const hasUrl = m_locations[k] && m_locations[k].trim() !== "";
-            const hasFile = !isUrlType && multimediaFiles[checkFilePointer];
-            
-            if (hasFile || hasUrl) {
-                newUploadCount++;
-                if (hasFile) checkFilePointer++;
-            }
-        }
+for (let k = 0; k < m_descriptions.length; k++) {
+    const type = Array.isArray(req.body.m_type) ? req.body.m_type[k] : req.body.m_type;
+    const isUrlType = /link|קישור|url|ссылка/i.test(type || "");
+    
+    const hasUrl = m_locations[k] && m_locations[k].trim() !== "";
+    const hasFile = !isUrlType && multimediaFiles[filePointer]; // Check the file buffer
+    
+    // If the row has a file or a URL, it's a valid new record
+    if (hasFile || hasUrl) {
+        newUploadCount++;
+        if (hasFile) filePointer++; // Increment pointer only if a file was used
+    }
+}
+// 4. Final Calculation
+const totalAfterUpdate = (currentDbCount - deleteCount) + newUploadCount;
 
-        const totalAfterUpdate = (currentDbCount - deleteIds.length) + newUploadCount;
-        if (totalAfterUpdate > 12) {
-            throw new Error(`Total multimedia items exceed limit of 12.`);
-        }
-
-    // --- START TRANSACTION ---
-await db.tx(async t => {
+if (totalAfterUpdate > 12) {
+    throw new Error(`Total multimedia items exceed the limit of 12 (Current: ${currentDbCount}, New: ${newUploadCount}, Deleting: ${deleteCount}).`);
+}
+        // --- START TRANSACTION ---
+    await db.tx(async t => {
     if (updates.length > 0) {
-        const updateSQL = `UPDATE ${SOLDIER_TABLE} SET ${updates.join(', ')} WHERE id = $${pIndex}`;
+        const updateSQL = `UPDATE ${SOLDIER_TABLE} SET ${updates.join(', ')} WHERE id = $${i}`;
         values.push(id);
         await t.none(updateSQL, values);
     }
 
-    // 1. Delete Multimedia (Existing logic)
+    // 1. --- DELETE SELECTED MULTIMEDIA ---
+    const deleteIds = Array.isArray(req.body.delete_multimedia) ? req.body.delete_multimedia : (req.body.delete_multimedia ? [req.body.delete_multimedia] : []);
     if (deleteIds.length > 0) {
+        // Fetch paths first to delete actual files from disk
         const filesToDelete = await t.any('SELECT file_path FROM "multimedia_TBL" WHERE id IN ($1:list)', [deleteIds]);
         for (const f of filesToDelete) {
             if (f.file_path && !f.file_path.startsWith('http')) {
@@ -1126,77 +1185,85 @@ await db.tx(async t => {
         await t.none('DELETE FROM "multimedia_TBL" WHERE id IN ($1:list)', [deleteIds]);
     }
 
-    // 2. Insert New Multimedia (UPDATED LOGIC)
-    
-    // Check if the soldier ALREADY has a profile pic in the DB (after deletions)
-    const existingPic = await t.oneOrNone('SELECT id FROM "multimedia_TBL" WHERE soldier_id = $1 AND is_profile_pic = true', [id]);
-    
-    // Tracker: if one exists, we shouldn't assign another one
-    let profilePicAssigned = !!existingPic; 
-    let filePointer = 0;
+    // 2. --- BATTLE HISTORY (Keep your existing battle logic here) ---
+    // ... (Your battleId loop code) ...
 
-    for (let j = 0; j < m_descriptions.length; j++) {
-        const desc = m_descriptions[j].trim();
-        const type = m_types[j] || "";
-        const loc = m_locations[j] ? m_locations[j].trim() : null;
-        const isUrlType = /link|קישור|url|ссылка/i.test(type);
+   // --- NEW MULTIMEDIA UPLOAD (Optimized for upload.any() and [] notation) ---
+// 3. --- NEW MULTIMEDIA UPLOAD (Optimized for your Terminal Data) ---
+        const m_descriptions = Array.isArray(req.body.m_description) 
+            ? req.body.m_description 
+            : (req.body.m_description ? [req.body.m_description] : []);
 
-        let finalDbPath = null;
-        let currentFile = null;
-        let finalLocationLabel = ''; 
+        const m_types = Array.isArray(req.body.m_type) 
+            ? req.body.m_type 
+            : (req.body.m_type ? [req.body.m_type] : []);
 
-        // Handle File Logic
-        if (!isUrlType && multimediaFiles[filePointer]) {
-            currentFile = multimediaFiles[filePointer];
-            filePointer++; 
-        }
+        const m_locations = Array.isArray(req.body.physical_logical_location) 
+            ? req.body.physical_logical_location 
+            : (req.body.physical_logical_location ? [req.body.physical_logical_location] : []);
 
-        // Label Assignment
-        if (type.match(/PDF|JPG|תמונה|מסמך|Picture|Document/i)) {
-            finalLocationLabel = 'מחיצת קבצים לקישור';
-        } else if (isUrlType) {
-            finalLocationLabel = 'URL';
-        } else {
-            finalLocationLabel = loc || 'URL'; 
-        }
+        // Filter files specifically for 'm_files[]' as seen in your terminal
+        const multimediaFiles = req.files ? req.files.filter(f => f.fieldname === 'm_files[]') : [];
+        let filePointer = 0;
 
-        if (currentFile || (isUrlType && loc && loc !== "")) {
-            const folderName = `A${id}`;
-            const targetDir = path.join(PERSISTENT_ROOT, folderName);
-            if (!fs.existsSync(targetDir)) fs.mkdirSync(targetDir, { recursive: true });
+        for (let j = 0; j < m_descriptions.length; j++) {
+            const desc = m_descriptions[j].trim();
+            const type = m_types[j];
+            const loc = m_locations[j] ? m_locations[j].trim() : null;
 
-            if (currentFile) {
-                const decodedName = Buffer.from(currentFile.originalname, 'latin1').toString('utf8').replace(/\s+/g, '_');
-                const finalPath = path.join(targetDir, decodedName);
-                fs.renameSync(currentFile.path, finalPath);
-                finalDbPath = `/soldierUploads/${folderName}/${decodedName}`;
-            } else {
-                finalDbPath = loc;
+            // Determine if this row is a URL/Link type
+            const isUrlType = /link|קישור|url|ссылка/i.test(type || "");
+            let finalDbPath = null;
+            let currentFile = null;
+
+            // If not a URL, pull the next file from the buffer
+            if (!isUrlType && multimediaFiles[filePointer]) {
+                currentFile = multimediaFiles[filePointer];
+                filePointer++; 
             }
-
-            // --- REFINED PROFILE PIC LOGIC ---
-            let setToProfile = false;
-            // Check if this row is a picture/image file upload
-            const isImageType = /Picture|Image|תמונה|фото/i.test(type);
-
-            // Set to true ONLY if it's an image file AND nothing else is the profile pic yet
-            if (isImageType && currentFile && !profilePicAssigned) {
-                setToProfile = true;
-                profilePicAssigned = true; // Stop any subsequent loops from picking a pic
-            }
-
-            await t.none(`
-                INSERT INTO "multimedia_TBL" 
-                (soldier_id, file_description, file_path, physical_logical_location, multimedia_type, is_profile_pic, uploaded_date) 
-                VALUES ($1, $2, $3, $4, $5, $6, NOW())`,
-                [id, desc || ' ', finalDbPath, finalLocationLabel, type, setToProfile]
-            );
-        }
+            // 2. SET THE LABELS (Matching your addFULL logic)
+    if (type.match(/PDF|JPG|תמונה|מסמך|Picture|Document/i)) {
+        finalLocationLabel = 'מחיצת קבצים לקישור';
+    } else if (isUrlType) {
+        finalLocationLabel = 'URL';
+    } else {
+        finalLocationLabel = loc || 'URL'; 
     }
-});
 
+    // 3. Process File Upload if it exists
+    if (currentFile || (isUrlType && loc !== "")) {
+        const folderName = `A${id}`;
+        const targetDir = path.join(PERSISTENT_ROOT, folderName);
+        
+        if (!fs.existsSync(targetDir)) fs.mkdirSync(targetDir, { recursive: true });
+
+        if (currentFile) {
+            // ... your existing size validation ...
+            const decodedName = Buffer.from(currentFile.originalname, 'latin1').toString('utf8');
+            const finalPath = path.join(targetDir, decodedName);
+            fs.renameSync(currentFile.path, finalPath);
+            finalDbPath = `/soldierUploads/${folderName}/${decodedName}`;
+        } else {
+            // It's a URL
+            finalDbPath = loc;
+        }
+
+        // 4. Final Insert (Using the new finalLocationLabel)
+        const hasProfilePic = await t.oneOrNone('SELECT id FROM "multimedia_TBL" WHERE soldier_id = $1 AND is_profile_pic = true', [id]);
+        const setToProfile = (!hasProfilePic && finalDbPath !== null && !isUrlType);
+
+        await t.none(`
+            INSERT INTO "multimedia_TBL" 
+            (soldier_id, file_description, file_path, physical_logical_location, multimedia_type, is_profile_pic, uploaded_date) 
+            VALUES ($1, $2, $3, $4, $5, $6, NOW())`,
+            [id, desc || ' ', finalDbPath, finalLocationLabel, type, setToProfile]
+        );
+    }
+}
+});
+        //res.redirect(`/updateSoldier/${id}?saved=true`);
         if (isAdmin) {
-            res.redirect('/admin/completedRecords/?saved=true');
+           res.redirect('/admin/completedRecords/?saved=true');
         } else {
             res.redirect('/searchResults?saved=true');
         }
@@ -2041,11 +2108,144 @@ app.get('/admin/completedRecords', async (req, res) => {
 // Ensure you have defined 'db' (your database connection) and 'SOLDIER_TABLE' before this route.
 // If you use ExcelJS, make sure it is imported: const ExcelJS = require('exceljs');
 
-app.post('/admin/downloadExcel', requireAdmin, async (req, res) => {
+
+
+//app.post('/admin/downloadExcel', async (req, res) => {
+  app.post('/admin/downloadExcel', requireAdmin, async (req, res) => {
+    // --- Configuration Constants ---
     const BATTLE_HISTORY_TABLE = 'soldier_battle_history';
     const MULTIMEDIA_TABLE = 'multimedia_TBL';
-    const MAX_FILES = 12; 
-    const MAX_BATTLES = 5; // Future-proofing for Battle History slots
+    const MAX_BATTLES = 5;
+    const MAX_FILES = 12;
+
+     // 1. Create the header map for Categories 1-8 first
+   // --- 2. CREATE THE DYNAMIC DATA FIRST ---
+    const catXmlTags = {};
+    const catHeaders = {};
+
+    for (let i = 1; i <= 8; i++) {
+        // Prepare the XML tags
+        catXmlTags[`cat${i}`]   = `Category_${i}_HEB`;
+        catXmlTags[`cat${i}en`] = `Category_${i}_ENG`;
+        catXmlTags[`cat${i}ru`] = `Category_${i}_RUS`;
+
+        // Prepare the Excel Headers
+        catHeaders[`cat${i}`]   = `קטגוריה_${i}_HEB`;
+        catHeaders[`cat${i}en`] = `קטגוריה_${i}_ENG`;
+        catHeaders[`cat${i}ru`] = `קטגוריה_${i}_RUS`;
+    }
+ // 2. Updated XML Tag Map
+    // 2. Updated XML Tag Map
+    const XML_TAG_MAP = {
+        'id': 'FormID',
+        'useremail': 'Submitter_Email',
+        'name_soldier_submitter': 'Submitter_FullName',
+        'phone_soldier_submitter': 'Submitter_Phone',
+        'relation_of_soldier_submitter': 'Submitter_Relation',
+        'how_found_us_submitter': 'HowFoundUs', 
+        'fname': 'FirstName_HEB', 'fnameen': 'FirstName_ENG', 'fnameru': 'FirstName_RUS',
+        'lname': 'LastName_HEB', 'lnameen': 'LastName_ENG', 'lnameru': 'LastName_RUS',
+        'previouslname': 'PreviousLastName_HEB', 'previouslnameen': 'PreviousLastName_ENG', 'previouslnameru': 'PreviousLastName_RUS',
+        'calledby': 'Nickname_HEB', 'calledbyen': 'Nickname_ENG', 'calledbyru': 'Nickname_RUS',
+        'fathername': 'FatherName_HEB', 'fathernameen': 'FatherName_ENG', 'fathernameru': 'FatherName_RUS',
+        'mothername': 'MotherName_HEB', 'mothernameen': 'MotherName_ENG', 'mothernameru': 'MotherName_RUS',
+        'gender': 'Gender_HEB', 'genderen': 'Gender_ENG', 'genderru': 'Gender_RUS',
+        'birthcountry': 'BirthCountry_HEB', 'birthcountryen': 'BirthCountry_ENG', 'birthcountryru': 'BirthCountry_RUS',
+        'birthcity': 'BirthCity_HEB', 'birthcityen': 'BirthCity_ENG', 'birthcityru': 'BirthCity_RUS',
+        'state': 'State_HEB', 'stateen': 'State_ENG', 'stateru': 'State_RUS',
+        'dob': 'DateOfBirth',
+        'armyid': 'ArmyID',
+
+        ...catXmlTags, // Dynamic XML Tags injected here
+
+        'platoonname': 'Platoon_HEB', 'platoonnameen': 'Platoon_ENG', 'platoonnameru': 'Platoon_RUS',
+        'armyrole': 'Role_HEB', 'armyroleen': 'Role_ENG', 'armyroleru': 'Role_RUS',
+        'wounddetails': 'WoundDetails_HEB', 'wounddetailsen': 'WoundDetails_ENG', 'wounddetailsru': 'WoundDetails_RUS',
+        'deathdetails': 'DeathDetails_HEB', 'deathdetailsen': 'DeathDetails_ENG', 'deathdetailsru': 'DeathDetails_RUS',
+        'dod': 'DateOfDeath',
+        'placeofdeath': 'PlaceOfDeath_HEB', 'placeofdeathen': 'PlaceOfDeath_ENG', 'placeofdeathru': 'PlaceOfDeath_RUS',
+        'enlistreason': 'EnlistReason_HEB', 'enlistreasonen': 'EnlistReason_ENG', 'enlistreasonru': 'EnlistReason_RUS',
+        'rank': 'Rank_HEB', 'ranken': 'Rank_ENG', 'rankru': 'Rank_RUS',
+        'army': 'ArmyAffiliation_HEB', 'armyen': 'ArmyAffiliation_ENG', 'armyru': 'ArmyAffiliation_RUS',
+        'resistance': 'ResistanceAffiliation_HEB', 'resistanceen': 'ResistanceAffiliation_ENG', 'resistanceru': 'ResistanceAffiliation_RUS',
+        'partizan': 'PartisanAffiliation_HEB', 'partizanen': 'PartisanAffiliation_ENG', 'partizanru': 'PartisanAffiliation_RUS',
+        'participation': 'Participation_HEB', 'participationen': 'Participation_ENG', 'participationru': 'Participation_RUS',
+        'corps': 'Corps_HEB', 'corpsen': 'Corps_ENG', 'corpsru': 'Corps_RUS',
+        'other_medal': 'Medals_HEB', 'other_medalen': 'Medals_ENG', 'other_medalru': 'Medals_RUS',
+        'gettodesc': 'GhettoStruggle_HEB', 'gettodescen': 'GhettoStruggle_ENG', 'gettodescru': 'GhettoStruggle_RUS',
+        'otherparticipation': 'OtherWarParticipation_HEB', 'otherparticipationen': 'OtherWarParticipation_ENG', 'otherparticipationru': 'OtherWarParticipation_RUS',
+        'otherfightingcontext': 'OtherFightingContext_HEB', 'otherfightingcontexten': 'OtherFightingContext_ENG', 'otherfightingcontextru': 'OtherFightingContext_RUS',
+        'otherdecoration': 'OtherDecorations_HEB', 'otherdecorationen': 'OtherDecorations_ENG', 'otherdecorationru': 'OtherDecorations_RUS',
+        'aliyadate': 'AliyaDate',
+        'biography': 'FullBiography',
+        'download_date': 'DownloadDate'
+    };
+    
+    
+    // 2.  Excel Header Map 
+  
+    const EXCEL_HEADER_MAP = {
+        'id': 'Form ID',
+        'useremail': 'אימייל שולח',
+        'name_soldier_submitter': 'שם מלא שולח', // Combined Key
+        'phone_soldier_submitter': 'טלפון שולח',
+        'relation_of_soldier_submitter': 'קשר לחייל',
+        'how_found_us_submitter': 'איך הגיע אלינו',
+        'fname': 'שם פרטי_HEB', 'fnameen': 'שם פרטי_ENG', 'fnameru': 'שם פרטי_RUS',
+        'lname': 'שם משפחה_HEB', 'lnameen': 'שם משפחה_ENG', 'lnameru': 'שם משפחה_RUS',
+        'previouslname': 'שם משפחה קודם_HEB', 'previouslnameen': 'שם משפחה קודם_ENG', 'previouslnameru': 'שם משפחה קודם_RUS',
+        'calledby': 'שם כינוי_HEB', 'calledbyen': 'שם כינוי_ENG', 'calledbyru': 'שם כינוי_RUS',
+        'fathername': 'שם האב_HEB', 'fathernameen': 'שם האב_ENG', 'fathernameru': 'שם האב_RUS',
+        'mothername': 'שם האם_HEB', 'mothernameen': 'שם האם_ENG', 'mothernameru': 'שם האם_RUS',
+        'gender': 'מין_HEB', 'genderen': 'מין_ENG', 'genderru': 'מין_RUS',
+        'birthcountry': 'ארץ לידה_HEB', 'birthcountryen': 'ארץ לידה_ENG', 'birthcountryru': 'ארץ לידה_RUS',
+        'birthcity': 'עיר לידה_HEB', 'birthcityen': 'עיר לידה_ENG', 'birthcityru': 'עיר לידה_RUS',
+        'state': 'מדינה/מחוז_HEB', 'stateen': 'מדינה/מחוז_ENG', 'stateru': 'מדינה/מחוז_RUS',
+        'dob': 'תאריך לידה',
+        'armyid': 'מ.א. מספר אישי',
+        // Added cat1-cat8 headers
+        //'cat1': 'קטגוריה_1', 'cat2': 'קטגוריה_2', 'cat3': 'קטגוריה 3', 'cat4': 'קטגוריה 4',
+        //'cat5': 'קטגוריה 5', 'cat6': 'קטגוריה 6', 'cat7': 'קטגוריה 7', 'cat8': 'קטגוריה 8',
+           ...catHeaders, // Spread the TITLES here, not the data
+        'platoonname': 'יחידה_HEB', 'platoonnameen': 'יחידה_ENG', 'platoonnameru': 'יחידה_RUS',
+        'armyrole': 'תפקיד_HEB', 'armyroleen': 'תפקיד_ENG', 'armyroleru': 'תפקיד_RUS',
+        'wounddetails': 'פציעה_HEB', 'wounddetailsen': 'פציעה_ENG', 'wounddetailsru': 'פציעה_RUS',
+        'deathdetails': 'פרטי הפטירה_HEB', 'deathdetailsen': 'פרטי הפטירה_ENG', 'deathdetailsru': 'פרטי הפטירה_RUS',
+        'dod': 'תאריך פטירה',
+        'placeofdeath': 'מקום הפטירה_HEB', 'placeofdeathen': 'מקום הפטירה_ENG', 'placeofdeathru': 'מקום הפטירה_RUS',
+        'enlistreason': 'סיבת גיוס_HEB', 'enlistreasonen': 'סיבת גיוס_ENG', 'enlistreasonru': 'סיבת גיוס_RUS',
+        'rank': 'סיבת שחרור_HEB', 'ranken': 'סיבת שחרור_ENG', 'rankru': 'סיבת שחרור_RUS',
+        'army': 'שיוך לצבא_HEB', 'armyen': 'שיוך לצבא_ENG', 'armyru': 'שיוך לצבא_RUS',
+        'resistance': 'שיוך למחתרת_HEB', 'resistanceen': 'שיוך למחתרת_ENG', 'resistanceru': 'שיוך למחתרת_RUS',
+        'partizan': 'שיוך לפרטיזנים_HEB', 'partizanen': 'שיוך לפרטיזנים_ENG', 'partizanru': 'שיוך לפרטיזנים_RUS',
+        'participation': 'שיוך להשתתפות_HEB', 'participationen': 'שיוך להשתתפות_ENG', 'participationru': 'שיוך להשתתפות_RUS',
+        'corps': 'שיוך לחיל_HEB', 'corpsen': 'שיוך לחיל_ENG', 'corpsru': 'שיוך לחיל_RUS',
+        'other_medal': 'שיוך לעיטורים_HEB', 'other_medalen': 'שיוך לעיטורים_ENG', 'other_medalru': 'שיוך לעיטורים_RUS',
+        'gettodesc': 'מאבק בגטו / מחנה_HEB', 'gettodescen': 'מאבק בגטו / מחנה_ENG', 'gettodescru': 'מאבק בגטו / מחנה_RUS',
+        'otherparticipation': 'השתתפות במלחמה - אחר_HEB', 'otherparticipationen': 'השתתפות במלחמה - אחר_ENG', 'otherparticipationru': 'השתתפות במלחמה - אחר_RUS',
+        'otherfightingcontext': 'מסגרת לחימה - אחר_HEB', 'otherfightingcontexten': 'מסגרת לחימה - אחר_ENG', 'otherfightingcontextru': 'מסגרת לחימה - אחר_RUS',
+        'otherdecoration': 'עיטורים - אחר_HEB', 'otherdecorationen': 'עיטורים - אחר_ENG', 'otherdecorationru': 'עיטורים - אחר_RUS',
+        'aliyadate': 'תאריך עליה',
+        'biography': 'קורות חיים_סיפור אישי _HEB',
+        'download_date': 'תאריך הורדה',
+
+        ...Array.from({ length: MAX_BATTLES }, (_, n) => ({
+            [`battle_${n + 1}_year`]: `שנת לחימה ${n + 1}`,
+            [`battle_${n + 1}_front`]: `חזית_${n + 1}_HEB`, [`battle_${n + 1}_fronten`]: `חזית_${n + 1}_ENG`, [`battle_${n + 1}_frontru`]: `חזית_${n + 1}_RUS`,
+            [`battle_${n + 1}_medal`]: `עיטורים_${n + 1}_HEB`, [`battle_${n + 1}_medalen`]: `עיטורים_${n + 1}_ENG`, [`battle_${n + 1}_medalru`]: `עיטורים_${n + 1}_RUS`,
+            [`battle_${n + 1}_job`]: `תפקיד_${n + 1}_HEB`, [`battle_${n + 1}_joben`]: `תפקיד_${n + 1}_ENG`, [`battle_${n + 1}_jobru`]: `תפקיד_${n + 1}_RUS`,
+            [`battle_${n + 1}_degreerank`]: `דרגה_${n + 1}_HEB`, [`battle_${n + 1}_degreeranken`]: `דרגה_${n + 1}_ENG`, [`battle_${n + 1}_degreerankru`]: `דרגה_${n + 1}_RUS`,
+            [`battle_${n + 1}_battle`]: `קרב_${n + 1}_HEB`, [`battle_${n + 1}_battleen`]: `קרב_${n + 1}_ENG`, [`battle_${n + 1}_battleru`]: `קרב_${n + 1}_RUS`,
+            [`battle_${n + 1}_details`]: `הערות_${n + 1}_HEB`, [`battle_${n + 1}_detailsen`]: `הערות_${n + 1}_ENG`, [`battle_${n + 1}_detailsru`]: `הערות_${n + 1}_RUS`,
+        })).reduce((acc, curr) => ({ ...acc, ...curr }), {}),
+
+        ...Array.from({ length: MAX_FILES }, (_, n) => ({
+            [`file_${n + 1}_desc`]: `מולטימדיה - תיאור ${n + 1}`,
+            [`file_${n + 1}_type`]: `סוג מולטימדיה ${n + 1}`,
+            [`file_${n + 1}_path`]: `שם קובץ ${n + 1}`,
+            [`file_${n + 1}_loc`]: `מיקום לוגי פיזי ${n + 1}`,
+        })).reduce((acc, curr) => ({ ...acc, ...curr }), {}),
+    };
 
     let ids = req.body.selectedIds;
     if (!ids) return res.status(400).send('No records selected');
@@ -2056,7 +2256,7 @@ app.post('/admin/downloadExcel', requireAdmin, async (req, res) => {
         const formatDateToDDMMYYYY = (value) => {
             if (!value) return '';
             const d = new Date(value);
-            if (isNaN(d)) return value;
+            if (isNaN(d)) return value; 
             const day = String(d.getDate()).padStart(2, '0');
             const month = String(d.getMonth() + 1).padStart(2, '0');
             return `${day}-${month}-${d.getFullYear()}`;
@@ -2065,96 +2265,49 @@ app.post('/admin/downloadExcel', requireAdmin, async (req, res) => {
         const downloadDateString = formatDateToDDMMYYYY(now);
         const safeDate = downloadDateString.replace(/\//g, '-');
 
-        // 1. Fetch Data
+        const dateFields = ['dob', 'dod', 'aliyadate'];
+        const excludeFields = [
+            'fightingdesc', 'useremail', 'recordcomplete',
+            'admin_ready_for_download', 'record_complete_date', 'admin_approved_date',
+            'downloaded_date', 'uprising_participant', 
+            'soldier_previously_submitted', 
+            // Added old categories to exclusion
+            'category', 'categoryen', 'categoryru' 
+        ];
+
         const soldiers = await db.any(`SELECT * FROM soldierdetails WHERE id IN ($1:csv)`, [ids]);
-        const multimediaRecords = await db.any(`SELECT * FROM "${MULTIMEDIA_TABLE}" WHERE soldier_id IN ($1:csv) ORDER BY id`, [ids]);
-        
-        // --- Fetch Battle History (Fetched for XML, even if skipped in Excel) ---
         const battleHistory = await db.any(`SELECT * FROM ${BATTLE_HISTORY_TABLE} WHERE soldier_id IN ($1:csv) ORDER BY id`, [ids]);
+        const multimediaRecords = await db.any(`SELECT * FROM "${MULTIMEDIA_TABLE}" WHERE soldier_id IN ($1:csv) ORDER BY id`, [ids]);
+
         const battleMap = {};
         battleHistory.forEach(b => {
-            const sId = String(b.soldier_id).trim();
-            if (!battleMap[sId]) battleMap[sId] = [];
-            battleMap[sId].push(b);
+            if (!battleMap[b.soldier_id]) battleMap[b.soldier_id] = [];
+            battleMap[b.soldier_id].push(b);
         });
 
-        // 2. Map Multimedia and Calculate Max for Excel
         const multiMap = {};
-        let maxFilesFoundInBatch = 0;
         multimediaRecords.forEach(m => {
             const sId = String(m.soldier_id).trim();
             if (!multiMap[sId]) multiMap[sId] = [];
             multiMap[sId].push(m);
-            if (multiMap[sId].length > maxFilesFoundInBatch) maxFilesFoundInBatch = multiMap[sId].length;
         });
-
-        const excelFileColumnCount = Math.min(maxFilesFoundInBatch, MAX_FILES);
-
-        // 3. Generate Header/Tag Maps
-        const catXmlTags = {};
-        const catHeaders = {};
-        for (let i = 1; i <= 8; i++) {
-            catXmlTags[`cat${i}`] = `Category_${i}_HEB`;
-            catXmlTags[`cat${i}en`] = `Category_${i}_ENG`;
-            catXmlTags[`cat${i}ru`] = `Category_${i}_RUS`;
-            catHeaders[`cat${i}`] = `קטגוריה_${i}_HEB`;
-            catHeaders[`cat${i}en`] = `קטגוריה_${i}_ENG`;
-            catHeaders[`cat${i}ru`] = `קטגוריה_${i}_RUS`;
-        }
-
-        const XML_TAG_MAP = {
-            'id': 'FormID',
-            'useremail': 'Submitter_Email',
-            'name_soldier_submitter': 'Submitter_FullName',
-            'phone_soldier_submitter': 'Submitter_Phone',
-            'relation_of_soldier_submitter': 'Submitter_Relation',
-            'how_found_us_submitter': 'HowFoundUs', 
-            'fname': 'FirstName_HEB', 'fnameen': 'FirstName_ENG', 'fnameru': 'FirstName_RUS',
-            'lname': 'LastName_HEB', 'lnameen': 'LastName_ENG', 'lnameru': 'LastName_RUS',
-            'dob': 'DateOfBirth',
-            'armyid': 'ArmyID',
-            ...catXmlTags,
-            'dod': 'DateOfDeath',
-            'biography': 'FullBiography',
-            'download_date': 'DownloadDate'
-        };
-
-        const EXCEL_HEADER_MAP = {
-            'id': 'Form ID',
-            'useremail': 'אימייל שולח',
-            'name_soldier_submitter': 'שם מלא שולח',
-            'fname': 'שם פרטי_HEB', 'lname': 'שם משפחה_HEB',
-            'dob': 'תאריך לידה',
-            ...catHeaders,
-            'biography': 'קורות חיים_סיפור אישי _HEB',
-            'download_date': 'תאריך הורדה',
-            ...Array.from({ length: excelFileColumnCount }, (_, n) => ({
-                [`file_${n + 1}_path`]: `שם קובץ ${n + 1}`,
-                [`file_${n + 1}_desc`]: `מולטימדיה - תיאור ${n + 1}`,
-            })).reduce((acc, curr) => ({ ...acc, ...curr }), {}),
-        };
-
-        // 4. Flatten Rows & Prepare Manifest
-        const dateFields = ['dob', 'dod', 'aliyadate'];
-        const excludeFields = ['fightingdesc', 'recordcomplete', 'admin_ready_for_download', 'record_complete_date', 'admin_approved_date', 'downloaded_date', 'uprising_participant', 'soldier_previously_submitted', 'category', 'categoryen', 'categoryru'];
-
-        // Initialize Manifest String
-        let manifestContent = `EXPORT MANIFEST\nGenerated on: ${downloadDateString}\nTotal Soldiers: ${soldiers.length}\n`;
-        manifestContent += `--------------------------------------------------\n\n`;
 
         const flattenedRows = soldiers.map(s => {
             const row = {};
-            const cleanId = String(s.id).trim();
-
             for (const key in s) {
                 if (!excludeFields.includes(key)) {
                     row[key] = dateFields.includes(key) ? formatDateToDDMMYYYY(s[key]) : s[key];
                 }
             }
+            
+             // This creates the "First Last" string for the Excel column
             row.name_soldier_submitter = `${s.fname_soldier_submitter || ''} ${s.lname_soldier_submitter || ''}`.trim();
+
+            const cleanId = String(s.id).trim();
             row.id = `A${cleanId}`;
             row.download_date = downloadDateString;
-            row.biography_plain = `${s.biography || ''}\n\n${s.fightingdesc || ''}`;
+
+            // --- Rich Text formatting for Excel ---
             row.biography = {
                 richText: [
                     { font: { bold: true, size: 14 }, text: 'ביוגרפיה:' },
@@ -2164,114 +2317,150 @@ app.post('/admin/downloadExcel', requireAdmin, async (req, res) => {
                 ]
             };
 
-            // Manifest Soldier Header
-            manifestContent += `Soldier: ${row.id} | Name: ${s.fname || ''} ${s.lname || ''}\n`;
-
-            // Multimedia Prep
-            const sMedia = multiMap[cleanId] || [];
-            for (let n = 1; n <= MAX_FILES; n++) {
-                const m = sMedia[n - 1];
-                row[`file_${n}_desc`] = m ? (m.file_description || '') : '';
-                row[`file_${n}_type`] = m ? (m.multimedia_type || '') : '';
-                row[`file_${n}_loc`] = m ? (m.physical_logical_location || '') : '';
-                
-                if (m && m.file_path) {
-                    const baseName = path.basename(m.file_path);
-                    const cleanFileName = baseName.includes('-') ? baseName.substring(baseName.indexOf('-') + 1) : baseName;
-                    row[`file_${n}_path`] = m.physical_logical_location === "URL" ? m.file_path : `Images\\Warrior Pages\\multimediaFiles\\A${cleanId}\\${cleanFileName}`;
-                    
-                    // Add to manifest
-                    manifestContent += `  [File ${n}] ${cleanFileName} (${m.multimedia_type || 'Unknown'})\n`;
-                } else { 
-                    row[`file_${n}_path`] = ''; 
+            const sBattles = battleMap[s.id] || [];
+            sBattles.forEach((b, i) => {
+                const n = i + 1;
+                if (n <= MAX_BATTLES) {
+                    row[`battle_${n}_year`] = b.battleyear || '';
+                    row[`battle_${n}_front`] = b.front || '';
+                    row[`battle_${n}_fronten`] = b.fronten || '';
+                    row[`battle_${n}_frontru`] = b.frontru || '';
+                    row[`battle_${n}_battle`] = b.battle || '';
+                    row[`battle_${n}_battleen`] = b.battleen || '';
+                    row[`battle_${n}_battleru`] = b.battleru || '';
+                    row[`battle_${n}_medal`] = b.medal || '';
+                    row[`battle_${n}_medalen`] = b.medalen || '';
+                    row[`battle_${n}_medalru`] = b.medalru || '';
+                    row[`battle_${n}_details`] = b.details || '';
+                    row[`battle_${n}_detailsen`] = b.detailsen || '';
+                    row[`battle_${n}_detailsru`] = b.detailsru || '';
+                    row[`battle_${n}_degreerank`] = b.degreerank || '';
+                    row[`battle_${n}_degreeranken`] = b.degreeranken || '';
+                    row[`battle_${n}_degreerankru`] = b.degreerankru || '';
+                    row[`battle_${n}_job`] = b.job || '';
+                    row[`battle_${n}_joben`] = b.joben || '';
+                    row[`battle_${n}_jobru`] = b.jobru || '';
                 }
-            }
+            });
 
-            // Battle History Prep (For XML)
-            const sBattles = battleMap[cleanId] || [];
-            for (let n = 1; n <= MAX_BATTLES; n++) {
-                const b = sBattles[n - 1];
-                row[`battle_${n}_year`] = b ? (b.battleyear || '') : '';
-                row[`battle_${n}_front`] = b ? (b.front || '') : '';
-                row[`battle_${n}_battle`] = b ? (b.battle || '') : '';
-                row[`battle_${n}_medal`] = b ? (b.medal || '') : '';
-                row[`battle_${n}_rank`] = b ? (b.degreerank || '') : '';
-            }
-
-            manifestContent += `--------------------------------------------------\n`;
+            const sMedia = multiMap[cleanId] || [];
+            sMedia.forEach((m, i) => {
+                const n = i + 1;
+                if (n <= MAX_FILES) {
+                    row[`file_${n}_desc`] = m.file_description || '';
+                    row[`file_${n}_type`] = m.multimedia_type || '';
+                    row[`file_${n}_loc`] = m.physical_logical_location || '';
+                    if (m.file_path) {
+                        const baseName = path.basename(m.file_path);
+                        const cleanFileName = baseName.includes('-') ? baseName.substring(baseName.indexOf('-') + 1) : baseName;
+                        row[`file_${n}_path`] = m.physical_logical_location === "URL" ? m.file_path : `Images\\Warrior Pages\\multimediaFiles\\A${cleanId}\\${cleanFileName}`;
+                    }
+                }
+            });
             return row;
         });
 
-        // 5. Excel Generation
-        const workbook = new ExcelJS.Workbook();
-        const sheet = workbook.addWorksheet('Soldiers');
-        const allKeys = Object.keys(EXCEL_HEADER_MAP);
-        sheet.columns = allKeys.map(k => ({
+        // 4. Excel Generation
+const workbook = new ExcelJS.Workbook();
+const sheet = workbook.addWorksheet('Soldiers');
+
+// FIX: Instead of taking keys from the database (which are mixed up),
+// take them from your EXCEL_HEADER_MAP keys, which are already grouped logically.
+const allKeys = Object.keys(EXCEL_HEADER_MAP);
+
+sheet.columns = allKeys
+    .map(k => {
+        const isBio = k === 'biography';
+        return {
             header: EXCEL_HEADER_MAP[k],
             key: k,
-            width: k === 'biography' ? 80 : 20,
-            style: { numFmt: '@', alignment: { vertical: 'top', wrapText: true } }
-        }));
+            width: isBio ? 80 : 20, 
+            style: { 
+                numFmt: '@', 
+                alignment: { 
+                    horizontal: isBio ? 'right' : 'center', 
+                    vertical: 'top', 
+                    wrapText: true 
+                } 
+            }
+        };
+    });
+
         flattenedRows.forEach(row => sheet.addRow(row));
         const excelBuffer = await workbook.xlsx.writeBuffer();
+// 5. XML Generation
+const xmlRoot = create({ version: '1.0', encoding: 'UTF-8' }).ele('Soldiers');
 
-        // 6. XML Generation (Forcing all tags)
-        const xmlRoot = create({ version: '1.0', encoding: 'UTF-8' }).ele('Soldiers');
-        flattenedRows.forEach(row => {
-            const soldierNode = xmlRoot.ele('Soldier');
-            
-            // Standard Tags
-            Object.keys(XML_TAG_MAP).forEach(key => {
-                const tagName = XML_TAG_MAP[key];
-                let val = (key === 'biography') ? row.biography_plain : row[key];
-                soldierNode.ele(tagName).txt(String(val || '')).up();
-            });
+flattenedRows.forEach(row => {
+    const soldierNode = xmlRoot.ele('Soldier');
 
-            // Battle History Blocks (Future Usage)
-            for (let n = 1; n <= MAX_BATTLES; n++) {
-                const battleBlock = soldierNode.ele(`Battle_Record_${n}`);
-                battleBlock.ele(`Year`).txt(row[`battle_${n}_year`]).up();
-                battleBlock.ele(`Front`).txt(row[`battle_${n}_front`]).up();
-                battleBlock.ele(`Battle`).txt(row[`battle_${n}_battle`]).up();
-                battleBlock.ele(`Medal`).txt(row[`battle_${n}_medal`]).up();
-                battleBlock.ele(`Rank`).txt(row[`battle_${n}_rank`]).up();
-                battleBlock.up();
-            }
+    // THIS IS THE KEY: We loop through the MAP, not the data row
+    Object.keys(XML_TAG_MAP).forEach(key => {
+        let value = row[key];
+        
+        // Handle Biography rich text fallback
+        if (value && typeof value === 'object' && value.richText) {
+            value = value.richText.map(rt => rt.text).join('');
+        }
 
-            // Multimedia Blocks
-            for (let n = 1; n <= MAX_FILES; n++) {
-                const fileBlock = soldierNode.ele(`Multimedia_Record_${n}`);
-                fileBlock.ele(`Description`).txt(row[`file_${n}_desc`]).up();
-                fileBlock.ele(`Type`).txt(row[`file_${n}_type`]).up();
-                fileBlock.ele(`Path`).txt(row[`file_${n}_path`]).up();
-                fileBlock.ele(`Location`).txt(row[`file_${n}_loc`]).up();
-                fileBlock.up();
-            }
-            soldierNode.up();
-        });
+        // Only create a tag if there is data
+        if (value !== null && value !== undefined && value !== '') {
+            let tagName = XML_TAG_MAP[key];
+            // Safe cleanup for XML tag names
+            tagName = tagName.replace(/[^a-z0-9_]/gi, '');
+            soldierNode.ele(tagName).txt(String(value)).up();
+        }
+    });
+
+    // Add battles/files at the end (since they aren't in the static map)
+    for (const key in row) {
+        if ((key.startsWith('battle_') || key.startsWith('file_')) && row[key]) {
+            soldierNode.ele(key).txt(String(row[key])).up();
+        }
+    }
+
+    soldierNode.up();
+});
         const xmlString = xmlRoot.end({ prettyPrint: true });
 
-        // 7. ZIP and Send
+ // 6. ZIP Stream Setup
         res.setHeader('Content-Type', 'application/zip');
         res.setHeader('Content-Disposition', `attachment; filename="Full_Export_${safeDate}.zip"`);
+
         const archive = archiver('zip', { zlib: { level: 9 } });
         archive.pipe(res);
 
-        // Add Excel, XML, and Manifest
-        archive.append(excelBuffer, { name: `soldiers_data_${safeDate}.xlsx` });
-        archive.append(xmlString, { name: `soldiers_data_${safeDate}.xml` });
-        archive.append(manifestContent, { name: `manifest_${safeDate}.txt` });
+        // --- IMPROVED MANIFEST CONTENT ---
+        let manifestContent = `Export Summary - ${downloadDateString}\n`;
+        manifestContent += "=".repeat(40) + "\n";
+        manifestContent += `Total Records Exported: ${soldiers.length}\n\n`;
 
-        // Add Multimedia Folders
-        ids.forEach(id => {
-            const cleanId = String(id).trim();
-            const folderPath = path.join(PERSISTENT_ROOT, `A${cleanId}`);
-            if (fs.existsSync(folderPath)) archive.directory(folderPath, `multimediaFiles/A${cleanId}`);
+        soldiers.forEach(s => {
+            manifestContent += `[ID: A${s.id}] ${s.fname} ${s.lname}\n`;
         });
 
+        archive.append(manifestContent, { name: 'manifest.txt' });
+        archive.append(excelBuffer, { name: `soldiers_data_${safeDate}.xlsx` });
+        archive.append(xmlString, { name: `soldiers_data_${safeDate}.xml` });
+
+        // --- FIX: Multimedia from Persistent Storage ---
+        ids.forEach(id => {
+            const cleanId = String(id).trim();
+            // Use PERSISTENT_ROOT instead of __dirname/public
+            const folderPath = path.join(PERSISTENT_ROOT, `A${cleanId}`);
+            
+            if (fs.existsSync(folderPath)) {
+                // Add the folder content to the ZIP
+                //archive.directory(folderPath, `Soldier_Files/A${cleanId}`);
+                 archive.directory(folderPath, `multimediaFiles/A${cleanId}`);
+            } else {
+                console.log(`Diagnostic: No folder found for A${cleanId} at ${folderPath}`);
+            }
+        });
+
+        // 7. Finalize
         await db.none(`UPDATE soldierdetails SET downloaded_date = $1 WHERE id IN ($2:csv)`, [downloadDateString, ids]);
         await archive.finalize();
-
     } catch (err) {
         console.error('ZIP Export Error:', err);
         if (!res.headersSent) res.status(500).send('Package generation failed');
