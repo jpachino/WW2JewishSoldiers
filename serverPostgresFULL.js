@@ -2184,6 +2184,8 @@ app.post('/admin/downloadExcel', requireAdmin, async (req, res) => {
             ...Array.from({ length: excelFileColumnCount }, (_, n) => ({
                 [`file_${n + 1}_path`]: `שם קובץ ${n + 1}`,
                 [`file_${n + 1}_desc`]: `מולטימדיה - תיאור ${n + 1}`,
+                [`file_${n + 1}_type`]: `סוג מולטימדיה ${n + 1}`, 
+                [`file_${n + 1}_loc`]: `מיקום לוגי פיזי ${n + 1}`, 
             })).reduce((acc, curr) => ({ ...acc, ...curr }), {}),
         };
 
@@ -2262,7 +2264,7 @@ app.post('/admin/downloadExcel', requireAdmin, async (req, res) => {
         sheet.columns = allKeys.map(k => ({
             header: EXCEL_HEADER_MAP[k],
             key: k,
-            width: k === 'biography' ? 80 : 20,
+            width: k === 'biography' ? 40 : 20,
             style: { numFmt: '@', alignment: { vertical: 'top', wrapText: true } }
         }));
         flattenedRows.forEach(row => sheet.addRow(row));

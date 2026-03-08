@@ -1,67 +1,82 @@
 <!DOCTYPE html>
-<html lang="<%= locale %>">
-  <% 
+<html lang="<%= locale %>" dir="<%= locale === 'he' ? 'rtl' : 'ltr' %>"></html>
+<!--<html lang="<%= locale %>">
+<% 
   const sfx = locale === 'en' ? 'en' : (locale === 'ru' ? 'ru' : '');
   const tblSfx = locale === 'en' ? 'eng' : (locale === 'ru' ? 'rus' : 'heb');
-%>
+%>-->
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title><%= __('nav.title2') %></title>
   <link rel="stylesheet" href="/styles/styles.css" />
   <style>
-    .info-box { background-color: #f8f9fa; border-left: 6px solid #007bff; padding: 20px; margin: 20px auto; max-width: 800px; border-radius: 6px; font-family: Arial, sans-serif; line-height: 1.6; color: #333; }
-    form { max-width: 1000px; margin: 0 auto; }
-    fieldset { margin-top: 25px; border-radius: 6px; padding: 15px; border: 1px solid #ccc; }
-    .trio-row { display: flex; gap: 10px; margin-bottom: 10px; }
-    .trio-row .input-group { flex: 1; display: flex; flex-direction: column; }
-    .single-row { margin-bottom: 10px; display: flex; flex-direction: column; }
-    textarea { resize: vertical; }
+    /* Specific overrides for Update page */
+    .info-box { 
+      background-color: #f8f9fa; 
+      border-inline-start: 6px solid #0038b8; 
+      padding: 20px; 
+      margin: 20px auto; 
+      max-width: 1000px; 
+      border-radius: 8px; 
+    }
+    textarea { resize: vertical; min-height: 100px; }
+    
+    /* Error box matching new pill-style UI */
+    #error-summary {
+      display: none;
+      position: sticky;
+      top: 10px;
+      z-index: 1000;
+      background-color: #fff5f5;
+      border: 2px solid #cc0000;
+      padding: 20px;
+      margin: 20px auto;
+      max-width: 900px;
+      border-radius: 15px;
+      box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+    }
   </style>
 </head>
 
 <body>
 
   <header>
+    <div class="container header-flex">
+      <h1><%= __('titleUpdate') %></h1>
+      <div class="logo-area">
+        <img src="/images/Outlook-dieerunr.png" alt="Logo">
+      </div>
+    </div>
     <div class="container">
-      <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap;">
-        <h1><%= __('titleUpdate') %></h1>
-         </div>
       <nav>
         <a href="/"><%= __('nav.home') %></a>
       </nav>
     </div>
   </header>
-  <div style="margin-top: 50px; clear: both; display: block; width: 100%;"></div>
- 
-        <form method="get" action="" style="margin-top: 2rem;">
-          <select name="lang" class="lang-select" onchange="this.form.submit()">
-            <option value="he" <%= locale === 'he' ? 'selected' : '' %>>עברית</option>
-            <option value="en" <%= locale === 'en' ? 'selected' : '' %>>English</option>
-            <option value="ru" <%= locale === 'ru' ? 'selected' : '' %>>Русский</option>
-          </select>
-        </form>
-        <div id="error-summary" style="display: none; position: sticky; top: 10px; z-index: 1000; background-color: #fff5f5; border: 2px solid #cc0000; padding: 20px; margin: 20px auto; max-width: 900px; border-radius: 8px; box-shadow: 0 4px 12px rgba(0,0,0,0.15);">
-        <h3 style="color: #cc0000; margin-top: 0; display: flex; align-items: center;">
-          <span style="font-size: 24px; margin-right: 10px;">⚠️</span> 
-          <%= __('error.validation_failed') || 'Validation Error' %>
-        </h3>
-        <p style="color: #333; font-weight: bold;"><%= __('error.please_fix_following') || 'Please fix the following fields:' %></p>
-        <ul id="error-list" style="color: #cc0000; font-weight: bold; list-style-type: none; padding-left: 0;"></ul>
-        <button type="button" onclick="this.parentElement.style.display='none'" style="position: absolute; top: 10px; right: 10px; background: none; border: none; font-size: 20px; cursor: pointer;">&times;</button>
-      </div>
-      </div>
-      
-      <!--<nav>
-        <a href="/"><%= __('nav.home') %></a>
-      </nav>-->
+
+  <main class="container">
+    <div style="margin-top: 20px;">
+      <form method="get" action="" style="background:none; box-shadow:none; padding:0; margin:0;">
+        <select name="lang" class="lang-select" onchange="this.form.submit()" style="width: auto;">
+          <option value="he" <%= locale === 'he' ? 'selected' : '' %>>עברית</option>
+          <option value="en" <%= locale === 'en' ? 'selected' : '' %>>English</option>
+          <option value="ru" <%= locale === 'ru' ? 'selected' : '' %>>Русский</option>
+        </select>
+      </form>
     </div>
- 
 
-  <div class="container">
-    
-  <form action="/updateSoldier/<%= soldier.id %>" method="post" enctype="multipart/form-data" id="soldierForm">
+    <div id="error-summary">
+      <h3 style="color: #cc0000; margin-top: 0; display: flex; align-items: center; gap: 10px;">
+        <span>⚠️</span> 
+        <%= __('error.validation_failed') || 'Validation Error' %>
+      </h3>
+      <p style="color: #333; font-weight: bold;"><%= __('error.please_fix_following') || 'Please fix the following fields:' %></p>
+      <ul id="error-list" style="color: #cc0000; font-weight: bold; list-style-type: none; padding-left: 0;"></ul>
+      <button type="button" onclick="this.parentElement.style.display='none'" style="position: absolute; top: 15px; right: 15px; background: none; border: none; font-size: 24px; cursor: pointer; color: #999;">&times;</button>
+    </div>
 
+    <form action="/updateSoldier/<%= soldier.id %>" method="post" enctype="multipart/form-data" id="soldierForm">
     <% if (isAdmin) { %>
     <fieldset style="background-color: #fcfcfc; border: 1px dashed #bbb; margin-top: 10px;">
     <legend><%= __('sections.submitter_info') %></legend>
@@ -300,6 +315,7 @@
     <span class="date-error-msg"></span>
     <input type="hidden" name="dod" id="dod" value="<%= soldier.dod || '' %>">
 </div>
+
 
 <div class="input-group date-entry-group">
     <label for="aliyadate"><%= __('fields.aliyadate') %>:</label>
@@ -884,110 +900,202 @@
     <% } %>
 </div>
 
-<div id="multimedia-translations" 
-     data-err-missing-file="<%= __('errors.missing_file') %>"
-     data-err-img-size="<%= __('errors.image_too_large') %>"
-     data-err-pdf-size="<%= __('errors.pdf_too_large') %>"
-     style="display:none;"></div>
-
-<fieldset class="is-multimedia-container" style="border: 1px solid #ddd; padding: 20px; border-radius: 8px; margin-top: 20px;">
+<fieldset class="is-multimedia-container" style="border: 1px solid #ddd; padding: 20px; border-radius: 8px; margin-top: 25px;">
     <legend style="padding: 0 10px; font-weight: bold;"><%= __('sections.uploads') %></legend>
 
-    <div class="existing-multimedia" style="margin-bottom: 30px;">
-        <h4 style="color: #333;"><%= __('form.current_files') %></h4>
-        <table class="table" style="width: 100%; border-collapse: collapse;">
-            <thead>
-                <tr style="background: #f8f9fa;">
-                    <th style="padding: 10px; border-bottom: 2px solid #dee2e6;"><%= __('fields.description') %></th>
-                    <th style="padding: 10px; border-bottom: 2px solid #dee2e6;"><%= __('fields.source') %></th>
-                </tr>
-            </thead>
-            <tbody>
-                <% if (locals.multimedia && multimedia.length > 0) { %>
-                    <% multimedia.forEach(item => { %>
-                        <tr>
-                            <td style="padding: 10px; border-bottom: 1px solid #eee;"><%= item.file_description %></td>
-                            <td style="padding: 10px; border-bottom: 1px solid #eee;">
-                                <% const isExternal = item.physical_logical_location && item.physical_logical_location.match(/^https?:\/\//i); %>
-                                <% if (isExternal) { %>
-                                    <a href="<%= item.physical_logical_location %>" target="_blank" style="color: #0038b8; text-decoration: underline;">
-                                        <%= item.physical_logical_location %>
-                                    </a>
-                                <% } else { %>
-                                    <a href="<%= item.file_path %>" target="_blank" class="btn btn-sm btn-outline-info">
-                                        <%= __('buttons.view') %>
-                                    </a>
-                                <% } %>
-                            </td>
-                        </tr>
-                    <% }) %>
-                <% } else { %>
-                    <tr><td colspan="2" style="text-align:center; padding:10px;"><%= __('form.no_files_found') %></td></tr>
-                <% } %>
-            </tbody>
-        </table>
-    </div>
+    <div id="multimedia-translations" 
+         data-err-ext="<%= __('errors.invalid_extension') %>"
+         data-err-mismatch-img="<%= __('errors.mismatch_image') %>"
+         data-err-mismatch-pdf="<%= __('errors.mismatch_pdf') %>"
+         data-err-pdf-size="<%= __('errors.pdf_too_large') %>"
+         data-err-img-size="<%= __('errors.img_too_large') %>"
+         data-err-type-required="<%= __('errors.type_required') %>"
+         style="display:none;"></div>
 
-    <div class="upload-container" style="background: #fcfcfc; padding: 20px; border-radius: 6px; border: 1px dashed #ccc;">
-        <h4 style="margin-top: 0; color: #0038b8;"><%= __('fields.add_new_files') %></h4>
-        <div class="new-upload-row" style="display: flex; flex-direction: column; gap: 15px;">
-            <div>
-                <label style="font-weight:bold;"><%= __('fields.description') %></label>
-                <input type="text" name="m_description_new" class="form-control" placeholder="Describe this file...">
-            </div>
-            <div>
-                <label style="font-weight:bold;"><%= __('fields.multimedia_type') %></label>
-                <select name="m_type_new" id="m_type_new" class="form-control">
-                    <option value="">-- <%= __('fields.select_option') %> --</option>
-                    <% if (locals.multimedia_type_TBL) { %>
-                        <% multimedia_type_TBL.forEach(type => { %>
-                            <option value="<%= type.title_heb %>">
-                                <%= locale === 'he' ? type.title_heb : (locale === 'ru' ? type.title_rus : type.title_eng) %>
-                            </option>
-                        <% }) %>
-                    <% } %>
-                    <option value="URL">URL/Link</option>
-                </select>
-            </div>
-            <div id="file-input-wrapper">
-                <label style="font-weight:bold;">Choose File (Max 1.5MB)</label>
-                <input type="file" name="m_file_new" class="form-control">
-            </div>
-            <div id="url-input-wrapper" style="display:none;">
-                <label style="font-weight:bold;">URL / Link</label>
-                <input type="text" name="m_location_new" class="form-control" placeholder="https://...">
+    <% if (multimedia && multimedia.length > 0) { %>
+        <div class="existing-multimedia" style="margin-bottom: 30px;">
+            <h4 style="border-bottom: 2px solid #eee; padding-bottom: 10px;"><%= __('fields.existing_files') || 'Existing Files' %></h4>
+            <div style="display: grid; grid-template-columns: repeat(auto-fill, minmax(200px, 1fr)); gap: 15px; margin-top: 15px;">
+                <% multimedia.forEach(item => { %>
+                    <div class="multimedia-item" style="border: 1px solid #ccc; padding: 10px; border-radius: 6px; position: relative; background: #f9f9f9;">
+                        <p style="font-size: 0.8rem; font-weight: bold; margin-bottom: 5px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;">
+                            <%= item.file_description %>
+                        </p>
+                        
+                        <% if (item.multimedia_type && item.multimedia_type.match(/PDF/i)) { %>
+                            <div style="text-align: center; padding: 10px;">📄 PDF Document</div>
+                        <% } else if (item.file_path && item.file_path.startsWith('http')) { %>
+                            <div style="text-align: center; padding: 10px;">🔗 External Link</div>
+                        <% } else if (item.file_path) { %>
+                            <img src="<%= item.file_path %>" style="max-width: 100px;">
+                        <% } else { %>
+                            <div style="text-align: center; padding: 10px;">ℹ️ <%= item.physical_logical_location %></div>
+                        <% } %>
+
+                        <div style="margin-top: 10px; display: flex; justify-content: space-between; align-items: center;">
+                            <label style="color: #d9534f; font-size: 0.8rem; cursor: pointer;">
+                                <input type="checkbox" name="delete_multimedia[]" value="<%= item.id %>"> <%= __('fields.delete') || 'Delete' %>
+                            </label>
+                            <a href="<%= item.file_path %>" target="_blank" style="font-size: 0.8rem;"><%= __('fields.view') || 'View' %></a>
+                        </div>
+                    </div>
+                <% }) %>
             </div>
         </div>
+    <% } %>
+
+    <div class="upload-container">
+        <h4><%= __('fields.add_new_files') || 'Add New Files' %></h4>
+        
+        <div id="multimedia-rows"></div>
+        
+        <div style="display: flex; justify-content: flex-start; margin-top: 15px;">
+            <button type="button" id="add-multimedia" class="btn-add">
+                <%= __('fields.add_another') %>
+            </button>
+        </div>
     </div>
+
+    <template id="multimedia-template">
+        <div class="multimedia-row" style="border: 1px dashed #ccc; border-radius: 12px; margin-bottom: 15px; padding: 20px; background-color: #fafafa;">
+            <div class="row-layout" style="display: flex; flex-direction: column; gap: 15px;">
+                <div class="field-group">
+                    <label><%= __('fields.description') %></label>
+                    <input type="text" name="m_description[]" placeholder="<%= __('fields.enter_description') %>">
+                </div>
+                
+                <div class="field-group">
+                    <label><%= __('fields.multimedia_type') %></label>
+                    <select name="m_type[]" class="type-select" onchange="toggleUploadType(this)">
+                        <option value="">-- <%= __('fields.select_option') %> --</option>
+                        <% multimedia_types.forEach(type => { 
+                            let typeLabel = locale === 'he' ? type.title_heb : (locale === 'ru' ? type.title_rus : type.title_eng);
+                        %>
+                            <option value="<%= type.title_heb %>" data-type-eng="<%= (type.title_eng || '').toLowerCase() %>">
+                                <%= typeLabel %>
+                            </option>
+                        <% }) %>
+                    </select>
+                </div>
+
+                <div class="field-group">
+                    <div class="file-wrapper">
+                        <input type="file" name="m_files[]" class="file-input" accept=".jpg,.jpeg,.png,.pdf" style="display: none;" onchange="handleFileSelect(this)">
+                        <button type="button" class="btn" onclick="this.previousElementSibling.click()"><%= __('fields.choose_file') %></button>
+                        <span class="file-name-display" style="color: #666; margin-inline-start: 10px;"><%= __('fields.no_file_chosen') %></span>
+                    </div>
+                    <div class="location-wrapper" style="display: none; margin-top: 10px;">
+                        <input type="url" name="physical_logical_location[]" placeholder="https://...">
+                    </div>
+                </div>
+
+                <div style="text-align: end;">
+                    <button type="button" class="btn-danger" onclick="this.closest('.multimedia-row').remove()"><%= __('fields.remove') %></button>
+                </div>
+            </div>
+        </div>
+    </template>
 </fieldset>
 
 <% if (!isAdmin) { %>
 <div style="margin-top: 20px;">
+    <div class="completion-notes" style="display: flex; flex-direction: column; gap: 10px;">
+        <p style="margin: 0; font-weight: 600; color: #333;">
+            <span style="color: #0038b8;">ℹ️</span> <%= __('form.mark_complete_note') %>
+        </p>
+        <p style="margin: 0; color: #155724; font-weight: 500;">
+            <%= __('form.mark_complete_note2') %>
+        </p>
+        <p style="margin: 0; color: #155724; font-weight: 500;">
+            <%= __('form.mark_complete_note2b') %>
+        </p>
+        <p style="margin: 0; color: #dc3545; font-weight: 700; font-style: italic;">
+            <%= __('form.mark_complete_note3') %>
+        </p> <br>
+    </div>
     <label>
         <input type="checkbox" name="recordcomplete" value="true" <%= (locals.soldier && soldier.recordcomplete) ? 'checked disabled' : '' %> />
         <strong><%= __('form.mark_complete') %></strong>
     </label>
+
 </div>
 <% } %>
 <% if (isAdmin) { %>
-<div style="margin-top: 20px;">
-    <label>
+<div style="margin-top: 20px; padding: 15px; background: #f0f4ff; border-radius: 8px; border: 1px solid #0038b8;">
+    <label style="display: flex; align-items: center; gap: 10px; cursor: pointer;">
         <input type="checkbox" name="admin_ready_for_download" value="true" 
-               <%= (locals.soldier && soldier.admin_ready_for_download) ? 'checked disabled' : '' %> />
-        <strong><%= __('form.admin_complete') %></strong>
+               style="width: 20px; height: 20px;"
+               <%= (soldier.admin_ready_for_download === true) ? 'checked' : '' %> />
+        <span style="font-size: 1.1rem; color: #0038b8;">
+            <strong><%= __('form.admin_complete') %></strong> (Ready for Download)
+        </span>
     </label>
+    <p style="margin: 5px 0 0 30px; font-size: 0.85rem; color: #555;">
+        Checking this will mark the record as "Verified" in the completed list.
+    </p>
 </div>
 <% } %>
 
 <div class="form-actions" style="margin-top: 30px; margin-bottom: 50px;">
     <button type="submit" class="btn btn-primary btn-lg"><%= __('buttons.update') %></button>
 </div>  
-<script>document.addEventListener('DOMContentLoaded', () => {
+<script>
+document.addEventListener('DOMContentLoaded', () => {
     /**
      * 1. DATE VALIDATION & SYNC LOGIC
      */
     const dateGroups = document.querySelectorAll('.date-entry-group');
     const currentYear = new Date().getFullYear();
+    // --- ADD THIS AT THE TOP OF DOMContentLoaded ---
+  // --- FIX: VISUAL DISPLAY ORDER ---
+const dateGroupsOnLoad = document.querySelectorAll('.date-entry-group');
+dateGroupsOnLoad.forEach(group => {
+    const hiddenInput = group.querySelector('input[type="hidden"]');
+    const dayInput = group.querySelector('.day');
+    const monthInput = group.querySelector('.month');
+    const yearInput = group.querySelector('.year');
+
+    if (hiddenInput && hiddenInput.value) {
+        const val = hiddenInput.value.trim();
+        // Split by dash (standard DB format: 1945-05-09)
+        const parts = val.split('-'); 
+
+        if (parts.length === 3) {
+            // Check if the FIRST part is the Year (4 digits)
+            if (parts[0].length === 4) {
+                // DB Format: YYYY-MM-DD -> Map to UI: DD-MM-YYYY
+                yearInput.value = parts[0];
+                monthInput.value = parts[1];
+                dayInput.value = parts[2];
+            } else {
+                // Form Format: DD-MM-YYYY -> Map to UI: DD-MM-YYYY
+                dayInput.value = parts[0];
+                monthInput.value = parts[1];
+                yearInput.value = parts[2];
+            }
+        } else if (parts.length === 1 && val.length === 4) {
+            // Only Year exists
+            yearInput.value = val;
+        }
+    }
+});
+    window.syncDates = function() {
+        document.querySelectorAll('.date-entry-group').forEach(group => {
+            const dayInput = group.querySelector('.day');
+            const monthInput = group.querySelector('.month');
+            const yearInput = group.querySelector('.year');
+            const hiddenInput = group.querySelector('input[type="hidden"]');
+            
+            if (dayInput && monthInput && yearInput && hiddenInput) {
+                const day = dayInput.value.padStart(2, '0');
+                const month = monthInput.value.padStart(2, '0');
+                const year = yearInput.value;
+                if (year && month !== '00' && day !== '00') {
+                    hiddenInput.value = `${year}-${month}-${day}`;
+                }
+            }
+        });
+    };
 
     const getMaxDays = (month, year) => {
         const m = parseInt(month, 10);
@@ -1015,14 +1123,13 @@
     };
 
     const checkDateChronology = () => {
-        const dobVal = document.getElementById('dob').value;
-        const dodVal = document.getElementById('dod').value;
+        const dobVal = document.getElementById('dob') ? document.getElementById('dob').value : null;
+        const dodVal = document.getElementById('dod') ? document.getElementById('dod').value : null;
 
         if (dobVal && dodVal) {
             const parseToDate = (str) => {
                 const parts = str.split('-');
                 if (parts.length === 3) return new Date(parts[2], parts[1] - 1, parts[0]);
-                if (parts.length === 1) return new Date(parts[0], 0, 1);
                 return null;
             };
             const dobDate = parseToDate(dobVal);
@@ -1037,7 +1144,6 @@
     };
 
     dateGroups.forEach(group => {
-        const hiddenInput = group.querySelector('input[type="hidden"]');
         const dayInp = group.querySelector('.day');
         const monthInp = group.querySelector('.month');
         const yearInp = group.querySelector('.year');
@@ -1060,6 +1166,12 @@
                     d = '';
                 }
             }
+            validateAndSyncFinal(group, d, m, y);
+            checkDateChronology();
+        };
+
+        function validateAndSyncFinal(group, d, m, y) {
+            const hiddenInput = group.querySelector('input[type="hidden"]');
             const padD = d ? d.padStart(2, '0') : '';
             const padM = m ? m.padStart(2, '0') : '';
             let final = '';
@@ -1067,10 +1179,10 @@
             else if (y && m) final = `${padM}-${y}`;
             else if (y) final = y;
             hiddenInput.value = final;
-            checkDateChronology();
-        };
+        }
 
         inputs.forEach((el, index) => {
+            if(!el) return;
             el.addEventListener('input', () => {
                 el.value = el.value.replace(/\D/g, '');
                 validateAndSync();
@@ -1113,60 +1225,200 @@
         });
     }
 
-    /**
-     * 3. NEW MULTIMEDIA TOGGLE LOGIC
-     */
-    const typeSelect = document.getElementById('m_type_new');
-    const fileWrapper = document.getElementById('file-input-wrapper');
-    const urlWrapper = document.getElementById('url-input-wrapper');
+   /**
+ /**
+ * 3. SUBMIT VALIDATION & ANTI-SCRAMBLE
+ */
+const soldierForm = document.getElementById('soldierForm');
+if (soldierForm) {
+    soldierForm.addEventListener('submit', function(e) {
+        if (typeof window.syncDates === 'function') window.syncDates(); 
 
-    if (typeSelect) {
-        typeSelect.addEventListener('change', function() {
-            const selectedText = this.options[this.selectedIndex].text.toLowerCase();
-            const isUrl = selectedText.match(/url|קישור|link|ссылка/i);
-            if (isUrl) {
-                fileWrapper.style.display = 'none';
-                urlWrapper.style.display = 'block';
+        const transDiv = document.getElementById('multimedia-translations');
+        const trans = transDiv ? transDiv.dataset : {};
+        
+        let isValid = true;
+        let firstInvalidField = null; // Track the first error to scroll to it
+        
+        const errorSummary = document.getElementById('error-summary');
+        if (errorSummary) errorSummary.style.display = 'none';
+
+        // 1. Validate standard required fields
+        this.querySelectorAll('[required]').forEach(input => {
+            if (!input.value.trim()) {
+                isValid = false;
+                input.style.borderColor = 'red';
+                // Capture the first standard field that is empty
+                if (!firstInvalidField) firstInvalidField = input;
             } else {
-                fileWrapper.style.display = 'block';
-                urlWrapper.style.display = 'none';
+                input.style.borderColor = '#ccc';
             }
         });
-    }
 
-    /**
-     * 4. SUBMIT VALIDATION
-     */
-    document.getElementById('soldierForm').addEventListener('submit', function(e) {
-        let errors = [];
-        const mtrans = document.getElementById('multimedia-translations').dataset;
-        const fileInp = document.querySelector('input[name="m_file_new"]');
-        const descInp = document.querySelector('input[name="m_description_new"]');
-        const urlInp = document.querySelector('input[name="m_location_new"]');
-        const typeInp = document.getElementById('m_type_new');
-
-        // Check if user is trying to upload something
-        const hasFile = fileInp && fileInp.files.length > 0;
-        const hasUrl = urlInp && urlInp.value.trim() !== "";
+        // 2. --- MULTIMEDIA ROW VALIDATION ---
+        const multimediaRows = document.querySelectorAll('.multimedia-row');
         
-        if (hasFile || hasUrl) {
-            if (descInp.value.trim() === "") {
-                errors.push("Please provide a description for the new file.");
+        for (let i = 0; i < multimediaRows.length; i++) {
+            const row = multimediaRows[i];
+            const rowNum = i + 1;
+            
+            const descInput = row.querySelector('input[name="m_description[]"]');
+            const fileInput = row.querySelector('.file-input');
+            const urlInput = row.querySelector('input[name="physical_logical_location[]"]');
+            const typeSelect = row.querySelector('.type-select');
+
+            const hasFile = fileInput && fileInput.files.length > 0;
+            const hasUrl = urlInput && urlInput.value.trim() !== "";
+            const hasType = typeSelect && typeSelect.value !== "";
+            const hasDesc = descInput && descInput.value.trim() !== "";
+
+            // A. Missing description if other fields are filled
+            if ((hasFile || hasUrl || hasType) && !hasDesc) {
+                alert(`Row ${rowNum}: Description is required.`);
+                isValid = false;
+                descInput.style.borderColor = 'red';
+                if (!firstInvalidField) firstInvalidField = descInput;
+                break; 
             }
-            if (typeInp.value === "") {
-                errors.push("Please select a multimedia type.");
+
+            // B. Missing Type if file/url is provided
+            if ((hasFile || hasUrl) && !hasType) {
+                alert(`Row ${rowNum}: Multimedia type is required.`);
+                isValid = false;
+                typeSelect.style.borderColor = 'red';
+                if (!firstInvalidField) firstInvalidField = typeSelect;
+                break;
+            }
+
+            // C. File Type Mismatch
+            if (hasFile && typeSelect) {
+                const fileName = fileInput.files[0].name.toLowerCase();
+                const selectedType = (typeSelect.options[typeSelect.selectedIndex].getAttribute('data-type-eng') || "").toLowerCase();
+                const isPdfFile = fileName.endsWith('.pdf');
+
+                if (selectedType.includes('pdf') && !isPdfFile) {
+                    alert(`Row ${rowNum}: ${trans.errMismatchPdf}`);
+                    isValid = false;
+                    if (!firstInvalidField) firstInvalidField = typeSelect;
+                    break;
+                } else if ((selectedType.includes('image') || selectedType.includes('picture')) && isPdfFile) {
+                    alert(`Row ${rowNum}: ${trans.errMismatchImg}`);
+                    isValid = false;
+                    if (!firstInvalidField) firstInvalidField = typeSelect;
+                    break;
+                }
             }
         }
 
-        if (errors.length > 0) {
-            e.preventDefault();
-            alert(errors.join("\n"));
-            return false;
+        if (!isValid) {
+            e.preventDefault(); 
+            if (errorSummary) errorSummary.style.display = 'block';
+
+            // Logic: Scroll to the first error found
+            if (firstInvalidField) {
+                firstInvalidField.focus();
+                firstInvalidField.scrollIntoView({ behavior: 'smooth', block: 'center' });
+            }
+        } else {
+            // Anti-scramble: Ensure empty descriptions are a single space
+            multimediaRows.forEach(row => {
+                const d = row.querySelector('input[name="m_description[]"]');
+                if (d && d.value.trim() === "") d.value = " "; 
+            });
         }
     });
+}
+/**
+ * 4. ADD MULTIMEDIA ROW
+ */
+const addMultiBtn = document.getElementById('add-multimedia');
+if (addMultiBtn) {
+    addMultiBtn.addEventListener('click', function() {
+        const container = document.getElementById('multimedia-rows');
+        const template = document.getElementById('multimedia-template');
+        
+        const existingCount = document.querySelectorAll('.multimedia-item').length; 
+        const newRowsCount = container.querySelectorAll('.multimedia-row').length; 
+        
+        if ((existingCount + newRowsCount) >= 12) {
+            alert("Maximum 12 total multimedia items allowed per soldier.");
+            return; 
+        }
+
+        if (template) {
+            const clone = document.importNode(template.content, true);
+            container.appendChild(clone);
+        }
+    });
+}
 });
+/**
+ * 5. GLOBAL MULTIMEDIA FUNCTIONS
+ */
+function toggleUploadType(select) {
+    const row = select.closest('.multimedia-row');
+    const fileWrapper = row.querySelector('.file-wrapper');
+    const urlWrapper = row.querySelector('.location-wrapper');
+    const engType = (select.options[select.selectedIndex].getAttribute('data-type-eng') || "").toLowerCase();
+    
+    // Check if it's a URL/Link type
+    const isUrl = engType.includes('link') || engType.includes('url');
 
+    fileWrapper.style.display = isUrl ? 'none' : 'block';
+    urlWrapper.style.display = isUrl ? 'block' : 'none';
+    
+    if(isUrl) {
+        const f = row.querySelector('.file-input');
+        if(f) f.value = '';
+        const lbl = row.querySelector('.file-name-display');
+        if(lbl) lbl.textContent = "<%= __('fields.no_file_chosen') %>";
+    } else {
+        const u = row.querySelector('input[name="physical_logical_location[]"]');
+        if(u) u.value = '';
+    }
+}
 
+function handleFileSelect(input) {
+    const row = input.closest('.multimedia-row');
+    const label = row.querySelector('.file-name-display');
+    const mtrans = document.getElementById('multimedia-translations').dataset;
+    const file = input.files[0];
+    
+    if (!file) {
+        label.textContent = "<%= __('fields.no_file_chosen') %>";
+        label.style.color = "#666";
+        return;
+    }
+
+    const fileName = file.name.toLowerCase();
+    const fileSizeMB = file.size / (1024 * 1024);
+    let errorMessage = "";
+
+    const isJpg = /\.(jpg|jpeg|png)$/i.test(fileName);
+    const isPdf = fileName.endsWith('.pdf');
+
+    if (!isJpg && !isPdf) {
+        errorMessage = mtrans.errExt || "Invalid file extension";
+    } else if (fileSizeMB > 1.5) {
+        errorMessage = isPdf ? (mtrans.errPdfSize || "PDF too large (Max 1.5MB)") : (mtrans.errImgSize || "Image too large (Max 1.5MB)");
+    }
+
+    if (errorMessage) {
+        alert(errorMessage);
+        input.value = ""; 
+        label.textContent = "<%= __('fields.no_file_chosen') %>";
+        label.style.color = "red";
+    } else {
+        label.textContent = file.name + " (" + fileSizeMB.toFixed(2) + "MB)";
+        label.style.color = "green";
+        input.style.borderColor = "#ccc";
+    }
+}
+
+function removeMultimediaRow(btn) {
+    // Allows removing any row, even if it's the last one (since we start at zero)
+    btn.closest('.multimedia-row').remove();
+}
 </script>
 </body>
 </html>

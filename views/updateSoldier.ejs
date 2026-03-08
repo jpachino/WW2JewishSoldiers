@@ -1,9 +1,10 @@
 <!DOCTYPE html>
-<html lang="<%= locale %>">
+<html lang="<%= locale %>" dir="<%= locale === 'he' ? 'rtl' : 'ltr' %>"></html>
+<!--<html lang="<%= locale %>">
 <% 
   const sfx = locale === 'en' ? 'en' : (locale === 'ru' ? 'ru' : '');
   const tblSfx = locale === 'en' ? 'eng' : (locale === 'ru' ? 'rus' : 'heb');
-%>
+%>-->
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
@@ -35,6 +36,13 @@
       border-radius: 15px;
       box-shadow: 0 4px 12px rgba(0,0,0,0.15);
     }
+    /* Make the red error border pop more */
+    input[style*="border-color: red"], 
+    select[style*="border-color: red"] {
+    border-width: 2px !important;
+    outline: none; /* Removes the default browser blue so the red is the star */
+    box-shadow: 0 0 5px rgba(255, 0, 0, 0.5); /* Adds a soft red glow */
+}
   </style>
 </head>
 
@@ -908,6 +916,7 @@
          data-err-mismatch-pdf="<%= __('errors.mismatch_pdf') %>"
          data-err-pdf-size="<%= __('errors.pdf_too_large') %>"
          data-err-img-size="<%= __('errors.img_too_large') %>"
+         data-err-type-required="<%= __('errors.type_required') %>"
          style="display:none;"></div>
 
     <% if (multimedia && multimedia.length > 0) { %>
@@ -1223,109 +1232,126 @@ dateGroupsOnLoad.forEach(group => {
         });
     }
 
-   /**
- /**
- * 3. SUBMIT VALIDATION & ANTI-SCRAMBLE
- */
-const soldierForm = document.getElementById('soldierForm');
-if (soldierForm) {
-    soldierForm.addEventListener('submit', function(e) {
-        if (typeof window.syncDates === 'function') window.syncDates(); 
+/**
+     * 3. SUBMIT VALIDATION & ANTI-SCRAMBLE (With Red Highlights)
+     */
+    const soldierForm = document.getElementById('soldierForm');
+    if (soldierForm) {
+        soldierForm.addEventListener('submit', function(e) {
+            if (typeof window.syncDates === 'function') window.syncDates();
 
-        const transDiv = document.getElementById('multimedia-translations');
-        const trans = transDiv ? transDiv.dataset : {};
-        
-        let isValid = true;
-        let firstInvalidField = null; // Track the first error to scroll to it
-        
-        const errorSummary = document.getElementById('error-summary');
-        if (errorSummary) errorSummary.style.display = 'none';
+            const transDiv = document.getElementById('multimedia-translations');
+            const trans = transDiv ? transDiv.dataset : {};
 
-        // 1. Validate standard required fields
-        this.querySelectorAll('[required]').forEach(input => {
-            if (!input.value.trim()) {
-                isValid = false;
-                input.style.borderColor = 'red';
-                // Capture the first standard field that is empty
-                if (!firstInvalidField) firstInvalidField = input;
-            } else {
-                input.style.borderColor = '#ccc';
-            }
-        });
+            let isValid = true;
+            let firstInvalidField = null;
 
-        // 2. --- MULTIMEDIA ROW VALIDATION ---
-        const multimediaRows = document.querySelectorAll('.multimedia-row');
-        
-        for (let i = 0; i < multimediaRows.length; i++) {
-            const row = multimediaRows[i];
-            const rowNum = i + 1;
-            
-            const descInput = row.querySelector('input[name="m_description[]"]');
-            const fileInput = row.querySelector('.file-input');
-            const urlInput = row.querySelector('input[name="physical_logical_location[]"]');
-            const typeSelect = row.querySelector('.type-select');
+            // --- RESET ALL HIGHLIGHTS ---
+            // This clears previous red borders before re-checking
+            this.querySelectorAll('input, select').forEach(el => {
+                el.style.borderColor = '#ccc';
+            });
 
-            const hasFile = fileInput && fileInput.files.length > 0;
-            const hasUrl = urlInput && urlInput.value.trim() !== "";
-            const hasType = typeSelect && typeSelect.value !== "";
-            const hasDesc = descInput && descInput.value.trim() !== "";
-
-            // A. Missing description if other fields are filled
-            if ((hasFile || hasUrl || hasType) && !hasDesc) {
-                alert(`Row ${rowNum}: Description is required.`);
-                isValid = false;
-                descInput.style.borderColor = 'red';
-                if (!firstInvalidField) firstInvalidField = descInput;
-                break; 
-            }
-
-            // B. Missing Type if file/url is provided
-            if ((hasFile || hasUrl) && !hasType) {
-                alert(`Row ${rowNum}: Multimedia type is required.`);
-                isValid = false;
-                typeSelect.style.borderColor = 'red';
-                if (!firstInvalidField) firstInvalidField = typeSelect;
-                break;
-            }
-
-            // C. File Type Mismatch
-            if (hasFile && typeSelect) {
-                const fileName = fileInput.files[0].name.toLowerCase();
-                const selectedType = (typeSelect.options[typeSelect.selectedIndex].getAttribute('data-type-eng') || "").toLowerCase();
-                const isPdfFile = fileName.endsWith('.pdf');
-
-                if (selectedType.includes('pdf') && !isPdfFile) {
-                    alert(`Row ${rowNum}: ${trans.errMismatchPdf}`);
+            // 1. Validate standard required fields
+            this.querySelectorAll('[required]').forEach(input => {
+                if (!input.value.trim()) {
                     isValid = false;
-                    if (!firstInvalidField) firstInvalidField = typeSelect;
+                    input.style.borderColor = 'red';
+                    if (!firstInvalidField) firstInvalidField = input;
+                }
+            });
+
+            // 2. --- MULTIMEDIA ROW VALIDATION ---
+            const multimediaRows = document.querySelectorAll('.multimedia-row');
+
+            for (let i = 0; i < multimediaRows.length; i++) {
+                const row = multimediaRows[i];
+                const rowNum = i + 1;
+
+                const descInput = row.querySelector('input[name="m_description[]"]');
+                const fileInput = row.querySelector('.file-input');
+                const urlInput = row.querySelector('input[name="physical_logical_location[]"]');
+                const typeSelect = row.querySelector('.type-select');
+                const fileDisplay = row.querySelector('.file-name-display');
+
+                const hasFile = fileInput && fileInput.files.length > 0;
+                const hasUrl = urlInput && urlInput.value.trim() !== "";
+                const hasType = typeSelect && typeSelect.value !== "";
+                const hasDesc = descInput && descInput.value.trim() !== "";
+
+                // A. Missing description if other fields are filled
+                if ((hasFile || hasUrl || hasType) && !hasDesc) {
+                    alert(`Row ${rowNum}: <%= __('fields.description') %> is required.`);
+                    isValid = false;
+                    descInput.style.borderColor = 'red';
+                    if (!firstInvalidField) firstInvalidField = descInput;
                     break;
-                } else if ((selectedType.includes('image') || selectedType.includes('picture')) && isPdfFile) {
-                    alert(`Row ${rowNum}: ${trans.errMismatchImg}`);
+                }
+
+                // B. Missing Type if file/url is provided
+                if ((hasFile || hasUrl) && !hasType) {
+                    alert(`Row ${rowNum}: <%= __('fields.multimedia_type') %> is required.`);
                     isValid = false;
+                    typeSelect.style.borderColor = 'red';
                     if (!firstInvalidField) firstInvalidField = typeSelect;
                     break;
                 }
-            }
-        }
 
-        if (!isValid) {
-            e.preventDefault(); 
-            if (errorSummary) errorSummary.style.display = 'block';
+                // C. Type selected but NO file/url provided
+                if (hasType && !hasFile && !hasUrl) {
+                    alert(`Row ${rowNum}: Please provide a file or a link.`);
+                    isValid = false;
+                    if (urlInput && urlInput.offsetParent !== null) { // if URL is visible
+                        urlInput.style.borderColor = 'red';
+                        if (!firstInvalidField) firstInvalidField = urlInput;
+                    } else if (fileDisplay) {
+                        fileDisplay.style.color = 'red';
+                        fileDisplay.textContent = "⚠️ <%= __('fields.no_file_chosen') %>";
+                        if (!firstInvalidField) firstInvalidField = fileInput;
+                    }
+                    break;
+                }
 
-            // Logic: Scroll to the first error found
-            if (firstInvalidField) {
-                firstInvalidField.focus();
-                firstInvalidField.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                // D. File Type Mismatch (JPG vs PDF)
+                if (hasFile && typeSelect) {
+                    const fileName = fileInput.files[0].name.toLowerCase();
+                    const selectedOption = typeSelect.options[typeSelect.selectedIndex];
+                    const engType = (selectedOption.getAttribute('data-type-eng') || "").toLowerCase();
+                    
+                    const isPdfFile = fileName.endsWith('.pdf');
+                    const isImgFile = /\.(jpg|jpeg|png)$/i.test(fileName);
+
+                    if ((engType.includes('pdf') || engType.includes('document')) && !isPdfFile) {
+                        alert(`Row ${rowNum}: ${trans.errMismatchPdf || 'Please upload a PDF'}`);
+                        isValid = false;
+                        typeSelect.style.borderColor = 'red';
+                        if (!firstInvalidField) firstInvalidField = typeSelect;
+                        break;
+                    } else if ((engType.includes('image') || engType.includes('picture')) && !isImgFile) {
+                        alert(`Row ${rowNum}: ${trans.errMismatchImg || 'Please upload an image'}`);
+                        isValid = false;
+                        typeSelect.style.borderColor = 'red';
+                        if (!firstInvalidField) firstInvalidField = typeSelect;
+                        break;
+                    }
+                }
             }
-        } else {
-            // Anti-scramble: Ensure empty descriptions are a single space
-            multimediaRows.forEach(row => {
-                const d = row.querySelector('input[name="m_description[]"]');
-                if (d && d.value.trim() === "") d.value = " "; 
-            });
-        }
-    });
-}
+
+            if (!isValid) {
+                e.preventDefault();
+                if (firstInvalidField) {
+                    firstInvalidField.focus();
+                    firstInvalidField.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                }
+            } else {
+                // Anti-scramble logic
+                multimediaRows.forEach(row => {
+                    const d = row.querySelector('input[name="m_description[]"]');
+                    if (d && d.value.trim() === "") d.value = " ";
+                });
+            }
+        });
+    }
 /**
  * 4. ADD MULTIMEDIA ROW
  */
@@ -1351,15 +1377,15 @@ if (addMultiBtn) {
 }
 });
 /**
- * 5. GLOBAL MULTIMEDIA FUNCTIONS
+ * 5. GLOBAL MULTIMEDIA FUNCTIONS (Updated to match Add Page logic)
  */
 function toggleUploadType(select) {
     const row = select.closest('.multimedia-row');
     const fileWrapper = row.querySelector('.file-wrapper');
     const urlWrapper = row.querySelector('.location-wrapper');
-    const engType = (select.options[select.selectedIndex].getAttribute('data-type-eng') || "").toLowerCase();
+    const selectedOption = select.options[select.selectedIndex];
+    const engType = (selectedOption.getAttribute('data-type-eng') || "").toLowerCase();
     
-    // Check if it's a URL/Link type
     const isUrl = engType.includes('link') || engType.includes('url');
 
     fileWrapper.style.display = isUrl ? 'none' : 'block';
@@ -1382,6 +1408,11 @@ function handleFileSelect(input) {
     const mtrans = document.getElementById('multimedia-translations').dataset;
     const file = input.files[0];
     
+    // Get the type selected for THIS specific row
+    const typeSelect = row.querySelector('.type-select');
+    const selectedOption = typeSelect.options[typeSelect.selectedIndex];
+    const engType = (selectedOption.getAttribute('data-type-eng') || "").toLowerCase();
+
     if (!file) {
         label.textContent = "<%= __('fields.no_file_chosen') %>";
         label.style.color = "#666";
@@ -1395,7 +1426,15 @@ function handleFileSelect(input) {
     const isJpg = /\.(jpg|jpeg|png)$/i.test(fileName);
     const isPdf = fileName.endsWith('.pdf');
 
-    if (!isJpg && !isPdf) {
+    // Mismatch Logic (The "New Page" behavior)
+    const typeIsPicture = engType.includes('picture') || engType.includes('photo');
+    const typeIsDoc = engType.includes('document');
+
+    if (typeIsPicture && !isJpg) {
+        errorMessage = mtrans.errMismatchImg || "Please upload an image (JPG/PNG) for this type.";
+    } else if (typeIsDoc && !isPdf) {
+        errorMessage = mtrans.errMismatchPdf || "Please upload a PDF for this type.";
+    } else if (!isJpg && !isPdf) {
         errorMessage = mtrans.errExt || "Invalid file extension";
     } else if (fileSizeMB > 1.5) {
         errorMessage = isPdf ? (mtrans.errPdfSize || "PDF too large (Max 1.5MB)") : (mtrans.errImgSize || "Image too large (Max 1.5MB)");
