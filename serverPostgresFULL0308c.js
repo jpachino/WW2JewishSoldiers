@@ -2223,35 +2223,29 @@ app.post('/admin/downloadExcel', requireAdmin, async (req, res) => {
             manifestContent += `Soldier: ${row.id} | Name: ${s.fname || ''} ${s.lname || ''}\n`;
 
             // Multimedia Prep
-const sMedia = multiMap[cleanId] || [];
-for (let n = 1; n <= MAX_FILES; n++) {
-    const m = sMedia[n - 1];
-    row[`file_${n}_desc`] = m ? (m.file_description || '') : '';
-    row[`file_${n}_type`] = m ? (m.multimedia_type || '') : '';
-    row[`file_${n}_loc`] = m ? (m.physical_logical_location || '') : '';
-    
-    if (m && m.file_path) {
-        // 1. Get just the filename (e.g., "56-69.pdf")
-        const fileNameOnly = path.basename(m.file_path);
-        let cleanFileName = fileNameOnly;
-
-        // 2. Only strip if it's a real timestamp (long number at the start)
-        const parts = fileNameOnly.split('-');
-        if (parts.length > 1 && /^\d{10,15}$/.test(parts[0])) {
-            cleanFileName = fileNameOnly.substring(fileNameOnly.indexOf('-') + 1);
-        }
-
-        // 3. Construct the final display path
-        row[`file_${n}_path`] = m.physical_logical_location === "URL" 
-            ? m.file_path 
-            : `Images\\Warrior Pages\\multimediaFiles\\A${cleanId}\\${cleanFileName}`;
-        
-        // 4. Add to manifest (using the protected name)
-        manifestContent += `   [File ${n}] ${cleanFileName} (${m.multimedia_type || 'Unknown'})\n`;
-    } else { 
-        row[`file_${n}_path`] = ''; 
-    }
-}
+            const sMedia = multiMap[cleanId] || [];
+            for (let n = 1; n <= MAX_FILES; n++) {
+                const m = sMedia[n - 1];
+                row[`file_${n}_desc`] = m ? (m.file_description || '') : '';
+                row[`file_${n}_type`] = m ? (m.multimedia_type || '') : '';
+                row[`file_${n}_loc`] = m ? (m.physical_logical_location || '') : '';
+                
+                if (m && m.file_path) {
+                    const baseName = path.basename(m.file_path);
+                    let cleanFileName = m.file_path;
+                    const parts = m.file_path.split('-');
+                    if (parts.length > 1 && /^\d{10,15}$/.test(parts[0])) {
+                        cleanFileName = m.file_path.substring(m.file_path.indexOf('-') + 1);
+                    }
+                    //const cleanFileName = baseName.includes('-') ? baseName.substring(baseName.indexOf('-') + 1) : baseName;
+                    row[`file_${n}_path`] = m.physical_logical_location === "URL" ? m.file_path : `Images\\Warrior Pages\\multimediaFiles\\A${cleanId}\\${cleanFileName}`;
+                    
+                    // Add to manifest
+                    manifestContent += `  [File ${n}] ${cleanFileName} (${m.multimedia_type || 'Unknown'})\n`;
+                } else { 
+                    row[`file_${n}_path`] = ''; 
+                }
+            }
 
             // Battle History Prep (For XML)
             const sBattles = battleMap[cleanId] || [];
