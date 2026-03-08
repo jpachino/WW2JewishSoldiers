@@ -189,21 +189,20 @@
    <div>
   <label for="gender" class="mandatory"><%= __('fields.gender') %></label>
   <select name="genderId" id="gender">
-  <option value=""><%= __('fields.gender') %></option>
-  <% gender.forEach(c => { %>
-    <% 
-        let label = c.title_heb;
-        if (locale === 'en') label = c.title_eng;
-        if (locale === 'ru') label = c.title_rus;
+    <option value=""><%= __('fields.gender') %></option>
 
-        // Add safety check: typeof soldier !== 'undefined'
-        let isSelected = (typeof soldier !== 'undefined' && soldier.genderId == c.id) ? 'selected' : '';
-    %>
-    <option value="<%= c.id %>" <%= isSelected %>>
-      <%= label %>
-    </option>
-  <% }) %>
-</select>
+    <% gender.forEach(c => { %>
+      <% 
+         // Logic to determine which label to show the user based on language
+         let label = c.title_heb;
+         if (locale === 'en') label = c.title_eng;
+         if (locale === 'ru') label = c.title_rus;
+      %>
+      <option value="<%= c.id %>" <%= (soldier.genderId == c.id) ? 'selected' : '' %>>
+        <%= label %>
+      </option>
+    <% }) %>
+  </select>
 </div>
 </fieldset>
 
@@ -248,21 +247,21 @@
 <div>
   <label for="birthcountryId" class="mandatory"><%= __('fields.birthcountry') %></label>
   <select name="birthcountryId" id="birthcountryId">
-  <option value=""><%= __('fields.birthcountry') %></option>
-  <% countries.forEach(country => { %>
-    <% 
-        let countryLabel = country.title_heb;
-        if (locale === 'en') countryLabel = country.title_eng;
-        if (locale === 'ru') countryLabel = country.title_rus;
+    <option value=""><%= __('fields.birthcountry') %></option>
 
-        // Safety check here too
-        let isSelected = (typeof soldier !== 'undefined' && soldier.birthcountryId == country.id) ? 'selected' : '';
-    %>
-    <option value="<%= country.id %>" <%= isSelected %>>
-      <%= countryLabel %>
-    </option>
-  <% }) %>
-</select>
+    <% countries.forEach(country => { %>
+      <% 
+          // Determine which label to show the user in the dropdown UI
+          let countryLabel = country.title_heb;
+          if (locale === 'en') countryLabel = country.title_eng;
+          if (locale === 'ru') countryLabel = country.title_rus;
+      %>
+      <option value="<%= country.id %>" <%= (soldier.birthcountryId == country.id) ? 'selected' : '' %>>
+        <%= countryLabel %>
+      </option>
+    <% }) %>
+  </select>
+</div>
  
 
   <div class="trio-row">
@@ -367,7 +366,6 @@
          let label = d.title_heb;
          if (locale === 'en') label = d.title_eng;
          if (locale === 'ru') label = d.title_rus;
-         let isSelected = (typeof soldier !== 'undefined' && soldier && soldier.deathdetailsId == d.id) ? 'selected' : '';
       %>
       <option value="<%= d.id %>" <%= (soldier.deathdetailsId == d.id) ? 'selected' : '' %>>
         <%= label %>
@@ -399,7 +397,6 @@
          let label = c.title_heb;
          if (locale === 'en') label = c.title_eng;
          if (locale === 'ru') label = c.title_rus;
-         let isSelected = (typeof soldier !== 'undefined' && soldier && soldier.armyId == c.id) ? 'selected' : '';
         %>
       <option value="<%= c.id %>" <%= (soldier.armyId == c.id) ? 'selected' : '' %>>
         <%= label %>
@@ -418,7 +415,6 @@
          let label = c.title_heb;
          if (locale === 'en') label = c.title_eng;
          if (locale === 'ru') label = c.title_rus;
-         let isSelected = (typeof soldier !== 'undefined' && soldier && soldier.resistanceId == c.id) ? 'selected' : '';
       %>
       <option value="<%= c.id %>" <%= (soldier.resistanceId == c.id) ? 'selected' : '' %>>
         <%= label %>
@@ -438,7 +434,6 @@
          let label = c.title_heb;
          if (locale === 'en') label = c.title_eng;
          if (locale === 'ru') label = c.title_rus;
-         let isSelected = (typeof soldier !== 'undefined' && soldier && soldier.partizanId == c.id) ? 'selected' : '';
       %>
       <option value="<%= c.id %>" <%= (soldier.partizanId == c.id) ? 'selected' : '' %>>
         <%= label %>
@@ -450,24 +445,21 @@
  
   <div>
   <label for="corps"><%= __('fields.corps') %></label>
- <select name="corpsId" id="corps">
-  <option value=""><%= __('fields.corps') %></option>
+  <select name="corpsId" id="corps">
+    <option value=""><%= __('fields.corps') %></option>
 
-  <% corps.forEach(c => { %>
-    <% 
-        // Logic to determine which label to show the user based on language
-        let label = c.title_heb;
-        if (locale === 'en') label = c.title_eng;
-        if (locale === 'ru') label = c.title_rus;
-
-        // Safety check to prevent ReferenceError if 'soldier' is not defined on the Add page
-        let isSelected = (typeof soldier !== 'undefined' && soldier && soldier.corpsId == c.id) ? 'selected' : '';
-    %>
-    <option value="<%= c.id %>" <%= isSelected %>>
-      <%= label %>
-    </option>
-  <% }) %>
-</select>
+    <% corps.forEach(c => { %>
+      <% 
+         // Logic to determine which label to show the user based on language
+         let label = c.title_heb;
+         if (locale === 'en') label = c.title_eng;
+         if (locale === 'ru') label = c.title_rus;
+      %>
+      <option value="<%= c.id %>" <%= (soldier.corpsId == c.id) ? 'selected' : '' %>>
+        <%= label %>
+      </option>
+    <% }) %>
+  </select>
 </div>
 <br>
 <div>
@@ -481,7 +473,6 @@
          let label = c.title_heb;
          if (locale === 'en') label = c.title_eng;
          if (locale === 'ru') label = c.title_rus;
-         let isSelected = (typeof soldier !== 'undefined' && soldier && soldier.enlistreasonId == c.id) ? 'selected' : '';
       %>
       <option value="<%= c.id %>" <%= (soldier.enlistreasonId == c.id) ? 'selected' : '' %>>
         <%= label %>
@@ -624,7 +615,6 @@
          let label = c.title_heb;
          if (locale === 'en') label = c.title_eng;
          if (locale === 'ru') label = c.title_rus;
-         let isSelected = (typeof soldier !== 'undefined' && soldier && soldier.paricipationId == c.id) ? 'selected' : '';
       %>
       <option value="<%= c.id %>" <%= (soldier.participationId == c.id) ? 'selected' : '' %>>
         <%= label %>
