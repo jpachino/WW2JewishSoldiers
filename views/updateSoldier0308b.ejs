@@ -1312,38 +1312,29 @@ dateGroupsOnLoad.forEach(group => {
                     break;
                 }
 
-                // --- D. Final Submit Check (JPG vs PDF Only) ---
-if (hasFile && typeSelect) {
-    const fileName = fileInput.files[0].name.toLowerCase();
-    const selectedOption = typeSelect.options[typeSelect.selectedIndex];
-    const engType = (selectedOption.getAttribute('data-type-eng') || "").toLowerCase();
-    
-    const isPdfFile = fileName.endsWith('.pdf');
-    const isJpgFile = /\.(jpg|jpeg)$/i.test(fileName); // No PNG allowed
+                // D. File Type Mismatch (JPG vs PDF)
+                if (hasFile && typeSelect) {
+                    const fileName = fileInput.files[0].name.toLowerCase();
+                    const selectedOption = typeSelect.options[typeSelect.selectedIndex];
+                    const engType = (selectedOption.getAttribute('data-type-eng') || "").toLowerCase();
+                    
+                    const isPdfFile = fileName.endsWith('.pdf');
+                    const isImgFile = /\.(jpg|jpeg|png)$/i.test(fileName);
 
-    let mismatch = false;
-    let specificError = "";
-
-    if ((engType.includes('picture') || engType.includes('photo')) && !isJpgFile) {
-        mismatch = true;
-        specificError = "Only JPG images are allowed for Picture type.";
-    } else if (engType.includes('document') && !isPdfFile) {
-        mismatch = true;
-        specificError = "Only PDF files are allowed for Document type.";
-    } else if (!isPdfFile && !isJpgFile) {
-        mismatch = true;
-        specificError = "Unsupported file format. Please use JPG or PDF.";
-    }
-
-    if (mismatch) {
-        alert(`Row ${rowNum}: ${specificError}`);
-        isValid = false;
-        typeSelect.classList.add('input-error-highlight');
-        if (fileDisplay) fileDisplay.classList.add('input-error-highlight');
-        if (!firstInvalidField) firstInvalidField = typeSelect;
-        break; 
-    }
-}
+                    if ((engType.includes('pdf') || engType.includes('document')) && !isPdfFile) {
+                        alert(`Row ${rowNum}: ${trans.errMismatchPdf || 'Please upload a PDF'}`);
+                        isValid = false;
+                        typeSelect.style.borderColor = 'red';
+                        if (!firstInvalidField) firstInvalidField = typeSelect;
+                        break;
+                    } else if ((engType.includes('image') || engType.includes('picture')) && !isImgFile) {
+                        alert(`Row ${rowNum}: ${trans.errMismatchImg || 'Please upload an image'}`);
+                        isValid = false;
+                        typeSelect.style.borderColor = 'red';
+                        if (!firstInvalidField) firstInvalidField = typeSelect;
+                        break;
+                    }
+                }
             }
 
             if (!isValid) {
@@ -1422,10 +1413,6 @@ function handleFileSelect(input) {
     const selectedOption = typeSelect.options[typeSelect.selectedIndex];
     const engType = (selectedOption.getAttribute('data-type-eng') || "").toLowerCase();
 
-    // Reset styles
-    label.classList.remove('input-error-highlight');
-    input.classList.remove('input-error-highlight');
-
     if (!file) {
         label.textContent = "<%= __('fields.no_file_chosen') %>";
         label.style.color = "#666";
@@ -1436,20 +1423,19 @@ function handleFileSelect(input) {
     const fileSizeMB = file.size / (1024 * 1024);
     let errorMessage = "";
 
-    // STRICT: JPG/JPEG only (Removed png)
-    const isJpg = /\.(jpg|jpeg)$/i.test(fileName);
+    const isJpg = /\.(jpg|jpeg|png)$/i.test(fileName);
     const isPdf = fileName.endsWith('.pdf');
 
+    // Mismatch Logic (The "New Page" behavior)
     const typeIsPicture = engType.includes('picture') || engType.includes('photo');
     const typeIsDoc = engType.includes('document');
 
-    // Validation Logic
     if (typeIsPicture && !isJpg) {
-        errorMessage = mtrans.errMismatchImg || "Please upload a JPG image.";
+        errorMessage = mtrans.errMismatchImg || "Please upload an image (JPG/PNG) for this type.";
     } else if (typeIsDoc && !isPdf) {
-        errorMessage = mtrans.errMismatchPdf || "Please upload a PDF.";
+        errorMessage = mtrans.errMismatchPdf || "Please upload a PDF for this type.";
     } else if (!isJpg && !isPdf) {
-        errorMessage = mtrans.errExt || "Invalid extension. Only JPG and PDF allowed.";
+        errorMessage = mtrans.errExt || "Invalid file extension";
     } else if (fileSizeMB > 1.5) {
         errorMessage = isPdf ? (mtrans.errPdfSize || "PDF too large (Max 1.5MB)") : (mtrans.errImgSize || "Image too large (Max 1.5MB)");
     }
@@ -1459,19 +1445,15 @@ function handleFileSelect(input) {
         input.value = ""; 
         label.textContent = "<%= __('fields.no_file_chosen') %>";
         label.style.color = "red";
-        
-        // Add the red outline class
-        label.classList.add('input-error-highlight');
     } else {
         label.textContent = file.name + " (" + fileSizeMB.toFixed(2) + "MB)";
         label.style.color = "green";
         input.style.borderColor = "#ccc";
-        label.classList.remove('input-error-highlight');
     }
 }
 
 function removeMultimediaRow(btn) {
-    // Allows removing any row
+    // Allows removing any row, even if it's the last one (since we start at zero)
     btn.closest('.multimedia-row').remove();
 }
 </script>

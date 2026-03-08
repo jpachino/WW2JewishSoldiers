@@ -957,58 +957,50 @@
     }
 
     function handleFileSelect(input) {
-    const row = input.closest('.multimedia-row');
-    const label = row.querySelector('.file-name-display');
-    const mtrans = document.getElementById('multimedia-translations').dataset;
-    const file = input.files[0];
-    
-    // Get the type selected for THIS specific row
-    const typeSelect = row.querySelector('.type-select');
-    const selectedOption = typeSelect.options[typeSelect.selectedIndex];
-    const engType = (selectedOption.getAttribute('data-type-eng') || "").toLowerCase();
+        const row = input.closest('.multimedia-row');
+        const label = row.querySelector('.file-name-display');
+        const mtrans = document.getElementById('multimedia-translations').dataset;
+        const file = input.files[0];
+        const typeSelect = row.querySelector('.type-select');
+        const selectedTypeText = typeSelect ? typeSelect.options[typeSelect.selectedIndex].text.toLowerCase() : "";
 
-    // Reset styles
-    label.classList.remove('input-error-highlight');
-    label.style.color = "#666";
+        if (!file) {
+            label.textContent = "<%= __('fields.no_file_chosen') %>";
+            label.style.color = "#666";
+            return;
+        }
 
-    if (!file) {
-        label.textContent = "<%= __('fields.no_file_chosen') %>";
-        return;
+        const fileName = file.name.toLowerCase();
+        const fileSizeMB = file.size / (1024 * 1024);
+        let errorMessage = "";
+
+        const isJpg = fileName.endsWith('.jpg') || fileName.endsWith('.jpeg') || fileName.endsWith('.png');
+        const isPdf = fileName.endsWith('.pdf');
+
+        const typeIsPicture = selectedTypeText.includes('picture') || selectedTypeText.includes('תמונה') || selectedTypeText.includes('фото');
+        const typeIsDoc = selectedTypeText.includes('document') || selectedTypeText.includes('מסמך') || selectedTypeText.includes('документ');
+
+        if (typeIsPicture && !isJpg) {
+            errorMessage = mtrans.errMismatchImg || "Please upload an image (JPG/PNG)";
+        } else if (typeIsDoc && !isPdf) {
+            errorMessage = mtrans.errMismatchPdf || "Please upload a PDF";
+        } else if (!isJpg && !isPdf) {
+            errorMessage = mtrans.errExt || "Invalid file extension";
+        } else if (fileSizeMB > 1.5) {
+            errorMessage = isPdf ? (mtrans.errPdfSize || "PDF too large (Max 1.5MB)") : (mtrans.errImgSize || "Image too large (Max 1.5MB)");
+        }
+
+        if (errorMessage) {
+            alert(errorMessage);
+            input.value = ""; 
+            label.textContent = "<%= __('fields.no_file_chosen') %>";
+            label.style.color = "red";
+        } else {
+            label.textContent = file.name + " (" + fileSizeMB.toFixed(2) + "MB)";
+            label.style.color = "green";
+        }
     }
 
-    const fileName = file.name.toLowerCase();
-    const fileSizeMB = file.size / (1024 * 1024);
-    let errorMessage = "";
-
-    // STRICT: JPG/JPEG only (Removed .png)
-    const isJpg = /\.(jpg|jpeg)$/i.test(fileName);
-    const isPdf = fileName.endsWith('.pdf');
-
-    const typeIsPicture = engType.includes('picture') || engType.includes('photo');
-    const typeIsDoc = engType.includes('document');
-
-    if (typeIsPicture && !isJpg) {
-        errorMessage = mtrans.errMismatchImg || "Please upload a JPG image.";
-    } else if (typeIsDoc && !isPdf) {
-        errorMessage = mtrans.errMismatchPdf || "Please upload a PDF.";
-    } else if (!isJpg && !isPdf) {
-        errorMessage = mtrans.errExt || "Invalid extension. Only JPG and PDF allowed.";
-    } else if (fileSizeMB > 1.5) {
-        errorMessage = isPdf ? (mtrans.errPdfSize || "PDF too large (Max 1.5MB)") : (mtrans.errImgSize || "Image too large (Max 1.5MB)");
-    }
-
-    if (errorMessage) {
-        alert(errorMessage);
-        input.value = ""; 
-        label.textContent = "<%= __('fields.no_file_chosen') %>";
-        label.classList.add('input-error-highlight');
-        label.style.color = "red";
-    } else {
-        label.textContent = file.name + " (" + fileSizeMB.toFixed(2) + "MB)";
-        label.style.color = "green";
-        label.classList.remove('input-error-highlight');
-    }
-}
    function removeMultimediaRow(btn) {
     // This allows removing any row without restrictions
     btn.closest('.multimedia-row').remove();
@@ -1123,29 +1115,23 @@ document.getElementById('add-multimedia').addEventListener('click', function() {
     // Optional: Scroll the user to the new row
     container.lastElementChild.scrollIntoView({ behavior: 'smooth' });
 });
-// --- SUBMIT VALIDATION (addFull.ejs) ---
+       // --- SUBMIT VALIDATION ---
 soldierForm.addEventListener('submit', function(e) {
     window.syncDates(); 
     const mtrans = document.getElementById('multimedia-translations').dataset;
     let isValid = true;
-    let firstInvalidField = null;
-
-    // Reset all highlights
-    this.querySelectorAll('input, select').forEach(el => {
-        el.classList.remove('input-error-highlight');
-        el.style.borderColor = '#ccc';
-    });
 
     // 1. Validate General Required Fields
     this.querySelectorAll('[required]').forEach(input => {
         if (!input.value.trim()) {
             isValid = false;
-            input.classList.add('input-error-highlight');
-            if (!firstInvalidField) firstInvalidField = input;
+            input.style.borderColor = 'red';
+        } else {
+            input.style.borderColor = '#ccc';
         }
     });
 
-    // 2. Validate Multimedia Rows
+    // 2. Validate Multimedia Rows with Pop-up Alerts
     const multimediaRows = document.querySelectorAll('.multimedia-row');
     
     for (let i = 0; i < multimediaRows.length; i++) {
@@ -1156,76 +1142,45 @@ soldierForm.addEventListener('submit', function(e) {
         const typeSelect = row.querySelector('.type-select');
         const fileInput = row.querySelector('.file-input');
         const urlInput = row.querySelector('input[name="physical_logical_location[]"]');
-        const fileDisplay = row.querySelector('.file-name-display');
         
         const hasFile = fileInput.files.length > 0;
         const hasUrl = urlInput && urlInput.value.trim() !== "";
         const hasType = typeSelect.value !== "";
         const hasDesc = desc.value.trim() !== "";
 
-        // CHECK A: Missing Description
-        if ((hasFile || hasUrl || hasType) && !hasDesc) {
-            alert(`Row ${rowNum}: <%= __('fields.description') %> is required.`);
-            desc.classList.add('input-error-highlight');
-            if (!firstInvalidField) firstInvalidField = desc;
+        // CHECK A: If they provided a file/link but forgot the Description
+        if ((hasFile || hasUrl) && !hasDesc) {
+            alert(`Row ${rowNum}: <%= __('fields.description') %> is required for this upload.`);
+            desc.focus();
+            desc.style.borderColor = 'red';
             isValid = false;
-            break; 
+            break; // Stop at the first error found
         }
 
-        // CHECK B: Missing Type
+        // CHECK B: If they provided a file/link but forgot the Type
         if ((hasFile || hasUrl) && !hasType) {
             alert(`Row ${rowNum}: <%= __('fields.multimedia_type') %> is required.`);
-            typeSelect.classList.add('input-error-highlight');
-            if (!firstInvalidField) firstInvalidField = typeSelect;
+            typeSelect.focus();
+            typeSelect.style.borderColor = 'red';
             isValid = false;
             break; 
         }
 
-        // CHECK C: Type selected but no File/Link
+        // CHECK C: If they selected a Type but forgot the File/Link
         if (hasType && !hasFile && !hasUrl) {
-            alert(`Row ${rowNum}: Please provide a file or link.`);
-            if (urlInput && urlInput.offsetParent !== null) {
-                urlInput.classList.add('input-error-highlight');
-            } else {
-                fileDisplay.classList.add('input-error-highlight');
-                fileDisplay.style.color = 'red';
-            }
-            if (!firstInvalidField) firstInvalidField = typeSelect;
+            alert(`Row ${rowNum}: Please choose a file or enter a URL for the selected type.`);
             isValid = false;
             break;
-        }
-
-        // CHECK D: Final File Extension Check (Strict JPG/PDF)
-        if (hasFile) {
-            const fileName = fileInput.files[0].name.toLowerCase();
-            const selectedOption = typeSelect.options[typeSelect.selectedIndex];
-            const engType = (selectedOption.getAttribute('data-type-eng') || "").toLowerCase();
-            
-            const isPdfFile = fileName.endsWith('.pdf');
-            const isJpgFile = /\.(jpg|jpeg)$/i.test(fileName); // No PNG
-
-            if ((engType.includes('picture') || engType.includes('photo')) && !isJpgFile) {
-                alert(`Row ${rowNum}: ${mtrans.errMismatchImg || 'Please upload a JPG'}`);
-                isValid = false;
-                typeSelect.classList.add('input-error-highlight');
-                break;
-            } else if (engType.includes('document') && !isPdfFile) {
-                alert(`Row ${rowNum}: ${mtrans.errMismatchPdf || 'Please upload a PDF'}`);
-                isValid = false;
-                typeSelect.classList.add('input-error-highlight');
-                break;
-            }
         }
     }
 
     if (!isValid) {
-        e.preventDefault(); 
-        if (firstInvalidField) {
-            firstInvalidField.focus();
-            firstInvalidField.scrollIntoView({ behavior: 'smooth', block: 'center' });
-        }
+        e.preventDefault(); // Stop form submission
+        // Optionally scroll to the first error
+        const firstError = document.querySelector('[style*="border-color: red"]');
+        if (firstError) firstError.scrollIntoView({ behavior: 'smooth', block: 'center' });
     } else {
-        // Anti-scramble
+        // Clean up empty descriptions for rows that are totally empty
         document.querySelectorAll('input[name="m_description[]"]').forEach(d => {
             if(!d.value.trim()) d.value = " "; 
         });
