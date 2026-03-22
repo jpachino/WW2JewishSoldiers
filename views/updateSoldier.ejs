@@ -952,6 +952,9 @@
     <% } %>
 
     <div class="upload-container">
+      <div class="help-box-alert" style="margin-bottom: 20px; padding: 15px; background-color: #e7f3fe; border-left: 4px solid #007bff; border-radius: 4px;">
+            <strong>ℹ️</strong> <%= __('multimedia_info.help_text') %>
+        </div>
         <h4><%= __('fields.add_new_files') || 'Add New Files' %></h4>
         
         <div id="multimedia-rows"></div>
@@ -1425,7 +1428,7 @@ function handleFileSelect(input) {
         const savedFiles = JSON.parse(existingDataEl ? existingDataEl.dataset.filenames : "[]");
         
         if (savedFiles.includes(fileName)) {
-            alert("❌ <%= __('fields.error') %>: <%= __('form.duplicate_file_error') %>");
+            alert("❌  <%= __('form.duplicate_file_error') %>");
             input.value = ""; 
             label.textContent = "<%= __('fields.no_file_chosen') %>";
             label.style.color = "red";
@@ -1445,7 +1448,7 @@ function handleFileSelect(input) {
 
         if (duplicateInForm) {
             
-            alert("❌ <%= __('fields.error') %>: <%= __('form.duplicate_file_error') %>");
+            alert("❌  <%= __('form.duplicate_file_error') %>");
             input.value = ""; 
             label.textContent = "<%= __('fields.no_file_chosen') %>";
             label.style.color = "red";

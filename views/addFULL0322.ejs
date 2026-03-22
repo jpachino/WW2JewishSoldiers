@@ -1257,20 +1257,15 @@ soldierForm.addEventListener('submit', function(e) {
 });
     });
     document.addEventListener('change', function(e) {
-    // Check for file inputs. Note: matches name="m_files[]"
-    if (e.target && e.target.type === 'file' && e.target.name === 'm_files[]') {
+    if (e.target && e.target.name === 'm_files[]') {
         const currentInput = e.target;
         const currentFile = currentInput.files[0];
         
         if (!currentFile) return;
 
-        // 1. Identify the specific row and its display label
-        const row = currentInput.closest('.multimedia-row');
-        const fileDisplay = row.querySelector('.file-name-display');
-
         const allInputs = Array.from(document.querySelectorAll('input[type="file"][name="m_files[]"]'));
         
-        // 2. Check for duplicates in other rows
+        // Find if this filename exists in any OTHER input
         const isDuplicate = allInputs.some(input => {
             return input !== currentInput && 
                    input.files[0] && 
@@ -1278,20 +1273,19 @@ soldierForm.addEventListener('submit', function(e) {
         });
 
         if (isDuplicate) {
-            // 3. Alert the user
+            // 1. Alert the user
             alert("❌ <%= __('form.duplicate_file_error') %>");
             
-            // 4. Reset the input value (the buffer)
+            // 2. FORCE the clear
             currentInput.value = ''; 
             
-            // 5. Reset the visual display label
+            // 3. Clear the visual display text (so it says "No file chosen" again)
             if (fileDisplay) {
-                fileDisplay.textContent = "<%= __('fields.no_file_chosen') %>";
-                fileDisplay.style.color = "red";
-                fileDisplay.classList.add('input-error-highlight');
+                fileDisplay.textContent = "<%= __('fields.no_file_chosen') || 'No file chosen' %>";
+                fileDisplay.style.color = 'inherit'; // Reset color if it was red
             }
             
-            // 6. Visual feedback on the input wrapper
+            // 4. Visual feedback
             currentInput.style.outline = "2px solid red";
             setTimeout(() => { currentInput.style.outline = "none"; }, 2000);
         }

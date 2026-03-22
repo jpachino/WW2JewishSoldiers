@@ -12,7 +12,7 @@
   },
   
   "multimedia_info": {
-    "help_text": "You can attach photos and photocopies of documents and other exhibits (in JPG, PDF formats only - up to 1.5MB per file).\n\nTo attach links to videos, testimonies, etc., select the Media Type - Link, then you can enter the link address in the URL / Link box."
+    "help_text": "You can attach photos and photocopies of documents and other exhibits (in JPG, PDF formats only - up to 1.5MB per file).\n\nTo attach links to videos, testimonies, etc., select the Media Type - Link, then you can enter the link address in the URL / Link box. \n\nYou can upload a maximum of 15 multimedia items including JPG, PDF and URLs."
   },
 
   
@@ -271,9 +271,10 @@
     "personal_story_desc": "A personal story from his (or her) time as a soldier",
     "pick_one_option": "Pick at least one of the three options (it is not mandatory to fill all 3 options).",
     "record_complete_date": "Record Completion Date",
+    "submitter_name": "Submitter Name",
     "readyStatus": "Approved by Admin",
     "maxfiles": "You can upload a maximum of 15 multimedia attachments including JPG, PDF and URLs.",
-    "duplicate_file_error": "Two multimedia items cannot have the same file. Please upload another file.",
+    "duplicate_file_error": "Two multimedia items cannot be the same file. Please upload another file.",
     "max_items_per_soldier": "Maximum 15 total multimedia items allowed per soldier."
     
   

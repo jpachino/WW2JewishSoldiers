@@ -98,13 +98,18 @@
             <tr>
               <th><%= __('actions.edit') %></th>
               <th>ID</th>
-              <th><%= __('form.firstName') %></th>
-              <th><%= __('form.lastName') %></th>
-              
+              <th>
+                <% if (locale === 'en') { %><%= __('fields.fnameen') %><% } 
+                   else if (locale === 'ru') { %><%= __('fields.fnameru') %><% } 
+                   else { %><%= __('fields.fname') %><% } %>
+              </th>
+              <th>
+                <% if (locale === 'en') { %><%= __('fields.lnameen') %><% } 
+                   else if (locale === 'ru') { %><%= __('fields.lnameru') %><% } 
+                   else { %><%= __('fields.lname') %><% } %>
+              </th>
               <th><%= __('form.record_complete_date') || 'Completion Date' %></th>
-              <th><%= __('form.submitter_name') || 'Submitter Name' %></th>
               <th><%= __('form.admin_approved_date') %></th>
-
               <th><%= __('form.readyStatus') || 'Ready' %></th> 
               <th><%= __('fields.downloaded_date') %></th> 
               <th style="text-align: center;"><%= __('form.select') %></th>
@@ -122,7 +127,6 @@
                 <td><%= s.fname || s.fnameen || s.fnameru || '' %></td>
                 <td><%= s.lname || s.lnameen || s.lnameru || '' %></td>
                 <td><%= s.record_complete_date %></td>
-                <td><%= s.fname_soldier_submitter %> <%= s.lname_soldier_submitter %></td>
                 <td><%= s.admin_approved_date %></td>
                 <td style="text-align: center; font-size: 1.1rem;">
                   <%= s.ready_status %>
