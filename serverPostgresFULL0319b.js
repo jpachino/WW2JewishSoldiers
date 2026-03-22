@@ -531,7 +531,7 @@ const multimediaFiles = (req.files || []).filter(f => f.fieldname === 'm_files[]
 
 const MAX_ALLOWED = 15;
 if (types.length > MAX_ALLOWED || multimediaFiles.length > MAX_ALLOWED) {
-    throw new Error("<%= __('form.max_attachments_error') %>");
+    throw new Error(`Maximum of ${MAX_ALLOWED} multimedia entries allowed.`);
 }
 // 1. Initialize Tracker: We haven't assigned a profile pic yet
 let profilePicAssigned = false;
@@ -914,12 +914,6 @@ app.get('/updateSoldier/:id', async (req, res) => {
         const [unknownItem] = countries.splice(unknownIndex, 1);
         countries.unshift(unknownItem);
     }
-    const existingFilenames = multimediaList
-        .filter(m => m.file_path && !m.file_path.startsWith('http')) // Only local files, skip URLs
-        .map(m => {
-            // Get the last part of the path (e.g., "photo.jpg")
-            return m.file_path.split('/').pop();
-        });
     // -------------------------
     res.render('updateSoldier', {
       soldier,
@@ -936,7 +930,7 @@ app.get('/updateSoldier/:id', async (req, res) => {
       enlistreason,
       multimedia_types: mTypes,
       multimedia: multimediaList,
-     existingFiles: existingFilenames,
+    
       locale, // Added: your EJS needs this to pick the right column to show
       isAdmin, // <--- PASS THIS TO THE EJS
       req    // Added: usually helpful for path/query checks in EJS
@@ -1129,8 +1123,7 @@ app.post('/updateSoldier/:id', upload.any(), async (req, res) => {
 
         const totalAfterUpdate = (currentDbCount - deleteIds.length) + newUploadCount;
         if (totalAfterUpdate > 15) {
-           
-            throw new Error("<%= __('form.max_attachments_error') %>");
+            throw new Error(`Total multimedia items exceed limit of 15.`);
         }
 
     // --- START TRANSACTION ---

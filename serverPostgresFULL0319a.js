@@ -456,7 +456,6 @@ app.get('/addFull', async (req, res) => {
         if (!cleaned.birthcountryId) errors.push("Birth Country missing.");
         if (!cleaned.useremail) errors.push("Submitter Email missing.");
         if (!cleaned.fname_soldier_submitter) errors.push("Submitter FName missing.");
-        if (!cleaned.biography) errors.push("Biography missing.");
 
         if (errors.length > 0) {
             return res.status(400).send(`<h1>Validation Error</h1><ul>${errors.map(e => `<li>${e}</li>`).join('')}</ul><a href="javascript:history.back()">Go Back</a>`);
@@ -529,10 +528,6 @@ const types = [].concat(req.body.m_type || []);
 const locations = [].concat(req.body.physical_logical_location || []);
 const multimediaFiles = (req.files || []).filter(f => f.fieldname === 'm_files[]');
 
-const MAX_ALLOWED = 15;
-if (types.length > MAX_ALLOWED || multimediaFiles.length > MAX_ALLOWED) {
-    throw new Error("<%= __('form.max_attachments_error') %>");
-}
 // 1. Initialize Tracker: We haven't assigned a profile pic yet
 let profilePicAssigned = false;
 
@@ -556,24 +551,11 @@ for (let i = 0; i < types.length; i++) {
         finalLocationLabel = userLocation || 'URL'; 
     }
 
-    // --- UPDATED FILE RENAME BLOCK (PREVENTS ENOENT) ---
     if (file) {
-        // Only try to move it if the file path actually exists in temp
-        if (file.path && fs.existsSync(file.path)) {
-            try {
-                const safeName = Buffer.from(file.originalname, 'latin1').toString('utf8').replace(/\s+/g, '_');
-                const finalPath = path.join(targetDir, safeName);
-                
-                // Move the file
-                fs.renameSync(file.path, finalPath);
-                finalDbPath = `/soldierUploads/${folderName}/${safeName}`;
-            } catch (moveErr) {
-                console.error(`❌ Move failed for ${file.originalname}:`, moveErr.message);
-                // By catching the error here, the loop continues and saves the rest of the record
-            }
-        } else {
-            console.warn(`⚠️ Skipping missing file: ${file.originalname || 'Unknown'}`);
-        }
+        const safeName = Buffer.from(file.originalname, 'latin1').toString('utf8').replace(/\s+/g, '_');
+        const finalPath = path.join(targetDir, safeName);
+        fs.renameSync(file.path, finalPath);
+        finalDbPath = `/soldierUploads/${folderName}/${safeName}`;
     }
 
     // 2. NEW PROFILE PIC LOGIC
@@ -812,7 +794,6 @@ app.get('/searchResults', async (req, res) => {
       firstname,
       lastname,
       useremail,
-     
       error: req.__('error.invalidEmail') || 'Please enter a valid email address.'
     });
   }
@@ -914,12 +895,6 @@ app.get('/updateSoldier/:id', async (req, res) => {
         const [unknownItem] = countries.splice(unknownIndex, 1);
         countries.unshift(unknownItem);
     }
-    const existingFilenames = multimediaList
-        .filter(m => m.file_path && !m.file_path.startsWith('http')) // Only local files, skip URLs
-        .map(m => {
-            // Get the last part of the path (e.g., "photo.jpg")
-            return m.file_path.split('/').pop();
-        });
     // -------------------------
     res.render('updateSoldier', {
       soldier,
@@ -936,7 +911,6 @@ app.get('/updateSoldier/:id', async (req, res) => {
       enlistreason,
       multimedia_types: mTypes,
       multimedia: multimediaList,
-     existingFiles: existingFilenames,
       locale, // Added: your EJS needs this to pick the right column to show
       isAdmin, // <--- PASS THIS TO THE EJS
       req    // Added: usually helpful for path/query checks in EJS
@@ -1128,9 +1102,8 @@ app.post('/updateSoldier/:id', upload.any(), async (req, res) => {
         }
 
         const totalAfterUpdate = (currentDbCount - deleteIds.length) + newUploadCount;
-        if (totalAfterUpdate > 15) {
-           
-            throw new Error("<%= __('form.max_attachments_error') %>");
+        if (totalAfterUpdate > 12) {
+            throw new Error(`Total multimedia items exceed limit of 12.`);
         }
 
     // --- START TRANSACTION ---
@@ -1159,8 +1132,7 @@ await db.tx(async t => {
     const existingPic = await t.oneOrNone('SELECT id FROM "multimedia_TBL" WHERE soldier_id = $1 AND is_profile_pic = true', [id]);
     
     // Tracker: if one exists, we shouldn't assign another one
-    const isDeletingProfilePic = deleteIds.includes(existingPic?.id?.toString());
-    let profilePicAssigned = !!existingPic && !isDeletingProfilePic;
+    let profilePicAssigned = !!existingPic; 
     let filePointer = 0;
 
     for (let j = 0; j < m_descriptions.length; j++) {
@@ -2072,7 +2044,7 @@ app.get('/admin/completedRecords', async (req, res) => {
 app.post('/admin/downloadExcel', requireAdmin, async (req, res) => {
     const BATTLE_HISTORY_TABLE = 'soldier_battle_history';
     const MULTIMEDIA_TABLE = 'multimedia_TBL';
-    const MAX_FILES = 15; 
+    const MAX_FILES = 12; 
     const MAX_BATTLES = 5; // Future-proofing for Battle History slots
 
     let ids = req.body.selectedIds;

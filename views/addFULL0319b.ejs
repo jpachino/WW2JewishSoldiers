@@ -1120,28 +1120,18 @@
 
         // --- ADD MULTIMEDIA ROW ---
        // --- ADD MULTIMEDIA ROW ---
-// --- ADD MULTIMEDIA ROW (Updated with 15-item limit) ---
 document.getElementById('add-multimedia').addEventListener('click', function() {
     const container = document.getElementById('multimedia-rows');
     const template = document.getElementById('row-template');
     
-    // 1. Check how many rows currently exist
-    const currentRowsCount = container.querySelectorAll('.multimedia-row').length; 
+    // 1. Clone the template blueprint
+    const clone = template.content.cloneNode(true);
     
-    // 2. Prevent adding more if we hit 15
-    if (currentRowsCount >= 15) {
-      alert("<%= __('form.max_items_per_soldier') %>");
-        return; 
-    }
-    console.log (currentRowsCount);
-    if (template) {
-        // 3. Clone and append the row
-        const clone = template.content.cloneNode(true);
-        container.appendChild(clone);
-        
-        // 4. Scroll the user to the new row
-        container.lastElementChild.scrollIntoView({ behavior: 'smooth', block: 'center' });
-    }
+    // 2. Append the clean row to the container
+    container.appendChild(clone);
+    
+    // Optional: Scroll the user to the new row
+    container.lastElementChild.scrollIntoView({ behavior: 'smooth' });
 });
 // --- SUBMIT VALIDATION (addFull.ejs) ---
 soldierForm.addEventListener('submit', function(e) {
@@ -1167,11 +1157,7 @@ soldierForm.addEventListener('submit', function(e) {
 
     // 2. Validate Multimedia Rows
     const multimediaRows = document.querySelectorAll('.multimedia-row');
-    if (multimediaRows.length > 15) {
-    alert("<%= __('form.max_items_per_soldier') %>");
-    e.preventDefault();
-    return;
-}
+    
     for (let i = 0; i < multimediaRows.length; i++) {
         const row = multimediaRows[i];
         const rowNum = i + 1;
@@ -1256,35 +1242,6 @@ soldierForm.addEventListener('submit', function(e) {
     }
 });
     });
-    document.addEventListener('change', function(e) {
-    if (e.target && e.target.name === 'm_files[]') {
-        const currentInput = e.target;
-        const currentFile = currentInput.files[0];
-        
-        if (!currentFile) return;
-
-        const allInputs = Array.from(document.querySelectorAll('input[type="file"][name="m_files[]"]'));
-        
-        // Find if this filename exists in any OTHER input
-        const isDuplicate = allInputs.some(input => {
-            return input !== currentInput && 
-                   input.files[0] && 
-                   input.files[0].name === currentFile.name;
-        });
-
-        if (isDuplicate) {
-            // 1. Alert the user
-            alert(`❌ Error: The file "${currentFile.name}" is already selected in another row.\n\nYou cannot upload the same file twice for one record. Please select a different file.`);
-            
-            // 2. FORCE the clear
-            currentInput.value = ''; 
-            
-            // 3. Visual feedback (optional: shakes or highlights the input)
-            currentInput.style.outline = "2px solid red";
-            setTimeout(() => { currentInput.style.outline = "none"; }, 2000);
-        }
-    }
-});
 </script>
 </body>
 </html>

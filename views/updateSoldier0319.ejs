@@ -895,7 +895,7 @@
 </div>
 
  </fieldset>
-<div id="existing-files-data" data-filenames='<%= JSON.stringify(existingFiles || []) %>'></div>
+
  <div id="type-options-source" style="display: none;">
     <option value="">-- <%= __('fields.select_option') %> --</option>
     <% if (locals.multimedia_type_TBL) { %>
@@ -1373,8 +1373,8 @@ if (addMultiBtn) {
         const existingCount = document.querySelectorAll('.multimedia-item').length; 
         const newRowsCount = container.querySelectorAll('.multimedia-row').length; 
         
-        if ((existingCount + newRowsCount) >= 15) {
-           alert("<%= __('form.max_items_per_soldier') %>");
+        if ((existingCount + newRowsCount) >= 12) {
+            alert("Maximum 12 total multimedia items allowed per soldier.");
             return; 
         }
 
@@ -1416,42 +1416,7 @@ function handleFileSelect(input) {
     const label = row.querySelector('.file-name-display');
     const mtrans = document.getElementById('multimedia-translations').dataset;
     const file = input.files[0];
-    // --- DUPLICATE FILENAME CHECK (EXISTING & NEW) ---
-    if (file) {
-        const fileName = file.name;
-        
-        // A. Check against files already saved in the database
-        const existingDataEl = document.getElementById('existing-files-data');
-        const savedFiles = JSON.parse(existingDataEl ? existingDataEl.dataset.filenames : "[]");
-        
-        if (savedFiles.includes(fileName)) {
-            alert("❌ <%= __('fields.error') %>: <%= __('form.duplicate_file_error') %>");
-            input.value = ""; 
-            label.textContent = "<%= __('fields.no_file_chosen') %>";
-            label.style.color = "red";
-            return;
-        }
-
-        // B. Check against other new files selected in this current session
-        const allFileInputs = document.querySelectorAll('.file-input');
-        let duplicateInForm = false;
-        allFileInputs.forEach(otherInput => {
-            if (otherInput !== input && 
-                otherInput.files.length > 0 && 
-                otherInput.files[0].name === fileName) {
-                duplicateInForm = true;
-            }
-        });
-
-        if (duplicateInForm) {
-            
-            alert("❌ <%= __('fields.error') %>: <%= __('form.duplicate_file_error') %>");
-            input.value = ""; 
-            label.textContent = "<%= __('fields.no_file_chosen') %>";
-            label.style.color = "red";
-            return;
-        }
-    }
+    
     // Get the type selected for THIS specific row
     const typeSelect = row.querySelector('.type-select');
     const selectedOption = typeSelect.options[typeSelect.selectedIndex];
