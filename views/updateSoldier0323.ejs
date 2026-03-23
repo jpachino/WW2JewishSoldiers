@@ -349,22 +349,54 @@
     </div>
   </div>
 
-<div class="single-row">
-  <label for="deathdetailsId"><%= __('fields.deathdetails') %></label>
-  <select name="deathdetails" id="deathdetailsId"> <option value=""><%= __('fields.deathdetails') %></option>
-    <% deathdetails.forEach(d => { %>
-      <% 
-          let label = d.title_heb;
-          if (locale === 'en') label = d.title_eng;
-          if (locale === 'ru') label = d.title_rus;
-          // Compare against the Hebrew title stored in the soldier record
-          let isSelected = (soldier && soldier.deathdetails === d.title_heb) ? 'selected' : '';
-      %>
-      <option value="<%= d.id %>" <%= isSelected %>>
-        <%= label %>
-      </option>
+<div class="trio-row">
+  <div class="form-group">
+  <label for="deathdetails"><%= __('fields.deathdetails') %></label>
+  <select name="deathdetails" id="deathdetails" class="form-control">
+    <option value="">--</option>
+    <% deathdetails.forEach(item => { 
+        let displayTitle;
+        if (locale === 'en') { displayTitle = item.title_eng; } 
+        else if (locale === 'ru') { displayTitle = item.title_rus; } 
+        else { displayTitle = item.title_heb; }
+        const isSelected = (soldier.deathdetails === item.title_heb) ? 'selected' : ''; 
+    %>
+      <option value="<%= item.id %>" <%= isSelected %>><%= displayTitle %></option>
     <% }) %>
   </select>
+  <!--<% if (locale === 'he') { %>
+    <div class="input-group">
+      <label for="deathdetails"><%= __('fields.deathdetails') %></label>
+      <select name="deathdetails" id="deathdetails">
+        <option value="נפטר" <%= soldier.deathdetails === 'נפטר' ? 'selected' : '' %>>נפטר</option>
+        <option value="נפל בקרב" <%= soldier.deathdetails === 'נפל בקרב' ? 'selected' : '' %>>נפל בקרב</option>
+        <option value="נפל במילוי תפקידו" <%= soldier.deathdetails === 'נפל במילוי תפקידו' ? 'selected' : '' %>>נפל במילוי תפקידו</option>
+        <option value="נרצח" <%= soldier.deathdetails === 'נרצח' ? 'selected' : '' %>>נרצח</option>
+      </select>
+    </div>
+  <% } else if (locale === 'en') { %>
+    <div class="input-group">
+      <label for="deathdetailsen"><%= __('fields.deathdetailsen') %></label>
+      <select name="deathdetailsen" id="deathdetailsen">
+        <option value="">-- Select --</option>
+        <option value="Deceased" <%= soldier.deathdetailsen === 'Deceased' ? 'selected' : '' %>>Deceased</option>
+        <option value="Fallen in battle" <%= soldier.deathdetailsen === 'Fallen in battle' ? 'selected' : '' %>>Fallen in battle</option>
+        <option value="Fallen in the line of duty" <%= soldier.deathdetailsen === 'Fallen in the line of duty' ? 'selected' : '' %>>Fallen in the line of duty</option>
+        <option value="Murdered" <%= soldier.deathdetailsen === 'Murdered' ? 'selected' : '' %>>Murdered</option>
+      </select>
+    </div>
+  <% } else if (locale === 'ru') { %>
+    <div class="input-group">
+      <label for="deathdetailsru"><%= __('fields.deathdetailsru') %></label>
+      <select name="deathdetailsru" id="deathdetailsru">
+        <option value="">-- Выбрать --</option>
+        <option value="Умер" <%= soldier.deathdetailsru === 'Умер' ? 'selected' : '' %>>Умер</option>
+        <option value="Пал в бою" <%= soldier.deathdetailsru === 'Пал в бою' ? 'selected' : '' %>>Пал в бою</option>
+        <option value="Погиб при исполнении служебных обязанностей" <%= soldier.deathdetailsru === 'Погиб при исполнении служебных обязанностей' ? 'selected' : '' %>>Погиб при исполнении служебных обязанностей</option>
+        <option value="Убит" <%= soldier.deathdetailsru === 'Убит' ? 'selected' : '' %>>Убит</option>
+      </select>
+    </div>
+  <% } %>  -->
 </div>
 </fieldset>
 

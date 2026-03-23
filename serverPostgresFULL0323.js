@@ -37,7 +37,6 @@ const columns = [
     'shortdesc', 'armyrole', 'armyroleen', 'armyroleru',
     'rank', 'ranken', 'rankru',
     'enlistreason', 'enlistreasonen', 'enlistreasonru',
-
     'platoonname', 'platoonnameen', 'platoonnameru',
     'wounddetails', 'wounddetailsen', 'wounddetailsru',
     'gettodesc', 'gettodescen', 'gettodescru',
@@ -889,7 +888,7 @@ app.get('/updateSoldier/:id', async (req, res) => {
     // 2. FIX: Include medals and mTypes in the parallel fetch
     const [
       countries, gender, corps, category, army, 
-      resistance, partizan, participation, enlistreason,deathdetails,
+      resistance, partizan, participation, enlistreason,
       multimediaList, battleHistory,
       medals, mTypes // Added back here
     ] = await Promise.all([
@@ -902,7 +901,6 @@ app.get('/updateSoldier/:id', async (req, res) => {
       fetchOrdered('partizan_TBL'),
       fetchOrdered('participation_TBL'),
       fetchOrdered('enlistreason_TBL'),
-      fetchOrdered('deathdetails_TBL'),
       db.any('SELECT * FROM "multimedia_TBL" WHERE soldier_id = $1', [id]),
       db.any('SELECT * FROM "soldier_battle_history" WHERE soldier_id = $1 ORDER BY id', [id]),
       // 3. FIX: Keep these as they were (no dynamic lang sorting)
@@ -936,10 +934,9 @@ app.get('/updateSoldier/:id', async (req, res) => {
       participation,
       battleHistory,
       enlistreason,
-      deathdetails,
       multimedia_types: mTypes,
       multimedia: multimediaList,
-      existingFiles: existingFilenames,
+     existingFiles: existingFilenames,
       locale, // Added: your EJS needs this to pick the right column to show
       isAdmin, // <--- PASS THIS TO THE EJS
       req    // Added: usually helpful for path/query checks in EJS
@@ -955,7 +952,7 @@ app.post('/updateSoldier/:id', upload.any(), async (req, res) => {
     console.log("1. RECEIVED REQ.BODY:", JSON.stringify(req.body, null, 2));
     console.log("2. RECEIVED REQ.FILES:", req.files);
     console.log("========================================");
-   
+
     const { id } = req.params;
     const isAdmin = !!(req.session && req.session.isAdmin);
 
@@ -982,7 +979,7 @@ app.post('/updateSoldier/:id', upload.any(), async (req, res) => {
         const sParticipation = await getLookup('participation_TBL', req.body.participation, existingSoldier.participation, existingSoldier.participationen, existingSoldier.participationru);
         const sGender = await getLookup('gender_TBL', req.body.gender, existingSoldier.gender, existingSoldier.genderen, existingSoldier.genderru);
         const sEnlist = await getLookup('enlistreason_TBL', req.body.enlistreason, existingSoldier.enlistreason, existingSoldier.enlistreasonen, existingSoldier.enlistreasonru);
-        const sDeathDetails = await getLookup('deathdetails_TBL', req.body.deathdetails, existingSoldier.deathdetails, existingSoldier.deathdetailsen, existingSoldier.deathdetailsru);
+
         // --- CATEGORY CHECKBOXES ---
         const catUpdate = {};
         for (let i = 1; i <= 8; i++) {
@@ -1040,9 +1037,9 @@ app.post('/updateSoldier/:id', upload.any(), async (req, res) => {
             placeofdeath: req.body.placeofdeath || existingSoldier.placeofdeath,
             placeofdeathen: req.body.placeofdeathen || existingSoldier.placeofdeathen,
             placeofdeathru: req.body.placeofdeathru || existingSoldier.placeofdeathru,
-            //deathdetails: req.body.deathdetails || existingSoldier.deathdetails,
-            //deathdetailsen: req.body.deathdetailsen || existingSoldier.deathdetailsen,
-            // deathdetailsru: req.body.deathdetailsru || existingSoldier.deathdetailsru,
+            deathdetails: req.body.deathdetails || existingSoldier.deathdetails,
+            deathdetailsen: req.body.deathdetailsen || existingSoldier.deathdetailsen,
+            deathdetailsru: req.body.deathdetailsru || existingSoldier.deathdetailsru,
             biography: req.body.biography || existingSoldier.biography,
             otherparticipation: req.body.otherparticipation || existingSoldier.otherparticipation,
             otherparticipationen: req.body.otherparticipationen || existingSoldier.otherparticipationen,
@@ -1059,7 +1056,6 @@ app.post('/updateSoldier/:id', upload.any(), async (req, res) => {
             ranken: req.body.ranken || existingSoldier.ranken,
             rankru: req.body.rankru || existingSoldier.rankru,
             enlistreason: sEnlist.heb, enlistreasonen: sEnlist.eng, enlistreasonru: sEnlist.rus,
-            deathdetails: sDeathDetails.heb, deathdetailsen: sDeathDetails.eng, deathdetailsru: sDeathDetails.rus,
             platoonname: req.body.platoonname || existingSoldier.platoonname,
             platoonnameen: req.body.platoonnameen || existingSoldier.platoonnameen,
             platoonnameru: req.body.platoonnameru || existingSoldier.platoonnameru,
@@ -1298,7 +1294,6 @@ app.get('/admin/completedRecords', requireAdmin, async (req, res) => {
         const partizan = await db.any('SELECT id, title_heb, title_eng, title_rus FROM "partizan_TBL"');
         const participation = await db.any('SELECT id, title_heb, title_eng, title_rus FROM "participation_TBL"');
         const enlistreason = await db.any('SELECT id, title_heb, title_eng, title_rus FROM "enlistreason_TBL"');
-         const deathdetails = await db.any('SELECT id, title_heb, title_eng, title_rus FROM "deathdetails_TBL"');
         
         // 2. Format the soldiers
         const formattedSoldiers = soldiers.map(s => {
@@ -1327,7 +1322,6 @@ app.get('/admin/completedRecords', requireAdmin, async (req, res) => {
             partizan,
             participation,
             enlistreason,
-
             locale,   // Added this
             saved,    // Cleaned this up
             req
