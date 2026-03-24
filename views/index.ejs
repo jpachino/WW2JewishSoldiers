@@ -88,15 +88,16 @@
 </div>
 
 <main class="container">
-  <div class="description-text lang-<%= locale %>">
-    <%= __('home.description') %>
-  </div>
-
   <form class="choice-form" id="choiceForm">
     <p><strong><%= __('home.chooseAction') %></strong></p>
     <button type="button" onclick="redirectToAdd()"><%= __('home.addNewSoldier') %></button>
     <button type="button" onclick="redirectToChange()"><%= __('home.changeSoldierInfo') %></button>
   </form>
+  <div class="description-text lang-<%= locale %>">
+    <%= __('home.description') %>
+  </div>
+
+  
 </main>
 
 <script>

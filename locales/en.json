@@ -286,12 +286,15 @@
   "noCompleted": "No completed records found.",
   "previewSelected": "Preview Selected",
   "previewHeading": "Preview Selected Records",
-  "downloadPackage": "Download ZIP Package"
+  "downloadPackage": "Download ZIP Package",
+  "delete_confirm": "Are you sure you want to permanently delete this record and all its uploaded files?",
+  "delete_success": "Record and associated files deleted successfully."
 
 },
   "actions": {
     "edit": "Edit",
-    "backToSearch": "Back to Search"
+    "backToSearch": "Back to Search",
+    "delete": "Delete"
   },
   "messages": {
     "noResults": "No soldiers found.",

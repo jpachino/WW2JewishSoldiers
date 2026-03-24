@@ -91,20 +91,12 @@
       </div>
     <% } %>
 
-    <% if (req.query && req.query.deleted === 'true') { %>
-      <div class="success-box" id="deleteMsg">
-        <span class="success-icon">🗑️</span>
-        <span><%= __('admin.delete_success') || 'Record deleted successfully.' %></span>
-      </div>
-    <% } %>
-
     <% if (soldiers && soldiers.length > 0) { %>
       <div class="table-responsive" style="max-height: 600px; margin-top: 25px;">
         <table>
           <thead>
             <tr>
               <th><%= __('actions.edit') %></th>
-              <th><%= __('actions.delete') %></th>
               <th>ID</th>
               <th><%= __('form.firstName') %></th>
               <th><%= __('form.lastName') %></th>
@@ -126,16 +118,6 @@
                     <%= __('actions.edit') %>
                   </a>
                 </td>
-                <td>
-        <form action="/admin/deleteSoldier/<%= s.id %>" method="POST" 
-            onsubmit="return handleDelete(event);" 
-            data-confirm-msg="<%= __('admin.delete_confirm') %>"
-            style="background:none; box-shadow:none; padding:0; margin:0;">
-         <button type="submit" style="background:none; border:none; color: #ff4d4d; cursor: pointer; font-weight: bold;">
-            <%= __('actions.delete') %> 🗑️
-          </button>
-          </form>
-          </td>
                 <td><strong>A<%= s.id %></strong></td>
                 <td><%= s.fname || s.fnameen || s.fnameru || '' %></td>
                 <td><%= s.lname || s.lnameen || s.lnameru || '' %></td>
@@ -171,37 +153,23 @@
   </main>
 
   <script>
+    // Logic to handle success message fade-out
     document.addEventListener('DOMContentLoaded', () => {
-      // Logic to handle success message fade-out (both saved and deleted)
-      ['successMsg', 'deleteMsg'].forEach(id => {
-        const box = document.getElementById(id);
-        if (box) {
+      const successBox = document.getElementById('successMsg');
+      if (successBox) {
+        setTimeout(() => {
+          successBox.style.transition = 'opacity 1s ease';
+          successBox.style.opacity = '0';
           setTimeout(() => {
-            box.style.transition = 'opacity 1s ease';
-            box.style.opacity = '0';
-            setTimeout(() => {
-              box.remove();
-              const url = new URL(window.location);
-              // Simplified URL cleanup to avoid linter errors
-              if (id === 'successMsg') url.searchParams.delete('saved');
-              if (id === 'deleteMsg') url.searchParams.delete('deleted');
-              window.history.replaceState({}, document.title, url.toString());
-            }, 1000);
-          }, 5000);
-        }
-      });
+            successBox.remove();
+            const url = new URL(window.location);
+            url.searchParams.delete('saved');
+            window.history.replaceState({}, document.title, url.toString());
+          }, 1000);
+        }, 5000);
+      }
     });
-    // This function handles the delete confirmation cleanly
-  function handleDelete(event) {
-    const form = event.currentTarget;
-    const msg = form.getAttribute('data-confirm-msg') || 'Are you sure?';
-    
-    if (!confirm(msg)) {
-      event.preventDefault();
-      return false;
-    }
-    return true;
-  }
+
     function submitForm(targetFormId) {
       const config = document.getElementById('ejs-config');
       const checkboxes = document.querySelectorAll('input[name="selectedIds"]:checked');
@@ -213,6 +181,7 @@
       }
 
       const targetForm = document.getElementById(targetFormId);
+      // Clean previous hidden inputs if any
       targetForm.querySelectorAll('input[type="hidden"][name="selectedIds"]').forEach(el => el.remove());
       
       selectedIds.forEach(id => {

@@ -1238,40 +1238,6 @@ await db.tx(async t => {
         res.status(500).send(`<h1>Update Failed</h1><p>${err.message}</p><a href="/updateSoldier/${id}">Go Back</a>`);
     }
 });
-app.post('/admin/deleteSoldier/:id', async (req, res) => {
-    const { id } = req.params;
-    const isAdmin = !!(req.session && req.session.isAdmin);
-
-    if (!isAdmin) {
-        return res.status(403).send('Unauthorized');
-    }
-
-    try {
-        await db.tx(async t => {
-            // 1. Delete linked multimedia
-            await t.none('DELETE FROM "multimedia_TBL" WHERE soldier_id = $1', [id]);
-            
-            // 2. Delete battle history
-            await t.none('DELETE FROM "soldier_battle_history" WHERE soldier_id = $1', [id]);
-            
-            // 3. Delete the soldier (Using literal table name to avoid 'undefined' error)
-            await t.none('DELETE FROM "soldierdetails" WHERE id = $1', [id]);
-        });
-
-        // 4. Delete the physical folder
-        // Using the "A" prefix as per your table display
-        const folderPath = path.join(PERSISTENT_ROOT, `A${id}`);
-        if (fs.existsSync(folderPath)) {
-            fs.rmSync(folderPath, { recursive: true, force: true });
-            console.log(`Successfully deleted folder: ${folderPath}`);
-        }
-
-        res.redirect('/admin/completedRecords?deleted=true');
-    } catch (err) {
-        console.error('❌ Delete Error:', err);
-        res.status(500).send(`Delete failed: ${err.message}`);
-    }
-});
 app.post('/delete-multimedia/:id', async (req, res) => {
     const multimediaId = req.params.id;
     try {

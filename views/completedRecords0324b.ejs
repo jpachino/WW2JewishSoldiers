@@ -1,0 +1,255 @@
+<!DOCTYPE html>
+<html lang="<%= locale %>">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title><%= __('admin.completedTitle') %></title>
+  <link rel="stylesheet" href="/styles/styles.css" />
+  <style>
+    /* Table specific overrides for better visibility with your new CSS */
+    main.container { margin-top: 1.5rem; }
+    table { width: 100%; border-collapse: collapse; margin-top: 1rem; background: #fff; }
+    th, td { border: 1px solid #ccc; padding: 12px; text-align: left; }
+    
+    th { 
+        background-color: #e0e0e0; 
+        color: #000; 
+        font-weight: bold; 
+        text-transform: uppercase;
+        font-size: 0.85rem;
+    }
+
+    /* Matching the Success Box from search.ejs exactly */
+    .success-box {
+      position: fixed;
+      top: 30px;
+      left: 50%;
+      transform: translateX(-50%);
+      z-index: 99999;
+      background-color: #d4edda;
+      color: #155724;
+      border: 1px solid #c3e6cb;
+      padding: 15px 40px;
+      border-radius: 50px;
+      box-shadow: 0 4px 15px rgba(0,0,0,0.3);
+      font-weight: bold;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+    
+    /* Ensure the table container handles mobile correctly */
+    .table-responsive {
+      overflow-x: auto;
+      border-radius: 8px;
+      border: 1px solid #ddd;
+      box-shadow: 0 2px 5px rgba(0,0,0,0.05);
+    }
+  </style>
+</head>
+
+<body>
+  <div id="ejs-config" 
+       data-soldiers='<%- JSON.stringify(soldiers).replace(/'/g, "&apos;") %>'
+       data-alert-msg="<%= __('admin.selectAtLeastOne') || 'Please select at least one record.' %>">
+  </div>
+
+  <header>
+    <div class="container header-flex">
+      <h1><%= __('admin.completedTitle') %></h1>
+      <div class="logo-area">
+        <img src="/images/Outlook-dieerunr.png" alt="Logo">
+      </div>
+    </div>
+    <div class="container">
+      <nav>
+        <div class="nav-flex">
+          <a href="/"><%= __('nav.home') %></a>
+          <a href="/logout" style="color: #ff4d4d; margin-inline-start: 20px;">
+            <%= __('nav.logout') || 'Logout' %> 🚪
+          </a>
+        </div>
+      </nav>
+    </div>
+  </header>
+
+<main class="container">
+  <div style="margin-top: 20px;">
+    <form action="/change-lang" method="get" style="background:none; box-shadow:none; padding:0; margin:0;">
+      <select name="lang" class="lang-select" onchange="this.form.submit()" style="width: auto;">
+        <option value="he" <%= locale === 'he' ? 'selected' : '' %>>עברית</option>
+        <option value="en" <%= locale === 'en' ? 'selected' : '' %>>English</option>
+        <option value="ru" <%= locale === 'ru' ? 'selected' : '' %>>Русский</option>
+      </select>
+    </form>
+  </div>
+
+  <% if (typeof saved !== 'undefined' && saved) { %>
+    <div class="success-box" id="successMsg">
+      <span class="success-icon">✅</span>
+      <span><%= __('form.saved_success') || 'Record saved successfully!' %></span>
+    </div>
+  <% } %>
+
+  <% if (req.query.deleted === 'true') { %>
+    <div class="success-box" id="deleteMsg">
+      <span class="success-icon">🗑️</span>
+      <span><%= __('admin.delete_success') %></span>
+    </div>
+  <% } %>
+
+  <% if (soldiers && soldiers.length > 0) { %>
+    <div class="table-responsive" style="max-height: 600px; margin-top: 25px;">
+      <table>
+        <thead>
+          <tr>
+            <th><%= __('actions.edit') %></th>
+            <th><%= __('actions.delete') %></th>
+            <th>ID</th>
+            <th><%= __('form.firstName') %></th>
+            <th><%= __('form.lastName') %></th>
+            <th><%= __('form.record_complete_date') %></th>
+            <th><%= __('form.submitter_name') %></th>
+            <th><%= __('form.admin_approved_date') %></th>
+            <th><%= __('form.readyStatus') %></th> 
+            <th><%= __('fields.downloaded_date') %></th> 
+            <th style="text-align: center;"><%= __('form.select') %></th>
+          </tr>
+        </thead>
+        <tbody>
+          <% soldiers.forEach(s => { %>
+            <tr>
+              <td>
+                <a href="/UpdateSoldier/<%= s.id %>" style="color: #0038b8; font-weight: bold; text-decoration: none;">
+                  <%= __('actions.edit') %>
+                </a>
+              </td>
+              <td>
+                <form action="/admin/deleteSoldier/<%= s.id %>" method="POST" 
+                      onsubmit="return confirm('<%= __(\'admin.delete_confirm\') %>');" 
+                      style="background:none; box-shadow:none; padding:0; margin:0;">
+                  <button type="submit" style="background:none; border:none; color: #ff4d4d; cursor: pointer; font-weight: bold;">
+                    <%= __('actions.delete') %> 🗑️
+                  </button>
+                </form>
+              </td>
+              <td><strong>A<%= s.id %></strong></td>
+              <td><%= s.fname || s.fnameen || s.fnameru || '' %></td>
+              <td><%= s.lname || s.lnameen || s.lnameru || '' %></td>
+              <td><%= s.record_complete_date %></td>
+              <td><%= s.fname_soldier_submitter %> <%= s.lname_soldier_submitter %></td>
+              <td><%= s.admin_approved_date %></td>
+              <td style="text-align: center; font-size: 1.1rem;"><%= s.ready_status %></td>
+              <td><%= s.downloaded_date %></td>
+              <td style="text-align: center;">
+                <input type="checkbox" name="selectedIds" value="<%= s.id %>" style="transform: scale(1.2);" />
+              </td>
+            </tr>
+          <% }) %>
+        </tbody>
+      </table>
+    </div>
+
+    <div style="margin-top: 30px; text-align: center;">
+      <form id="excelForm" method="POST" action="/admin/downloadExcel" style="background:none; box-shadow:none; padding:0;">
+        <button type="button" class="btn" onclick="submitForm('excelForm')">
+          <%= __('admin.downloadPackage') || 'Download ZIP Package' %>
+        </button>
+      </form>
+    </div>
+
+  <% } else { %>
+    <div style="background: white; padding: 40px; border-radius: 8px; text-align: center; margin-top: 30px; box-shadow: 0 2px 10px rgba(0,0,0,0.05);">
+      <p><%= __('admin.noCompleted') || 'No completed records found.' %></p>
+    </div>
+  <% } %>
+</main>
+
+<script>
+  document.addEventListener('DOMContentLoaded', () => {
+    // UPDATED SCRIPT TO HANDLE BOTH FADE-OUTS
+    ['successMsg', 'deleteMsg'].forEach(msgId => {
+      const box = document.getElementById(msgId);
+      if (box) {
+        setTimeout(() => {
+          box.style.transition = 'opacity 1s ease';
+          box.style.opacity = '0';
+          setTimeout(() => {
+            box.remove();
+            const url = new URL(window.location);
+            url.searchParams.delete(msgId === 'successMsg' ? 'saved' : 'deleted');
+            window.history.replaceState({}, document.title, url.toString());
+          }, 1000);
+        }, 5000);
+      }
+    });
+  });
+
+  function submitForm(targetFormId) {
+    const config = document.getElementById('ejs-config');
+    const checkboxes = document.querySelectorAll('input[name="selectedIds"]:checked');
+    const selectedIds = Array.from(checkboxes).map(cb => cb.value);
+
+    if (selectedIds.length === 0) {
+      alert(config.getAttribute('data-alert-msg'));
+      return;
+    }
+
+    const targetForm = document.getElementById(targetFormId);
+    targetForm.querySelectorAll('input[type="hidden"][name="selectedIds"]').forEach(el => el.remove());
+    
+    selectedIds.forEach(id => {
+      const input = document.createElement('input');
+      input.type = 'hidden';
+      input.name = 'selectedIds';
+      input.value = id;
+      targetForm.appendChild(input);
+    });
+    targetForm.submit();
+  }
+</script>
+
+  <script>
+    // Logic to handle success message fade-out
+    document.addEventListener('DOMContentLoaded', () => {
+      const successBox = document.getElementById('successMsg');
+      if (successBox) {
+        setTimeout(() => {
+          successBox.style.transition = 'opacity 1s ease';
+          successBox.style.opacity = '0';
+          setTimeout(() => {
+            successBox.remove();
+            const url = new URL(window.location);
+            url.searchParams.delete('saved');
+            window.history.replaceState({}, document.title, url.toString());
+          }, 1000);
+        }, 5000);
+      }
+    });
+
+    function submitForm(targetFormId) {
+      const config = document.getElementById('ejs-config');
+      const checkboxes = document.querySelectorAll('input[name="selectedIds"]:checked');
+      const selectedIds = Array.from(checkboxes).map(cb => cb.value);
+
+      if (selectedIds.length === 0) {
+        alert(config.getAttribute('data-alert-msg'));
+        return;
+      }
+
+      const targetForm = document.getElementById(targetFormId);
+      // Clean previous hidden inputs if any
+      targetForm.querySelectorAll('input[type="hidden"][name="selectedIds"]').forEach(el => el.remove());
+      
+      selectedIds.forEach(id => {
+        const input = document.createElement('input');
+        input.type = 'hidden';
+        input.name = 'selectedIds';
+        input.value = id;
+        targetForm.appendChild(input);
+      });
+      targetForm.submit();
+    }
+  </script>
+</body>
+</html>

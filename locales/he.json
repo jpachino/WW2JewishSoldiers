@@ -301,11 +301,14 @@
     "noCompleted": "לא נמצאו רשומות שהושלמו.",
     "previewSelected": "הצג רשומות נבחרות",
     "previewHeading": "תצוגה מקדימה של הרשומות שנבחרו",
-    "downloadPackage": "הורדת חבילת ZIP"
+    "downloadPackage": "הורדת חבילת ZIP",
+    "delete_confirm": "האם אתה בטוח שברצונך למחוק לצמיתות את הרשומה הזו ואת כל הקבצים שהועלו?",
+    "delete_success": "הרשומה והקבצים הקשורים נמחקו בהצלחה."
 },
   "actions": {
     "edit": "ערוך",
-    "backToSearch": "חזרה לחיפוש"
+    "backToSearch": "חזרה לחיפוש",
+    "delete": "מחיקה"
   },
   
   "messages": {
