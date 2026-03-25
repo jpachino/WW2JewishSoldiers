@@ -1036,74 +1036,58 @@ document.addEventListener('DOMContentLoaded', () => {
     /**
      * 1. DATE VALIDATION & SYNC LOGIC
      */
-    // --- FIX: VISUAL DISPLAY ORDER (Handles 1, 2, or 3 parts) ---
-  const currentYear = new Date().getFullYear();
-  const dateGroupsOnLoad = document.querySelectorAll('.date-entry-group');
-  const dateGroups = dateGroupsOnLoad;
-  dateGroupsOnLoad.forEach(group => {
-      const hiddenInput = group.querySelector('input[type="hidden"]');
-      const dayInput = group.querySelector('.day');
-      const monthInput = group.querySelector('.month');
-      const yearInput = group.querySelector('.year');
+    const dateGroups = document.querySelectorAll('.date-entry-group');
+    const currentYear = new Date().getFullYear();
+    // --- ADD THIS AT THE TOP OF DOMContentLoaded ---
+  // --- FIX: VISUAL DISPLAY ORDER ---
+const dateGroupsOnLoad = document.querySelectorAll('.date-entry-group');
+dateGroupsOnLoad.forEach(group => {
+    const hiddenInput = group.querySelector('input[type="hidden"]');
+    const dayInput = group.querySelector('.day');
+    const monthInput = group.querySelector('.month');
+    const yearInput = group.querySelector('.year');
 
-      if (hiddenInput && hiddenInput.value) {
-          const val = hiddenInput.value.trim();
-          const parts = val.split('-'); 
+    if (hiddenInput && hiddenInput.value) {
+        const val = hiddenInput.value.trim();
+        // Split by dash (standard DB format: 1945-05-09)
+        const parts = val.split('-'); 
 
-          if (parts.length === 3) {
-              // Standard 3-part date (Handles both YYYY-MM-DD and DD-MM-YYYY)
-              if (parts[0].length === 4) {
-                  yearInput.value = parts[0];
-                  monthInput.value = parts[1];
-                  dayInput.value = parts[2];
-              } else {
-                  dayInput.value = (parts[0] === '--') ? '' : parts[0];
-                  monthInput.value = (parts[1] === '--') ? '' : parts[1];
-                  yearInput.value = parts[2];
-              }
-          } 
-          else if (parts.length === 2) {
-              // NEW: Handle 2-part date (MM-YYYY) - This fixes your DOD!
-              monthInput.value = parts[0];
-              yearInput.value = parts[1];
-              dayInput.value = '';
-          } 
-          else if (parts.length === 1 && val.length === 4) {
-              // Only Year exists
-              yearInput.value = val;
-          }
-      }
-  });
- window.syncDates = function() {
-    document.querySelectorAll('.date-entry-group').forEach(group => {
-        const dayInp = group.querySelector('.day');
-        const monthInp = group.querySelector('.month');
-        const yearInp = group.querySelector('.year');
-        const hiddenInput = group.querySelector('input[type="hidden"]');
-        
-        if (dayInp && monthInp && yearInp && hiddenInput) {
-            const d = dayInp.value.trim();
-            const m = monthInp.value.trim();
-            const y = yearInp.value.trim();
-
-            let finalValue = "";
-            
-            // This logic matches your addFull.ejs exactly:
-            if (y && m && d) {
-                // Full date: DD-MM-YYYY
-                finalValue = `${d.padStart(2, '0')}-${m.padStart(2, '0')}-${y}`;
-            } else if (y && m) {
-                // Partial: MM-YYYY (This is your DOD fix!)
-                finalValue = `${m.padStart(2, '0')}-${y}`;
-            } else if (y) {
-                // Year only: YYYY
-                finalValue = y;
+        if (parts.length === 3) {
+            // Check if the FIRST part is the Year (4 digits)
+            if (parts[0].length === 4) {
+                // DB Format: YYYY-MM-DD -> Map to UI: DD-MM-YYYY
+                yearInput.value = parts[0];
+                monthInput.value = parts[1];
+                dayInput.value = parts[2];
+            } else {
+                // Form Format: DD-MM-YYYY -> Map to UI: DD-MM-YYYY
+                dayInput.value = parts[0];
+                monthInput.value = parts[1];
+                yearInput.value = parts[2];
             }
-            
-            hiddenInput.value = finalValue;
+        } else if (parts.length === 1 && val.length === 4) {
+            // Only Year exists
+            yearInput.value = val;
         }
-    });
-};
+    }
+});
+    window.syncDates = function() {
+        document.querySelectorAll('.date-entry-group').forEach(group => {
+            const dayInput = group.querySelector('.day');
+            const monthInput = group.querySelector('.month');
+            const yearInput = group.querySelector('.year');
+            const hiddenInput = group.querySelector('input[type="hidden"]');
+            
+            if (dayInput && monthInput && yearInput && hiddenInput) {
+                const day = dayInput.value.padStart(2, '0');
+                const month = monthInput.value.padStart(2, '0');
+                const year = yearInput.value;
+                if (year && month !== '00' && day !== '00') {
+                    hiddenInput.value = `${year}-${month}-${day}`;
+                }
+            }
+        });
+    };
 
     const getMaxDays = (month, year) => {
         const m = parseInt(month, 10);
@@ -1130,33 +1114,20 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     };
 
-   const checkDateChronology = () => {
+    const checkDateChronology = () => {
         const dobVal = document.getElementById('dob') ? document.getElementById('dob').value : null;
         const dodVal = document.getElementById('dod') ? document.getElementById('dod').value : null;
 
         if (dobVal && dodVal) {
             const parseToDate = (str) => {
                 const parts = str.split('-');
-                if (parts.length === 3) {
-                    // Full Date: DD-MM-YYYY
-                    return new Date(parts[2], parseInt(parts[1]) - 1, parseInt(parts[0]));
-                } else if (parts.length === 2) {
-                    // Partial Date: MM-YYYY -> Default to 1st of month
-                    return new Date(parts[1], parseInt(parts[0]) - 1, 1);
-                } else if (parts.length === 1 && str.length === 4) {
-                    // Year Only: YYYY -> Default to Jan 1st
-                    return new Date(str, 0, 1);
-                }
+                if (parts.length === 3) return new Date(parts[2], parts[1] - 1, parts[0]);
                 return null;
             };
-
             const dobDate = parseToDate(dobVal);
             const dodDate = parseToDate(dodVal);
-
-            // If DOD is before DOB, it's an error
             if (dobDate && dodDate && dodDate < dobDate) {
                 const dodGroup = document.getElementById('dod').closest('.date-entry-group');
-                // Clear the boxes so the user has to fix it
                 dodGroup.querySelectorAll('input[type="text"]').forEach(inp => inp.value = '');
                 document.getElementById('dod').value = '';
                 triggerDateError(null, dodGroup, "Date of Death cannot be before Date of Birth");
