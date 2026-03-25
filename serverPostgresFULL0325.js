@@ -2135,12 +2135,8 @@ app.post('/admin/downloadExcel', requireAdmin, async (req, res) => {
 
         // 1. Fetch Data
         const soldiers = await db.any(`SELECT * FROM soldierdetails WHERE id IN ($1:csv)`, [ids]);
-       // const multimediaRecords = await db.any(`SELECT * FROM "${MULTIMEDIA_TABLE}" WHERE soldier_id IN ($1:csv) ORDER BY id`, [ids]);
-        const multimediaRecords = await db.any(`
-            SELECT * FROM "${MULTIMEDIA_TABLE}" 
-            WHERE soldier_id IN ($1:csv) 
-            ORDER BY soldier_id, is_profile_pic DESC, id ASC
-            `, [ids]);
+        const multimediaRecords = await db.any(`SELECT * FROM "${MULTIMEDIA_TABLE}" WHERE soldier_id IN ($1:csv) ORDER BY id`, [ids]);
+        
         // --- Fetch Battle History (Fetched for XML, even if skipped in Excel) ---
         const battleHistory = await db.any(`SELECT * FROM ${BATTLE_HISTORY_TABLE} WHERE soldier_id IN ($1:csv) ORDER BY id`, [ids]);
         const battleMap = {};

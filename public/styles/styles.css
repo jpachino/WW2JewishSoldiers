@@ -77,7 +77,8 @@ textarea {
 
 /* --- 5. ENHANCED HEADER (Blue Accents) --- */
 header {
-  background: #333;
+  /*background: #333;*/
+  background: #757575;
   color: #fff;
   padding: 20px 0;
   border-bottom: 6px solid #0038b8; /* Blue brand line */
