@@ -900,55 +900,38 @@
          data-err-img-size="<%= __('errors.img_too_large') %>"
          data-err-type-required="<%= __('errors.type_required') %>"
          style="display:none;"></div>
-<% if (multimedia && multimedia.length > 0) { %>
-    <div class="existing-multimedia" style="margin-bottom: 30px;">
-        <h4 style="border-bottom: 2px solid #eee; padding-bottom: 10px;"><%= __('fields.existing_files') || 'Existing Files' %></h4>
-        
-        <div style="display: grid; grid-template-columns: repeat(auto-fill, minmax(200px, 1fr)); gap: 15px; margin-top: 15px;">
-            <% multimedia.forEach(item => { %>
-                <div class="multimedia-item" style="border: 1px solid #ccc; padding: 10px; border-radius: 6px; position: relative; background: #f9f9f9;">
-                    <p style="font-size: 0.8rem; font-weight: bold; margin-bottom: 5px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;">
-                        <%= item.file_description %>
-                    </p>
-                    
-                    <% if (item.multimedia_type && item.multimedia_type.match(/PDF/i)) { %>
-                        <div style="text-align: center; padding: 10px;">📄 PDF Document</div>
-                    <% } else if (item.file_path && item.file_path.startsWith('http')) { %>
-                        <div style="text-align: center; padding: 10px;">🔗 External Link</div>
-                    <% } else if (item.file_path) { %>
-                        <img src="<%= item.file_path %>" style="max-width: 100px; display: block; margin: 0 auto;">
-                    <% } %>
 
-                    <div style="margin-top: 10px; display: flex; justify-content: space-between; align-items: center;">
-                        <label style="color: #d9534f; font-size: 0.8rem; cursor: pointer;">
-                            <input type="checkbox" name="delete_multimedia[]" value="<%= item.id %>"> <%= __('fields.delete') %>
-                        </label>
-                        <a href="<%= item.file_path %>" target="_blank" style="font-size: 0.8rem;"><%= __('fields.view') %></a>
-                    </div>
+    <% if (multimedia && multimedia.length > 0) { %>
+        <div class="existing-multimedia" style="margin-bottom: 30px;">
+            <h4 style="border-bottom: 2px solid #eee; padding-bottom: 10px;"><%= __('fields.existing_files') || 'Existing Files' %></h4>
+            <div style="display: grid; grid-template-columns: repeat(auto-fill, minmax(200px, 1fr)); gap: 15px; margin-top: 15px;">
+                <% multimedia.forEach(item => { %>
+                    <div class="multimedia-item" style="border: 1px solid #ccc; padding: 10px; border-radius: 6px; position: relative; background: #f9f9f9;">
+                        <p style="font-size: 0.8rem; font-weight: bold; margin-bottom: 5px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;">
+                            <%= item.file_description %>
+                        </p>
+                        
+                        <% if (item.multimedia_type && item.multimedia_type.match(/PDF/i)) { %>
+                            <div style="text-align: center; padding: 10px;">📄 PDF Document</div>
+                        <% } else if (item.file_path && item.file_path.startsWith('http')) { %>
+                            <div style="text-align: center; padding: 10px;">🔗 External Link</div>
+                        <% } else if (item.file_path) { %>
+                            <img src="<%= item.file_path %>" style="max-width: 100px;">
+                        <% } else { %>
+                            <div style="text-align: center; padding: 10px;">ℹ️ <%= item.physical_logical_location %></div>
+                        <% } %>
 
-                    <% if (isAdmin && item.file_path && item.file_path.match(/\.(jpg|jpeg)$/i)) { %>
-                        <div style="margin-top: 10px; padding-top: 8px; border-top: 1px solid #ddd; text-align: center;">
-                            <label style="font-size: 0.85rem; color: #0038b8; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 5px;">
-                                <input type="radio" name="profile_pic_id" value="<%= item.id %>" <%= item.is_profile_pic ? 'checked' : '' %>>
-                                <strong><%= item.is_profile_pic ? 'תמונת פרופיל' : 'קבע כפרופיל' %></strong>
+                        <div style="margin-top: 10px; display: flex; justify-content: space-between; align-items: center;">
+                            <label style="color: #d9534f; font-size: 0.8rem; cursor: pointer;">
+                                <input type="checkbox" name="delete_multimedia[]" value="<%= item.id %>"> <%= __('fields.delete') || 'Delete' %>
                             </label>
+                            <a href="<%= item.file_path %>" target="_blank" style="font-size: 0.8rem;"><%= __('fields.view') || 'View' %></a>
                         </div>
-                    <% } %>
-                </div>
-            <% }) %>
-        </div>
-
-        <% if (isAdmin && !multimedia.some(m => m.file_path && m.file_path.match(/\.(jpg|jpeg)$/i))) { %>
-            <div style="margin-top: 15px; padding: 10px; background: #fff3cd; border-radius: 6px; font-size: 0.9rem; display: flex; align-items: center; gap: 10px;">
-                <span>ℹ️</span>
-                <span>
-                    אין תמונות JPG. המערכת משתמשת בברירת מחדל עבור <strong><%= soldier.gender %></strong>:
-                    <img src="<%= (soldier.gender === 'נקבה') ? '/images/avatar-female.png' : '/images/avatar-male.png' %>" style="width: 30px; vertical-align: middle; margin-inline-start: 10px;">
-                </span>
+                    </div>
+                <% }) %>
             </div>
-        <% } %>
-    </div>
-<% } %>
+        </div>
+    <% } %>
 
     <div class="upload-container">
       <div class="help-box-alert" style="margin-bottom: 20px; padding: 15px; background-color: #e7f3fe; border-left: 4px solid #007bff; border-radius: 4px;">

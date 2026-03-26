@@ -553,54 +553,54 @@
     <label class="roboto-bold" style="font-size: 1.0rem; border-bottom: 2px solid #ddd; padding-bottom: 5px; margin-bottom: 15px; display: block;">
         <%= __('fields.categories') %>
     </label>
-<div class="category-grid">
-<% 
-    // 1. Get all Hebrew values currently saved in the 8 slots
-    const currentHebrewValues = [
-        (soldier.cat1 || "").trim(), (soldier.cat2 || "").trim(),
-        (soldier.cat3 || "").trim(), (soldier.cat4 || "").trim(),
-        (soldier.cat5 || "").trim(), (soldier.cat6 || "").trim(),
-        (soldier.cat7 || "").trim(), (soldier.cat8 || "").trim()
-    ];
 
-    category.forEach((c, index) => { 
-        const masterHeb = (c.title_heb || "").trim();
-        const masterEng = (c.title_eng || "").trim();
-        const masterRus = (c.title_rus || "").trim();
+    <div class="category-grid">
+    <% 
+        // 1. Create a "Searchable" array of what is currently in the DB
+        const savedValues = [
+            (soldier.cat1 || "").trim(), (soldier.cat2 || "").trim(),
+            (soldier.cat3 || "").trim(), (soldier.cat4 || "").trim(),
+            (soldier.cat5 || "").trim(), (soldier.cat6 || "").trim(),
+            (soldier.cat7 || "").trim(), (soldier.cat8 || "").trim()
+        ];
 
-        // Check if THIS master category is one of the 8 saved in the DB
-        const isChecked = currentHebrewValues.includes(masterHeb);
-        
-        // Find WHICH slot it is in (if any) so we can name the hidden field correctly
-        // If it's not checked, we'll give it a temporary ID for the JS to handle
-        let slotIndex = currentHebrewValues.indexOf(masterHeb) + 1;
-        
-        let displayLabel = masterHeb;
-        if (locale === 'en') { displayLabel = masterEng; }
-        else if (locale === 'ru') { displayLabel = masterRus; }
-%>
-    <div class="category-card">
-        <input type="checkbox" 
-               id="check_<%= index %>" 
-               class="category-checkbox"
-               data-heb="<%= masterHeb %>"
-               data-eng="<%= masterEng %>"
-               data-rus="<%= masterRus %>"
-               onchange="syncAllCategories()" 
-               <%= isChecked ? 'checked' : '' %>>
-        
-        <label for="check_<%= index %>">
-            <%= displayLabel %>
-        </label>
+        category.forEach((c, index) => { 
+            const i = index + 1;
+            const fieldName = "cat" + i;
+            
+            const masterHeb = (c.title_heb || "").trim();
+            const masterEng = (c.title_eng || "").trim();
+            const masterRus = (c.title_rus || "").trim();
+
+            // 2. The Check: Does this specific category exist in our saved array?
+            const isChecked = savedValues.includes(masterHeb) || 
+                              savedValues.includes(masterEng) || 
+                              savedValues.includes(masterRus);
+            
+            let displayLabel = masterHeb;
+            if (locale === 'en') { displayLabel = masterEng; }
+            else if (locale === 'ru') { displayLabel = masterRus; }
+    %>
+        <div class="category-card">
+            <input type="checkbox" 
+                   id="check_<%= fieldName %>" 
+                   data-index="<%= i %>"
+                   data-heb="<%= masterHeb %>"
+                   data-eng="<%= masterEng %>"
+                   data-rus="<%= masterRus %>"
+                   onchange="syncTranslations(this)"
+                   <%= isChecked ? 'checked' : '' %>>
+            
+            <label for="check_<%= fieldName %>">
+                <%= displayLabel %>
+            </label>
+
+            <input type="hidden" name="cat<%= i %>" id="hidden_cat<%= i %>" value="<%= isChecked ? masterHeb : '' %>">
+            <input type="hidden" name="cat<%= i %>en" id="hidden_cat<%= i %>en" value="<%= isChecked ? masterEng : '' %>">
+            <input type="hidden" name="cat<%= i %>ru" id="hidden_cat<%= i %>ru" value="<%= isChecked ? masterRus : '' %>">
+        </div>
+    <% }) %>
     </div>
-<% }) %>
-
-<% for(let i=1; i<=8; i++) { %>
-    <input type="hidden" name="cat<%= i %>" id="hidden_cat<%= i %>" value="<%= soldier['cat' + i] || '' %>">
-    <input type="hidden" name="cat<%= i %>en" id="hidden_cat<%= i %>en" value="<%= soldier['cat' + i + 'en'] || '' %>">
-    <input type="hidden" name="cat<%= i %>ru" id="hidden_cat<%= i %>ru" value="<%= soldier['cat' + i + 'ru'] || '' %>">
-<% } %>
-</div>
 
    <!--<div class="input-group">
       <label for="otherfightingcontext"><%= __('fields.otherfightingcontext') %></label>
@@ -900,55 +900,38 @@
          data-err-img-size="<%= __('errors.img_too_large') %>"
          data-err-type-required="<%= __('errors.type_required') %>"
          style="display:none;"></div>
-<% if (multimedia && multimedia.length > 0) { %>
-    <div class="existing-multimedia" style="margin-bottom: 30px;">
-        <h4 style="border-bottom: 2px solid #eee; padding-bottom: 10px;"><%= __('fields.existing_files') || 'Existing Files' %></h4>
-        
-        <div style="display: grid; grid-template-columns: repeat(auto-fill, minmax(200px, 1fr)); gap: 15px; margin-top: 15px;">
-            <% multimedia.forEach(item => { %>
-                <div class="multimedia-item" style="border: 1px solid #ccc; padding: 10px; border-radius: 6px; position: relative; background: #f9f9f9;">
-                    <p style="font-size: 0.8rem; font-weight: bold; margin-bottom: 5px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;">
-                        <%= item.file_description %>
-                    </p>
-                    
-                    <% if (item.multimedia_type && item.multimedia_type.match(/PDF/i)) { %>
-                        <div style="text-align: center; padding: 10px;">📄 PDF Document</div>
-                    <% } else if (item.file_path && item.file_path.startsWith('http')) { %>
-                        <div style="text-align: center; padding: 10px;">🔗 External Link</div>
-                    <% } else if (item.file_path) { %>
-                        <img src="<%= item.file_path %>" style="max-width: 100px; display: block; margin: 0 auto;">
-                    <% } %>
 
-                    <div style="margin-top: 10px; display: flex; justify-content: space-between; align-items: center;">
-                        <label style="color: #d9534f; font-size: 0.8rem; cursor: pointer;">
-                            <input type="checkbox" name="delete_multimedia[]" value="<%= item.id %>"> <%= __('fields.delete') %>
-                        </label>
-                        <a href="<%= item.file_path %>" target="_blank" style="font-size: 0.8rem;"><%= __('fields.view') %></a>
-                    </div>
+    <% if (multimedia && multimedia.length > 0) { %>
+        <div class="existing-multimedia" style="margin-bottom: 30px;">
+            <h4 style="border-bottom: 2px solid #eee; padding-bottom: 10px;"><%= __('fields.existing_files') || 'Existing Files' %></h4>
+            <div style="display: grid; grid-template-columns: repeat(auto-fill, minmax(200px, 1fr)); gap: 15px; margin-top: 15px;">
+                <% multimedia.forEach(item => { %>
+                    <div class="multimedia-item" style="border: 1px solid #ccc; padding: 10px; border-radius: 6px; position: relative; background: #f9f9f9;">
+                        <p style="font-size: 0.8rem; font-weight: bold; margin-bottom: 5px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;">
+                            <%= item.file_description %>
+                        </p>
+                        
+                        <% if (item.multimedia_type && item.multimedia_type.match(/PDF/i)) { %>
+                            <div style="text-align: center; padding: 10px;">📄 PDF Document</div>
+                        <% } else if (item.file_path && item.file_path.startsWith('http')) { %>
+                            <div style="text-align: center; padding: 10px;">🔗 External Link</div>
+                        <% } else if (item.file_path) { %>
+                            <img src="<%= item.file_path %>" style="max-width: 100px;">
+                        <% } else { %>
+                            <div style="text-align: center; padding: 10px;">ℹ️ <%= item.physical_logical_location %></div>
+                        <% } %>
 
-                    <% if (isAdmin && item.file_path && item.file_path.match(/\.(jpg|jpeg)$/i)) { %>
-                        <div style="margin-top: 10px; padding-top: 8px; border-top: 1px solid #ddd; text-align: center;">
-                            <label style="font-size: 0.85rem; color: #0038b8; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 5px;">
-                                <input type="radio" name="profile_pic_id" value="<%= item.id %>" <%= item.is_profile_pic ? 'checked' : '' %>>
-                                <strong><%= item.is_profile_pic ? 'תמונת פרופיל' : 'קבע כפרופיל' %></strong>
+                        <div style="margin-top: 10px; display: flex; justify-content: space-between; align-items: center;">
+                            <label style="color: #d9534f; font-size: 0.8rem; cursor: pointer;">
+                                <input type="checkbox" name="delete_multimedia[]" value="<%= item.id %>"> <%= __('fields.delete') || 'Delete' %>
                             </label>
+                            <a href="<%= item.file_path %>" target="_blank" style="font-size: 0.8rem;"><%= __('fields.view') || 'View' %></a>
                         </div>
-                    <% } %>
-                </div>
-            <% }) %>
-        </div>
-
-        <% if (isAdmin && !multimedia.some(m => m.file_path && m.file_path.match(/\.(jpg|jpeg)$/i))) { %>
-            <div style="margin-top: 15px; padding: 10px; background: #fff3cd; border-radius: 6px; font-size: 0.9rem; display: flex; align-items: center; gap: 10px;">
-                <span>ℹ️</span>
-                <span>
-                    אין תמונות JPG. המערכת משתמשת בברירת מחדל עבור <strong><%= soldier.gender %></strong>:
-                    <img src="<%= (soldier.gender === 'נקבה') ? '/images/avatar-female.png' : '/images/avatar-male.png' %>" style="width: 30px; vertical-align: middle; margin-inline-start: 10px;">
-                </span>
+                    </div>
+                <% }) %>
             </div>
-        <% } %>
-    </div>
-<% } %>
+        </div>
+    <% } %>
 
     <div class="upload-container">
       <div class="help-box-alert" style="margin-bottom: 20px; padding: 15px; background-color: #e7f3fe; border-left: 4px solid #007bff; border-radius: 4px;">
@@ -1535,31 +1518,7 @@ function handleFileSelect(input) {
         label.classList.remove('input-error-highlight');
     }
 }
-function syncAllCategories() {
-    // 1. Clear all 8 hidden slots first
-    for (let i = 1; i <= 8; i++) {
-        document.getElementById(`hidden_cat${i}`).value = "";
-        document.getElementById(`hidden_cat${i}en`).value = "";
-        document.getElementById(`hidden_cat${i}ru`).value = "";
-    }
 
-    // 2. Find all checked boxes
-    const checkedBoxes = document.querySelectorAll('.category-checkbox:checked');
-    
-    // 3. Fill the slots (up to 8)
-    checkedBoxes.forEach((box, index) => {
-        const slot = index + 1;
-        if (slot <= 8) {
-            document.getElementById(`hidden_cat${slot}`).value = box.dataset.heb;
-            document.getElementById(`hidden_cat${slot}en`).value = box.dataset.eng;
-            document.getElementById(`hidden_cat${slot}ru`).value = box.dataset.rus;
-        } else {
-            // Optional: Alert user they reached the limit
-            box.checked = false; 
-            alert("Maximum 8 categories allowed");
-        }
-    });
-}
 function removeMultimediaRow(btn) {
     // Allows removing any row
     btn.closest('.multimedia-row').remove();

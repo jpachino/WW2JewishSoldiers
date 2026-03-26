@@ -1156,21 +1156,8 @@ await db.tx(async t => {
         }
         await t.none('DELETE FROM "multimedia_TBL" WHERE id IN ($1:list)', [deleteIds]);
     }
-    // 2. UPDATE PROFILE PIC SELECTION (ADMIN ONLY)
-    // We do this AFTER deletions to ensure the selected ID wasn't just deleted
-    if (isAdmin && req.body.profile_pic_id) {
-        const selectedPicId = req.body.profile_pic_id;
-        
-        // Only proceed if the selected ID is NOT in the deletion list
-        if (!deleteIds.includes(selectedPicId.toString())) {
-            // First, reset all images for this soldier to false
-            await t.none('UPDATE "multimedia_TBL" SET is_profile_pic = false WHERE soldier_id = $1', [id]);
-            
-            // Then, set the chosen one to true
-            await t.none('UPDATE "multimedia_TBL" SET is_profile_pic = true WHERE id = $1 AND soldier_id = $2', [selectedPicId, id]);
-        }
-    }
-    // 3. Insert New Multimedia (UPDATED LOGIC)
+
+    // 2. Insert New Multimedia (UPDATED LOGIC)
     
     // Check if the soldier ALREADY has a profile pic in the DB (after deletions)
     const existingPic = await t.oneOrNone('SELECT id FROM "multimedia_TBL" WHERE soldier_id = $1 AND is_profile_pic = true', [id]);
