@@ -2186,7 +2186,7 @@ app.post('/admin/downloadExcel', requireAdmin, async (req, res) => {
             catHeaders[`cat${i}en`] = `קטגוריה_${i}_ENG`;
             catHeaders[`cat${i}ru`] = `קטגוריה_${i}_RUS`;
         }
-        
+
         const XML_TAG_MAP = {
             'id': 'FormID',
         'fname': 'FirstName_HEB', 'fnameen': 'FirstName_ENG', 'fnameru': 'FirstName_RUS',
@@ -2224,12 +2224,7 @@ app.post('/admin/downloadExcel', requireAdmin, async (req, res) => {
         'otherdecoration': 'OtherDecorations_HEB', 'otherdecorationen': 'OtherDecorations_ENG', 'otherdecorationru': 'OtherDecorations_RUS',
         'aliyadate': 'AliyaDate',
         'biography': 'FullBiography',
-        'download_date': 'DownloadDate',
-        'fname_submitter_name': 'FirstName_Submitter', 
-        'lname_submitter_name': 'LastName_Submitter',
-        'phone_soldier_submitter': 'Submitter_PhoneNumber',
-        'useremail': 'Submitter_EMail',
-        'relation_of_soldier_submitter': 'Relation_to_Submitter',
+        'download_date': 'DownloadDate'
         };
 
         const EXCEL_HEADER_MAP = {
@@ -2271,17 +2266,13 @@ app.post('/admin/downloadExcel', requireAdmin, async (req, res) => {
         'aliyadate': 'תאריך עליה',
         'biography': 'קורות חיים_סיפור אישי _HEB',
         'download_date': 'תאריך הורדה',
-        'name_soldier_submitter': 'איש קשר',
-        "phone_soldier_submitter" : 'טלפון קשר',
-        "useremail" : 'אימייל קשר',
-        "relation_of_soldier_submitter" : 'קרבה ללוחם',
-        
             ...Array.from({ length: excelFileColumnCount }, (_, n) => ({
                 [`file_${n + 1}_path`]: `שם קובץ ${n + 1}`,
                 [`file_${n + 1}_desc`]: `מולטימדיה - תיאור ${n + 1}`,
                 [`file_${n + 1}_type`]: `סוג מולטימדיה ${n + 1}`, 
                 [`file_${n + 1}_loc`]: `מיקום לוגי פיזי ${n + 1}`, 
             })).reduce((acc, curr) => ({ ...acc, ...curr }), {}),
+    
         };
 
         // 4. Flatten Rows & Prepare Manifest
@@ -2302,18 +2293,12 @@ app.post('/admin/downloadExcel', requireAdmin, async (req, res) => {
                 }
             }
             row.name_soldier_submitter = `${s.fname_soldier_submitter || ''} ${s.lname_soldier_submitter || ''}`.trim();
-           
-    
-    
-            row.phone_soldier_submitter = s.phone_soldier_submitter || '';
-            row.useremail = s.useremail || '';
-            row.relation_of_soldier_submitter = s.relation_of_soldier_submitter || '';
             row.id = `A${cleanId}`;
             row.download_date = downloadDateString;
             row.biography_plain = `${s.biography || ''}\n\n${s.fightingdesc || ''}`;
             row.biography = {
                 richText: [
-                    { font: { bold: true, size: 14 }, text: 'קורות חיים'  },
+                    { font: { bold: true, size: 14 }, text: 'ביוגרפיה:' },
                     { font: { size: 12 }, text: `\n${s.biography || ''}\n\n` },
                     { font: { bold: true, size: 14 }, text: 'סיפור אישי:' },
                     { font: { size: 12 }, text: `\n${s.fightingdesc || ''}` }
@@ -2325,7 +2310,7 @@ app.post('/admin/downloadExcel', requireAdmin, async (req, res) => {
 
             // Multimedia Prep
 const sMedia = multiMap[cleanId] || [];
-    for (let n = 1; n <= MAX_FILES; n++) {
+for (let n = 1; n <= MAX_FILES; n++) {
     const m = sMedia[n - 1];
     row[`file_${n}_desc`] = m ? (m.file_description || '') : '';
     row[`file_${n}_type`] = m ? (m.multimedia_type || '') : '';
