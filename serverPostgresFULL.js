@@ -2230,6 +2230,7 @@ app.post('/admin/downloadExcel', requireAdmin, async (req, res) => {
         'phone_soldier_submitter': 'Submitter_PhoneNumber',
         'useremail': 'Submitter_EMail',
         'relation_of_soldier_submitter': 'Relation_to_Submitter',
+        'how_found_us_submitter' : 'HowFoundUs_Submitter',
         };
 
         const EXCEL_HEADER_MAP = {
@@ -2275,6 +2276,7 @@ app.post('/admin/downloadExcel', requireAdmin, async (req, res) => {
         "phone_soldier_submitter" : 'טלפון קשר',
         "useremail" : 'אימייל קשר',
         "relation_of_soldier_submitter" : 'קרבה ללוחם',
+        "how_found_us_submitter" : 'כיצד הגעת',
         
             ...Array.from({ length: excelFileColumnCount }, (_, n) => ({
                 [`file_${n + 1}_path`]: `שם קובץ ${n + 1}`,
