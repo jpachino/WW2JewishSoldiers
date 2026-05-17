@@ -273,24 +273,23 @@ app.use(i18n.init);
   res.locals.__ = res.__;
   next();
 });*/
-
 app.use((req, res, next) => {
-    // 1. Force the locale if no cookie or query param exists
-    if (!req.cookies.lang && !req.query.lang) {
-        req.setLocale('he');
-    }
-
     const lang = req.getLocale();
     
-    // 2. Persist it in a cookie so it survives page refreshes
+    // 1. Keep the cookie alive
     res.cookie('lang', lang, { maxAge: 900000, httpOnly: true });
 
-    // 3. Expose to EJS
+    // 2. EXPOSE LOCALE TO ALL EJS FILES
+    // This allows you to use <%= locale %> in any .ejs file 
+    // without passing it manually in res.render
     res.locals.locale = lang;
+
+    // 3. Expose the translation function
     res.locals.__ = res.__;
     
     next();
 });
+
 // -----------------------------------------------------
 // 🔄 Language Switch Route (Simplified/Corrected)
 // -----------------------------------------------------
@@ -1160,109 +1159,107 @@ app.post('/updateSoldier/:id', upload.any(), async (req, res) => {
         }
 
     // --- START TRANSACTION ---
-    await db.tx(async t => {
-        // 1. Update basic soldier details if any changes exist
-        if (updates.length > 0) {
-            const updateSQL = `UPDATE ${SOLDIER_TABLE} SET ${updates.join(', ')} WHERE id = $${pIndex}`;
-            values.push(id);
-            await t.none(updateSQL, values);
+await db.tx(async t => {
+    if (updates.length > 0) {
+        const updateSQL = `UPDATE ${SOLDIER_TABLE} SET ${updates.join(', ')} WHERE id = $${pIndex}`;
+        values.push(id);
+        await t.none(updateSQL, values);
+    }
+
+    // 1. Delete Multimedia (Existing logic)
+    if (deleteIds.length > 0) {
+        const filesToDelete = await t.any('SELECT file_path FROM "multimedia_TBL" WHERE id IN ($1:list)', [deleteIds]);
+        for (const f of filesToDelete) {
+            if (f.file_path && !f.file_path.startsWith('http')) {
+                const fullPath = path.join(process.cwd(), 'public', f.file_path);
+                if (fs.existsSync(fullPath)) fs.unlinkSync(fullPath);
+            }
+        }
+        await t.none('DELETE FROM "multimedia_TBL" WHERE id IN ($1:list)', [deleteIds]);
+    }
+    // 2. UPDATE PROFILE PIC SELECTION (ADMIN ONLY)
+    // We do this AFTER deletions to ensure the selected ID wasn't just deleted
+    if (isAdmin && req.body.profile_pic_id) {
+        const selectedPicId = req.body.profile_pic_id;
+        
+        // Only proceed if the selected ID is NOT in the deletion list
+        if (!deleteIds.includes(selectedPicId.toString())) {
+            // First, reset all images for this soldier to false
+            await t.none('UPDATE "multimedia_TBL" SET is_profile_pic = false WHERE soldier_id = $1', [id]);
+            
+            // Then, set the chosen one to true
+            await t.none('UPDATE "multimedia_TBL" SET is_profile_pic = true WHERE id = $1 AND soldier_id = $2', [selectedPicId, id]);
+        }
+    }
+    // 3. Insert New Multimedia (UPDATED LOGIC)
+    
+    // Check if the soldier ALREADY has a profile pic in the DB (after deletions)
+    const existingPic = await t.oneOrNone('SELECT id FROM "multimedia_TBL" WHERE soldier_id = $1 AND is_profile_pic = true', [id]);
+    
+    // Tracker: if one exists, we shouldn't assign another one
+    const isDeletingProfilePic = deleteIds.includes(existingPic?.id?.toString());
+    let profilePicAssigned = !!existingPic && !isDeletingProfilePic;
+    let filePointer = 0;
+
+    for (let j = 0; j < m_descriptions.length; j++) {
+        const desc = m_descriptions[j].trim();
+        const type = m_types[j] || "";
+        const loc = m_locations[j] ? m_locations[j].trim() : null;
+        const isUrlType = /link|קישור|url|ссылка/i.test(type);
+
+        let finalDbPath = null;
+        let currentFile = null;
+        let finalLocationLabel = ''; 
+
+        // Handle File Logic
+        if (!isUrlType && multimediaFiles[filePointer]) {
+            currentFile = multimediaFiles[filePointer];
+            filePointer++; 
         }
 
-        // 2. Delete Multimedia marked for removal
-        if (deleteIds.length > 0) {
-            const filesToDelete = await t.any('SELECT file_path FROM "multimedia_TBL" WHERE id IN ($1:list)', [deleteIds]);
-            for (const f of filesToDelete) {
-                if (f.file_path && !f.file_path.startsWith('http')) {
-                    const fullPath = path.join(process.cwd(), 'public', f.file_path);
-                    if (fs.existsSync(fullPath)) fs.unlinkSync(fullPath);
-                }
-            }
-            await t.none('DELETE FROM "multimedia_TBL" WHERE id IN ($1:list)', [deleteIds]);
+        // Label Assignment
+        if (type.match(/PDF|JPG|תמונה|מסמך|Picture|Document/i)) {
+            finalLocationLabel = 'מחיצת קבצים לקישור';
+        } else if (isUrlType) {
+            finalLocationLabel = 'URL';
+        } else {
+            finalLocationLabel = loc || 'URL'; 
         }
 
-        // 3. Insert New Multimedia 
-        // We insert new files first with is_profile_pic = false 
-        // so they exist in the DB if we need to reference them later
-        let filePointer = 0;
-        for (let j = 0; j < m_descriptions.length; j++) {
-            const desc = m_descriptions[j].trim();
-            const type = m_types[j] || "";
-            const loc = m_locations[j] ? m_locations[j].trim() : null;
-            const isUrlType = /link|קישור|url|ссылка/i.test(type);
+        if (currentFile || (isUrlType && loc && loc !== "")) {
+            const folderName = `A${id}`;
+            const targetDir = path.join(PERSISTENT_ROOT, folderName);
+            if (!fs.existsSync(targetDir)) fs.mkdirSync(targetDir, { recursive: true });
 
-            let finalDbPath = null;
-            let currentFile = null;
-            let finalLocationLabel = ''; 
-
-            if (!isUrlType && multimediaFiles[filePointer]) {
-                currentFile = multimediaFiles[filePointer];
-                filePointer++; 
-            }
-
-            // Set Location Labels
-            if (type.match(/PDF|JPG|תמונה|מסמך|Picture|Document/i)) {
-                finalLocationLabel = 'מחיצת קבצים לקישור';
-            } else if (isUrlType) {
-                finalLocationLabel = 'URL';
+            if (currentFile) {
+                const decodedName = Buffer.from(currentFile.originalname, 'latin1').toString('utf8').replace(/\s+/g, '_');
+                const finalPath = path.join(targetDir, decodedName);
+                fs.renameSync(currentFile.path, finalPath);
+                finalDbPath = `/soldierUploads/${folderName}/${decodedName}`;
             } else {
-                finalLocationLabel = loc || 'URL'; 
+                finalDbPath = loc;
             }
 
-            if (currentFile || (isUrlType && loc && loc !== "")) {
-                const folderName = `A${id}`;
-                const targetDir = path.join(PERSISTENT_ROOT, folderName);
-                if (!fs.existsSync(targetDir)) fs.mkdirSync(targetDir, { recursive: true });
+            // --- REFINED PROFILE PIC LOGIC ---
+            let setToProfile = false;
+            // Check if this row is a picture/image file upload
+            const isImageType = /Picture|Image|תמונה|фото/i.test(type);
 
-                if (currentFile) {
-                    const decodedName = Buffer.from(currentFile.originalname, 'latin1').toString('utf8').replace(/\s+/g, '_');
-                    const finalPath = path.join(targetDir, decodedName);
-                    fs.renameSync(currentFile.path, finalPath);
-                    finalDbPath = `/soldierUploads/${folderName}/${decodedName}`;
-                } else {
-                    finalDbPath = loc;
-                }
-
-                // Insert as false initially; selection logic below handles the "is_profile_pic" flag
-                await t.none(`
-                    INSERT INTO "multimedia_TBL" 
-                    (soldier_id, file_description, file_path, physical_logical_location, multimedia_type, is_profile_pic, uploaded_date) 
-                    VALUES ($1, $2, $3, $4, $5, false, NOW())`,
-                    [id, desc || ' ', finalDbPath, finalLocationLabel, type]
-                );
+            // Set to true ONLY if it's an image file AND nothing else is the profile pic yet
+            if (isImageType && currentFile && !profilePicAssigned) {
+                setToProfile = true;
+                profilePicAssigned = true; // Stop any subsequent loops from picking a pic
             }
+
+            await t.none(`
+                INSERT INTO "multimedia_TBL" 
+                (soldier_id, file_description, file_path, physical_logical_location, multimedia_type, is_profile_pic, uploaded_date) 
+                VALUES ($1, $2, $3, $4, $5, $6, NOW())`,
+                [id, desc || ' ', finalDbPath, finalLocationLabel, type, setToProfile]
+            );
         }
-
-        // 4. Finalize Profile Picture Selection
-        if (isAdmin) {
-            if (req.body.profile_pic_id) {
-                // Scenario A: User explicitly clicked a radio button
-                const selectedPicId = req.body.profile_pic_id;
-                
-                // Only set if the selected ID wasn't just deleted
-                if (!deleteIds.includes(selectedPicId.toString())) {
-                    await t.none('UPDATE "multimedia_TBL" SET is_profile_pic = false WHERE soldier_id = $1', [id]);
-                    await t.none('UPDATE "multimedia_TBL" SET is_profile_pic = true WHERE id = $1 AND soldier_id = $2', [selectedPicId, id]);
-                }
-            } else {
-                // Scenario B: No radio button selected. Check if a profile pic exists.
-                const currentPic = await t.oneOrNone('SELECT id FROM "multimedia_TBL" WHERE soldier_id = $1 AND is_profile_pic = true', [id]);
-                
-                // If no pic exists (or it was just deleted), auto-assign the first available image
-                if (!currentPic) {
-                    await t.none(`
-                        UPDATE "multimedia_TBL" 
-                        SET is_profile_pic = true 
-                        WHERE id = (
-                            SELECT id FROM "multimedia_TBL" 
-                            WHERE soldier_id = $1 
-                            AND multimedia_type ILIKE ANY (ARRAY['%Picture%', '%Image%', '%תמונה%', '%фото%'])
-                            ORDER BY id ASC LIMIT 1
-                        )
-                    `, [id]);
-                }
-            }
-        }
-    });
+    }
+});
 
         if (isAdmin) {
             res.redirect('/admin/completedRecords/?saved=true');

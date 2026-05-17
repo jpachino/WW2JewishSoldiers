@@ -273,24 +273,23 @@ app.use(i18n.init);
   res.locals.__ = res.__;
   next();
 });*/
-
 app.use((req, res, next) => {
-    // 1. Force the locale if no cookie or query param exists
-    if (!req.cookies.lang && !req.query.lang) {
-        req.setLocale('he');
-    }
-
     const lang = req.getLocale();
     
-    // 2. Persist it in a cookie so it survives page refreshes
+    // 1. Keep the cookie alive
     res.cookie('lang', lang, { maxAge: 900000, httpOnly: true });
 
-    // 3. Expose to EJS
+    // 2. EXPOSE LOCALE TO ALL EJS FILES
+    // This allows you to use <%= locale %> in any .ejs file 
+    // without passing it manually in res.render
     res.locals.locale = lang;
+
+    // 3. Expose the translation function
     res.locals.__ = res.__;
     
     next();
 });
+
 // -----------------------------------------------------
 // 🔄 Language Switch Route (Simplified/Corrected)
 // -----------------------------------------------------

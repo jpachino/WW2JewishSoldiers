@@ -1,0 +1,113 @@
+<!DOCTYPE html>
+<html lang="<%= locale %>">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title><%= locale === 'he' ? 'אודות המוזיאון' : 'About the Museum' %> - JWM WWII</title>
+  <link rel="stylesheet" href="/styles/styles.css">
+  <style>
+    /* --- Header & Nav --- */
+    .header-flex { display: flex; justify-content: space-between; align-items: center; padding: 15px 0; }
+    header h1 { font-size: 1.8rem; margin: 0; color: #fff; border-inline-start: 4px solid #0038b8; padding-inline-start: 15px; }
+    .nav-bar { background: #f8f9fa; border-bottom: 1px solid #ddd; padding: 10px 0; }
+    .nav-container { display: flex; justify-content: space-between; align-items: center; }
+    .nav-links { display: flex; gap: 20px; align-items: center; }
+
+    /* --- Page Content --- */
+    .about-header {
+      text-align: center;
+      padding: 60px 20px;
+      background: white;
+      margin-bottom: 30px;
+    }
+    .about-header h1 { color: #0038b8; font-size: 2.5rem; margin-bottom: 20px; }
+    .about-header p { max-width: 900px; margin: 0 auto; font-size: 1.2rem; line-height: 1.8; color: #444; }
+
+    /* --- Photo Story Grid --- */
+    .story-section {
+      display: flex;
+      flex-direction: column;
+      gap: 60px;
+      margin-bottom: 80px;
+    }
+
+    .story-row {
+      display: flex;
+      align-items: center;
+      gap: 40px;
+      background: white;
+      padding: 30px;
+      border-radius: 15px;
+      box-shadow: 0 4px 15px rgba(0,0,0,0.05);
+    }
+
+    .story-row:nth-child(even) { flex-direction: row-reverse; }
+
+    .story-img {
+      flex: 1;
+      max-width: 500px;
+      border-radius: 10px;
+      box-shadow: 0 8px 20px rgba(0,0,0,0.15);
+      object-fit: cover;
+    }
+
+    .story-text {
+      flex: 1;
+    }
+
+    .story-text h2 { color: #0038b8; margin-bottom: 15px; }
+    .story-text p { font-size: 1.05rem; line-height: 1.6; color: #555; }
+
+    /* Mobile Responsive */
+    @media (max-width: 850px) {
+      .story-row, .story-row:nth-child(even) { flex-direction: column; text-align: center; }
+      .story-img { width: 100%; max-width: 100%; }
+      .nav-container { flex-direction: column; gap: 15px; }
+    }
+  </style>
+</head>
+<body class="lang-<%= locale %>">
+
+<header>
+  <div class="container header-flex">
+    <h1><%= locale === 'he' ? 'מוזיאון הלוחם היהודי במלחמת העולם השנייה' : 'Museum of the Jewish Soldier in World War II' %></h1>
+    <div class="logo-area"><img src="/images/Outlook-dieerunr.png" alt="Logo" style="height: 80px;"></div>
+  </div>
+</header>
+
+<div class="nav-bar">
+  <div class="container nav-container">
+    <div class="nav-links">
+      <a href="/"><%= __('nav.home') %></a>
+      <a href="/aboutMuseum" style="font-weight:bold; color:#0038b8;"><%= locale === 'he' ? 'אודות' : 'About' %></a>
+      <a href="/donations"><%= locale === 'he' ? 'תרומות' : 'Donations' %></a>
+      <a href="/admin-login">Admin Access</a>
+    </div>
+
+    <div class="lang-switcher">
+      <form action="/change-lang" method="get" style="margin:0;">
+        <select name="lang" onchange="this.form.submit()" style="border: 2px solid #0038b8; border-radius: 20px; padding: 5px 15px; font-weight: bold; cursor: pointer;">
+            <option value="he" <%= locale === 'he' ? 'selected' : '' %>>עברית</option>
+            <option value="en" <%= locale === 'en' ? 'selected' : '' %>>English</option>
+            <option value="ru" <%= locale === 'ru' ? 'selected' : '' %>>Русский</option>
+        </select>
+      </form>
+    </div>
+  </div>
+</div>
+
+<main class="container">
+  <section class="about-header">
+    <h1><%= locale === 'he' ? 'מורשת וגבורה' : 'Legacy and Heroism' %></h1>
+    <p>
+      <%= locale === 'he' 
+          ? 'המוזיאון מנציח את גבורתם של 1.5 מיליון הלוחמים היהודים ששירתו בצבאות בעלות הברית וביחידות הפרטיזנים במהלך מלחמת העולם השנייה.' 
+          : 'The museum commemorates the heroism of 1.5 million Jewish soldiers who served in the Allied forces and partisan units during World War II.' %>
+    </p>
+  </section>
+
+  <div class="story-section">
+    
+    <div class="story-row">
+      <img src="\images\TheMuseum1.jpg" alt="Exhibition" class="story-img">
+      <div

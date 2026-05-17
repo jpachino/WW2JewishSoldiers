@@ -1,0 +1,167 @@
+<!DOCTYPE html>
+<html lang="<%= locale %>">
+
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title><%= locale === 'he' ? 'תיאום ביקור' : 'Schedule a Visit' %> - <%= __('home.title') %></title>
+  <link rel="stylesheet" href="/styles/styles.css" />
+  <style>
+    .booking-container {
+      max-width: 1300px; /* Widened to fit two columns */
+      margin: 40px auto;
+      padding: 0 20px;
+    }
+
+    .booking-header {
+      text-align: center;
+      margin-bottom: 30px;
+    }
+
+    .booking-header h2 {
+      color: #0038b8;
+      font-size: 2.2rem;
+      margin-bottom: 10px;
+    }
+
+    /* Two-Column Layout */
+    .booking-flex {
+      display: flex;
+      gap: 30px;
+      align-items: flex-start;
+    }
+
+    /* Visitor Info Sidebar */
+    .visitor-info {
+      flex: 1;
+      background: #fff;
+      padding: 25px;
+      border-radius: 12px;
+      border-inline-start: 6px solid #0038b8;
+      box-shadow: 0 4px 15px rgba(0,0,0,0.05);
+      font-size: 0.95rem;
+      line-height: 1.6;
+    }
+
+    .visitor-info h3 {
+      margin-top: 0;
+      color: #0038b8;
+      border-bottom: 1px solid #eee;
+      padding-bottom: 10px;
+    }
+
+    .visitor-info ul {
+      padding-inline-start: 20px;
+    }
+
+    .visitor-info li {
+      margin-bottom: 10px;
+    }
+
+    .important-note {
+      background: #fff3cd;
+      padding: 10px;
+      border-radius: 6px;
+      border: 1px solid #ffeeba;
+      margin-top: 15px;
+      font-weight: bold;
+    }
+
+    /* Calendar Wrapper */
+    .iframe-wrapper {
+      flex: 2; /* Calendar gets more space */
+      background: #ffffff;
+      border-radius: 15px;
+      overflow: hidden;
+      box-shadow: 0 8px 30px rgba(0, 0, 0, 0.1);
+      border: 1px solid #ddd;
+    }
+
+    .booking-iframe {
+      width: 100%;
+      height: 900px;
+      border: none;
+      display: block;
+    }
+
+    /* Mobile Responsive */
+    @media (max-width: 992px) {
+      .booking-flex {
+        flex-direction: column;
+      }
+      .visitor-info, .iframe-wrapper {
+        width: 100%;
+      }
+    }
+
+    .lang-he { direction: rtl; text-align: right; }
+    .lang-en { direction: ltr; text-align: left; }
+  </style>
+</head>
+
+<body class="lang-<%= locale %>">
+
+  <header>
+    <div class="container header-flex">
+      <h1><%= __('home.title') %></h1>
+      <div class="logo-area">
+        <img src="/images/Outlook-dieerunr.png" alt="Logo">
+      </div>
+    </div>
+  </header>
+
+  <main class="booking-container">
+    <div class="booking-header">
+      <h2><%= locale === 'he' ? 'תיאום ביקור במוזיאון' : 'Schedule Your Visit' %></h2>
+    </div>
+
+    <div class="booking-flex">
+      <aside class="visitor-info">
+        <h3>ℹ️ <%= locale === 'he' ? 'מידע למבקרים' : 'Information for Visitors' %></h3>
+        <ul>
+          <li><strong>Hours:</strong> Sunday-Thursday, 9:00 AM - 3:00 PM (Closed on holidays and Hol Hamoed).</li>
+          <li><strong>Reservations:</strong> Requires prior reservation and confirmation.</li>
+          <li><strong>Cancellations:</strong> In accordance with the regulations appearing on the site.</li>
+          <li><strong>Language:</strong> The guidance is provided in <strong>English</strong>.</li>
+          <li><strong>Punctuality:</strong> All tours are guided and begin at the appointed time. Please arrive 15 minutes early.</li>
+          <li><strong>Age:</strong> Visitors must be Students in grade 11 and above.</li>
+        </ul>
+
+        <div class="important-note">
+          🚫 No rifles allowed. They may be deposited at the designated entrance area.
+        </div>
+
+        <p style="margin-top:15px;">
+          🍔 Food and drinks are not allowed into the museum complex.
+        </p>
+
+        <p>
+          🚗 Entrance is through the main gate to the <strong>"Yad LaShirion"</strong> complex. Parking is free of charge.
+        </p>
+
+        <p>
+          ☕ The museum has a cafe, classrooms, and a conference hall. Classrooms/halls can be rented; refreshments can be ordered for groups (call for details).
+        </p>
+
+        <p style="font-weight: bold; color: #0038b8; text-align: center; margin-top: 20px;">
+          We look forward to seeing you!
+        </p>
+      </aside>
+
+      <div class="iframe-wrapper">
+        <iframe 
+          src="https://www.bookit.fun/product?productID=jpjePrOM&amp;affiliateid=mbJtP2z&amp;IframeMode=true&amp;lang=<%= locale === 'he' ? 'he' : 'en' %>" 
+          class="booking-iframe"
+          allowfullscreen="">
+        </iframe>
+      </div>
+    </div>
+  </main>
+
+  <footer class="container" style="text-align: center; padding: 40px 0; border-top: 1px solid #ccc; margin-top: 50px;">
+    <p>© <%= new Date().getFullYear() %> Museum of the Jewish Soldier in WWII</p>
+    <p>Phone: 03-3730444 | Email: veteran@jwmww2.com</p>
+  </footer>
+
+</body>
+</html>

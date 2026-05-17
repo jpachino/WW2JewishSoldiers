@@ -1,0 +1,178 @@
+<!DOCTYPE html>
+<html lang="<%= locale %>">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Donations - Museum of the Jewish Soldier in WWII</title>
+  <link rel="stylesheet" href="/styles/styles.css">
+  <style>
+    .donation-header {
+      text-align: center;
+      padding: 40px 20px;
+      background: #fff;
+      margin-bottom: 30px;
+      border-bottom: 1px solid #ddd;
+    }
+    .donation-header h1 { color: #0038b8; margin-bottom: 15px; }
+    .donation-header p { max-width: 800px; margin: 0 auto; font-size: 1.1rem; }
+
+    .donation-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+      gap: 20px;
+      margin-bottom: 40px;
+    }
+
+    .donation-card {
+      background: white;
+      padding: 25px;
+      border-radius: 12px;
+      box-shadow: 0 4px 10px rgba(0,0,0,0.05);
+      border-top: 5px solid #0038b8;
+    }
+
+    .donation-card h3 {
+      color: #0038b8;
+      margin-top: 0;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .donation-card ul { list-style: none; padding: 0; margin: 15px 0; }
+    .donation-card ul li { margin-bottom: 8px; font-size: 0.95rem; }
+
+    .tax-box {
+      background: #eef2ff;
+      padding: 15px;
+      border-radius: 8px;
+      margin-top: 15px;
+      font-size: 0.85rem;
+      border: 1px dashed #0038b8;
+    }
+
+    .bitcoin-wallet {
+      background: #fdf6e3;
+      padding: 10px;
+      border-radius: 4px;
+      font-family: monospace;
+      word-break: break-all;
+      font-size: 0.85rem;
+      border: 1px solid #eee;
+    }
+
+    .paypal-btn {
+      display: block;
+      text-align: center;
+      background: #0070ba;
+      color: white;
+      padding: 12px;
+      border-radius: 30px;
+      text-decoration: none;
+      font-weight: bold;
+      margin-top: 20px;
+    }
+
+    .contact-footer {
+      text-align: center;
+      padding: 30px;
+      background: #333;
+      color: white;
+      border-radius: 12px;
+    }
+    .contact-footer a { color: #fff; text-decoration: underline; }
+    .paypal-btn {
+  display: block;
+  text-align: center;
+  background: #ffc439; /* Official PayPal Gold/Yellow */
+  color: #003087 !important; /* PayPal Dark Blue for text */
+  padding: 12px;
+  border-radius: 30px;
+  text-decoration: none;
+  font-weight: bold;
+  margin-top: 10px;
+  transition: background 0.3s ease;
+  border: 1px solid #e2b331; /* Subtle border for depth */
+}
+
+.paypal-btn:hover {
+  background: #f2ba36; /* Slightly darker gold on hover */
+}
+  </style>
+</head>
+<body>
+
+<header>
+  <div class="container header-flex">
+    <h1><%= __('home.title') %></h1>
+    <div class="logo-area"><img src="/images/Outlook-dieerunr.png" alt="Logo"></div>
+  </div>
+</header>
+
+<main class="container">
+  <section class="donation-header">
+    <h1><%= locale === 'he' ? 'תרומות' : 'Donations' %></h1>
+    <p><strong>Your contribution to benefit the Museum of the Jewish Soldier in WWII will help us turn this dream into reality.</strong></p>
+    <p>Every donation will be accepted with great appreciation. We invite you to become a partner in this historic national mission!</p>
+    
+    <div class="tax-box" style="display:inline-block; margin-top:20px;">
+       <a href="https://www.jwmww2.org/userfiles/file/2025/46.jpg" target="_blank">View Section 46 Tax Exemption Certificate</a>
+    </div>
+  </section>
+
+  <div class="donation-grid">
+    <div class="donation-card">
+      <h3>🏦 <%= locale === 'he' ? 'העברה בנקאית' : 'Bank Deposit' %></h3>
+      <p>Direct deposit to the association account:</p>
+      <ul>
+        <li><strong>Bank:</strong> Hapoalim (12), Branch 656</li>
+        <li><strong>Address:</strong> 57 Hanasi Street, Kiryat Ono</li>
+        <li><strong>Account Name:</strong> Association for Establishment of the Museum of the Jewish Soldier in WWII</li>
+        <li><strong>Account No:</strong> 12-656-66557</li>
+        <li><strong>IBAN:</strong> IL44-0126-5600-0000-0066-557</li>
+        <li><strong>SWIFT:</strong> POALILIT</li>
+      </ul>
+    </div>
+
+    <div class="donation-card">
+      <h3>✉️ <%= locale === 'he' ? 'צ׳ק' : 'By Check' %></h3>
+      <p>Payable to: <strong>The Association for Establishment of the Museum of the Jewish Soldier in World War II</strong></p>
+      <p>Mail to:</p>
+      <ul>
+        <li>P.O.Box 793, Kiron</li>
+        <li>Kiryat Ono, 5542106 Israel</li>
+      </ul>
+    </div>
+
+    <div class="donation-card">
+      <h3>🇺🇸 <%= locale === 'he' ? 'תרומות מארה"ב' : 'US Tax-Exempt (PEF)' %></h3>
+      <p>USA tax deductible contributions (min. $25) payable to <strong>P.E.F. Israel Endowment Funds, Inc.</strong></p>
+      <div class="tax-box">
+        317 Madison Avenue, Suite 607, New York, NY 10017<br>
+        <em>* Please include a recommendation that it be used for the Museum of the Jewish Soldier in WWII.</em>
+      </div>
+    </div>
+
+    <div class="donation-card">
+      <h3>💻 <%= locale === 'he' ? 'דיגיטל' : 'Digital & Crypto' %></h3>
+      <p><strong>PayPal:</strong></p>
+      <a href="https://www.paypal.com/donate/?cmd=_s-xclick&hosted_button_id=4PAMVNRNRF6ZU" 
+   class="paypal-btn" 
+   target="_blank" 
+   rel="noopener noreferrer">
+   <%= locale === 'he' ? 'תרומה באמצעות PayPal' : 'Donate via PayPal' %>
+</a>
+      
+      <p style="margin-top:20px;"><strong>Bitcoin Wallet:</strong></p>
+      <div class="bitcoin-wallet">1Peg8ftiJMZnkvxGM7fhHaZQxLxXATXQjd</div>
+    </div>
+  </div>
+
+  <div class="contact-footer">
+    <p>For further information, please contact the association's offices:</p>
+    <p>📞 03-3730444 | ✉️ <a href="mailto:veteran@jwmww2.com">veteran@jwmww2.com</a></p>
+  </div>
+</main>
+
+</body>
+</html>
