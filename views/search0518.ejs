@@ -50,15 +50,14 @@
 
   <main class="container">
     <div style="margin-top: 20px;">
-  
-    <form action="/search" method="get" style="background:none; box-shadow:none; padding:0; margin:0;">
-      <select name="lang" class="lang-select" onchange="this.form.submit()" style="width: auto;">
-        <option value="he" <%= locale === 'he' ? 'selected' : '' %>>עברית</option>
-        <option value="en" <%= locale === 'en' ? 'selected' : '' %>>English</option>
-        <option value="ru" <%= locale === 'ru' ? 'selected' : '' %>>Русский</option>
-      </select>
-    </form>
-  </div>
+      <form action="/change-lang" method="get" style="background:none; box-shadow:none; padding:0; margin:0;">
+        <select name="lang" class="lang-select" onchange="this.form.submit()" style="width: auto;">
+          <option value="he" <%= locale === 'he' ? 'selected' : '' %>>עברית</option>
+          <option value="en" <%= locale === 'en' ? 'selected' : '' %>>English</option>
+          <option value="ru" <%= locale === 'ru' ? 'selected' : '' %>>Русский</option>
+        </select>
+      </form>
+    </div>
 
     <% if (typeof req !== 'undefined' && req.query.saved == 'true') { %>
       <div class="success-box">
