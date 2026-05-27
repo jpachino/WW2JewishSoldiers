@@ -1354,8 +1354,7 @@ app.get('/admin/completedRecords', requireAdmin, async (req, res) => {
     try {
         const soldiers = await db.any(
             `SELECT * FROM ${SOLDIER_TABLE} 
-             WHERE recordcomplete = TRUE 
-             ORDER BY id DESC`
+             WHERE recordcomplete = TRUE `
         );
 
         // Fetching lookup tables (Keep these so headers/filters work if needed)
@@ -1371,6 +1370,51 @@ app.get('/admin/completedRecords', requireAdmin, async (req, res) => {
         const enlistreason = await db.any('SELECT id, title_heb, title_eng, title_rus FROM "enlistreason_TBL"');
          const deathdetails = await db.any('SELECT id, title_heb, title_eng, title_rus FROM "deathdetails_TBL"');
         
+
+         // 1. Helper function to turn "DD-MM-YYYY" into a real JS Date object
+function parseDDMMYYYY(dateStr) {
+    if (!dateStr || dateStr === 'N/A' || typeof dateStr !== 'string') return null;
+    
+    const parts = dateStr.trim().split('-');
+    if (parts.length !== 3) return null;
+    
+    const day = parseInt(parts[0], 10);
+    const month = parseInt(parts[1], 10) - 1; // JS Months are 0-11
+    const year = parseInt(parts[2], 10);
+    
+    const parsedDate = new Date(year, month, day);
+    
+    // Check if it's a completely legal calendar date (catches things like Feb 31st)
+    if (parsedDate.getFullYear() === year && parsedDate.getMonth() === month && parsedDate.getDate() === day) {
+        return parsedDate.getTime();
+    }
+    return null; // Bad date typo fallback
+}
+
+// 2. Sort the soldiers array safely
+soldiers.sort((a, b) => {
+    const timeA = parseDDMMYYYY(a.record_complete_date);
+    const timeB = parseDDMMYYYY(b.record_complete_date);
+
+    // If both dates are valid, sort by date DESC (Newest first)
+    if (timeA !== null && timeB !== null) {
+        if (timeA !== timeB) {
+            return timeB - timeA;
+        }
+        return b.id - a.id; // Tie-breaker: ID DESC
+    }
+
+    // Put invalid/missing dates at the very bottom
+    if (timeA === null && timeB !== null) return 1;
+    if (timeA !== null && timeB === null) return -1;
+
+    // If both have invalid dates, fall back strictly to ID DESC
+    return b.id - a.id;
+});
+
+// 3. Format the sorted soldiers (Your existing formatting logic)
+
+   
         // 2. Format the soldiers
         const formattedSoldiers = soldiers.map(s => {
             const isReady = s.admin_ready_for_download === true || String(s.admin_ready_for_download) === 'true';
