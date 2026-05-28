@@ -1017,18 +1017,18 @@ app.post('/updateSoldier/:id', upload.any(), async (req, res) => {
         const isCheckingComplete = req.body.recordcomplete === 'true' || req.body.recordcomplete === 'on';
         let record_complete_boolean = existingSoldier.recordcomplete; 
         let record_complete_date = existingSoldier.record_complete_date;
-        const datestamp = new Date().toISOString().split('T')[0]; // Generates clean "YYYY-MM-DD" text  
+
         if (isCheckingComplete && !existingSoldier.recordcomplete) {
-            
-            record_complete_date = datestamp;
+            const today = new Date();
+            record_complete_date = `${String(today.getDate()).padStart(2, '0')}-${String(today.getMonth() + 1).padStart(2, '0')}-${today.getFullYear()}`;
             record_complete_boolean = true; 
         }
 
         const adminApprovedVal = req.body.admin_ready_for_download === 'true' || req.body.admin_ready_for_download === 'on';
         let admin_approved_date = existingSoldier.admin_approved_date;
         if (adminApprovedVal && !existingSoldier.admin_ready_for_download) {
-           
-            admin_approved_date = datestamp;
+            const today = new Date();
+            admin_approved_date = `${String(today.getDate()).padStart(2, '0')}-${String(today.getMonth() + 1).padStart(2, '0')}-${today.getFullYear()}`;
         }
 
         // --- PREPARE UPDATE DATA ---
@@ -1355,7 +1355,7 @@ app.get('/admin/completedRecords', requireAdmin, async (req, res) => {
         const soldiers = await db.any(
             `SELECT * FROM ${SOLDIER_TABLE} 
              WHERE recordcomplete = TRUE 
-             ORDER BY record_complete_date DESC, id DESC`
+             ORDER BY id DESC`
         );
 
         // Fetching lookup tables (Keep these so headers/filters work if needed)
