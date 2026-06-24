@@ -92,10 +92,6 @@
     <p><strong><%= __('home.chooseAction') %></strong></p>
     <button type="button" onclick="redirectToAdd()"><%= __('home.addNewSoldier') %></button>
     <button type="button" onclick="redirectToChange()"><%= __('home.changeSoldierInfo') %></button>
-    <button type="button" onclick="redirectToSearch()"><%= __('home.search') %></button>
-    <p class="review-note" style="margin-top: 10px; font-size: 1.1em; color: #d93025; font-weight: bold;">
-      <%= __('home.museumReviewNote') %>
-    </p>
   </form>
   <div class="description-text lang-<%= locale %>">
     <%= __('home.description') %>
@@ -113,9 +109,7 @@
     const lang = '<%= locale %>';
     window.location.href = `/search?lang=${lang}`;
   }
-  function redirectToSearch() {
-  window.location.href = "https://infocenters.co.il/jwm/query.asp?lang=HEB&dlang=HEB&module=search&page=criteria&rsvr=27&param=%3Cuppernav%3Eglobal%3C/%3E%3Cnob%3E0%3C/%3E%3Ccnob%3E0%3C/%3E%3Cdlang%3EHEB%3C/%3E%3Cnum_page%3Emainq%3C/%3E%3Cquery_operation%3Eload%3C/%3E%3Cquery_id%3E34%3C/%3E&param2=&site=jwm";
-  }
+
   // Keyboard shortcut backup (Ctrl + Shift + A)
   document.addEventListener('keydown', function(e) {
     if (e.ctrlKey && e.shiftKey && e.key === 'A') {

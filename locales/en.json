@@ -24,8 +24,10 @@
     "continueButton": "Press here to continue enter a soldier's information",
     "chooseAction": "Please choose an action:",
     "addNewSoldier": "Add New Soldier",
-    "changeSoldierInfo": "Change Soldier Information"
-  },
+    "changeSoldierInfo": "Continue Adding Information",
+    "search": "Search for your Records",
+    "museumReviewNote": "Please note, records need to be reviewed and approved by museum staff before being visible through the search."
+   },
 
   "nav": {
     "home": "Home",

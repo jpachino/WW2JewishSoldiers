@@ -24,7 +24,9 @@
     "continueButton": "לחץ כאן כדי להמשיך להזין מידע על לוחם",
     "chooseAction": "אנא בחר פעולה:",
     "addNewSoldier": "הוסף לוחם חדש",
-    "changeSoldierInfo": "עדכן מידע לוחם"
+    "changeSoldierInfo":"המשך למלא רשומה",
+    "search": "חיפוש לוחמים",
+    "museumReviewNote":"שימו לב, הרשומות נבדקות ומאושרות על ידי צוות המוזיאון לפני שיהיו גלויות בחיפוש."
   },
 
   "nav": {
