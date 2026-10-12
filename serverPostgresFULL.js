@@ -2160,11 +2160,19 @@ app.post('/admin/downloadExcel', requireAdmin, async (req, res) => {
         const now = new Date();
         const formatDateToDDMMYYYY = (value) => {
             if (!value) return '';
-            const d = new Date(value);
-            if (isNaN(d)) return value;
-            const day = String(d.getDate()).padStart(2, '0');
-            const month = String(d.getMonth() + 1).padStart(2, '0');
-            return `${day}-${month}-${d.getFullYear()}`;
+            if (value instanceof Date) {
+                const day = String(value.getDate()).padStart(2, '0');
+                const month = String(value.getMonth() + 1).padStart(2, '0');
+                return `${day}-${month}-${value.getFullYear()}`;
+            }
+            if (typeof value === 'string') {
+                const parts = value.split(/[-\/]/);
+                if (parts.length === 3) {
+                    if (parts[0].length === 4) return `${parts[2]}-${parts[1]}-${parts[0]}`; // YYYY-MM-DD → DD-MM-YYYY
+                    if (parts[2].length === 4) return `${parts[0]}-${parts[1]}-${parts[2]}`; // DD-MM-YYYY
+                }
+            }
+            return value;
         };
 
         const downloadDateString = formatDateToDDMMYYYY(now);
